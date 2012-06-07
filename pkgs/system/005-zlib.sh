@@ -28,7 +28,7 @@ points is available on another page."
 pkg_file="$pkg_name-$pkg_vers.tar.gz"
 pkg_urls="http://zlib.net/$pkg_file"
 pkg_opts="configure:keep"
-
+pkg_reqs="m4/latest autoconf/latest automake/latest"
 pkg_cflags=0
 pkg_ldflags=0
 pkg_cfg="-t -64"
@@ -37,4 +37,14 @@ pkg_cfg="-t -64"
 # build and install pkg as local module
 ####################################################################################################
 
-bldr_build_pkg "$pkg_name" "$pkg_vers" "$pkg_info" "$pkg_desc" "$pkg_file" "$pkg_urls" "$pkg_opts" "$pkg_cflags" "$pkg_ldflags" "$pkg_cfg"
+bldr_build_pkg "$pkg_name"    \
+               "$pkg_vers"    \
+               "$pkg_info"    \
+               "$pkg_desc"    \
+               "$pkg_file"    \
+               "$pkg_urls"    \
+               "$pkg_reqs"    \
+               "$pkg_opts"    \
+               "$pkg_cflags"  \
+               "$pkg_ldflags" \
+               "$pkg_cfg"
