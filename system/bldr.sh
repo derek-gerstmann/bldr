@@ -1055,6 +1055,8 @@ function bldr_modulate_pkg()
     bldr_output_hline
 
     local pkg_title=$(bldr_make_uppercase $pkg_name)
+    pkg_title=$(echo $pkg_title|sed 's/-/_/g')
+
     local pkg_env_prefix=$(echo $pkg_title | bldr_join_str "_")
 
     echo "#%Module 1.0"             >  $modulefile
@@ -1317,7 +1319,6 @@ function bldr_build_pkgs()
             do
                 if [[ -f $builder && $(basename $builder) != 'common' ]]
                 then
-                    bldr_output_hline
                     bldr_report "Starting build for '$builder'..."
                     eval $builder || exit -1
                 fi
