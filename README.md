@@ -50,6 +50,12 @@ See the existing autoconf, automake, and pkgconfig scripts in the pkgs/system fo
     > ls pkgs/system
     > ./scripts/build.sh system
 
+To use the generated modulefiles in the 'bldr/modules', simply use them via modules:
+
+    > cd bldr
+    > module use ../bldr/modules
+
+
 
 
 

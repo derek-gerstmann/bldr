@@ -1058,13 +1058,12 @@ function bldr_modulate_pkg()
     echo ""                                                 >> $modulefile
     echo "proc ModulesHelp { } { "                          >> $modulefile
     echo "    puts stderr \"Provides module environment support for $pkg_title v$pkg_vers.\"" >> $modulefile
+    echo "    puts stderr \" \""                            >> $modulefile
+    echo "    puts stderr \"$pkg_desc\""                    >> $modulefile
+    echo "    puts stderr \" \""                            >> $modulefile
     echo "}"                                                >> $modulefile
     echo ""                                                 >> $modulefile
     echo "module-whatis \"$pkg_info\""                      >> $modulefile
-    echo ""                                                 >> $modulefile
-    echo "if { [is-loaded \"$pkg_name\"] && ! [is-loaded \"$pkg_name/$pkg_vers\"] } {"    >> $modulefile
-    echo "  module unload \"$pkg_name\""                    >> $modulefile
-    echo "}"                                                >> $modulefile
     echo ""                                                 >> $modulefile
 
     # pkg specific environment settings
