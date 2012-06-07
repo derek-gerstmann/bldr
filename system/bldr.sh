@@ -673,15 +673,15 @@ function bldr_boot_pkg()
     bldr_push_dir "$BLDR_BUILD_DIR/$pkg_name/$pkg_vers"
     bldr_output_hline
 
-    local cmd_mod="$(which module)"
+    local cmd_mod="$(which modulecmd)"
     if [[ "$pkg_reqs" != "0" && "$cmd_mod" != "" ]]
     then
-        eval $cmd_mod use "$BLDR_MODULE_DIR"
+        module use "$BLDR_MODULE_DIR"
         bldr_output_hline
         for require in ${pkg_reqs}
         do
             bldr_report "Loading required module '$require' ..."
-            eval $cmd_mod load $require
+            module load $require
         done
         bldr_output_hline
     fi
