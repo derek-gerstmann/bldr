@@ -552,13 +552,13 @@ function bldr_has_pkg()
 {
     local pkg_name="$1"
     local pkg_vers="$2"
-    local pkg_opt="$3"
+    local pkg_opts="$3"
 
     local existing=0
     if [ -d "$BLDR_LOCAL_DIR/$pkg_name/$pkg_vers" ]
     then
         existing=1
-        if [[ $(echo $pkg_opt | grep -c 'force' ) > 0 ]] 
+        if [[ $(echo $pkg_opts | grep -c 'force' ) > 0 ]] 
         then
             existing=0
         else
@@ -573,12 +573,11 @@ function bldr_setup_pkg()
 {
     local pkg_name=$1
     local pkg_vers=$2
-    local pkg_base=$3
-    local pkg_file=$4
-    local pkg_urls=$5
+    local pkg_file=$3
+    local pkg_urls=$4
 
     bldr_output_hline
-    bldr_report "Setting up external package '$pkg_base' for '$BLDR_OS_NAME' ... "
+    bldr_report "Setting up package '$pkg_name/$pkg_vers' for '$BLDR_OS_NAME' ... "
     bldr_output_hline
     
     bldr_make_dir "$BLDR_BUILD_DIR"
@@ -607,9 +606,8 @@ function bldr_fetch_pkg()
 {
     local pkg_name=$1
     local pkg_vers=$2
-    local pkg_base=$3
-    local pkg_file=$4
-    local pkg_urls=$5
+    local pkg_file=$3
+    local pkg_urls=$4
 
     # if a local copy doesn't exist, grab the pkg from the url
     bldr_output_hline
@@ -665,9 +663,8 @@ function bldr_boot_pkg()
 {
     local pkg_name=$1
     local pkg_vers=$2
-    local pkg_base=$3
-    local pkg_file=$4
-    local pkg_urls=$5
+    local pkg_file=$3
+    local pkg_urls=$4
 
     bldr_push_dir "$BLDR_BUILD_DIR/$pkg_name/$pkg_vers"
     bldr_output_hline
@@ -703,15 +700,14 @@ function bldr_boot_pkg()
 function bldr_cmake_pkg()
 {
     # configure package
-    local m=9
+    local m=8
     local pkg_name=$1
     local pkg_vers=$2
-    local pkg_base=$3
-    local pkg_file=$4
-    local pkg_urls=$5
-    local pkg_opt=$6
-    local pkg_mpath=$7
-    local pkg_env=$8
+    local pkg_file=$3
+    local pkg_urls=$4
+    local pkg_opts=$5
+    local pkg_mpath=$6
+    local pkg_env=$7
     local pkg_cfg="${@:$m}"
 
     bldr_make_dir "$BLDR_BUILD_DIR/$pkg_name/$pkg_vers/build"
@@ -772,22 +768,20 @@ function bldr_cmake_pkg()
 function bldr_cfg_pkg()
 {
     # configure package
-    local m=9
+    local m=8
     local pkg_name=$1
     local pkg_vers=$2
-    local pkg_base=$3
-    local pkg_file=$4
-    local pkg_urls=$5
-    local pkg_opt=$6
-    local pkg_cflags=$7
-    local pkg_ldflags=$8
+    local pkg_file=$3
+    local pkg_urls=$4
+    local pkg_opts=$5
+    local pkg_cflags=$6
+    local pkg_ldflags=$7
     local pkg_cfg="${@:$m}"
 
 #    echo "PkgName:      '$pkg_name'"
-#    echo "PkgBase:      '$pkg_base'"
 #    echo "PkgFile:      '$pkg_file'"
 #    echo "PkgUrl:       '$pkg_urls'"
-#    echo "PkgOpt:       '$pkg_opt'"
+#    echo "PkgOpt:       '$pkg_opts'"
 #    echo "PkgCFlags:    '$pkg_cflags'"
 #    echo "PkgLDFlags:   '$pkg_ldflags'"
 #    echo "PkgCFG:       '$pkg_cfg'"
@@ -811,14 +805,14 @@ function bldr_cfg_pkg()
         has_amake=1
     fi
 
-    if [[ $(echo $pkg_opt | grep -c 'cmake' ) > 0 ]]
+    if [[ $(echo $pkg_opts | grep -c 'cmake' ) > 0 ]]
     then
         use_cmake=1
         use_amake=0
         has_amake=0
     fi
 
-    if [[ $(echo $pkg_opt | grep -c 'configure' ) > 0 ]]
+    if [[ $(echo $pkg_opts | grep -c 'configure' ) > 0 ]]
     then
         use_cmake=0
         has_cmake=0
@@ -828,7 +822,7 @@ function bldr_cfg_pkg()
     if [ $use_cmake != 0 ] && [ $has_cmake != 0 ]
     then
         bldr_pop_dir
-        bldr_cmake_pkg $pkg_name $pkg_vers $pkg_base $pkg_file $pkg_urls $pkg_opt $pkg_cflags $pkg_ldflags $pkg_cfg
+        bldr_cmake_pkg $pkg_name $pkg_vers $pkg_file $pkg_urls $pkg_opts $pkg_cflags $pkg_ldflags $pkg_cfg
     else
         use_amake=1
     fi
@@ -876,9 +870,8 @@ function bldr_make_pkg()
 {
     local pkg_name=$1
     local pkg_vers=$2
-    local pkg_base=$3
-    local pkg_file=$4
-    local pkg_urls=$5
+    local pkg_file=$3
+    local pkg_urls=$4
 
     local prefix="$BLDR_LOCAL_DIR/$pkg_name/$pkg_vers"
 
@@ -903,9 +896,8 @@ function bldr_install_pkg()
 {
     local pkg_name=$1
     local pkg_vers=$2
-    local pkg_base=$3
-    local pkg_file=$4
-    local pkg_urls=$5
+    local pkg_file=$3
+    local pkg_urls=$4
     local prefix="$BLDR_LOCAL_DIR/$pkg_name/$pkg_vers"
 
     bldr_push_dir "$BLDR_BUILD_DIR/$pkg_name/$pkg_vers"
@@ -935,7 +927,7 @@ function bldr_migrate_pkg()
     local pkg_vers=$2
     local pkg_file=$3
     local pkg_urls=$4
-    local pkg_opt=$5
+    local pkg_opts=$5
     local prefix="$BLDR_LOCAL_DIR/$pkg_name/$pkg_vers"
 
     bldr_push_dir "$BLDR_BUILD_DIR/$pkg_name/$pkg_vers"
@@ -961,7 +953,7 @@ function bldr_migrate_pkg()
     done
     bldr_pop_dir
 
-    if [[ $(echo $pkg_opt | grep -c 'migrate-raw-headers' ) > 0 ]]
+    if [[ $(echo $pkg_opts | grep -c 'migrate-raw-headers' ) > 0 ]]
     then
         bldr_push_dir "$BLDR_BUILD_DIR/$pkg_name/$pkg_vers"
         local inc_paths="include inc man share"
@@ -980,7 +972,7 @@ function bldr_migrate_pkg()
         bldr_pop_dir
     fi    
 
-    if [[ $(echo $pkg_opt | grep -c 'migrate-build-libs' ) > 0 ]]
+    if [[ $(echo $pkg_opts | grep -c 'migrate-build-libs' ) > 0 ]]
     then
         bldr_push_dir "$BLDR_BUILD_DIR/$pkg_name/$pkg_vers"
         local inc_paths="build"
@@ -1008,7 +1000,7 @@ function bldr_migrate_pkg()
     ln -sv "$BLDR_LOCAL_DIR/$pkg_name/$pkg_vers" "$BLDR_LOCAL_DIR/$pkg_name/latest"
     bldr_output_hline    
 
-    if [[ $(echo $pkg_opt | grep -c 'keep' ) > 0 ]]
+    if [[ $(echo $pkg_opts | grep -c 'keep' ) > 0 ]]
     then
         bldr_report "Keeping package build directory for '$pkg_name/$pkg_vers'"
     else
@@ -1022,15 +1014,16 @@ function bldr_migrate_pkg()
 
 function bldr_modulate_pkg()
 {
-    local m=9
-    local pkg_name=$1
-    local pkg_vers=$2
-    local pkg_base=$3
-    local pkg_file=$4
-    local pkg_urls=$5
-    local pkg_opt=$6
-    local pkg_cflags=$7
-    local pkg_ldflags=$8
+    local m=10
+    local pkg_name="$1"
+    local pkg_vers="$2"
+    local pkg_info="$3"
+    local pkg_desc="$4"
+    local pkg_file="$5"
+    local pkg_urls="$6"
+    local pkg_opts="$7"
+    local pkg_cflags="$8"
+    local pkg_ldflags="$9"
     local pkg_cfg="${@:$m}"
 
     local prefix="$BLDR_LOCAL_DIR/$pkg_name/$pkg_vers"
@@ -1054,10 +1047,10 @@ function bldr_modulate_pkg()
     echo "# Generated by BLDR $BLDR_VERSION_STR on $tstamp" >> $modulefile
     echo "# -- PkgName:      '$pkg_name'"                   >> $modulefile
     echo "# -- PkgVersion:   '$pkg_vers'"                   >> $modulefile
-    echo "# -- PkgBase:      '$pkg_base'"                   >> $modulefile
+    echo "# -- PkgInfo:      '$pkg_info'"                   >> $modulefile
     echo "# -- PkgFile:      '$pkg_file'"                   >> $modulefile
-    echo "# -- PkgUrls:      '$pkg_urlss'"                  >> $modulefile
-    echo "# -- PkgOpt:       '$pkg_opt'"                    >> $modulefile
+    echo "# -- PkgUrls:      '$pkg_urls'"                   >> $modulefile
+    echo "# -- PkgOpt:       '$pkg_opts'"                    >> $modulefile
     echo "# -- PkgCFlags:    '$pkg_cflags'"                 >> $modulefile
     echo "# -- PkgLDFlags:   '$pkg_ldflags'"                >> $modulefile
     echo "# -- PkgCFG:       '$pkg_cfg'"                    >> $modulefile
@@ -1067,8 +1060,10 @@ function bldr_modulate_pkg()
     echo "    puts stderr \"Provides module environment support for $pkg_title v$pkg_vers.\"" >> $modulefile
     echo "}"                                                >> $modulefile
     echo ""                                                 >> $modulefile
-    echo "if { [is-loaded $pkg_name] && ! [is-loaded $pkg_name/$pkg_vers] } {"    >> $modulefile
-    echo "  module unload $pkg_name"                            >> $modulefile
+    echo "module-whatis \"$pkg_info\""                      >> $modulefile
+    echo ""                                                 >> $modulefile
+    echo "if { [is-loaded \"$pkg_name\"] && ! [is-loaded \"$pkg_name/$pkg_vers\"] } {"    >> $modulefile
+    echo "  module unload \"$pkg_name\""                    >> $modulefile
     echo "}"                                                >> $modulefile
     echo ""                                                 >> $modulefile
 
@@ -1214,18 +1209,19 @@ function bldr_modulate_pkg()
 
 function bldr_build_pkg()
 {
-    local m=9
-    local pkg_name=$1
-    local pkg_vers=$2
-    local pkg_base=$3
-    local pkg_file=$4
-    local pkg_urlss=$5
-    local pkg_opt=$6
-    local pkg_cflags=$7
-    local pkg_ldflags=$8
+    local m=10
+    local pkg_name="$1"
+    local pkg_vers="$2"
+    local pkg_info="$3"
+    local pkg_desc="$4"
+    local pkg_file="$5"
+    local pkg_urls="$6"
+    local pkg_opts="$7"
+    local pkg_cflags="$8"
+    local pkg_ldflags="$9"
     local pkg_cfg="${@:$m}"
 
-    local existing=$(bldr_has_pkg "$pkg_name" "$pkg_vers" "$pkg_opt")
+    local existing=$(bldr_has_pkg "$pkg_name" "$pkg_vers" "$pkg_opts")
 
     if [ $existing != 0 ]
     then
@@ -1238,22 +1234,26 @@ function bldr_build_pkg()
     bldr_output_hline
     echo "PkgName:      '$pkg_name'"
     echo "PkgVersion:   '$pkg_vers'"
-    echo "PkgBase:      '$pkg_base'"
+    echo "PkgInfo:      '$pkg_info'"
     echo "PkgFile:      '$pkg_file'"
-    echo "PkgUrls:      '$pkg_urlss'"
-    echo "PkgOpt:       '$pkg_opt'"
+    echo "PkgUrls:      '$pkg_urls'"
+    echo "PkgOpts:      '$pkg_opts'"
     echo "PkgCFlags:    '$pkg_cflags'"
     echo "PkgLDFlags:   '$pkg_ldflags'"
     echo "PkgCFG:       '$pkg_cfg'"
+    echo "PkgDesc:      "
+    echo " "
+    echo "$pkg_desc"
+    echo " "
 
-    bldr_setup_pkg    $pkg_name $pkg_vers $pkg_base $pkg_file $pkg_urls
-    bldr_fetch_pkg    $pkg_name $pkg_vers $pkg_base $pkg_file $pkg_urls
-    bldr_boot_pkg     $pkg_name $pkg_vers $pkg_base $pkg_file $pkg_urls
-    bldr_cfg_pkg      $pkg_name $pkg_vers $pkg_base $pkg_file $pkg_urls $pkg_opt $pkg_cflags $pkg_ldflags $pkg_cfg 
-    bldr_make_pkg     $pkg_name $pkg_vers $pkg_base $pkg_file $pkg_urls 
-    bldr_install_pkg  $pkg_name $pkg_vers $pkg_base $pkg_file $pkg_urls
-    bldr_migrate_pkg  $pkg_name $pkg_vers $pkg_base $pkg_file $pkg_urls $pkg_opt
-    bldr_modulate_pkg $pkg_name $pkg_vers $pkg_base $pkg_file $pkg_urls $pkg_opt $pkg_cflags $pkg_ldflags $pkg_cfg 
+    bldr_setup_pkg    "$pkg_name" "$pkg_vers" "$pkg_file" "$pkg_urls"
+    bldr_fetch_pkg    "$pkg_name" "$pkg_vers" "$pkg_file" "$pkg_urls"
+    bldr_boot_pkg     "$pkg_name" "$pkg_vers" "$pkg_file" "$pkg_urls"
+    bldr_cfg_pkg      "$pkg_name" "$pkg_vers" "$pkg_file" "$pkg_urls" "$pkg_opts" "$pkg_cflags" "$pkg_ldflags" "$pkg_cfg" 
+    bldr_make_pkg     "$pkg_name" "$pkg_vers" "$pkg_file" "$pkg_urls" 
+    bldr_install_pkg  "$pkg_name" "$pkg_vers" "$pkg_file" "$pkg_urls"
+    bldr_migrate_pkg  "$pkg_name" "$pkg_vers" "$pkg_file" "$pkg_urls" "$pkg_opts"
+    bldr_modulate_pkg "$pkg_name" "$pkg_vers" "$pkg_info" "$pkg_desc" "$pkg_file" "$pkg_urls" "$pkg_opts" "$pkg_cflags" "$pkg_ldflags" "$pkg_cfg" 
 
     bldr_report "DONE building '$pkg_name/$pkg_vers'! --"
     bldr_output_hline

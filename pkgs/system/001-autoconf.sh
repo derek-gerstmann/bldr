@@ -12,11 +12,21 @@ source "bldr.sh"
 
 pkg_name="autoconf"
 pkg_vers="2.68"
-pkg_base="autoconf-2.68"
-pkg_file="$pkg_base.tar.gz"
-pkg_urls="http://ftp.gnu.org/gnu/autoconf/$pkg_file"
 
-pkg_opt="configure:keep"
+pkg_info="Autoconf is an extensible system to automatically configure software source code packages. "
+
+pkg_desc="Autoconf is an extensible package of M4 macros that produce shell 
+scripts to automatically configure software source code packages.           
+These scripts can adapt the packages to many kinds of UNIX-like 
+systems without manual user intervention.  Autoconf creates a 
+configuration script for a package from a template file that lists the 
+operating system features that the package can use, in the form of M4 
+macro calls."
+
+pkg_file="$pkg_name-$pkg_vers.tar.gz"
+pkg_urls="http://ftp.gnu.org/gnu/autoconf/$pkg_file"
+pkg_opts="configure:keep"
+pkg_reqs=0
 pkg_cflags=0
 pkg_ldflags=0
 pkg_cfg="--disable-shared --enable-static"
@@ -25,5 +35,5 @@ pkg_cfg="--disable-shared --enable-static"
 # build and install pkg as local module
 ####################################################################################################
 
-bldr_build_pkg $pkg_name $pkg_vers $pkg_base $pkg_file $pkg_urls $pkg_opt $pkg_cflags $pkg_ldflags $pkg_cfg
+bldr_build_pkg "$pkg_name" "$pkg_vers" "$pkg_info" "$pkg_desc" "$pkg_file" "$pkg_urls" "$pkg_opts" "$pkg_cflags" "$pkg_ldflags" "$pkg_cfg"
 
