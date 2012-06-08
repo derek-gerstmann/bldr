@@ -405,6 +405,32 @@ function bldr_extract_archive()
     fi
 }
 
+function bldr_strip_archive_ext()
+{
+    local archive=$1
+    local result=""
+
+    if [ -f $archive ] ; then
+       case $archive in
+        *.tar.bz2)  result=$(echo ${archive%.tar.bz2} );;
+        *.tar.gz)   result=$(echo ${archive%.tar.gz} );;
+        *.tar.xz)   result=$(echo ${archive%.tar.xz} );;
+        *.bz2)      result=$(echo ${archive%.bz2} );;
+        *.rar)      result=$(echo ${archive%.rar} );;
+        *.gz)       result=$(echo ${archive%.gz} );;
+        *.tar)      result=$(echo ${archive%.tar} );;
+        *.tbz2)     result=$(echo ${archive%.tbz2} );;
+        *.tgz)      result=$(echo ${archive%.tgz} );;
+        *.zip)      result=$(echo ${archive%.zip} );;
+        *.Z)        result=$(echo ${archive%.Z} );;
+        *.7z)       result=$(echo ${archive%.7z} );;
+        *)          bldr_bail "Failed to extract archive contents '${archive}'";;
+       esac    
+    fi
+
+    echo $result
+}
+
 function bldr_list_archive()
 {
     local archive=$1
@@ -429,7 +455,14 @@ function bldr_list_archive()
        esac    
     fi
 
-    local listing=$(basename $(echo "$result" | grep -E "^[^/]*(/)$" ))
+    local basedir=$(echo "$result" | grep -E "^[^/]*(/)$" )
+
+    if [ "$basedir" == "" ]
+    then
+        basedir=$(bldr_strip_archive_ext "$archive")
+    fi
+
+    local listing=$(basename $basedir)
     echo "$listing"
 }
 
@@ -1274,14 +1307,72 @@ function bldr_build_pkg()
     echo "$pkg_desc"
     echo " "
 
-    bldr_setup_pkg    "$pkg_name" "$pkg_vers" "$pkg_file" "$pkg_urls" "$pkg_reqs"
-    bldr_fetch_pkg    "$pkg_name" "$pkg_vers" "$pkg_file" "$pkg_urls" "$pkg_reqs"
-    bldr_boot_pkg     "$pkg_name" "$pkg_vers" "$pkg_file" "$pkg_urls" "$pkg_reqs"
-    bldr_cfg_pkg      "$pkg_name" "$pkg_vers" "$pkg_file" "$pkg_urls" "$pkg_reqs" "$pkg_opts" "$pkg_cflags" "$pkg_ldflags" "$pkg_cfg" 
-    bldr_make_pkg     "$pkg_name" "$pkg_vers" "$pkg_file" "$pkg_urls" 
-    bldr_install_pkg  "$pkg_name" "$pkg_vers" "$pkg_file" "$pkg_urls"
-    bldr_migrate_pkg  "$pkg_name" "$pkg_vers" "$pkg_file" "$pkg_urls" "$pkg_opts"
-    bldr_modulate_pkg "$pkg_name" "$pkg_vers" "$pkg_info" "$pkg_desc" "$pkg_file" "$pkg_urls" "$pkg_reqs" "$pkg_opts" "$pkg_cflags" "$pkg_ldflags" "$pkg_cfg" 
+    local override_setup=$(type -t bldr_pkg_setup_method)
+    local override_fetch=$(type -t bldr_pkg_fetch_method)
+    local override_boot=$(type -t bldr_pkg_boot_method)
+    local override_cfg=$(type -t bldr_pkg_cfg_method)
+    local override_make=$(type -t bldr_pkg_make_method)
+    local override_install=$(type -t bldr_pkg_install_method)
+    local override_migrate=$(type -t bldr_pkg_migrate_method)
+    local override_modulate=$(type -t bldr_pkg_modulate_method)
+
+    # Call the overridden package methods for each build phase if they were defined
+    # -- otherwise use the default internal ones (which should handle 90% of most packages)
+    if [  "$override_setup" == "function" ]
+    then
+        bldr_pkg_setup_method    "$pkg_name" "$pkg_vers" "$pkg_file" "$pkg_urls" "$pkg_reqs"
+    else
+        bldr_setup_pkg           "$pkg_name" "$pkg_vers" "$pkg_file" "$pkg_urls" "$pkg_reqs"
+    fi
+
+    if [ "$override_fetch" == "function" ]
+    then
+        bldr_pkg_fetch_method    "$pkg_name" "$pkg_vers" "$pkg_file" "$pkg_urls" "$pkg_reqs"
+    else
+        bldr_fetch_pkg           "$pkg_name" "$pkg_vers" "$pkg_file" "$pkg_urls" "$pkg_reqs"
+    fi
+
+    if [ "$override_boot" == "function" ]
+    then
+        bldr_pkg_boot_method     "$pkg_name" "$pkg_vers" "$pkg_file" "$pkg_urls" "$pkg_reqs"
+    else
+        bldr_boot_pkg            "$pkg_name" "$pkg_vers" "$pkg_file" "$pkg_urls" "$pkg_reqs"
+    fi
+
+    if [ "$override_cfg" == "function" ]
+    then
+        bldr_pkg_cfg_method      "$pkg_name" "$pkg_vers" "$pkg_file" "$pkg_urls" "$pkg_reqs" "$pkg_opts" "$pkg_cflags" "$pkg_ldflags" "$pkg_cfg" 
+    else
+        bldr_cfg_pkg             "$pkg_name" "$pkg_vers" "$pkg_file" "$pkg_urls" "$pkg_reqs" "$pkg_opts" "$pkg_cflags" "$pkg_ldflags" "$pkg_cfg" 
+    fi
+
+    if [ "$override_make" == "function" ]
+    then
+        bldr_pkg_make_method     "$pkg_name" "$pkg_vers" "$pkg_file" "$pkg_urls" 
+    else
+        bldr_make_pkg            "$pkg_name" "$pkg_vers" "$pkg_file" "$pkg_urls" 
+    fi
+
+    if [ "$override_install" == "function" ]
+    then
+        bldr_pkg_install_method  "$pkg_name" "$pkg_vers" "$pkg_file" "$pkg_urls"
+    else
+        bldr_install_pkg         "$pkg_name" "$pkg_vers" "$pkg_file" "$pkg_urls"
+    fi
+
+    if [ "$override_migrate" == "function" ]
+    then
+        bldr_pkg_migrate_method  "$pkg_name" "$pkg_vers" "$pkg_file" "$pkg_urls" "$pkg_opts"
+    else
+        bldr_migrate_pkg         "$pkg_name" "$pkg_vers" "$pkg_file" "$pkg_urls" "$pkg_opts"
+    fi
+
+    if [ "$override_modulate" == "function" ]
+    then
+        bldr_pkg_modulate_method "$pkg_name" "$pkg_vers" "$pkg_info" "$pkg_desc" "$pkg_file" "$pkg_urls" "$pkg_reqs" "$pkg_opts" "$pkg_cflags" "$pkg_ldflags" "$pkg_cfg" 
+    else
+        bldr_modulate_pkg        "$pkg_name" "$pkg_vers" "$pkg_info" "$pkg_desc" "$pkg_file" "$pkg_urls" "$pkg_reqs" "$pkg_opts" "$pkg_cflags" "$pkg_ldflags" "$pkg_cfg" 
+    fi
 
     bldr_report "DONE building '$pkg_name/$pkg_vers'! --"
     bldr_output_hline
@@ -1291,39 +1382,32 @@ function bldr_build_pkg()
 
 function bldr_build_pkgs()
 {
-    local pkg_names="${@}"
-    local dir="$BLDR_PKGS_DIR"
+    local pkg_names="${1}"
+    local pkg_list=$(echo $pkg_names | bldr_split_str ":" | bldr_join_str " ")
+    local pkg_dir="$BLDR_PKGS_DIR"
 
-    bldr_output_hline
-    bldr_report "Starting build for '$pkg_names' in '$dir'..."
-    bldr_output_hline
+    if [ ! "$pkg_list" ]
+    then
+        pkg_list="*"
+    fi
 
-    if [[ -d $dir ]]
+    if [[ -d $pkg_dir ]]
     then
         local builder
-        if [ "$pkg_names" ]
-        then
-            for name in "$pkg_names"
+        bldr_output_hline
+        bldr_report "Starting build for '$pkg_list' in '$pkg_dir'..."
+        bldr_output_hline
+        for pkg_category in $pkg_list
+        do
+            for pkg_def in "$pkg_dir/$pkg_category"/*
             do
-                for builder in "$dir/$name"/*
-                do
-                    if [[ -f $builder && $(basename $builder) != 'common' ]]
-                    then
-                        bldr_report "Starting build for '$builder'..."
-                        eval $builder || exit -1
-                    fi
-                done
-            done
-        else
-            for builder in "$dir"/*/*
-            do
-                if [[ -f $builder && $(basename $builder) != 'common' ]]
+                if [[ -x $pkg_def ]]
                 then
-                    bldr_report "Starting build for '$builder'..."
-                    eval $builder || exit -1
+                    bldr_report "Starting build for '$pkg_def'..."
+                    eval $pkg_def || exit -1
                 fi
             done
-        fi
+        done
     fi
 }
 

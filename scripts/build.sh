@@ -34,4 +34,34 @@ source "bldr.sh"
 
 ####################################################################################################
 
-bldr_build_pkgs $*
+usage () {
+  echo "                                                                        " >&2
+  echo "NAME                                                                    " >&2
+  echo "  bldr build - starts an automated build for a set of BLDR packages     " >&2
+  echo "SYNOPSIS                                                                " >&2
+  echo "  build.sh [OPTIONS] [pkgs]                                             " >&2
+  echo "OPTIONS                                                                 " >&2
+  echo "  -c package category (or subdirectory) to build                        " >&2
+  echo "  -h show help (this)                                                   " >&2
+  echo "EXAMPLE                                                                 " >&2
+  echo "  build.sh -c system                                                    " >&2
+  echo "                                                                        " >&2
+}
+
+####################################################################################################
+
+pkg_names=""
+while getopts hc: OPTION
+do
+    case $OPTION in 
+        c) pkg_names="$OPTARG:$pkg_names";;
+        h) usage && exit 1;;
+        ?) usage && exit 1;;
+    esac
+done
+
+####################################################################################################
+
+bldr_build_pkgs "$pkg_names" $*
+
+####################################################################################################
