@@ -10,28 +10,27 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_name="zlib"
-pkg_vers="1.2.7"
+pkg_name="xz"
+pkg_vers="5.0.3"
 
-pkg_info="ZLIB is a massively spiffy yet delicately unobtrusive compression library"
+pkg_info="XZ utils is free general-purpose data compression software with high compression ratio."
 
-pkg_desc="ZLIB is designed to be a free, general-purpose, legally unencumbered --  
-that is, not covered by any patents -- lossless data-compression library for use on 
-virtually any computer hardware and operating system. The zlib data format is itself 
-portable across platforms. Unlike the LZW compression method used in Unix compress(1) 
-and in the GIF image format, the compression method currently used in zlib essentially 
-never expands the data. (LZW can double or triple the file size in extreme cases.) 
-zlib's memory footprint is also independent of the input data and can be reduced, if 
-necessary, at some cost in compression. A more precise, technical discussion of both 
-points is available on another page."
+pkg_desc="XZ utils is free general-purpose data compression software with high compression ratio. 
+XZ Utils were written for POSIX-like systems, but also work on some not-so-POSIX systems. 
+XZ Utils are the successor to LZMA Utils.
+
+The core of the XZ Utils compression code is based on LZMA SDK, but it has been modified 
+quite a lot to be suitable for XZ Utils. The primary compression algorithm is currently LZMA2, 
+which is used inside the .xz container format. With typical files, XZ Utils create 30 % smaller 
+output than gzip and 15 % smaller output than bzip2. "
 
 pkg_file="$pkg_name-$pkg_vers.tar.gz"
-pkg_urls="http://zlib.net/$pkg_file"
+pkg_urls="http://tukaani.org/xz/$pkg_file"
 pkg_opts="configure:keep"
 pkg_reqs="m4/latest autoconf/latest automake/latest"
 pkg_cflags=""
 pkg_ldflags=""
-pkg_cfg="-t -64"
+pkg_cfg="--disable-shared --enable-static"
 
 ####################################################################################################
 # build and install pkg as local module
@@ -49,5 +48,4 @@ bldr_build_pkg --category    "system"       \
                --cflags      "$pkg_cflags"  \
                --ldflags     "$pkg_ldflags" \
                --config      "$pkg_cfg"
-
 

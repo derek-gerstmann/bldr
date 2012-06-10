@@ -38,11 +38,14 @@ usage () {
   echo "                                                                        " >&2
   echo "NAME                                                                    " >&2
   echo "  bldr build - starts an automated build for a set of BLDR packages     " >&2
+  echo "                                                                        " >&2
   echo "SYNOPSIS                                                                " >&2
   echo "  build.sh [OPTIONS] [pkgs]                                             " >&2
+  echo "                                                                        " >&2
   echo "OPTIONS                                                                 " >&2
   echo "  -c package category (or subdirectory) to build                        " >&2
   echo "  -h show help (this)                                                   " >&2
+  echo "                                                                        " >&2
   echo "EXAMPLE                                                                 " >&2
   echo "  build.sh -c system                                                    " >&2
   echo "                                                                        " >&2
@@ -51,12 +54,36 @@ usage () {
 ####################################################################################################
 
 pkg_names=""
-while getopts hc: OPTION
+
+# translate long options to short
+for arg
 do
-    case $OPTION in 
-        c) pkg_names="$OPTARG:$pkg_names";;
-        h) usage && exit 1;;
-        ?) usage && exit 1;;
+    delim=""
+    case "$arg" in
+       --help) args="${args}-h ";;
+       --verbose) args="${args}-v ";;
+       --version) args="${args}-V ";;
+       --category) args="${args}-c ";;
+       # pass through anything else
+       *) [[ "${arg:0:1}" == "-" ]] || delim="\""
+           args="${args}${delim}${arg}${delim} ";;
+    esac
+done
+
+# reset the translated args
+eval set -- $args
+
+# now we can process with getopt
+while getopts ":hdvVc:" opt; do
+    case $opt in
+        V)  bldr_echo "BLDR $BLDR_VERSION_STR" && exit 1;;
+        h)  usage && exit 1;;
+        d)  BLDR_DEBUG=true;;
+        v)  BLDR_VERBOSE=true;;
+        c)  pkg_names="$pkg_names:$OPTARG";;
+        \?) usage && exit 1;;
+        :)  echo "ERROR: '-$OPTARG' requires an argument!  See --help!" && exit 1 ;;
+        *)  echo "ERROR: '-$OPTARG' is an unrecognized option! See --help!" && exit 1 ;;
     esac
 done
 

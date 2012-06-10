@@ -10,28 +10,24 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_name="zlib"
-pkg_vers="1.2.7"
+pkg_name="tar"
+pkg_vers="1.26"
 
-pkg_info="ZLIB is a massively spiffy yet delicately unobtrusive compression library"
+pkg_info="GNU tar creates and manipulates archives which are actually collections of many other files."
 
-pkg_desc="ZLIB is designed to be a free, general-purpose, legally unencumbered --  
-that is, not covered by any patents -- lossless data-compression library for use on 
-virtually any computer hardware and operating system. The zlib data format is itself 
-portable across platforms. Unlike the LZW compression method used in Unix compress(1) 
-and in the GIF image format, the compression method currently used in zlib essentially 
-never expands the data. (LZW can double or triple the file size in extreme cases.) 
-zlib's memory footprint is also independent of the input data and can be reduced, if 
-necessary, at some cost in compression. A more precise, technical discussion of both 
-points is available on another page."
+pkg_desc="GNU tar creates and manipulates archives which are actually collections of many other files; 
+the program provides users with an organized and systematic method for controlling a large amount 
+of data. The name “tar” originally came from the phrase 'Tape ARchive', but archives need not 
+(and these days, typically do not) reside on tapes."
 
 pkg_file="$pkg_name-$pkg_vers.tar.gz"
-pkg_urls="http://zlib.net/$pkg_file"
+pkg_urls="http://ftp.gnu.org/gnu/tar/$pkg_file"
 pkg_opts="configure:keep"
 pkg_reqs="m4/latest autoconf/latest automake/latest"
-pkg_cflags=""
-pkg_ldflags=""
-pkg_cfg="-t -64"
+pkg_cfg="$pkg_cfg --with-xz=$BLDR_LOCAL_DIR/system/xz/bin/xz"
+pkg_cfg="$pkg_cfg --with-lzip=$BLDR_LOCAL_DIR/system/zlib/lib/libz.a"
+pkg_cfg="$pkg_cfg --with-gzip=$BLDR_LOCAL_DIR/system/gzip/bin/gzip"
+pkg_cfg="$pkg_cfg --with-bzip2=$BLDR_LOCAL_DIR/system/bzip/bin/bzip2"
 
 ####################################################################################################
 # build and install pkg as local module
