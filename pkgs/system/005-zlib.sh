@@ -27,8 +27,9 @@ points is available on another page."
 
 pkg_file="$pkg_name-$pkg_vers.tar.gz"
 pkg_urls="http://zlib.net/$pkg_file"
-pkg_opts="configure:keep"
-pkg_reqs="m4/latest autoconf/latest automake/latest"
+pkg_opts="configure"
+pkg_uses="m4/latest autoconf/latest automake/latest"
+pkg_reqs=""
 pkg_cflags=""
 pkg_ldflags=""
 pkg_cfg="-t -64"
@@ -44,6 +45,7 @@ bldr_build_pkg --category    "system"       \
                --description "$pkg_desc"    \
                --file        "$pkg_file"    \
                --url         "$pkg_urls"    \
+               --uses        "$pkg_uses"    \
                --requires    "$pkg_reqs"    \
                --options     "$pkg_opts"    \
                --cflags      "$pkg_cflags"  \

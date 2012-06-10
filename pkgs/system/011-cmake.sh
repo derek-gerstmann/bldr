@@ -10,23 +10,21 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_name="pkg-config"
-pkg_vers="0.24"
+pkg_name="cmake"
+pkg_vers="2.8.8"
 
-pkg_info="Package Config is a helper tool used when compiling applications and libraries. "
+pkg_info="CMake is a family of tools designed to build, test and package software."
 
-pkg_desc="pkg-config is a helper tool used when compiling applications and libraries. 
-It helps you insert the correct compiler options on the command line so an application 
-can use  gcc -o test test.c `pkg-config --libs --cflags glib-2.0`  for instance, rather 
-than hard-coding values on where to find glib (or other libraries). It is 
-language-agnostic, so it can be used for defining the location of documentation 
-tools, for instance."
+pkg_desc="CMake is a family of tools designed to build, test and package software. 
+CMake is used to control the software compilation process using simple platform 
+and compiler independent configuration files. CMake generates native makefiles 
+and workspaces that can be used in the compiler environment of your choice. "
 
 pkg_file="$pkg_name-$pkg_vers.tar.gz"
-pkg_urls="http://pkgconfig.freedesktop.org/releases/$pkg_file"
-pkg_opts="configure force-static"
+pkg_urls="http://www.cmake.org/files/v2.8/$pkg_file"
+pkg_opts="configure force-static force-bootstrap skip-config"
 pkg_uses="m4/latest autoconf/latest automake/latest"
-pkg_reqs="m4/latest autoconf/latest automake/latest"
+pkg_reqs=""
 pkg_cflags=""
 pkg_ldflags=""
 pkg_cfg=""
@@ -48,3 +46,5 @@ bldr_build_pkg --category    "system"       \
                --cflags      "$pkg_cflags"  \
                --ldflags     "$pkg_ldflags" \
                --config      "$pkg_cfg"
+
+

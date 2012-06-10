@@ -78,8 +78,8 @@ while getopts ":hdvVc:" opt; do
     case $opt in
         V)  bldr_echo "BLDR $BLDR_VERSION_STR" && exit 1;;
         h)  usage && exit 1;;
-        d)  BLDR_DEBUG=true;;
-        v)  BLDR_VERBOSE=true;;
+        d)  export BLDR_DEBUG=true;;
+        v)  export BLDR_VERBOSE=true;;
         c)  pkg_names="$pkg_names:$OPTARG";;
         \?) usage && exit 1;;
         :)  echo "ERROR: '-$OPTARG' requires an argument!  See --help!" && exit 1 ;;

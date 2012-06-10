@@ -22,12 +22,13 @@ of data. The name “tar” originally came from the phrase 'Tape ARchive', but 
 
 pkg_file="$pkg_name-$pkg_vers.tar.gz"
 pkg_urls="http://ftp.gnu.org/gnu/tar/$pkg_file"
-pkg_opts="configure:keep"
-pkg_reqs="m4/latest autoconf/latest automake/latest"
-pkg_cfg="$pkg_cfg --with-xz=$BLDR_LOCAL_DIR/system/xz/bin/xz"
-pkg_cfg="$pkg_cfg --with-lzip=$BLDR_LOCAL_DIR/system/zlib/lib/libz.a"
-pkg_cfg="$pkg_cfg --with-gzip=$BLDR_LOCAL_DIR/system/gzip/bin/gzip"
-pkg_cfg="$pkg_cfg --with-bzip2=$BLDR_LOCAL_DIR/system/bzip/bin/bzip2"
+pkg_opts="configure force-static"
+pkg_uses="m4/latest autoconf/latest automake/latest"
+pkg_reqs="xz/latest zlib/latest gzip/latest bzip2/latest"
+pkg_cfg="         --with-xz=$BLDR_LOCAL_DIR/system/xz/latest/bin/xz"
+pkg_cfg="$pkg_cfg --with-lzip=$BLDR_LOCAL_DIR/system/zlib/latest/lib/libz.a"
+pkg_cfg="$pkg_cfg --with-gzip=$BLDR_LOCAL_DIR/system/gzip/latest/bin/gzip"
+pkg_cfg="$pkg_cfg --with-bzip2=$BLDR_LOCAL_DIR/system/bzip2/latest/bin/bzip2"
 
 ####################################################################################################
 # build and install pkg as local module
@@ -40,6 +41,7 @@ bldr_build_pkg --category    "system"       \
                --description "$pkg_desc"    \
                --file        "$pkg_file"    \
                --url         "$pkg_urls"    \
+               --uses        "$pkg_uses"    \
                --requires    "$pkg_reqs"    \
                --options     "$pkg_opts"    \
                --cflags      "$pkg_cflags"  \

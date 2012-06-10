@@ -10,23 +10,31 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_name="pkg-config"
-pkg_vers="0.24"
+pkg_name="modules"
+pkg_vers="3.2.9c"
 
-pkg_info="Package Config is a helper tool used when compiling applications and libraries. "
+pkg_info="The modules package provides for the dynamic modification of a user's environment via modulefiles."
 
-pkg_desc="pkg-config is a helper tool used when compiling applications and libraries. 
-It helps you insert the correct compiler options on the command line so an application 
-can use  gcc -o test test.c `pkg-config --libs --cflags glib-2.0`  for instance, rather 
-than hard-coding values on where to find glib (or other libraries). It is 
-language-agnostic, so it can be used for defining the location of documentation 
-tools, for instance."
+pkg_desc="The Environment Modules package provides for the dynamic modification of a user's 
+environment via modulefiles. Each modulefile contains the information needed to configure the 
+shell for an application. Once the Modules package is initialized, the environment can be 
+modified on a per-module basis using the module command which interprets modulefiles. 
+Typically modulefiles instruct the module command to alter or set shell environment 
+variables such as PATH, MANPATH, etc. modulefiles may be shared by many users on a system 
+and users may have their own collection to supplement or replace the shared modulefiles.
+
+Modules can be loaded and unloaded dynamically and atomically, in an clean fashion. All 
+popular shells are supported, including bash, ksh, zsh, sh, csh, tcsh, as well as some 
+scripting languages such as perl.
+
+Modules are useful in managing different versions of applications. Modules can also be bundled 
+into metamodules that will load an entire suite of different applications."
 
 pkg_file="$pkg_name-$pkg_vers.tar.gz"
-pkg_urls="http://pkgconfig.freedesktop.org/releases/$pkg_file"
+pkg_urls="http://aarnet.dl.sourceforge.net/project/modules/Modules/modules-3.2.9/$pkg_file"
 pkg_opts="configure force-static"
 pkg_uses="m4/latest autoconf/latest automake/latest"
-pkg_reqs="m4/latest autoconf/latest automake/latest"
+pkg_reqs=""
 pkg_cflags=""
 pkg_ldflags=""
 pkg_cfg=""
@@ -48,3 +56,5 @@ bldr_build_pkg --category    "system"       \
                --cflags      "$pkg_cflags"  \
                --ldflags     "$pkg_ldflags" \
                --config      "$pkg_cfg"
+
+

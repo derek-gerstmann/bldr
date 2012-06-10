@@ -30,8 +30,9 @@ export BLDR_VERSION_MAJOR="1"
 export BLDR_VERSION_MINOR="0"
 export BLDR_VERSION_PATCH="0"
 export BLDR_VERSION_STR="v$BLDR_VERSION_MAJOR.$BLDR_VERSION_MINOR.$BLDR_VERSION_PATCH"
-export BLDR_VERBOSE=false
-export BLDR_DEBUG=false
+
+BLDR_VERBOSE=${BLDR_VERBOSE:=false}
+BLDR_DEBUG=${BLDR_DEBUG:=false}
 
 ####################################################################################################
 
@@ -103,38 +104,64 @@ fi
 
 ####################################################################################################
 
+# import any existing system utility into our path for usage
+if [ -d "$BLDR_LOCAL_DIR/system" ]
+then
+    for sys_path in "$BLDR_LOCAL_DIR/system"/*
+    do
+        if [[ -d "$sys_path/latest/bin" ]]
+        then
+            if [ $BLDR_VERBOSE != false ]
+            then
+                echo "Using local system utility: '$sys_path'"
+            fi
+            export PATH="$sys_path/latest/bin:$PATH"
+        fi
+    done
+fi
+
+# setup the environment to support our own version of MODULES
+if [ -d "$BLDR_LOCAL_DIR/system/modules/latest" ]
+then
+    for md_path in "$BLDR_LOCAL_DIR/system/modules/latest/Modules"/*
+    do
+        if [[ -d "$md_path/bin" ]]
+        then
+            export PATH="$md_path/bin:$PATH"
+        fi
+        if [[ -d "$md_path/init" ]]
+        then
+            source "$md_path/init/bash"
+            module use $BLDR_MODULE_DIR/system
+        fi
+    done
+fi
+
 # setup the environment to support our own version of PKG_CONFIG
-if [ -d "$BLDR_LOCAL_DIR/system/pkgconfig/latest/bin" ]
+if [ -d "$BLDR_LOCAL_DIR/system/pkg-config/latest/bin" ]
 then
-    export PKG_CONFIG=$BLDR_LOCAL_DIR/system/pkgconfig/latest/bin/pkg-config
-    export PKG_CONFIG_PATH=$BLDR_LOCAL_DIR/system/pkgconfig/latest/lib/pkgconfig
-fi
+    if [ ! -d "$BLDR_LOCAL_DIR/system/pkg-config/latest/lib/pkgconfig" ]
+    then
+        mkdir -p "$BLDR_LOCAL_DIR/system/pkg-config/latest/lib/pkgconfig"
+    fi
 
-# setup the environment to support our own version of AUTOCONF
-if [ -d "$BLDR_LOCAL_DIR/system/autoconf/latest/bin" ]
-then
-    export PATH="$BLDR_LOCAL_DIR/system/autoconf/latest/bin:$PATH"
-fi
-
-# setup the environment to support our own version of AUTOMAKE
-if [ -d "$BLDR_LOCAL_DIR/system/automake/latest/bin" ]
-then
-    export PATH="$BLDR_LOCAL_DIR/system/automake/latest/bin:$PATH"
-fi
-
-# setup the environment to support our own version of GETTEXT
-if [ -d "$BLDR_LOCAL_DIR/system/gettext/latest/bin" ]
-then
-    export PATH="$BLDR_LOCAL_DIR/system/gettext/latest/bin:$PATH"
-fi
-
-# setup the environment to support our own version of GLIB
-if [ -d "$BLDR_LOCAL_DIR/system/glib/latest/bin" ]
-then
-    export PATH="$BLDR_LOCAL_DIR/system/glib/latest/bin:$PATH"
+    export PKG_CONFIG=$BLDR_LOCAL_DIR/system/pkg-config/latest/bin/pkg-config
+    export PKG_CONFIG_PATH=$BLDR_LOCAL_DIR/system/pkg-config/latest/lib/pkgconfig
 fi
 
 ####################################################################################################
+
+function bldr_get_stdout()
+{
+    local output=""    
+    if [ $BLDR_VERBOSE != false ]
+    then
+        output="&>1"
+    else
+        output="&>/dev/null"
+    fi
+    echo $output
+}
 
 function bldr_make_lowercase()
 {
@@ -408,20 +435,26 @@ function bldr_extract_archive()
         extr=$BLDR_LOCAL_DIR/gtar/latest/bin/tar
     fi
 
+    local output=$(bldr_get_stdout)  
+    if [ $BLDR_VERBOSE != false ]
+    then
+        bldr_output_hline
+    fi
+
     if [ -f $archive ] ; then
        case $archive in
-        *.tar.bz2)  eval $extr xvjf ${archive} || bldr_bail "Failed to extract archive '${archive}'";;
-        *.tar.gz)   eval $extr xvzf ${archive} || bldr_bail "Failed to extract archive '${archive}'";;
-        *.tar.xz)   eval $extr Jxvf ${archive} || bldr_bail "Failed to extract archive '${archive}'";;
-        *.bz2)      eval bunzip2 ${archive} || bldr_bail "Failed to extract archive '${archive}'";;
-        *.rar)      eval unrar x ${archive} || bldr_bail "Failed to extract archive '${archive}'";;
-        *.gz)       eval gunzip ${archive} || bldr_bail "Failed to extract archive '${archive}'";;
-        *.tar)      eval $extr xvf ${archive} || bldr_bail "Failed to extract archive '${archive}'";;
-        *.tbz2)     eval $extr xvjf ${archive} || bldr_bail "Failed to extract archive '${archive}'";;
-        *.tgz)      eval $extr xvzf ${archive} || bldr_bail "Failed to extract archive '${archive}'";;
-        *.zip)      eval unzip -uo ${archive} || bldr_bail "Failed to extract archive '${archive}'";;
-        *.Z)        eval uncompress ${archive} || bldr_bail "Failed to extract archive '${archive}'";;
-        *.7z)       eval 7z x ${archive} || bldr_bail "Failed to extract archive '${archive}'";;
+        *.tar.bz2)  eval $extr xvjf ${archive} $output || bldr_bail "Failed to extract archive '${archive}'";;
+        *.tar.gz)   eval $extr xvzf ${archive} $output || bldr_bail "Failed to extract archive '${archive}'";;
+        *.tar.xz)   eval $extr Jxvf ${archive} $output || bldr_bail "Failed to extract archive '${archive}'";;
+        *.bz2)      eval bunzip2 ${archive} $output || bldr_bail "Failed to extract archive '${archive}'";;
+        *.rar)      eval unrar x ${archive} $output || bldr_bail "Failed to extract archive '${archive}'";;
+        *.gz)       eval gunzip ${archive} $output || bldr_bail "Failed to extract archive '${archive}'";;
+        *.tar)      eval $extr xvf ${archive} $output || bldr_bail "Failed to extract archive '${archive}'";;
+        *.tbz2)     eval $extr xvjf ${archive} $output || bldr_bail "Failed to extract archive '${archive}'";;
+        *.tgz)      eval $extr xvzf ${archive} $output || bldr_bail "Failed to extract archive '${archive}'";;
+        *.zip)      eval unzip -uo ${archive} $output || bldr_bail "Failed to extract archive '${archive}'";;
+        *.Z)        eval uncompress ${archive} $output || bldr_bail "Failed to extract archive '${archive}'";;
+        *.7z)       eval 7z x ${archive} $output || bldr_bail "Failed to extract archive '${archive}'";;
         *)          bldr_bail "Failed to extract archive '${archive}'";;
        esac    
     fi
@@ -644,6 +677,7 @@ function bldr_setup_pkg()
     local pkg_desc=""
     local pkg_file=""
     local pkg_urls=""
+    local pkg_uses=""
     local pkg_reqs=""
     local pkg_opts=""
     local pkg_cflags=""
@@ -662,6 +696,7 @@ function bldr_setup_pkg()
            --config)        pkg_cfg="$pkg_cfg:$2"; shift 2;;
            --cflags)        pkg_cflags="$pkg_cflags:$2"; shift 2;;
            --ldflags)       pkg_ldflags="$pkg_ldflags:$2"; shift 2;;
+           --uses)          pkg_uses="$pkg_uses:$2"; shift 2;;
            --requires)      pkg_reqs="$pkg_reqs:$2"; shift 2;;
            --url)           pkg_urls="$pkg_urls;$2"; shift 2;;
            -- )             shift; break ;;
@@ -669,14 +704,23 @@ function bldr_setup_pkg()
         esac
     done
 
-    bldr_output_hline
-    bldr_report "Setting up package '$pkg_name/$pkg_vers' for '$BLDR_OS_NAME' ... "
-    bldr_output_hline
-    
-    bldr_make_dir "$BLDR_BUILD_DIR"
-    bldr_push_dir "$BLDR_BUILD_DIR"
+    if [[ $(echo $pkg_opts | grep -c 'skip-setup' ) > 0 ]]
+    then
+        return
+    fi
 
     bldr_output_hline
+    bldr_report "Setting up package '$pkg_name/$pkg_vers' for '$BLDR_OS_NAME' ... "
+    
+    if [ ! -d $BLDR_BUILD_DIR ]
+    then
+        bldr_output_hline
+        bldr_make_dir "$BLDR_BUILD_DIR"
+    fi
+
+    bldr_push_dir "$BLDR_BUILD_DIR"
+    bldr_output_hline
+
     if [ -d "$pkg_name/$pkg_vers" ]
     then
         bldr_report "Removing stale build '$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers'"
@@ -704,6 +748,7 @@ function bldr_fetch_pkg()
     local pkg_desc=""
     local pkg_file=""
     local pkg_urls=""
+    local pkg_uses=""
     local pkg_reqs=""
     local pkg_opts=""
     local pkg_cflags=""
@@ -722,6 +767,7 @@ function bldr_fetch_pkg()
            --config)        pkg_cfg="$pkg_cfg:$2"; shift 2;;
            --cflags)        pkg_cflags="$pkg_cflags:$2"; shift 2;;
            --ldflags)       pkg_ldflags="$pkg_ldflags:$2"; shift 2;;
+           --uses)          pkg_uses="$pkg_uses:$2"; shift 2;;
            --requires)      pkg_reqs="$pkg_reqs:$2"; shift 2;;
            --url)           pkg_urls="$pkg_urls;$2"; shift 2;;
            -- )             shift; break ;;
@@ -729,16 +775,26 @@ function bldr_fetch_pkg()
         esac
     done
 
-    # if a local copy doesn't exist, grab the pkg from the url
-    bldr_make_dir "$BLDR_CACHE_DIR"
+    if [[ $(echo $pkg_opts | grep -c 'skip-fetch' ) > 0 ]]
+    then
+        return
+    fi
+
+    # create the local cache dir if it doesn't exist
+    if [ ! -d $BLDR_CACHE_DIR ]
+    then
+        bldr_make_dir "$BLDR_CACHE_DIR"
+    fi
     bldr_push_dir "$BLDR_CACHE_DIR"
     bldr_output_hline
+
+    # if a local copy doesn't exist, grab the pkg from the url
     if [ ! -f "$pkg_file" ]
     then
         local pkg_url_list=$(echo $pkg_urls | bldr_split_str ';')
         for url in ${pkg_url_list}
         do
-            bldr_report "Retrieving package '$pkg_name' from '$url'"
+            bldr_report "Retrieving package '$pkg_name/$pkg_vers' from '$url'"
             bldr_output_hline
 
             if [[ $(echo "$url" | grep -c 'http://') == 1 ]]
@@ -752,7 +808,7 @@ function bldr_fetch_pkg()
                 if [ -d $pkg_name ]
                 then
                     bldr_output_hline
-                    bldr_report "Archiving package '$pkg_file' from '$pkg_name'"
+                    bldr_report "Archiving package '$pkg_file' from '$pkg_name/$pkg_vers'"
                     bldr_make_archive $pkg_file $pkg_name
                     bldr_output_hline
                 fi
@@ -764,7 +820,7 @@ function bldr_fetch_pkg()
                 if [ -d $pkg_name ]
                 then
                     bldr_output_hline
-                    bldr_report "Archiving package '$pkg_file' from '$pkg_name'"
+                    bldr_report "Archiving package '$pkg_file' from '$pkg_name/$pkg_vers'"
                     bldr_make_archive $pkg_file $pkg_name
                     bldr_output_hline
                 fi
@@ -778,24 +834,36 @@ function bldr_fetch_pkg()
     bldr_pop_dir
 
     # extract any pkg archives
-    if [[ $(bldr_is_valid_archive "$BLDR_CACHE_DIR/$pkg_file") == 1 ]]
+    if [[ $(bldr_is_valid_archive "$BLDR_CACHE_DIR/$pkg_file") > 0 ]]
     then
-        bldr_report "Migrating package '$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers/$pkg_file'"
+        echo "-- Migrating package '$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers/$pkg_file'"
         bldr_output_hline
+
         if [ ! -d "$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name" ]
         then
             bldr_make_dir "$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name"
             bldr_output_hline
         fi
+
+        if [ -d "$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers" ]
+        then
+            bldr_remove_dir "$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers"
+            bldr_output_hline
+        fi
+
         bldr_copy_file "$BLDR_CACHE_DIR/$pkg_file" "$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_file"
 
         bldr_push_dir "$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name"
         local archive_listing=$(bldr_list_archive $pkg_file)
-        bldr_report "Extracting package '$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_file' to '$archive_listing'"
+
+        echo "-- Extracting package '$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_file' to '$archive_listing'"
         bldr_output_hline
+        
         bldr_extract_archive $pkg_file
         bldr_move_file $archive_listing $pkg_vers
         bldr_remove_file "$pkg_file"
+        bldr_output_hline
+        
         bldr_pop_dir
     fi
 }
@@ -809,6 +877,7 @@ function bldr_boot_pkg()
     local pkg_desc=""
     local pkg_file=""
     local pkg_urls=""
+    local pkg_uses=""
     local pkg_reqs=""
     local pkg_opts=""
     local pkg_cflags=""
@@ -827,59 +896,85 @@ function bldr_boot_pkg()
            --config)        pkg_cfg="$pkg_cfg:$2"; shift 2;;
            --cflags)        pkg_cflags="$pkg_cflags:$2"; shift 2;;
            --ldflags)       pkg_ldflags="$pkg_ldflags:$2"; shift 2;;
+           --uses)          pkg_uses="$pkg_uses:$2"; shift 2;;
            --requires)      pkg_reqs="$pkg_reqs:$2"; shift 2;;
            --url)           pkg_urls="$pkg_urls;$2"; shift 2;;
            * )              break ;;
         esac
     done
 
-    bldr_push_dir "$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers"
+    if [[ $(echo $pkg_opts | grep -c 'skip-boot' ) > 0 ]]
+    then
+        return
+    fi
+
+    local prefix="$BLDR_LOCAL_DIR/$pkg_ctry/$pkg_name/$pkg_vers"
+    bldr_report "Booting package '$pkg_name/$pkg_vers'"
     bldr_output_hline
 
-    pkg_reqs=$(bldr_trim_list_str "$pkg_reqs")
-    if [ "$pkg_reqs" != "" ] && [ "$pkg_reqs" != " " ] && [ "$pkg_reqs" != ":" ]
+    bldr_push_dir "$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers"
+    pkg_uses=$(bldr_trim_list_str "$pkg_uses")
+    if [ "$pkg_uses" != "" ] && [ "$pkg_uses" != " " ] && [ "$pkg_uses" != ":" ]
     then
-        pkg_reqs=$(echo $pkg_reqs | bldr_split_str ":" | bldr_join_str " ")
+        pkg_uses=$(echo $pkg_uses | bldr_split_str ":" | bldr_join_str " ")
     else
-        pkg_reqs=""
+        pkg_uses=""
     fi
 
     local cmd_mod="$(which modulecmd)"
-    if [[ "$pkg_reqs" != "0" && "$cmd_mod" != "" ]]
+    if [[ "$pkg_uses" != "" && "$cmd_mod" != "" ]]
     then
-        module use "$BLDR_MODULE_DIR/$pkg_ctry"
-        bldr_output_hline
-        for require in ${pkg_reqs}
+        if [ -d "$BLDR_MODULE_DIR/$pkg_ctry" ]
+        then
+            module use "$BLDR_MODULE_DIR/$pkg_ctry"
+        fi
+
+        for using in ${pkg_uses}
         do
-            bldr_report "Loading required module '$require' ..."
-            module load $require
+            echo "-- Loading module '$using' ..."
+            module load $using
         done
         bldr_output_hline
     fi
 
-    # bootstrap package
-    if [ ! -f "./configure" ]
+    local bootstrap=false
+    if [[ $(echo $pkg_opts | grep -c 'force-bootstrap' ) > 0 ]]
     then
+        echo "-- Forcing bootstrap configuration ..."
+        bldr_output_hline
+        cmake_pre="$cmake_pre -DBUILD_SHARED_LIBS=ON"
+        bootstrap=true
+    else
+        if [ ! -f "./configure" ]
+        then
+            bootstrap=true
+        fi
+    fi
+
+    # bootstrap package
+    if [ bootstrap != false ]
+    then
+        local cmd=""
+        local output=$(bldr_get_stdout)
         if [ -f "./bootstrap" ]
         then
-            bldr_report "Booting package '$pkg_name'"
-            bldr_output_hline
-            ./bootstrap
-            bldr_output_hline
+            cmd="./bootstrap"
         fi
         if [ -f "./bootstrap.sh" ]
         then 
-            bldr_report "Booting package '$pkg_name'"
-            bldr_output_hline
-            ./bootstrap.sh
-            bldr_output_hline
+            cmd="./bootstrap.sh"
         fi
         if [ -f "./autogen.sh" ]
         then 
-            bldr_report "Booting package '$pkg_name'"
-            bldr_output_hline
-            ./autogen.sh
-            bldr_output_hline
+            cmd="./autogen.sh"
+        fi
+        if [ cmd != "" ]
+        then
+            eval $cmd --prefix="$prefix" $output || bldr_bail "Failed to boot package '$pkg_name/$pkg_vers'!"
+            if [ $BLDR_VERBOSE != false ]
+            then
+                bldr_output_hline
+            fi
         fi
     fi
     bldr_pop_dir
@@ -894,6 +989,7 @@ function bldr_cmake_pkg()
     local pkg_desc=""
     local pkg_file=""
     local pkg_urls=""
+    local pkg_uses=""
     local pkg_reqs=""
     local pkg_opts=""
     local pkg_cflags=""
@@ -912,11 +1008,17 @@ function bldr_cmake_pkg()
            --config)        pkg_cfg="$pkg_cfg:$2"; shift 2;;
            --cflags)        pkg_cflags="$pkg_cflags:$2"; shift 2;;
            --ldflags)       pkg_ldflags="$pkg_ldflags:$2"; shift 2;;
+           --uses)          pkg_uses="$pkg_uses:$2"; shift 2;;
            --requires)      pkg_reqs="$pkg_reqs:$2"; shift 2;;
            --url)           pkg_urls="$pkg_urls;$2"; shift 2;;
            * )              break ;;
         esac
     done
+
+    if [[ $(echo $pkg_opts | grep -c 'skip-config' ) > 0 ]]
+    then
+        return
+    fi
 
     bldr_make_dir "$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers/build"
     bldr_push_dir "$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers/build"
@@ -965,7 +1067,7 @@ function bldr_cmake_pkg()
         fi
     done
 
-    bldr_report "Configuring package '$pkg_name' from source folder '$cmake_src_path' ..."
+    bldr_report "Configuring package '$pkg_name/$pkg_vers' from source folder '$cmake_src_path' ..."
     bldr_output_hline
 
     local cmake_exec="$BLDR_LOCAL_DIR/cmake/latest/bin/cmake"
@@ -976,14 +1078,52 @@ function bldr_cmake_pkg()
         cmake_pre="$cmake_pre -DCMAKE_OSX_ARCHITECTURES=x86_64"
     fi
 
+    local use_static=false
+    local use_shared=false
+    if [[ $(echo $pkg_opts | grep -c 'enable-shared' ) > 0 ]]
+    then
+        echo "-- Adding shared library configuration ..."
+        bldr_output_hline
+        cmake_pre="$cmake_pre -DBUILD_SHARED_LIBS=ON"
+        use_shared=true
+    fi
+    
+    if [[ $(echo $pkg_opts | grep -c 'enable-static' ) > 0 ]]
+    then
+        echo "-- Adding static library configuration ..."
+        bldr_output_hline
+        cmake_pre="$cmake_pre -DBUILD_STATIC_LIBS=ON"
+        use_static=true
+    fi
+
+    if [[ $(echo $pkg_opts | grep -c 'force-shared' ) > 0 ]]
+    then
+        echo "-- Forcing shared library configuration ..."
+        bldr_output_hline
+        if [ use_shared != true ]
+        then
+            cmake_pre="$cmake_pre -DBUILD_SHARED_LIBS=ON -DBUILD_STATIC_LIBS=OFF"
+        fi
+    fi
+
+    if [[ $(echo $pkg_opts | grep -c 'force-static' ) > 0 ]]
+    then
+        echo "-- Forcing static library configuration ..."
+        bldr_output_hline
+        if [ use_static != true ]
+        then
+            cmake_pre="$cmake_pre -DBUILD_SHARED_LIBS=OFF -DBUILD_STATIC_LIBS=ON"
+        fi
+    fi
+
+
     echo $cmake_exec $cmake_mod $cmake_pre $env_flags $cmake_src_path
     bldr_output_hline
 
     eval $cmake_exec $cmake_mod $cmake_pre $env_flags $cmake_src_path || bldr_bail "Failed to configure: '$prefix'"
     bldr_output_hline
 
-    bldr_report "Done configuring package '$pkg_name'"
-
+    bldr_report "Done configuring package '$pkg_name/$pkg_vers'"
     bldr_pop_dir
 }
 
@@ -996,6 +1136,7 @@ function bldr_config_pkg()
     local pkg_desc=""
     local pkg_file=""
     local pkg_urls=""
+    local pkg_uses=""
     local pkg_reqs=""
     local pkg_opts=""
     local pkg_cflags=""
@@ -1014,11 +1155,17 @@ function bldr_config_pkg()
            --config)        pkg_cfg="$pkg_cfg:$2"; shift 2;;
            --cflags)        pkg_cflags="$pkg_cflags:$2"; shift 2;;
            --ldflags)       pkg_ldflags="$pkg_ldflags:$2"; shift 2;;
+           --uses)          pkg_uses="$pkg_uses:$2"; shift 2;;
            --requires)      pkg_reqs="$pkg_reqs:$2"; shift 2;;
            --url)           pkg_urls="$pkg_urls;$2"; shift 2;;
            * )              break ;;
         esac
     done
+
+    if [[ $(echo $pkg_opts | grep -c 'skip-config' ) > 0 ]]
+    then
+        return
+    fi
 
     local prefix="$BLDR_LOCAL_DIR/$pkg_ctry/$pkg_name/$pkg_vers"
     bldr_push_dir "$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers"
@@ -1061,6 +1208,7 @@ function bldr_config_pkg()
                        --version    "$pkg_vers"     \
                        --file       "$pkg_file"     \
                        --url        "$pkg_urls"     \
+                       --uses       "$pkg_uses"     \
                        --requires   "$pkg_reqs"     \
                        --options    "$pkg_opts"     \
                        --cflags     "$pkg_cflags"   \
@@ -1073,7 +1221,6 @@ function bldr_config_pkg()
     if [ $use_amake != 0 ] && [ $has_amake != 0 ]
     then
         local env_flags=" "
-
         if [ "$BLDR_SYSTEM_IS_CENTOS" -eq 1 ]
         then
             if [ "$pkg_cflags" != "" ] && [ "$pkg_cflags" != " " ]  && [ "$pkg_cflags" != ":" ]
@@ -1108,17 +1255,62 @@ function bldr_config_pkg()
         else
             pkg_ldflags=""
         fi
-        
-        bldr_report "Configuring package '$pkg_name' ..."
+
+        bldr_report "Configuring package '$pkg_name/$pkg_vers' ..."
         bldr_output_hline
+
+        local use_static=false
+        local use_shared=false
+
+        if [[ $(echo $pkg_opts | grep -c 'enable-shared' ) > 0 ]]
+        then
+            echo "-- Adding shared library configuration ..."
+            bldr_output_hline
+            pkg_cfg="$pkg_cfg --enable-shared"
+            use_shared=true
+        fi
+        
+        if [[ $(echo $pkg_opts | grep -c 'enable-static' ) > 0 ]]
+        then
+            echo "-- Adding static library configuration ..."
+            bldr_output_hline
+            pkg_cfg="$pkg_cfg --enable-static"
+            use_static=true
+        fi
+
+        if [[ $(echo $pkg_opts | grep -c 'force-shared' ) > 0 ]]
+        then
+            echo "-- Forcing shared library configuration ..."
+            bldr_output_hline
+            if [ use_shared != true ]
+            then
+                pkg_cfg="$pkg_cfg --enable-shared --disable-static"
+            fi
+        fi
+
+        if [[ $(echo $pkg_opts | grep -c 'force-static' ) > 0 ]]
+        then
+            echo "-- Forcing static library configuration ..."
+            bldr_output_hline
+            if [ use_static != true ]
+            then
+                pkg_cfg="$pkg_cfg --disable-shared --enable-static"
+            fi
+        fi
 
         echo "> ./configure --prefix=\"$prefix\" $pkg_cfg $env_flags"
         bldr_output_hline
 
-        eval ./configure --prefix="$prefix" $pkg_cfg $env_flags || bldr_bail "Failed to configure: '$prefix'"
-        bldr_output_hline
+        local output=$(bldr_get_stdout)  
+        eval ./configure --prefix="$prefix" $pkg_cfg $env_flags $output || bldr_bail "Failed to configure: '$prefix'"
 
-        bldr_report "Done configuring package '$pkg_name'"
+        if [ $BLDR_VERBOSE != false ]
+        then
+            bldr_output_hline
+        fi
+
+        bldr_report "Done configuring package '$pkg_name/$pkg_vers'"
+        bldr_output_hline
         bldr_pop_dir
     fi
 }
@@ -1132,6 +1324,7 @@ function bldr_compile_pkg()
     local pkg_desc=""
     local pkg_file=""
     local pkg_urls=""
+    local pkg_uses=""
     local pkg_reqs=""
     local pkg_opts=""
     local pkg_cflags=""
@@ -1150,11 +1343,17 @@ function bldr_compile_pkg()
            --config)        pkg_cfg="$pkg_cfg:$2"; shift 2;;
            --cflags)        pkg_cflags="$pkg_cflags:$2"; shift 2;;
            --ldflags)       pkg_ldflags="$pkg_ldflags:$2"; shift 2;;
+           --uses)          pkg_uses="$pkg_uses:$2"; shift 2;;
            --requires)      pkg_reqs="$pkg_reqs:$2"; shift 2;;
            --url)           pkg_urls="$pkg_urls;$2"; shift 2;;
            * )              break ;;
         esac
     done
+
+    if [[ $(echo $pkg_opts | grep -c 'skip-compile' ) > 0 ]]
+    then
+        return
+    fi
 
     local prefix="$BLDR_LOCAL_DIR/$pkg_ctry/$pkg_name/$pkg_vers"
 
@@ -1162,14 +1361,21 @@ function bldr_compile_pkg()
     local make_path=$(bldr_locate_makefile)
     bldr_pop_dir
 
+    local output=$(bldr_get_stdout)  
+    local options="--stop"
+    if [ $BLDR_VERBOSE != true ]
+    then
+        options="$options --quiet"
+    fi
+
     # build using make if a makefile exists
     bldr_push_dir "$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers/$make_path"
     echo "Moving to '$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers/$make_path'"
     if [ -f "Makefile" ] || [ -f "$make_path/Makefile" ]
     then
-        bldr_report "Building package '$pkg_name'"
+        bldr_report "Building package '$pkg_name/$pkg_vers'"
         bldr_output_hline
-        make  || bldr_bail "Failed to build package: '$prefix'"
+        eval make $options $output || bldr_bail "Failed to build package: '$prefix'"
         bldr_output_hline
     fi
     bldr_pop_dir
@@ -1184,6 +1390,7 @@ function bldr_install_pkg()
     local pkg_desc=""
     local pkg_file=""
     local pkg_urls=""
+    local pkg_uses=""
     local pkg_reqs=""
     local pkg_opts=""
     local pkg_cflags=""
@@ -1202,6 +1409,7 @@ function bldr_install_pkg()
            --config)        pkg_cfg="$pkg_cfg:$2"; shift 2;;
            --cflags)        pkg_cflags="$pkg_cflags:$2"; shift 2;;
            --ldflags)       pkg_ldflags="$pkg_ldflags:$2"; shift 2;;
+           --uses)          pkg_uses="$pkg_uses:$2"; shift 2;;
            --requires)      pkg_reqs="$pkg_reqs:$2"; shift 2;;
            --url)           pkg_urls="$pkg_urls;$2"; shift 2;;
            * )              break ;;
@@ -1216,15 +1424,21 @@ function bldr_install_pkg()
 
     bldr_push_dir "$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers/$make_path"
 
+    local options="--stop"
+    if [ $BLDR_VERBOSE != true ]
+    then
+        options="$options --quiet"
+    fi
+
     # extract the makefile rule names and filter out empty lines and comments
     local rules=$(make -pn | grep -v ^$ | grep -v ^# | grep -c '^install:')
 
     # install using make if an 'install' rule exists
     if [[ $(echo "$rules") > 0 ]]
     then
-        bldr_report "Installing package '$pkg_name'"
+        bldr_report "Installing package '$pkg_name/$pkg_vers'"
         bldr_output_hline
-        make install || bldr_bail "Failed to install package: '$prefix'"
+        eval make $options install $output || bldr_bail "Failed to install package: '$prefix'"
         bldr_output_hline
     fi
 
@@ -1240,6 +1454,7 @@ function bldr_migrate_pkg()
     local pkg_desc=""
     local pkg_file=""
     local pkg_urls=""
+    local pkg_uses=""
     local pkg_reqs=""
     local pkg_opts=""
     local pkg_cflags=""
@@ -1258,11 +1473,17 @@ function bldr_migrate_pkg()
            --config)        pkg_cfg="$pkg_cfg:$2"; shift 2;;
            --cflags)        pkg_cflags="$pkg_cflags:$2"; shift 2;;
            --ldflags)       pkg_ldflags="$pkg_ldflags:$2"; shift 2;;
+           --uses)          pkg_uses="$pkg_uses:$2"; shift 2;;
            --requires)      pkg_reqs="$pkg_reqs:$2"; shift 2;;
            --url)           pkg_urls="$pkg_urls;$2"; shift 2;;
            * )              break ;;
         esac
     done
+
+    if [[ $(echo $pkg_opts | grep -c 'skip-migrate' ) > 0 ]]
+    then
+        return
+    fi
 
     local prefix="$BLDR_LOCAL_DIR/$pkg_ctry/$pkg_name/$pkg_vers"
 
@@ -1280,7 +1501,7 @@ function bldr_migrate_pkg()
         then
             if [ -d "$prefix/$path/pkgconfig" ] && [ -d "$PKG_CONFIG_PATH" ]
             then
-                bldr_report "Installing package config from '$prefix/$path/pkgconfig' for '$pkg_name'"
+                bldr_report "Installing package config from '$prefix/$path/pkgconfig' for '$pkg_name/$pkg_vers'"
                 bldr_output_hline
                 cp -v $prefix/$path/pkgconfig/*.pc "$PKG_CONFIG_PATH" || bldr_bail "Failed to copy pkg-config into directory: $PKG_CONFIG_PATH"
                 bldr_output_hline
@@ -1289,7 +1510,7 @@ function bldr_migrate_pkg()
     done
     bldr_pop_dir
 
-    if [[ $(echo $pkg_opts | grep -c 'migrate-raw-headers' ) > 0 ]]
+    if [[ $(echo $pkg_opts | grep -c 'migrate-build-headers' ) > 0 ]]
     then
         bldr_push_dir "$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers"
         local inc_paths="include inc man share"
@@ -1298,7 +1519,7 @@ function bldr_migrate_pkg()
             # move product into external path
             if [ -d "$path" ]
             then
-                bldr_report "Migrating build files from '$path' for '$pkg_name'"
+                bldr_report "Migrating build files from '$path' for '$pkg_name/$pkg_vers'"
                 bldr_output_hline
                 bldr_make_dir "$BLDR_LOCAL_DIR/$pkg_ctry/$pkg_name/$pkg_vers/$path"
                 bldr_copy_dir "$path" "$BLDR_LOCAL_DIR/$pkg_ctry/$pkg_name/$pkg_vers/$path" || bldr_bail "Failed to copy shared files into directory: $BLDR_LOCAL_DIR/$pkg_ctry/$pkg_name/$pkg_vers/$path"
@@ -1317,7 +1538,7 @@ function bldr_migrate_pkg()
             # move product into external path
             if [ -d "$path" ]
             then
-                bldr_report "Migrating build libraries from '$path' for '$pkg_name'"
+                bldr_report "Migrating build libraries from '$path' for '$pkg_name/$pkg_vers'"
                 bldr_output_hline
                 bldr_make_dir "$BLDR_LOCAL_DIR/$pkg_ctry/$pkg_name/$pkg_vers/$path"
                 bldr_output_hline
@@ -1333,8 +1554,15 @@ function bldr_migrate_pkg()
     then
         bldr_remove_file "$BLDR_LOCAL_DIR/$pkg_ctry/$pkg_name/latest"
     fi
-    ln -sv "$BLDR_LOCAL_DIR/$pkg_ctry/$pkg_name/$pkg_vers" "$BLDR_LOCAL_DIR/$pkg_ctry/$pkg_name/latest"
-    bldr_output_hline    
+
+    if [ $BLDR_VERBOSE != false ]
+    then
+        bldr_output_hline
+        ln -sv "$BLDR_LOCAL_DIR/$pkg_ctry/$pkg_name/$pkg_vers" "$BLDR_LOCAL_DIR/$pkg_ctry/$pkg_name/latest"
+        bldr_output_hline    
+    else
+        ln -s "$BLDR_LOCAL_DIR/$pkg_ctry/$pkg_name/$pkg_vers" "$BLDR_LOCAL_DIR/$pkg_ctry/$pkg_name/latest"
+    fi
 
     if [[ $(echo $pkg_opts | grep -c 'keep' ) > 0 ]]
     then
@@ -1357,6 +1585,7 @@ function bldr_modulate_pkg()
     local pkg_desc=""
     local pkg_file=""
     local pkg_urls=""
+    local pkg_uses=""
     local pkg_reqs=""
     local pkg_opts=""
     local pkg_cflags=""
@@ -1375,11 +1604,17 @@ function bldr_modulate_pkg()
            --config)        pkg_cfg="$pkg_cfg:$2"; shift 2;;
            --cflags)        pkg_cflags="$pkg_cflags:$2"; shift 2;;
            --ldflags)       pkg_ldflags="$pkg_ldflags:$2"; shift 2;;
+           --uses)          pkg_uses="$pkg_uses:$2"; shift 2;;
            --requires)      pkg_reqs="$pkg_reqs:$2"; shift 2;;
            --url)           pkg_urls="$pkg_urls;$2"; shift 2;;
            * )              break ;;
         esac
     done
+
+    if [[ $(echo $pkg_opts | grep -c 'skip-modulate' ) > 0 ]]
+    then
+        return
+    fi
 
     local prefix="$BLDR_LOCAL_DIR/$pkg_ctry/$pkg_name/$pkg_vers"
     local tstamp=$(date "+%Y-%m-%d-%H:%M:%S")
@@ -1387,12 +1622,20 @@ function bldr_modulate_pkg()
     local module_dir="$BLDR_MODULE_DIR/$pkg_ctry/$pkg_name"
     local module_file="$BLDR_MODULE_DIR/$pkg_ctry/$pkg_name/$pkg_vers"
 
-    bldr_push_dir "$BLDR_LOCAL_DIR/$pkg_ctry/$pkg_name/$pkg_vers"
-
     bldr_report "Modulating '$pkg_ctry' package '$pkg_name/$pkg_vers'"
     bldr_output_hline
-    bldr_make_dir "$module_dir"
-    bldr_output_hline
+    
+    if [ ! -d $module_dir ]
+    then 
+        bldr_make_dir "$module_dir"
+        bldr_output_hline
+    fi
+
+    if [ -f $module_file ]
+    then
+        bldr_remove_file $module_file
+        bldr_output_hline
+    fi
 
     local pkg_title=$(bldr_make_uppercase $pkg_name)
     pkg_title=$(echo $pkg_title|sed 's/-/_/g')
@@ -1438,6 +1681,14 @@ function bldr_modulate_pkg()
         pkg_urls=""
     fi
 
+    pkg_uses=$(bldr_trim_list_str "$pkg_uses")
+    if [ "$pkg_uses" != "" ] && [ "$pkg_uses" != " " ] && [ "$pkg_uses" != ":" ]
+    then
+        pkg_uses=$(echo $pkg_uses | bldr_split_str ":" | bldr_join_str " ")
+    else
+        pkg_uses=""
+    fi
+
     pkg_reqs=$(bldr_trim_list_str "$pkg_reqs")
     if [ "$pkg_reqs" != "" ] && [ "$pkg_reqs" != " " ] && [ "$pkg_reqs" != ":" ]
     then
@@ -1460,6 +1711,7 @@ function bldr_modulate_pkg()
     echo "# -- PkgFile:      '$pkg_file'"                   >> $module_file
     echo "# -- PkgUrls:      '$pkg_urls'"                   >> $module_file
     echo "# -- PkgOptions:   '$pkg_opts'"                   >> $module_file
+    echo "# -- PkgUses:      '$pkg_uses'"                   >> $module_file
     echo "# -- PkgRequires:  '$pkg_reqs'"                   >> $module_file
     echo "# -- PkgCFlags:    '$pkg_cflags'"                 >> $module_file
     echo "# -- PkgLDFlags:   '$pkg_ldflags'"                >> $module_file
@@ -1485,6 +1737,7 @@ function bldr_modulate_pkg()
 
     if [[ ${#line_string} -ge 1 ]]
     then
+        line_string=$(bldr_trim_str $line_string)
         echo "    puts stderr \"$line_string\""             >> $module_file
         line_string=""
     fi
@@ -1628,16 +1881,27 @@ function bldr_modulate_pkg()
     fi
 
     echo ""                                                         >> $module_file
-    bldr_pop_dir
 
-    bldr_report "Linking module '$pkg_name/$pkg_vers' as '$pkg_name/latest' ..."
-    bldr_output_hline
+
+    echo "-- Linking module '$pkg_name/$pkg_vers' as '$pkg_name/latest' ..."
+
     if [ -e "$module_dir/latest" ]
     then
         bldr_remove_file "$module_dir/latest"
+        bldr_output_hline    
     fi
-    ln -sv "$module_dir/$pkg_vers" "$module_dir/latest"
-    bldr_output_hline    
+
+    if [ $BLDR_VERBOSE != false ]
+    then       
+        bldr_output_hline    
+        ln -sv "$module_dir/$pkg_vers" "$module_dir/latest"
+        bldr_output_hline    
+    else
+        ln -s "$module_dir/$pkg_vers" "$module_dir/latest"
+    fi
+
+    bldr_report "Done modulating '$pkg_name/$pkg_vers'"
+    bldr_output_hline
 
 }
 
@@ -1652,6 +1916,7 @@ function bldr_build_pkg()
     local pkg_desc=""
     local pkg_file=""
     local pkg_urls=""
+    local pkg_uses=""
     local pkg_reqs=""
     local pkg_opts=""
     local pkg_cflags=""
@@ -1660,6 +1925,7 @@ function bldr_build_pkg()
 
     while true ; do
         case "$1" in
+           --verbose)       BLDR_VERBOSE=true; shift;;
            --name)          pkg_name="$2"; shift 2;;
            --version)       pkg_vers="$2"; shift 2;;
            --info)          pkg_info="$2"; shift 2;;
@@ -1670,6 +1936,7 @@ function bldr_build_pkg()
            --config)        pkg_cfg="$pkg_cfg:$2"; shift 2;;
            --cflags)        pkg_cflags="$pkg_cflags:$2"; shift 2;;
            --ldflags)       pkg_ldflags="$pkg_ldflags:$2"; shift 2;;
+           --uses)          pkg_uses="$pkg_uses:$2"; shift 2;;
            --requires)      pkg_reqs="$pkg_reqs:$2"; shift 2;;
            --url)           pkg_urls="$pkg_urls;$2"; shift 2;;
            * )              break ;;
@@ -1701,6 +1968,7 @@ function bldr_build_pkg()
         echo "PkgFile:      '$pkg_file'"
         echo "PkgUrls:      '$pkg_urls'"
         echo "PkgOpts:      '$pkg_opts'"
+        echo "PkgUses:      '$pkg_uses'"
         echo "PkgReqs:      '$pkg_reqs'"
         echo "PkgCFlags:    '$pkg_cflags'"
         echo "PkgLDFlags:   '$pkg_ldflags'"
@@ -1731,6 +1999,7 @@ function bldr_build_pkg()
                                   --description "$pkg_desc"    \
                                   --file        "$pkg_file"    \
                                   --url         "$pkg_urls"    \
+                                  --uses        "$pkg_uses"    \
                                   --requires    "$pkg_reqs"    \
                                   --options     "$pkg_opts"    \
                                   --cflags      "$pkg_cflags"  \
@@ -1744,6 +2013,7 @@ function bldr_build_pkg()
                                   --description "$pkg_desc"    \
                                   --file        "$pkg_file"    \
                                   --url         "$pkg_urls"    \
+                                  --uses        "$pkg_uses"    \
                                   --requires    "$pkg_reqs"    \
                                   --options     "$pkg_opts"    \
                                   --cflags      "$pkg_cflags"  \
@@ -1760,6 +2030,7 @@ function bldr_build_pkg()
                                   --description "$pkg_desc"    \
                                   --file        "$pkg_file"    \
                                   --url         "$pkg_urls"    \
+                                  --uses        "$pkg_uses"    \
                                   --requires    "$pkg_reqs"    \
                                   --options     "$pkg_opts"    \
                                   --cflags      "$pkg_cflags"  \
@@ -1773,6 +2044,7 @@ function bldr_build_pkg()
                                   --description "$pkg_desc"    \
                                   --file        "$pkg_file"    \
                                   --url         "$pkg_urls"    \
+                                  --uses        "$pkg_uses"    \
                                   --requires    "$pkg_reqs"    \
                                   --options     "$pkg_opts"    \
                                   --cflags      "$pkg_cflags"  \
@@ -1789,6 +2061,7 @@ function bldr_build_pkg()
                                   --description "$pkg_desc"    \
                                   --file        "$pkg_file"    \
                                   --url         "$pkg_urls"    \
+                                  --uses        "$pkg_uses"    \
                                   --requires    "$pkg_reqs"    \
                                   --options     "$pkg_opts"    \
                                   --cflags      "$pkg_cflags"  \
@@ -1802,6 +2075,7 @@ function bldr_build_pkg()
                                   --description "$pkg_desc"    \
                                   --file        "$pkg_file"    \
                                   --url         "$pkg_urls"    \
+                                  --uses        "$pkg_uses"    \
                                   --requires    "$pkg_reqs"    \
                                   --options     "$pkg_opts"    \
                                   --cflags      "$pkg_cflags"  \
@@ -1818,6 +2092,7 @@ function bldr_build_pkg()
                                   --description "$pkg_desc"    \
                                   --file        "$pkg_file"    \
                                   --url         "$pkg_urls"    \
+                                  --uses        "$pkg_uses"    \
                                   --requires    "$pkg_reqs"    \
                                   --options     "$pkg_opts"    \
                                   --cflags      "$pkg_cflags"  \
@@ -1831,6 +2106,7 @@ function bldr_build_pkg()
                                   --description "$pkg_desc"    \
                                   --file        "$pkg_file"    \
                                   --url         "$pkg_urls"    \
+                                  --uses        "$pkg_uses"    \
                                   --requires    "$pkg_reqs"    \
                                   --options     "$pkg_opts"    \
                                   --cflags      "$pkg_cflags"  \
@@ -1847,6 +2123,7 @@ function bldr_build_pkg()
                                   --description "$pkg_desc"    \
                                   --file        "$pkg_file"    \
                                   --url         "$pkg_urls"    \
+                                  --uses        "$pkg_uses"    \
                                   --requires    "$pkg_reqs"    \
                                   --options     "$pkg_opts"    \
                                   --cflags      "$pkg_cflags"  \
@@ -1860,6 +2137,7 @@ function bldr_build_pkg()
                                   --description "$pkg_desc"    \
                                   --file        "$pkg_file"    \
                                   --url         "$pkg_urls"    \
+                                  --uses        "$pkg_uses"    \
                                   --requires    "$pkg_reqs"    \
                                   --options     "$pkg_opts"    \
                                   --cflags      "$pkg_cflags"  \
@@ -1876,6 +2154,7 @@ function bldr_build_pkg()
                                   --description "$pkg_desc"    \
                                   --file        "$pkg_file"    \
                                   --url         "$pkg_urls"    \
+                                  --uses        "$pkg_uses"    \
                                   --requires    "$pkg_reqs"    \
                                   --options     "$pkg_opts"    \
                                   --cflags      "$pkg_cflags"  \
@@ -1889,6 +2168,7 @@ function bldr_build_pkg()
                                   --description "$pkg_desc"    \
                                   --file        "$pkg_file"    \
                                   --url         "$pkg_urls"    \
+                                  --uses        "$pkg_uses"    \
                                   --requires    "$pkg_reqs"    \
                                   --options     "$pkg_opts"    \
                                   --cflags      "$pkg_cflags"  \
@@ -1905,6 +2185,7 @@ function bldr_build_pkg()
                                   --description "$pkg_desc"    \
                                   --file        "$pkg_file"    \
                                   --url         "$pkg_urls"    \
+                                  --uses        "$pkg_uses"    \
                                   --requires    "$pkg_reqs"    \
                                   --options     "$pkg_opts"    \
                                   --cflags      "$pkg_cflags"  \
@@ -1918,6 +2199,7 @@ function bldr_build_pkg()
                                   --description "$pkg_desc"    \
                                   --file        "$pkg_file"    \
                                   --url         "$pkg_urls"    \
+                                  --uses        "$pkg_uses"    \
                                   --requires    "$pkg_reqs"    \
                                   --options     "$pkg_opts"    \
                                   --cflags      "$pkg_cflags"  \
@@ -1934,6 +2216,7 @@ function bldr_build_pkg()
                                   --description "$pkg_desc"    \
                                   --file        "$pkg_file"    \
                                   --url         "$pkg_urls"    \
+                                  --uses        "$pkg_uses"    \
                                   --requires    "$pkg_reqs"    \
                                   --options     "$pkg_opts"    \
                                   --cflags      "$pkg_cflags"  \
@@ -1947,6 +2230,7 @@ function bldr_build_pkg()
                                   --description "$pkg_desc"    \
                                   --file        "$pkg_file"    \
                                   --url         "$pkg_urls"    \
+                                  --uses        "$pkg_uses"    \
                                   --requires    "$pkg_reqs"    \
                                   --options     "$pkg_opts"    \
                                   --cflags      "$pkg_cflags"  \
@@ -1971,6 +2255,8 @@ function bldr_build_pkgs()
     then
         pkg_list="*"
     fi
+
+    pkg_list=$(bldr_trim_str $pkg_list)
 
     if [[ -d $pkg_dir ]]
     then

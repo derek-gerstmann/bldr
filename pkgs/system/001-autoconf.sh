@@ -25,12 +25,12 @@ macro calls."
 
 pkg_file="$pkg_name-$pkg_vers.tar.gz"
 pkg_urls="http://ftp.gnu.org/gnu/autoconf/$pkg_file"
+pkg_opts="configure force-static"
+pkg_uses="m4/latest"
 pkg_reqs="m4/latest"
-pkg_opts="configure:keep"
 pkg_cflags=""
 pkg_ldflags=""
-pkg_cfg="--disable-shared --enable-static"
-
+pkg_cfg=""
 
 ####################################################################################################
 # build and install pkg as local module
@@ -43,6 +43,7 @@ bldr_build_pkg --category    "system"       \
                --description "$pkg_desc"    \
                --file        "$pkg_file"    \
                --url         "$pkg_urls"    \
+               --uses        "$pkg_uses"    \
                --requires    "$pkg_reqs"    \
                --options     "$pkg_opts"    \
                --cflags      "$pkg_cflags"  \
