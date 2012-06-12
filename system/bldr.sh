@@ -985,10 +985,6 @@ function bldr_fetch_pkg()
         bldr_extract_archive $pkg_file 
         bldr_move_file $archive_listing $pkg_vers
         bldr_remove_file "$pkg_file"
-        if [ $BLDR_VERBOSE != false ]
-        then
-            bldr_log_split
-        fi    
         bldr_pop_dir
     fi
 }

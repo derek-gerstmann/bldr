@@ -31,8 +31,11 @@ pkg_cfg=""
 
 ####################################################################################################
 
+####################################################################################################
+
 function bldr_pkg_compile_method()
 {
+    local use_verbose="false"
     local pkg_ctry=""
     local pkg_name="" 
     local pkg_vers=""
@@ -46,9 +49,11 @@ function bldr_pkg_compile_method()
     local pkg_cflags=""
     local pkg_ldflags=""
     local pkg_cfg=""
+    local pkg_cfg_path=""
 
     while true ; do
         case "$1" in
+           --verbose)       use_verbose="$2"; shift 2;;
            --name)          pkg_name="$2"; shift 2;;
            --version)       pkg_vers="$2"; shift 2;;
            --info)          pkg_info="$2"; shift 2;;
@@ -57,8 +62,10 @@ function bldr_pkg_compile_method()
            --options)       pkg_opts="$2"; shift 2;;
            --file)          pkg_file="$2"; shift 2;;
            --config)        pkg_cfg="$pkg_cfg:$2"; shift 2;;
+           --config-path)   pkg_cfg_path="$2"; shift 2;;
            --cflags)        pkg_cflags="$pkg_cflags:$2"; shift 2;;
            --ldflags)       pkg_ldflags="$pkg_ldflags:$2"; shift 2;;
+           --patch)         pkg_patches="$pkg_patches:$2"; shift 2;;
            --uses)          pkg_uses="$pkg_uses:$2"; shift 2;;
            --requires)      pkg_reqs="$pkg_reqs:$2"; shift 2;;
            --url)           pkg_urls="$pkg_urls;$2"; shift 2;;
@@ -66,30 +73,60 @@ function bldr_pkg_compile_method()
         esac
     done
 
+    if [ "$use_verbose" == "true" ]
+    then
+        BLDR_VERBOSE=true
+    fi
+
+    if [[ $(echo $pkg_opts | grep -c 'skip-compile' ) > 0 ]]
+    then
+        return
+    fi
+
     local prefix="$BLDR_LOCAL_DIR/$pkg_ctry/$pkg_name/$pkg_vers"
 
     bldr_push_dir "$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers"
-    local make_path=$(bldr_locate_makefile)
+    local make_path=$(bldr_locate_makefile $pkg_cfg_path)
     bldr_pop_dir
 
-    local output=$(bldr_get_stdout)  
-
-    # build using make if a makefile exists
+    bldr_log_info "Moving to build path: '$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers/$make_path' ..."
+    bldr_log_split
     bldr_push_dir "$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers/$make_path"
-    echo "-- Moving to '$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers/$make_path'"
-    if [ -f "Makefile" ] || [ -f "$make_path/Makefile" ]
+
+    local output=$(bldr_get_stdout)
+    local options="--stop"
+    if [ $BLDR_VERBOSE != true ]
     then
-        bldr_output_hline
-        bldr_report "Building package '$pkg_name'"
-        bldr_output_hline
-        eval make PREFIX="$prefix" $output || bldr_bail "Failed to build package: '$prefix'"
-        bldr_output_hline
+        options="--quiet $options"
+    fi
+
+    if [ -f "./Makefile" ]
+    then
+        bldr_log_header "Building package '$pkg_name/$pkg_vers'"
+        bldr_log_split
+
+        ln -sv "$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers" "$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers/gsl"
+        bldr_log_split
+        
+        bldr_log_cmd "make $options PREFIX=\"$prefix\""
+        bldr_log_split
+
+        if [ $BLDR_VERBOSE != false ]
+        then
+            eval make $options PREFIX="$prefix" || bldr_bail "Failed to install package: '$prefix'"
+            bldr_log_split
+        else
+            eval make $options PREFIX="$prefix" &> /dev/null || bldr_bail "Failed to install package: '$prefix'"
+        fi
     fi
     bldr_pop_dir
 }
 
+####################################################################################################
+
 function bldr_pkg_install_method()
 {
+    local use_verbose="false"
     local pkg_ctry=""
     local pkg_name="" 
     local pkg_vers=""
@@ -103,9 +140,11 @@ function bldr_pkg_install_method()
     local pkg_cflags=""
     local pkg_ldflags=""
     local pkg_cfg=""
+    local pkg_cfg_path=""
 
     while true ; do
         case "$1" in
+           --verbose)       use_verbose="$2"; shift 2;;
            --name)          pkg_name="$2"; shift 2;;
            --version)       pkg_vers="$2"; shift 2;;
            --info)          pkg_info="$2"; shift 2;;
@@ -114,8 +153,10 @@ function bldr_pkg_install_method()
            --options)       pkg_opts="$2"; shift 2;;
            --file)          pkg_file="$2"; shift 2;;
            --config)        pkg_cfg="$pkg_cfg:$2"; shift 2;;
+           --config-path)   pkg_cfg_path="$2"; shift 2;;
            --cflags)        pkg_cflags="$pkg_cflags:$2"; shift 2;;
            --ldflags)       pkg_ldflags="$pkg_ldflags:$2"; shift 2;;
+           --patch)         pkg_patches="$pkg_patches:$2"; shift 2;;
            --uses)          pkg_uses="$pkg_uses:$2"; shift 2;;
            --requires)      pkg_reqs="$pkg_reqs:$2"; shift 2;;
            --url)           pkg_urls="$pkg_urls;$2"; shift 2;;
@@ -123,25 +164,51 @@ function bldr_pkg_install_method()
         esac
     done
 
+    if [ "$use_verbose" == "true" ]
+    then
+        BLDR_VERBOSE=true
+    fi
+
+    if [[ $(echo $pkg_opts | grep -c 'skip-compile' ) > 0 ]]
+    then
+        return
+    fi
+
     local prefix="$BLDR_LOCAL_DIR/$pkg_ctry/$pkg_name/$pkg_vers"
 
     bldr_push_dir "$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers"
-    local make_path=$(bldr_locate_makefile)
+    local make_path=$(bldr_locate_makefile $pkg_cfg_path)
     bldr_pop_dir
 
-    local output=$(bldr_get_stdout)  
-
-    # build using make if a makefile exists
+    bldr_log_info "Moving to build path: '$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers/$make_path' ..."
+    bldr_log_split
     bldr_push_dir "$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers/$make_path"
-    echo "-- Moving to '$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers/$make_path'"
-    if [ -f "Makefile" ] || [ -f "$make_path/Makefile" ]
+
+    local output=$(bldr_get_stdout)
+    local options="--stop"
+    if [ $BLDR_VERBOSE != true ]
     then
-        bldr_output_hline
-        bldr_report "Installing package '$pkg_name'"
-        bldr_output_hline
-        echo "> make install PREFIX=\"$prefix\""
-        eval make PREFIX="$prefix" install $output || bldr_bail "Failed to build package: '$prefix'"
-        bldr_output_hline
+        options="--quiet $options"
+    fi
+
+    if [ -f "./Makefile" ]
+    then
+        bldr_log_header "Building package '$pkg_name/$pkg_vers'"
+        bldr_log_split
+
+        ln -sv "$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers" "$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers/gsl"
+        bldr_log_split
+        
+        bldr_log_cmd "make $options PREFIX=\"$prefix\" install "
+        bldr_log_split
+
+        if [ $BLDR_VERBOSE != false ]
+        then
+            eval make $options PREFIX="$prefix" install || bldr_bail "Failed to install package: '$prefix'"
+            bldr_log_split
+        else
+            eval make $options PREFIX="$prefix" install &> /dev/null || bldr_bail "Failed to install package: '$prefix'"
+        fi
     fi
     bldr_pop_dir
 }

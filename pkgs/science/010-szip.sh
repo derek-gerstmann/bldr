@@ -25,12 +25,13 @@ New Mexico (UNM) and integrated with HDF4 by UNM researchers and developers. "
 
 pkg_file="$pkg_name-$pkg_vers.tar.gz"
 pkg_urls="http://www.hdfgroup.org/ftp/lib-external/szip/2.1/src/$pkg_file"
-pkg_opts="configure force-static"
+pkg_opts="cmake"
 pkg_uses="m4/latest autoconf/latest automake/latest"
 pkg_reqs=""
 pkg_cflags=""
 pkg_ldflags=""
 pkg_cfg=""
+pkg_cfg_path=""
 
 ####################################################################################################
 # build and install pkg as local module
@@ -48,6 +49,7 @@ bldr_build_pkg --category    "science"      \
                --options     "$pkg_opts"    \
                --cflags      "$pkg_cflags"  \
                --ldflags     "$pkg_ldflags" \
-               --config      "$pkg_cfg"
+               --config      "$pkg_cfg"     \
+               --config-path "$pkg_cfg_src"
 
 
