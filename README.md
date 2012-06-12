@@ -29,15 +29,15 @@ The **bldr** build process
 
 *BLDR* adopts the following pipeline for building each package:
 
-    1. *setup:* initialises package environment
-    2. *Fetch:* retrieves source tarball or clones from repository
-    3. *Boot:* launches any boot scripts to bootstrap source tree
-    4. *Config:* configures the source tree (eg via automake or *cmake*)
-    5. *Compile:* compiles the package (eg via make)
-    6. *Install:* installs the package (eg via make)
-    7. *Migrate:* migrates any additional files into the install path
-    8. *Modulate:* creates a module file to encapsulate the shell environment
-    9. *Cleanup:* removes any temporary build files
+    1. Setup: initialises the software package environment
+    2. Fetch: retrieves source tarball or clones from repository
+    3. Boot: launches any boot scripts to bootstrap source tree
+    4. Config: configures the source tree (eg via automake or *cmake*)
+    5. Compile: compiles the package (eg via make)
+    6. Install: installs the package (eg via make)
+    7. Migrate: migrates any additional files into the install path
+    8. Modulate: creates a module file to encapsulate the shell environment
+    9. Cleanup: removes any temporary build files
 
 Each of the above build phases can be overridden by a package build specification, and each of these phases are optional.
 
