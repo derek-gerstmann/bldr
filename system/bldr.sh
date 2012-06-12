@@ -62,13 +62,13 @@ function bldr_echo()
 
 function bldr_log_info()
 {
-    echo -e ${BLDR_TXT_HEADER}"--"${BLDR_TXT_INFO}" ${@} "${BLDR_TXT_RST}
+    echo -e ${BLDR_TXT_HEADER}"-- ${@} "${BLDR_TXT_RST}
 }
 
 function bldr_log_header()
 {
     local ts=$(date "+%Y-%m-%d-%H:%M:%S")
-    echo -e ${BLDR_TXT_TITLE}"[ ${ts} ]"${BLDR_TXT_TITLE}" ${@} "${BLDR_TXT_RST}
+    echo -e ${BLDR_TXT_HEADER}"[ ${ts} ]"${BLDR_TXT_TITLE}" ${@} "${BLDR_TXT_RST}
 }
 
 function bldr_log_error()
