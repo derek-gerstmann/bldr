@@ -54,17 +54,18 @@ Then, build your modular distribution via the build script:
 
 The build script will launch off a new process and perform the following:
     
-    * download any necessary tarball source packages (or checkout code from source control)
-    * configure the source tree with any specified options (detailed in the package scripts)
-    * compile using whatever detected build scripts were included in the distribution:   
-        * autoconf
-        * cmake
-        * makefile
-    * generate build output in 'bldr/build/pkg/version'
-    * install the build products into 'bldr/local/pkg/version'
-    * migrate any user specified data that was not automatically installed 
-    * generate a modulefile for use with the 'environment module' system
-    * generate symlinks for latest builds / module files
+    * Fetch any necessary files for the package
+        * Download tarball source packages 
+        * Checkout code from source control (git / svn)
+    * Configure the source tree with any specified options (detailed in the package specification)
+        * Apply any necessary patches to the source tree
+    * Compile using whatever detected build scripts were included in the distribution:   
+        * autoconf / cmake / makefile
+    * Generate build output in 'bldr/build/pkg/version'
+    * Install the build products into 'bldr/local/pkg/version'
+    * Migrate any user specified data that was not automatically installed (eg pkgconfig files)
+    * Generate a modulefile for use with the 'environment module' system
+    * Update symlinks for latest builds / module files
 
 Example packages
 ------------------
