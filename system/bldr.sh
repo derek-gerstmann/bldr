@@ -62,39 +62,23 @@ function bldr_echo()
 
 function bldr_log_info()
 {
-    local bldblu="\033[1;34m" # blue
-    local txtwht="\033[0;37m" # white
-    local txtrst="\033[0m"    # reset
-
     echo -e ${BLDR_TXT_HEADER}"--"${BLDR_TXT_INFO}" ${@} "${BLDR_TXT_RST}
 }
 
 function bldr_log_header()
 {
-    local bldblu="\033[1;34m" # blue
-    local bldwht="\033[1;37m" # white
-    local txtrst="\033[0m"    # reset
-
     local ts=$(date "+%Y-%m-%d-%H:%M:%S")
     echo -e ${BLDR_TXT_TITLE}"[ ${ts} ]"${BLDR_TXT_TITLE}" ${@} "${BLDR_TXT_RST}
 }
 
 function bldr_log_error()
 {
-    local bldred="\033[1;31m" # red
-    local txtwht="\033[1;33m" # yellow
-    local txtrst="\033[0m"    # reset
-
     local ts=$(date "+%Y-%m-%d-%H:%M:%S")
     echo -e ${BLDR_TXT_ERROR}"[ ${ts} ]" ${BLDR_TXT_WARN}" ${@} "${BLDR_TXT_RST}
 }
 
 function bldr_log_cmd()
 {
-    local bldwht="\033[1;37m" # white
-    local bldgrn="\033[1;32m" # green
-    local txtrst="\033[0m"    # reset
-
     echo -e ${BLDR_TXT_TITLE}">"${BLDR_TXT_CMD}" ${@} "${BLDR_TXT_RST}
 }
 
@@ -553,7 +537,6 @@ function bldr_extract_archive()
 {
     local archive=$1
     local extr=$(which tar)
-    bldr_log_info "Extracting '$archive'"
 
     if [ -e $BLDR_LOCAL_DIR/gtar/latest/bin/tar ]
     then
@@ -926,11 +909,8 @@ function bldr_fetch_pkg()
         bldr_log_split
     fi
     bldr_push_dir "$BLDR_CACHE_DIR"
-#    bldr_log_split
 
     # if a local copy doesn't exist, grab the pkg from the url
-    bldr_log_info "Fetching package '$BLDR_CACHE_DIR/$pkg_file'"
-    bldr_log_split
     if [ ! -f "$pkg_file" ]
     then
         local pkg_url_list=$(echo $pkg_urls | bldr_split_str ';')
@@ -952,7 +932,6 @@ function bldr_fetch_pkg()
                     bldr_log_split
                     bldr_log_info "Archiving package '$pkg_file' from '$pkg_name/$pkg_vers'"
                     bldr_make_archive $pkg_file $pkg_name
-#                    bldr_log_split
                 fi
             fi
 
@@ -964,7 +943,6 @@ function bldr_fetch_pkg()
                     bldr_log_split
                     bldr_log_info "Archiving package '$pkg_file' from '$pkg_name/$pkg_vers'"
                     bldr_make_archive $pkg_file $pkg_name
-#                    bldr_log_split
                 fi
             fi
 
@@ -1001,13 +979,13 @@ function bldr_fetch_pkg()
         bldr_push_dir "$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name"
         local archive_listing=$(bldr_list_archive $pkg_file)
 
-        bldr_log_info "Extracting package '$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_file' to '$archive_listing'"
+        bldr_log_info "Extracting package '$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_file' as '$archive_listing'"
         bldr_log_split
         
-        bldr_extract_archive $pkg_file
+        bldr_extract_archive $pkg_file 
         bldr_move_file $archive_listing $pkg_vers
         bldr_remove_file "$pkg_file"
-        if [ $BLDR_VERBOSE != true ]
+        if [ $BLDR_VERBOSE != false ]
         then
             bldr_log_split
         fi    
@@ -1151,14 +1129,8 @@ function bldr_boot_pkg()
     # bootstrap package
     if [ $bootstrap != false ]
     then
-        bldr_log_info "Moving to boot path: '$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers/$boot_path' ..."
-        bldr_log_split
         bldr_push_dir "$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers/$boot_path"
-
         local boot_cmd=$(bldr_locate_boot_script $pkg_cfg_path)
-
-        bldr_log_info "Using boot script: '$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers/$boot_path/$boot_cmd' ..."
-        bldr_log_split
 
         if [ -x "$boot_cmd" ]
         then
@@ -1170,8 +1142,11 @@ function bldr_boot_pkg()
                 eval $boot_cmd --prefix="$prefix" || bldr_bail "Failed to boot package '$pkg_name/$pkg_vers'!"
                 bldr_log_split
             else
-                eval $boot_cmd --prefix="$prefix" 1> /dev/null || bldr_bail "Failed to boot package '$pkg_name/$pkg_vers'!"
+                eval $boot_cmd --prefix="$prefix" &> /dev/null || bldr_bail "Failed to boot package '$pkg_name/$pkg_vers'!"
             fi
+        else
+            bldr_log_info "Failed to locate boot script.  Skipping... "
+            bldr_log_split
         fi
         bldr_pop_dir
     fi
@@ -1722,7 +1697,6 @@ function bldr_install_pkg()
                 bldr_log_split
             else
                 eval make $options install &> /dev/null || bldr_bail "Failed to install package: '$prefix'"
-                bldr_log_split
             fi
         fi
     fi
