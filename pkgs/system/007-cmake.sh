@@ -22,8 +22,8 @@ and workspaces that can be used in the compiler environment of your choice. "
 
 pkg_file="$pkg_name-$pkg_vers.tar.gz"
 pkg_urls="http://www.cmake.org/files/v2.8/$pkg_file"
-pkg_opts="configure force-static force-bootstrap skip-config"
-pkg_uses="m4/latest autoconf/latest automake/latest"
+pkg_opts="configure force-static force-bootstrap skip-config keep"
+pkg_uses="m4/latest autoconf/latest automake/latest libtool/latest"
 pkg_reqs=""
 pkg_cflags=""
 pkg_ldflags=""
@@ -45,6 +45,6 @@ bldr_build_pkg --category    "system"       \
                --options     "$pkg_opts"    \
                --cflags      "$pkg_cflags"  \
                --ldflags     "$pkg_ldflags" \
-               --config      "$pkg_cfg"
+               --config      "$pkg_cfg"     
 
 

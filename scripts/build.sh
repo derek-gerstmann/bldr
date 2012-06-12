@@ -43,7 +43,8 @@ usage () {
   echo "  build.sh [OPTIONS] [pkgs]                                             " >&2
   echo "                                                                        " >&2
   echo "OPTIONS                                                                 " >&2
-  echo "  -c package category (or subdirectory) to build                        " >&2
+  echo "  -c package category (or list of categories) to build                  " >&2
+  echo "  -n package name (or list of names) to build                           " >&2
   echo "  -h show help (this)                                                   " >&2
   echo "                                                                        " >&2
   echo "EXAMPLE                                                                 " >&2
@@ -53,7 +54,8 @@ usage () {
 
 ####################################################################################################
 
-pkg_names=""
+pkg_ctry=" "
+pkg_name=" "
 
 # translate long options to short
 for arg
@@ -64,6 +66,7 @@ do
        --verbose) args="${args}-v ";;
        --version) args="${args}-V ";;
        --category) args="${args}-c ";;
+       --name) args="${args}-n ";;
        # pass through anything else
        *) [[ "${arg:0:1}" == "-" ]] || delim="\""
            args="${args}${delim}${arg}${delim} ";;
@@ -74,13 +77,14 @@ done
 eval set -- $args
 
 # now we can process with getopt
-while getopts ":hdvVc:" opt; do
+while getopts ":hdvVc:n:" opt; do
     case $opt in
         V)  bldr_echo "BLDR $BLDR_VERSION_STR" && exit 1;;
         h)  usage && exit 1;;
         d)  export BLDR_DEBUG=true;;
         v)  export BLDR_VERBOSE=true;;
-        c)  pkg_names="$pkg_names:$OPTARG";;
+        c)  pkg_ctry="$pkg_ctry:$OPTARG" ;;
+        n)  pkg_name="$pkg_name:$OPTARG" ;;
         \?) usage && exit 1;;
         :)  echo "ERROR: '-$OPTARG' requires an argument!  See --help!" && exit 1 ;;
         *)  echo "ERROR: '-$OPTARG' is an unrecognized option! See --help!" && exit 1 ;;
@@ -89,6 +93,6 @@ done
 
 ####################################################################################################
 
-bldr_build_pkgs "$pkg_names" $*
+bldr_build_pkgs --category "$pkg_ctry" --name "$pkg_name" $*
 
 ####################################################################################################

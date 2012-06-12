@@ -20,9 +20,9 @@ utility functions for strings and common data structures."
 
 pkg_file="$pkg_name-$pkg_vers.tar.xz"
 pkg_urls="http://ftp.gnome.org/pub/GNOME/sources/glib/2.32/$pkg_file"
-pkg_opts="configure force-static"
+pkg_opts="configure"
 pkg_reqs="zlib/latest libiconv/latest libicu/latest libxml2/latest libffi/latest gettext/latest"
-pkg_uses="m4/latest autoconf/latest automake/latest $pkg_reqs"
+pkg_uses="tcl/latest m4/latest autoconf/latest automake/latest $pkg_reqs"
 
 pkg_cflags="-I$BLDR_LOCAL_DIR/system/zlib/latest/include"
 pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_DIR/system/libicu/latest/include"

@@ -10,32 +10,32 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_name="libicu"
-pkg_vers="49.1.2"
-pkg_info="ICU is the premier library for software internationalization."
+pkg_name="tcl"
+pkg_vers="8.5.11"
 
-pkg_desc="ICU is the premier library for software internationalization.
+pkg_info="Tool Command Language (Tcl) is an interpreted language and very portable interpreter for that language. "
 
-ICU is a mature, widely used set of C/C++ and Java libraries providing Unicode and 
-Globalization support for software applications. ICU is widely portable and gives 
-applications the same results on all platforms and between C/C++ and Java software.
-ICU is released under a nonrestrictive open source license that is suitable for use 
-with both commercial software and with other open source or free software."
+pkg_desc="Tool Command Language (Tcl) is an interpreted language and very portable interpreter for that language. 
 
-pkg_file="icu4c-49_1_2-src.tgz"
-pkg_urls="http://download.icu-project.org/files/icu4c/49.1.2/$pkg_file"
-pkg_opts="configure force-static keep"
-pkg_reqs="zlib/latest"
-pkg_uses="m4/latest autoconf/latest automake/latest $pkg_reqs"
+Tcl (Tool Command Language) is a very powerful but easy to learn dynamic programming language, 
+suitable for a very wide range of uses, including web and desktop applications, networking, 
+administration, testing and many more. Open source and business-friendly, Tcl is a mature yet 
+evolving language that is truly cross platform, easily deployed and highly extensible."
+
+pkg_file="tcl$pkg_vers-src.tar.gz"
+pkg_urls="http://prdownloads.sourceforge.net/tcl/$pkg_file"
+pkg_opts="configure"
+pkg_uses="m4/latest autoconf/latest automake/latest"
+pkg_reqs=""
+pkg_cflags=""
+pkg_ldflags=""
 pkg_cfg=""
-pkg_cflags="-I$BLDR_LOCAL_DIR/system/zlib/latest/include"
-pkg_ldflags="-L$BLDR_LOCAL_DIR/system/zlib/latest/lib"
 
 ####################################################################################################
 # build and install pkg as local module
 ####################################################################################################
 
-bldr_build_pkg --category    "system"       \
+bldr_build_pkg --category    "developer"    \
                --name        "$pkg_name"    \
                --version     "$pkg_vers"    \
                --info        "$pkg_info"    \
@@ -48,6 +48,6 @@ bldr_build_pkg --category    "system"       \
                --cflags      "$pkg_cflags"  \
                --ldflags     "$pkg_ldflags" \
                --config      "$pkg_cfg"     \
-               --config-path "source"
+               --config-path "unix"
 
 
