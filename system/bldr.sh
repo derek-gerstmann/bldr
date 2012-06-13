@@ -1083,7 +1083,8 @@ function bldr_boot_pkg()
             bldr_log_cmd "patch -p1 < $patch_file"
             bldr_log_split
 
-            patch -p1 < $patch_file || bldr_bail "Failed to apply patch '$patch_file' to package '$pkg_name/$pkg_vers'!"
+            patch -p1 -N < $patch_file
+            #  || bldr_bail "Failed to apply patch '$patch_file' to package '$pkg_name/$pkg_vers'!"
             bldr_log_split
         fi
     done

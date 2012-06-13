@@ -44,8 +44,8 @@ pkg_cfg="--with-gnu-ld --without-emacs"
 pkg_cfg="$pkg_cfg --with-included-glib"
 pkg_cfg="$pkg_cfg --with-included-libunistring"
 pkg_cfg="$pkg_cfg --with-included-libcroco"
-pkg_cfg="$pkg_cfg --with-libiconv-prefix=$BLDR_LOCAL_DIR/system/libiconv"
-pkg_cfg="$pkg_cfg --with-libxml2-prefix=$BLDR_LOCAL_DIR/system/libxml2"
+pkg_cfg="$pkg_cfg --with-libiconv-prefix=$BLDR_LOCAL_DIR/system/libiconv/latest"
+pkg_cfg="$pkg_cfg --with-libxml2-prefix=$BLDR_LOCAL_DIR/system/libxml2/latest"
 
 pkg_patch=""
 
