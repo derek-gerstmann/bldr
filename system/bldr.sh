@@ -1109,7 +1109,7 @@ function bldr_boot_pkg()
         for using in ${pkg_uses}
         do
             bldr_log_info "Loading module '$using' ..."
-            module load $using
+            module -f load $using
         done
         bldr_log_split
     fi
@@ -1143,6 +1143,7 @@ function bldr_boot_pkg()
         then
             local output=$(bldr_get_stdout)
             bldr_log_cmd "$boot_cmd --prefix=\"$prefix\""
+            bldr_log_split
 
             if [ $BLDR_VERBOSE != false ]
             then
