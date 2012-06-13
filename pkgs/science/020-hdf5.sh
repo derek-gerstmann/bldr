@@ -46,6 +46,10 @@ pkg_cfg="$pkg_cfg:-DHDF5_ENABLE_ZLIB_SUPPORT=ON"
 pkg_cfg="$pkg_cfg:-DHDF5_ENABLE_SZIP_SUPPORT=ON"
 pkg_cfg="$pkg_cfg:-DHDF5_BUILD_HL_LIB=ON"
 pkg_cfg="$pkg_cfg:-DHDF5_DISABLE_COMPILER_WARNINGS=ON"
+pkg_cfg="$pkg_cfg:-DHDF5_DISABLE_COMPILER_WARNINGS=ON"
+pkg_cfg="$pkg_cfg -DCMAKE_CXX_FLAGS='-I$BLDR_LOCAL_DIR/science/szip/latest/include -I$BLDR_LOCAL_DIR/science/szip/latest/src'"
+pkg_cfg="$pkg_cfg -DCMAKE_CPP_FLAGS='-I$BLDR_LOCAL_DIR/science/szip/latest/include -I$BLDR_LOCAL_DIR/science/szip/latest/src'"
+pkg_cfg="$pkg_cfg -DCMAKE_C_FLAGS='-I$BLDR_LOCAL_DIR/science/szip/latest/include -I$BLDR_LOCAL_DIR/science/szip/latest/src'"
 
 ####################################################################################################
 # build and install pkg as local module

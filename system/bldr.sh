@@ -1341,7 +1341,6 @@ function bldr_cmake_pkg()
         bldr_log_split
     else
         eval $cmake_exec $cmake_mod $cmake_pre $env_flags $cmake_src_path &>/dev/null || bldr_bail "Failed to configure: '$prefix'"
-        bldr_log_split
     fi
 
     bldr_log_info "Done configuring package '$pkg_name/$pkg_vers'"
@@ -1839,6 +1838,25 @@ function bldr_migrate_pkg()
     then
         bldr_push_dir "$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers"
         local inc_paths="include inc man share"
+        for path in ${inc_paths}
+        do
+            # move product into external path
+            if [ -d "$path" ]
+            then
+                bldr_log_header "Migrating build files from '$path' for '$pkg_name/$pkg_vers'"
+                bldr_log_split
+                bldr_make_dir "$BLDR_LOCAL_DIR/$pkg_ctry/$pkg_name/$pkg_vers/$path"
+                bldr_copy_dir "$path" "$BLDR_LOCAL_DIR/$pkg_ctry/$pkg_name/$pkg_vers/$path" || bldr_bail "Failed to copy shared files into directory: $BLDR_LOCAL_DIR/$pkg_ctry/$pkg_name/$pkg_vers/$path"
+                bldr_log_split
+            fi
+        done
+        bldr_pop_dir
+    fi    
+
+    if [[ $(echo $pkg_opts | grep -c 'migrate-build-source' ) > 0 ]]
+    then
+        bldr_push_dir "$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers"
+        local inc_paths="src source"
         for path in ${inc_paths}
         do
             # move product into external path
