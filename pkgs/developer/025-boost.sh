@@ -114,8 +114,9 @@ function bldr_pkg_compile_method()
     local output=$(bldr_get_stdout)  
 
     bldr_push_dir "$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers/$make_path"
-    bldr_echo "-- Moving to '$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers/$make_path'"
-    bldr_output_hline
+    bldr_log_info "Moving to '$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers/$make_path'"
+    bldr_log_split
+
 
     local env_flags=" "
     pkg_cfg=$(bldr_trim_list_str "$pkg_cfg")
@@ -144,14 +145,20 @@ function bldr_pkg_compile_method()
         pkg_ldflags=""
     fi
 
+    bldr_log_cmd "./b2 --prefix="$prefix" $pkg_cfg $env_flags"
+    bldr_log_split
+
     echo ./b2 --prefix="$prefix" $pkg_cfg $env_flags 
-    bldr_output_hline
+    bldr_log_split
 
     eval ./b2 --prefix="$prefix" $pkg_cfg $env_flags 
-    bldr_output_hline
+    bldr_log_split
+
+    bldr_log_cmd "./b2 install"
+    bldr_log_split
 
     eval ./b2 install 
-    bldr_output_hline
+    bldr_log_split
     bldr_pop_dir
 }
 
