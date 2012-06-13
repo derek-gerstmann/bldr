@@ -720,7 +720,13 @@ function bldr_copy_file()
 {
     local src=$1
     local dst=$2
-    cp ${src} ${dst}  || bldr_bail "Failed to copy file!"
+    local frc=$3
+    if [ $frc ]
+    then
+        cp -f ${src} ${dst}  || bldr_bail "Failed to copy file!"
+    else
+        cp ${src} ${dst}  || bldr_bail "Failed to copy file!"
+    fi
 }
 
 function bldr_make_archive()
