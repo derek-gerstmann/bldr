@@ -141,9 +141,19 @@ export BLDR_SYSTEM_IS_OSX=$( uname -s | grep -c Darwin )
 if [ "$BLDR_SYSTEM_IS_OSX" -eq 1 ]
 then
     export BLDR_OS_NAME="osx"
-    export MACOSX_DEPLOYMENT_TARGET=10.6
-    export LDFLAGS="-arch x86_64 -isysroot /Developer/SDKs/MacOSX10.6.sdk"
-    export CFLAGS="-arch x86_64 -isysroot /Developer/SDKs/MacOSX10.6.sdk"
+    if [ -d "/Developer/SDKs/MacOSX10.6.sdk" ]
+    then
+        export MACOSX_DEPLOYMENT_TARGET=10.6
+        export LDFLAGS="-arch x86_64 -isysroot /Developer/SDKs/MacOSX10.6.sdk"
+        export CFLAGS="-arch x86_64 -isysroot /Developer/SDKs/MacOSX10.6.sdk"
+    else
+        if [ -d "/Developer/SDKs/MacOSX10.7.sdk" ]
+        then
+            export MACOSX_DEPLOYMENT_TARGET=10.7
+            export LDFLAGS="-arch x86_64 -isysroot /Developer/SDKs/MacOSX10.7.sdk"
+            export CFLAGS="-arch x86_64 -isysroot /Developer/SDKs/MacOSX10.7.sdk"
+        fi        
+    fi
 fi
 
 export BLDR_SYSTEM_IS_CENTOS=0
