@@ -38,7 +38,7 @@ pkg_ldflags="$pkg_ldflags:-licudata:-licui18n:-licuio:-licule:-liculx:-licutest:
 pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_DIR/system/libiconv/latest/lib:-liconv"
 pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_DIR/system/gettext/latest/lib:-lasprintf:-lgettextpo"
 
-pkg_cfg="" 
+pkg_cfg="--with-libiconv=gnu" 
 
 ####################################################################################################
 # build and install pkg as local module
