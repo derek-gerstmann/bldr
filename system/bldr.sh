@@ -79,7 +79,32 @@ function bldr_log_error()
 
 function bldr_log_cmd()
 {
-    echo -e ${BLDR_TXT_TITLE}">"${BLDR_TXT_CMD}" ${@} "${BLDR_TXT_RST}
+    local first_line=true
+    local line_string=""
+    local log_lines=$(echo ${@} | bldr_split_str ' \n')
+    for word in ${log_lines}
+    do
+        line_string="$line_string $word"
+        if [[ ${#line_string} -ge 1 ]]
+        then
+            if [ $first_line == true ]
+            then
+                echo -e ${BLDR_TXT_TITLE}">"${BLDR_TXT_CMD}" $line_string "${BLDR_TXT_RST}
+                first_line=false
+            else
+                line_string=$(bldr_trim_str $line_string)
+                echo -e ${BLDR_TXT_TITLE}"      "${BLDR_TXT_CMD}" $line_string "${BLDR_TXT_RST}
+            fi
+        fi
+        line_string=""
+    done
+
+    if [[ ${#line_string} -ge 1 ]]
+    then
+        line_string=$(bldr_trim_str $line_string)
+        echo -e ${BLDR_TXT_TITLE}"      "${BLDR_TXT_CMD}" $line_string "${BLDR_TXT_RST}
+        line_string=""
+    fi
 }
 
 function bldr_exec()
@@ -451,7 +476,7 @@ function bldr_clone()
     local url=$1
     local dir=$2
 
-    local cmd="$(which wget)"
+    local cmd="$(which git)"
     if [ -e $cmd ];
     then
         cmd="git bldr_clone"
@@ -506,11 +531,11 @@ function bldr_fetch()
         bldr_log_split
         if [ "$usepipe" -eq 1 ]
         then
-            echo "> $cmd $url > $archive"
+            bldr_log_cmd "$cmd $url > $archive"
             bldr_log_split
             $cmd $url > $archive
         else
-            echo "> $cmd $archive $url"
+            bldr_log_cmd "$cmd $archive $url"
             bldr_log_split
             $cmd $archive $url
         fi
@@ -1632,7 +1657,7 @@ function bldr_compile_pkg()
         bldr_log_header "Building package '$pkg_name/$pkg_vers'"
         bldr_log_split
         
-        bldr_log_cmd "make $options"
+        bldr_log_cmd "make"
         bldr_log_split
 
         if [ $BLDR_VERBOSE != false ]
@@ -1641,7 +1666,6 @@ function bldr_compile_pkg()
             bldr_log_split
         else
             eval make $options &> /dev/null || bldr_bail "Failed to install package: '$prefix'"
-            bldr_log_split
         fi
     fi
     bldr_pop_dir
@@ -1717,7 +1741,7 @@ function bldr_install_pkg()
             bldr_log_header "Installing package '$pkg_name/$pkg_vers'"
             bldr_log_split
 
-            bldr_log_cmd "make $options install"
+            bldr_log_cmd "make install"
             bldr_log_split
 
             if [ $BLDR_VERBOSE != false ]

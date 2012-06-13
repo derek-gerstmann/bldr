@@ -100,8 +100,8 @@ function bldr_pkg_compile_method()
     local output=$(bldr_get_stdout)  
 
     bldr_push_dir "$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers/$make_path"
-    bldr_echo "-- Moving to '$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers/$make_path'"
-    bldr_output_hline
+    bldr_log_info "Moving to '$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers/$make_path'"
+    bldr_log_split
 
     # on OSX disable the tools from getting built since tiffgt.c fails to compile
     #
@@ -112,7 +112,7 @@ function bldr_pkg_compile_method()
         echo " "         >> tools/Makefile
         echo "install: " >> tools/Makefile
         echo " "         >> tools/Makefile
-        bldr_output_hline
+        bldr_log_split
     fi
     bldr_pop_dir
 
