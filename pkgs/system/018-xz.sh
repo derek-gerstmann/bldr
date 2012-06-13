@@ -26,12 +26,12 @@ output than gzip and 15 % smaller output than bzip2. "
 
 pkg_file="$pkg_name-$pkg_vers.tar.gz"
 pkg_urls="http://tukaani.org/xz/$pkg_file"
-pkg_opts="configure force-static"
+pkg_opts="configure"
 pkg_uses="m4/latest autoconf/latest automake/latest libtool/latest"
 pkg_reqs=""
 pkg_cflags=""
 pkg_ldflags=""
-pkg_cfg=""
+pkg_cfg="--enable-static --enable-shared"
 
 ####################################################################################################
 # build and install pkg as local module

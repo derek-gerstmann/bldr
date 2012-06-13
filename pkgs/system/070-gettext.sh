@@ -28,7 +28,7 @@ remainder of the Translation Project, and consequently, have a glimpse at the bi
 
 pkg_file="$pkg_name-$pkg_vers.tar.gz"
 pkg_urls="http://ftp.gnu.org/pub/gnu/gettext/$pkg_file"
-pkg_opts="configure force-static"
+pkg_opts="configure"
 pkg_reqs="zlib/latest libiconv/latest libicu/latest libxml2/latest"
 pkg_uses="m4/latest autoconf/latest automake/latest libtool/latest $pkg_reqs"
 

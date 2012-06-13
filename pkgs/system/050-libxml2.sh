@@ -24,10 +24,10 @@ it available in other environments."
 
 pkg_file="$pkg_name-$pkg_vers.tar.gz"
 pkg_urls="http://xmlsoft.org/sources/$pkg_file"
-pkg_opts="configure force-static"
+pkg_opts="configure"
 pkg_reqs="zlib/latest"
 pkg_uses="m4/latest autoconf/latest automake/latest $pkg_reqs"
-pkg_cfg=""
+pkg_cfg="--enable-static --enable-shared"
 pkg_cflags="-I$BLDR_LOCAL_DIR/system/zlib/latest/include"
 pkg_ldflags="-L$BLDR_LOCAL_DIR/system/zlib/latest/lib"
 

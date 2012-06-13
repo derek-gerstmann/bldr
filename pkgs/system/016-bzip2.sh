@@ -27,7 +27,7 @@ pkg_uses="m4/latest autoconf/latest automake/latest libtool/latest"
 pkg_reqs=""
 pkg_cflags=""
 pkg_ldflags=""
-pkg_cfg=""
+pkg_cfg="--enable-static --enable-shared"
 
 ####################################################################################################
 
