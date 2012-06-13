@@ -1443,14 +1443,6 @@ function bldr_config_pkg()
     if [ $use_amake != 0 ] && [ $has_amake != 0 ]
     then
         local env_flags=" "
-        if [ "$BLDR_SYSTEM_IS_CENTOS" -eq 1 ]
-        then
-            if [ "$pkg_cflags" != "" ] && [ "$pkg_cflags" != " " ]  && [ "$pkg_cflags" != ":" ]
-            then
-                pkg_cflags="$pkg_cflags":-I/usr/include
-                pkg_ldflags="$pkg_ldflags":-L/usr/lib64:-L/usr/lib
-            fi
-        fi
 
         pkg_cfg=$(bldr_trim_list_str "$pkg_cfg")
         if [ "$pkg_cfg" != "" ] && [ "$pkg_cfg" != " " ] && [ "$pkg_cfg" != ":" ]
@@ -1464,20 +1456,49 @@ function bldr_config_pkg()
         if [ "$pkg_cflags" != "" ] && [ "$pkg_cflags" != " " ]  && [ "$pkg_cflags" != ":" ]
         then
             pkg_cflags=$(echo $pkg_cflags | bldr_split_str ":" | bldr_join_str " ")
-#            env_flags='CXXFLAGS="'$pkg_cflags'" CPPFLAGS="'$pkg_cflags'" CFLAGS="'$pkg_cflags'"'
-            env_flags="CXXFLAGS=\"$pkg_cflags $CXXFLAGS\" CPPFLAGS=\"$pkg_cflags $CPPFLAGS\" CFLAGS=\"$pkg_cflags $CFLAGS\""
+            if [ "$BLDR_SYSTEM_IS_CENTOS" -eq 1 ]
+            then
+                pkg_cflags="$pkg_cflags":-I/usr/include
+            fi
         else
             pkg_cflags=""
+        fi
+
+        local all_cxxflags=$(bldr_trim_str "$pkg_cflags $CXXFLAGS")
+        if [ "$all_cxxflags" != "" ]
+        then
+            env_flags="$env_flags CXXFLAGS=\"$all_cxxflags\""
+        fi
+
+        local all_cppflags=$(bldr_trim_str "$pkg_cflags $CPPFLAGS")
+        if [ "$all_cppflags" != "" ]
+        then
+            env_flags="$env_flags CPPFLAGS=\"$all_cppflags\""
+        fi
+
+        local all_cflags=$(bldr_trim_str "$pkg_cflags $CFLAGS")
+        if [ "$all_cflags" != "" ]
+        then
+            env_flags="$env_flags CFLAGS=\"$all_cflags\""
         fi
 
         pkg_ldflags=$(bldr_trim_list_str "$pkg_ldflags")
         if [ "$pkg_ldflags" != "" ] && [ "$pkg_ldflags" != " " ] && [ "$pkg_ldflags" != ":" ]
         then
             pkg_ldflags=$(echo $pkg_ldflags | bldr_split_str ":" | bldr_join_str " ")
-#            env_flags=$env_flags' LDFLAGS="'$pkg_ldflags'"'
-            env_flags="$env_flags LDFLAGS=\"$pkg_ldflags $LDFLAGS\""
+            if [ "$BLDR_SYSTEM_IS_CENTOS" -eq 1 ]
+            then
+                pkg_ldflags="$pkg_ldflags":-L/usr/lib64:-L/usr/lib
+            fi
+
         else
             pkg_ldflags=""
+        fi
+
+        local all_ldflags=$(bldr_trim_str "$pkg_ldflags $LDFLAGS")
+        if [ "$all_ldflags" != "" ]
+        then
+            env_flags="$env_flags LDFLAGS=\"$all_ldflags\""
         fi
 
         local use_static=false
