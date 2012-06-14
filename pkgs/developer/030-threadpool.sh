@@ -31,8 +31,8 @@ Pools can be customized, managed dynamically and easily integrated into your sof
 
 pkg_file="threadpool-0_2_5-src.zip"
 pkg_urls="http://prdownloads.sourceforge.net/threadpool/$pkg_file"
-pkg_opts="configure force-static skip-compile"
-pkg_reqs="zlib/latest bzip2/latest boost/latest"
+pkg_opts="configure force-static skip-compile keep"
+pkg_reqs="zlib/latest bzip2/latest libicu/latest boost/latest"
 pkg_uses="m4/latest autoconf/latest automake/latest $pkg_reqs"
 pkg_cflags=""
 pkg_ldflags=""
@@ -94,7 +94,7 @@ function bldr_pkg_install_method()
 
     bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$make_path"
 
-    local hdr_path="boost/threadpool"
+    local hdr_path="boost"
     if [ -d "$hdr_path" ]
     then
         bldr_log_header "Migrating build files from '$hdr_path' for '$pkg_name/$pkg_vers'"

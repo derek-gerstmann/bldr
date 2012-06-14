@@ -313,69 +313,86 @@ fi
 
 ####################################################################################################
 
-# import our internal tools for usage
-if [ -d "$BLDR_LOCAL_PATH/internal" ]
-then
-    loaded_internal=false
-    for internal_path in "$BLDR_LOCAL_PATH/internal"/*
-    do
-        if [ $BLDR_DEBUG != false ]
-        then
-            bldr_log_info "Using internal utility: '$internal_path'"
-            loaded_internal=true
-        fi
-        if [[ -d "$internal_path/latest/bin" ]]
-        then
-            export PATH="$internal_path/latest/bin:$PATH"
-        fi
-        if [[ -d "$internal_path/latest/lib" ]]
-        then
-            export LD_LIBRARY_PATH="$internal_path/latest/lib:$LD_LIBRARY_PATH"
-            if [ "$BLDR_SYSTEM_IS_OSX" -eq 1 ]
-            then
-                export DYLD_LIBRARY_PATH="$internal_path/latest/lib:$DYLD_LIBRARY_PATH"
-            fi
-        fi
-    done
-    if [ $loaded_internal != false ]
+function bldr_load_internal()
+{
+    if [ -d "$BLDR_LOCAL_PATH/internal" ]
     then
-        bldr_log_split
+        loaded_internal=false
+        for internal_path in "$BLDR_LOCAL_PATH/internal"/*
+        do
+            if [ $BLDR_DEBUG != false ]
+            then
+                bldr_log_info "Using internal utility: '$internal_path'"
+                loaded_internal=true
+            fi
+            if [[ -d "$internal_path/latest/bin" ]]
+            then
+                export PATH="$internal_path/latest/bin:$PATH"
+            fi
+            if [[ -d "$internal_path/latest/lib" ]]
+            then
+                export LD_LIBRARY_PATH="$internal_path/latest/lib:$LD_LIBRARY_PATH"
+                if [ "$BLDR_SYSTEM_IS_OSX" -eq 1 ]
+                then
+                    export DYLD_LIBRARY_PATH="$internal_path/latest/lib:$DYLD_LIBRARY_PATH"
+                fi
+            fi
+        done
+        if [ $loaded_internal != false ]
+        then
+            bldr_log_split
+        fi
     fi
-fi
+}
 
-# setup the environment to support our own version of MODULES
-if [ -d "$BLDR_LOCAL_PATH/internal/modules/latest" ]
-then
-    for md_path in "$BLDR_LOCAL_PATH/internal/modules/latest/Modules"/*
-    do
-        if [[ -d "$md_path/bin" ]]
-        then
-            export PATH="$md_path/bin:$PATH"
-        fi
-        if [[ -d "$md_path/init" ]]
-        then
-            source "$md_path/init/bash"
-        fi
-    done
+function bldr_load_modules()
+{
+    if [ -d "$BLDR_LOCAL_PATH/internal/modules/latest" ]
+    then
+        for md_path in "$BLDR_LOCAL_PATH/internal/modules/latest/Modules"/*
+        do
+            if [[ -d "$md_path/bin" ]]
+            then
+                export PATH="$md_path/bin:$PATH"
+            fi
+            if [[ -d "$md_path/init" ]]
+            then
+                source "$md_path/init/bash"
+            fi
+        done
 
-    for md_path in $BLDR_MODULE_PATH/*
-    do
-        md_name=$(basename $md_path)
-        module use "$BLDR_MODULE_PATH/$md_name"
-    done
-fi
+        module use "$BLDR_MODULE_PATH/internal"
+        module use "$BLDR_MODULE_PATH/system"
+
+        for md_path in $BLDR_MODULE_PATH/*
+        do
+            local md_name=$(basename $md_path)
+            module use "$BLDR_MODULE_PATH/$md_name"
+        done
+    fi
+}
 
 # setup the environment to support our own version of PKG_CONFIG
-if [ -d "$BLDR_LOCAL_PATH/internal/pkg-config/latest/bin" ]
-then
-    if [ ! -d "$BLDR_LOCAL_PATH/internal/pkg-config/latest/lib/pkgconfig" ]
+function bldr_load_pkgconfig()
+{
+    if [ -d "$BLDR_LOCAL_PATH/internal/pkg-config/latest/bin" ]
     then
-        mkdir -p "$BLDR_LOCAL_PATH/internal/pkg-config/latest/lib/pkgconfig"
-    fi
+        if [ ! -d "$BLDR_LOCAL_PATH/internal/pkg-config/latest/lib/pkgconfig" ]
+        then
+            mkdir -p "$BLDR_LOCAL_PATH/internal/pkg-config/latest/lib/pkgconfig"
+        fi
 
-    export PKG_CONFIG=$BLDR_LOCAL_PATH/internal/pkg-config/latest/bin/pkg-config
-    export PKG_CONFIG_PATH=$BLDR_LOCAL_PATH/internal/pkg-config/latest/lib/pkgconfig
-fi
+        export PKG_CONFIG=$BLDR_LOCAL_PATH/internal/pkg-config/latest/bin/pkg-config
+        export PKG_CONFIG_PATH=$BLDR_LOCAL_PATH/internal/pkg-config/latest/lib/pkgconfig
+    fi
+}
+
+####################################################################################################
+
+# import our internal tools for usage
+bldr_load_internal
+bldr_load_modules
+bldr_load_pkgconfig
 
 ####################################################################################################
 
@@ -1724,7 +1741,16 @@ function bldr_compile_pkg()
 
     if [ $BLDR_PARALLEL != false ]
     then
-        options="-j $options"
+        local procs=2
+        if [ $BLDR_SYSTEM_IS_OSX -eq 1 ]
+        then
+            procs=$(sysctl -n hw.ncpu)
+        fi
+        if [ $BLDR_SYSTEM_IS_LINUX -eq 1 ]
+        then
+            procs=$(grep "^core id" /proc/cpuinfo | sort -u | wc -l)
+        fi
+        options="-j$procs $options"
     fi
 
     if [ -f "./Makefile" ]
@@ -2902,3 +2928,66 @@ function bldr_build_pkgs()
 
 ####################################################################################################
 
+function bldr_load_pkgs()
+{
+    local use_verbose="false"
+    local pkg_ctry=""
+    local pkg_name="" 
+    local pkg_version=""
+
+    while true ; do
+        case "$1" in
+           --verbose)       use_verbose="$2"; shift 2;;
+           --name)          pkg_name="$2"; shift 2;;
+           --category)      pkg_ctry="$2"; shift 2;;
+           --version)       pkg_vers="$2"; shift 2;;
+           * )              break ;;
+        esac
+    done
+
+    if [ "$use_verbose" == "true" ]
+    then
+        BLDR_VERBOSE=true
+    fi
+
+    local pkg_ctry=$(echo "$pkg_ctry" | bldr_split_str ":" | bldr_join_str " ")
+    local pkg_list=$(echo "$pkg_name" | bldr_split_str ":" | bldr_join_str " ")
+    local md_path="$BLDR_MODULE_PATH"
+
+    pkg_list=$(bldr_trim_str $pkg_list)
+
+    # push the system category onto the list if it hasn't been built yet
+    pkg_ctry=$(bldr_trim_str $pkg_ctry)
+    if [ "$pkg_ctry" == "" ] || [ "$pkg_ctry" == "all" ]
+    then
+        pkg_ctry="*"
+    else
+        pkg_ctry="internal system $pkg_ctry"
+        pkg_ctry=$(bldr_trim_str $pkg_ctry)
+    fi
+
+    md_list=$(bldr_trim_str $pkg_list)
+
+    if [[ -d $md_path ]]
+    then
+        local builder
+        bldr_log_split
+        bldr_log_header "Loading for '$pkg_ctry' in '$md_path'..."
+        bldr_log_split
+        for pkg_category in $md_path/$pkg_ctry
+        do
+            local base_ctry=$(basename $pkg_category)
+
+            bldr_log_info "Loading category '$base_ctry'"
+            bldr_log_split
+
+            module use $md_path/$base_ctry
+
+            for entry in $md_path/$base_ctry/*
+            do
+                local base_entry=$(basename $entry)
+                module load -f $base_entry || bldr_bail "Failed to load module '$entry'!"
+            done
+        done
+    fi
+}

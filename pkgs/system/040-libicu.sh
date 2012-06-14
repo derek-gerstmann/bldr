@@ -27,7 +27,7 @@ pkg_urls="http://download.icu-project.org/files/icu4c/49.1.2/$pkg_file"
 pkg_opts="configure force-serial-build"
 pkg_reqs="zlib/latest"
 pkg_uses="m4/latest autoconf/latest automake/latest $pkg_reqs"
-pkg_cfg="--enable-static --enable-shared"
+pkg_cfg=""
 pkg_cflags="-I$BLDR_LOCAL_PATH/system/zlib/latest/include"
 pkg_ldflags="-L$BLDR_LOCAL_PATH/system/zlib/latest/lib"
 

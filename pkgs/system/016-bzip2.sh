@@ -22,12 +22,12 @@ compression and six times faster at decompression."
 
 pkg_file="$pkg_name-$pkg_vers.tar.gz"
 pkg_urls="http://www.bzip.org/1.0.6/$pkg_file"
-pkg_opts="configure force-static"
+pkg_opts="configure"
 pkg_uses="m4/latest autoconf/latest automake/latest libtool/latest"
 pkg_reqs=""
 pkg_cflags=""
 pkg_ldflags=""
-pkg_cfg="--enable-static --enable-shared"
+pkg_cfg=""
 
 ####################################################################################################
 

@@ -21,7 +21,7 @@ It has been adopted by the GNU project and is now relatively popular on the Inte
 
 pkg_file="$pkg_name-$pkg_vers.tar.gz"
 pkg_urls="http://ftp.gnu.org/gnu/gzip/$pkg_file"
-pkg_opts="configure force-static"
+pkg_opts="configure"
 pkg_uses="m4/latest autoconf/latest automake/latest libtool/latest"
 pkg_reqs=""
 pkg_cflags=""
