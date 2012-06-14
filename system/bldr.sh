@@ -56,6 +56,116 @@ fi
 
 ####################################################################################################
 
+
+function bldr_get_stdout()
+{
+    local output=""    
+    if [ $BLDR_VERBOSE != false ]
+    then
+        output="&>1"
+    else
+        output="&>/dev/null"
+    fi
+    echo $output
+}
+
+function bldr_make_lowercase()
+{
+    echo $1 | tr '[:upper:]' '[:lower:]'
+}
+
+function bldr_make_uppercase()
+{
+    echo $1 | tr '[:lower:]' '[:upper:]'
+}
+
+function bldr_resolve_path()
+{
+    cd "$1" 2>/dev/null || return $? 
+    local resolved="`pwd -P`"
+    echo "$resolved"
+}
+
+function bldr_unquote_str
+{
+    echo "${@}" | sed 's/^"*//g' | sed 's/"*$//g' 
+}
+
+function bldr_trim_str
+{
+    echo "${@}" | sed 's/^ *//g' | sed 's/ *$//g' 
+}
+
+function bldr_trim_list_str
+{
+    echo "${@}" | sed 's/^:*//g' | sed 's/:*$//g'
+}
+
+function bldr_trim_url_str
+{
+    echo "${@}" | sed 's/^;*//g' | sed 's/;*$//g'
+}
+
+function bldr_match_str
+{
+    local $str
+    local $fnd
+    local cnt=$(echo $str | grep -c '^'$fnd':')
+    echo "$cnt"
+}
+
+function bldr_quote_str
+{
+    local filename=$1
+
+    sed $filename \
+        -e 's#\\#\\\\#' \
+        -e 's#/#\\/#' \
+        -e 's#\.#\\.#' \
+        -e 's#\*#\\*#' \
+        -e 's#\[#\\[#'
+
+    return $?
+}
+
+function bldr_split_str
+{
+    local BLDR_DEFAULT_DELIMITER=" "
+
+    local a_delimiter="${1:-$BLDR_DEFAULT_DELIMITER}"
+    local a_inputfile="$2"
+
+    awk -F "$a_delimiter" \
+    '{  for(i = 1; i <= NF; i++) {
+            print $i
+        }
+    }' $a_inputfile
+
+    return $?
+}
+
+function bldr_join_str
+{
+    local BLDR_DEFAULT_DELIMITER=" "
+
+    local a_delimiter="${1:-$BLDR_DEFAULT_DELIMITER}"
+    local a_inputfile="$2"
+
+    awk -v usersep="$a_delimiter" '
+    BEGIN{
+        sep=""; # Start with no bldr_log_split (before the first item)
+    }
+    {
+        printf("%s%s", sep, $0);
+        (NR == 1) && sep = usersep; # Separator is set after the first item.
+    }
+    END{
+        print "" # Print a new line at the end.
+    }' $a_inputfile
+    
+    return $?
+}
+
 function bldr_echo()
 {
     echo "${@}"
@@ -245,8 +355,13 @@ then
         if [[ -d "$md_path/init" ]]
         then
             source "$md_path/init/bash"
-            module use $BLDR_MODULE_PATH/internal
         fi
+    done
+
+    for md_path in $BLDR_MODULE_PATH/*
+    do
+        md_name=$(basename $md_path)
+        module use "$BLDR_MODULE_PATH/$md_name"
     done
 fi
 
@@ -263,63 +378,6 @@ then
 fi
 
 ####################################################################################################
-
-function bldr_get_stdout()
-{
-    local output=""    
-    if [ $BLDR_VERBOSE != false ]
-    then
-        output="&>1"
-    else
-        output="&>/dev/null"
-    fi
-    echo $output
-}
-
-function bldr_make_lowercase()
-{
-    echo $1 | tr '[:upper:]' '[:lower:]'
-}
-
-function bldr_make_uppercase()
-{
-    echo $1 | tr '[:lower:]' '[:upper:]'
-}
-
-function bldr_resolve_path()
-{
-    cd "$1" 2>/dev/null || return $? 
-    local resolved="`pwd -P`"
-    echo "$resolved"
-}
-
-function bldr_unquote_str
-{
-    echo "${@}" | sed 's/^"*//g' | sed 's/"*$//g' 
-}
-
-function bldr_trim_str
-{
-    echo "${@}" | sed 's/^ *//g' | sed 's/ *$//g' 
-}
-
-function bldr_trim_list_str
-{
-    echo "${@}" | sed 's/^:*//g' | sed 's/:*$//g'
-}
-
-function bldr_trim_url_str
-{
-    echo "${@}" | sed 's/^;*//g' | sed 's/;*$//g'
-}
-
-function bldr_match_str
-{
-    local $str
-    local $fnd
-    local cnt=$(echo $str | grep -c '^'$fnd':')
-    echo "$cnt"
-}
 
 function bldr_locate_makefile
 {
@@ -396,58 +454,6 @@ function bldr_locate_config_path
     local script=$(bldr_locate_config_script "$given")
     local path=$(dirname "$script")
     echo "$path"
-}
-
-function bldr_quote_str
-{
-    local filename=$1
-
-    sed $filename \
-        -e 's#\\#\\\\#' \
-        -e 's#/#\\/#' \
-        -e 's#\.#\\.#' \
-        -e 's#\*#\\*#' \
-        -e 's#\[#\\[#'
-
-    return $?
-}
-
-function bldr_split_str
-{
-    local BLDR_DEFAULT_DELIMITER=" "
-
-    local a_delimiter="${1:-$BLDR_DEFAULT_DELIMITER}"
-    local a_inputfile="$2"
-
-    awk -F "$a_delimiter" \
-    '{  for(i = 1; i <= NF; i++) {
-            print $i
-        }
-    }' $a_inputfile
-
-    return $?
-}
-
-function bldr_join_str
-{
-    local BLDR_DEFAULT_DELIMITER=" "
-
-    local a_delimiter="${1:-$BLDR_DEFAULT_DELIMITER}"
-    local a_inputfile="$2"
-
-    awk -v usersep="$a_delimiter" '
-    BEGIN{
-        sep=""; # Start with no bldr_log_split (before the first item)
-    }
-    {
-        printf("%s%s", sep, $0);
-        (NR == 1) && sep = usersep; # Separator is set after the first item.
-    }
-    END{
-        print "" # Print a new line at the end.
-    }' $a_inputfile
-    
-    return $?
 }
 
 function bldr_output_header()
@@ -2835,23 +2841,24 @@ function bldr_build_pkgs()
     local pkg_dir="$BLDR_PKGS_PATH"
 
     # push the system category onto the list if it hasn't been built yet
-    for internal_pkg in "internal system"
-    do
-        if [[ ! -d $BLDR_LOCAL_PATH/$internal_pkg ]]
-        then
-            if [[ $(echo $pkg_ctry | grep -c "$internal_pkg" ) < 1 ]]
-            then
-                pkg_ctry="$internal_pkg $pkg_ctry"
-            fi
-        fi
-    done
-
-    if [ ! "$pkg_ctry" ]
+    pkg_ctry=$(bldr_trim_str $pkg_ctry)
+    if [ "$pkg_ctry" == "" ]
     then
         pkg_ctry="*"
+    else
+        for internal_pkg in "internal system"
+        do
+            if [[ ! -d $BLDR_LOCAL_PATH/$internal_pkg ]]
+            then
+                if [[ $(echo $pkg_ctry | grep -c "$internal_pkg" ) < 1 ]]
+                then
+                    pkg_ctry="$internal_pkg $pkg_ctry"
+                fi
+            fi
+        done
+        pkg_ctry=$(bldr_trim_str $pkg_ctry)
     fi
 
-    pkg_ctry=$(bldr_trim_str $pkg_ctry)
     pkg_list=$(bldr_trim_str $pkg_list)
 
     if [[ -d $pkg_dir ]]
@@ -2860,9 +2867,9 @@ function bldr_build_pkgs()
         bldr_log_split
         bldr_log_header "Starting build for '$pkg_ctry' in '$pkg_dir'..."
         bldr_log_split
-        for pkg_category in $pkg_ctry
+        for pkg_category in $pkg_dir/$pkg_ctry
         do
-            for pkg_def in "$pkg_dir/$pkg_category"/*
+            for pkg_def in $pkg_category/*
             do
                 if [[ ! -x $pkg_def ]]
                 then
@@ -2873,7 +2880,7 @@ function bldr_build_pkgs()
                 then
                     if [ $BLDR_VERBOSE != false ]
                     then
-                        bldr_log_info "Building '$entry' from '$pkg_def'"
+                        bldr_log_info "Building '$pkg_def'"
                         bldr_log_split
                     fi
                     eval $pkg_def || exit -1
