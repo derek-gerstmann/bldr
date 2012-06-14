@@ -24,7 +24,7 @@ evolving language that is truly cross platform, easily deployed and highly exten
 
 pkg_file="tcl$pkg_vers-src.tar.gz"
 pkg_urls="http://prdownloads.sourceforge.net/tcl/$pkg_file"
-pkg_opts="configure"
+pkg_opts="configure force-serial-build"
 pkg_uses="m4/latest autoconf/latest automake/latest"
 pkg_reqs=""
 pkg_cflags=""
