@@ -2846,16 +2846,7 @@ function bldr_build_pkgs()
     then
         pkg_ctry="*"
     else
-        for internal_pkg in "internal system"
-        do
-            if [[ ! -d $BLDR_LOCAL_PATH/$internal_pkg ]]
-            then
-                if [[ $(echo $pkg_ctry | grep -c "$internal_pkg" ) < 1 ]]
-                then
-                    pkg_ctry="$internal_pkg $pkg_ctry"
-                fi
-            fi
-        done
+        pkg_ctry="internal system $pkg_ctry"
         pkg_ctry=$(bldr_trim_str $pkg_ctry)
     fi
 
@@ -2869,7 +2860,11 @@ function bldr_build_pkgs()
         bldr_log_split
         for pkg_category in $pkg_dir/$pkg_ctry
         do
-            for pkg_def in $pkg_category/*
+            local base_ctry=$(basename $pkg_category)
+            bldr_log_info "Building category '$base_ctry'"
+            bldr_log_split
+
+            for pkg_def in $pkg_dir/$base_ctry/*
             do
                 if [[ ! -x $pkg_def ]]
                 then
@@ -2880,7 +2875,7 @@ function bldr_build_pkgs()
                 then
                     if [ $BLDR_VERBOSE != false ]
                     then
-                        bldr_log_info "Building '$pkg_def'"
+                        bldr_log_info "Building package '$pkg_def'"
                         bldr_log_split
                     fi
                     eval $pkg_def || exit -1
