@@ -37,8 +37,8 @@ pkg_uses="m4/latest autoconf/latest automake/latest libtool/latest tcl/latest"
 pkg_reqs="tcl/latest"
 pkg_cflags=""
 pkg_ldflags=""
-pkg_cfg="--with-tcl-lib=$BLDR_LOCAL_PATH/system/tcl/latest/lib"
-pkg_cfg="$pkg_cfg --with-tcl-inc=$BLDR_LOCAL_PATH/system/tcl/latest/include"
+pkg_cfg="--with-tcl-lib=$BLDR_LOCAL_PATH/internal/tcl/latest/lib"
+pkg_cfg="$pkg_cfg --with-tcl-inc=$BLDR_LOCAL_PATH/internal/tcl/latest/include"
 
 ####################################################################################################
 # build and install pkg as local module

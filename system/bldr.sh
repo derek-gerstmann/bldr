@@ -227,7 +227,7 @@ then
             fi
         fi
     done
-    if [ $loaded_system != false ]
+    if [ $loaded_internal != false ]
     then
         bldr_log_split
     fi
@@ -2860,6 +2860,11 @@ function bldr_build_pkgs()
 
                 if [[ "$pkg_list" == "" ]] 
                 then
+                    if [ $BLDR_VERBOSE != false ]
+                    then
+                        bldr_log_info "Building '$entry' from '$pkg_def'"
+                        bldr_log_split
+                    fi
                     eval $pkg_def || exit -1
                 else
                     for entry in $pkg_list 
