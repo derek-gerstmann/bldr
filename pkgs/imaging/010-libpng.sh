@@ -24,9 +24,9 @@ pkg_urls="http://prdownloads.sourceforge.net/libpng/$pkg_file?download"
 pkg_opts="configure"
 pkg_uses="m4/latest autoconf/latest automake/latest"
 pkg_reqs="zlib/latest"
-pkg_cflags="-I$BLDR_LOCAL_DIR/system/zlib/latest/include"
-pkg_ldflags="-L$BLDR_LOCAL_DIR/system/zlib/latest/lib"
-pkg_cfg="--with-zlib-prefix=$BLDR_LOCAL_DIR/system/zlib/latest --with-pkgconfigdir=$PKG_CONFIG_PATH"
+pkg_cflags="-I$BLDR_LOCAL_PATH/system/zlib/latest/include"
+pkg_ldflags="-L$BLDR_LOCAL_PATH/system/zlib/latest/lib"
+pkg_cfg="--with-zlib-prefix=$BLDR_LOCAL_PATH/system/zlib/latest --with-pkgconfigdir=$PKG_CONFIG_PATH"
 
 ####################################################################################################
 # build and install pkg as local module

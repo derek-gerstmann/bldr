@@ -38,11 +38,11 @@ pkg_cflags=""
 pkg_ldflags=""
 
 pkg_cfg="variant=release link=static threading=multi runtime-link=static"
-pkg_cfg="$pkg_cfg -s ICU_PATH=$BLDR_LOCAL_DIR/system/libicu/latest"
-pkg_cfg="$pkg_cfg -s BZIP2_INCLUDE=$BLDR_LOCAL_DIR/system/bzip2/latest/include"
-pkg_cfg="$pkg_cfg -s BZIP2_LIBPATH=$BLDR_LOCAL_DIR/system/bzip2/latest/lib"
-pkg_cfg="$pkg_cfg -s ZLIB_INCLUDE=$BLDR_LOCAL_DIR/system/zlib/latest/include"
-pkg_cfg="$pkg_cfg -s ZLIB_LIBPATH=$BLDR_LOCAL_DIR/system/zlib/latest/lib"
+pkg_cfg="$pkg_cfg -s ICU_PATH=$BLDR_LOCAL_PATH/system/libicu/latest"
+pkg_cfg="$pkg_cfg -s BZIP2_INCLUDE=$BLDR_LOCAL_PATH/system/bzip2/latest/include"
+pkg_cfg="$pkg_cfg -s BZIP2_LIBPATH=$BLDR_LOCAL_PATH/system/bzip2/latest/lib"
+pkg_cfg="$pkg_cfg -s ZLIB_INCLUDE=$BLDR_LOCAL_PATH/system/zlib/latest/include"
+pkg_cfg="$pkg_cfg -s ZLIB_LIBPATH=$BLDR_LOCAL_PATH/system/zlib/latest/lib"
 
 ####################################################################################################
 
@@ -106,15 +106,15 @@ function bldr_pkg_compile_method()
     
     # handle boost specific build setup
     #
-    local prefix="$BLDR_LOCAL_DIR/$pkg_ctry/$pkg_name/$pkg_vers"
-    bldr_push_dir "$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers"
+    local prefix="$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
+    bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
     local make_path=$(bldr_locate_makefile)
     bldr_pop_dir
 
     local output=$(bldr_get_stdout)  
 
-    bldr_push_dir "$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers/$make_path"
-    bldr_log_info "Moving to '$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers/$make_path'"
+    bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$make_path"
+    bldr_log_info "Moving to '$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$make_path'"
     bldr_log_split
 
 

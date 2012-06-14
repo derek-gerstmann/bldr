@@ -31,8 +31,6 @@ pkg_cfg="--enable-static --enable-shared"
 
 ####################################################################################################
 
-####################################################################################################
-
 function bldr_pkg_compile_method()
 {
     local use_verbose="false"
@@ -83,15 +81,15 @@ function bldr_pkg_compile_method()
         return
     fi
 
-    local prefix="$BLDR_LOCAL_DIR/$pkg_ctry/$pkg_name/$pkg_vers"
+    local prefix="$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
 
-    bldr_push_dir "$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers"
+    bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
     local make_path=$(bldr_locate_makefile $pkg_cfg_path)
     bldr_pop_dir
 
-    bldr_log_info "Moving to build path: '$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers/$make_path' ..."
+    bldr_log_info "Moving to build path: '$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$make_path' ..."
     bldr_log_split
-    bldr_push_dir "$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers/$make_path"
+    bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$make_path"
 
     local output=$(bldr_get_stdout)
     local options="--stop"
@@ -105,7 +103,7 @@ function bldr_pkg_compile_method()
         bldr_log_header "Building package '$pkg_name/$pkg_vers'"
         bldr_log_split
 
-        ln -sv "$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers" "$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers/gsl"
+        ln -sv "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers" "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/gsl"
         bldr_log_split
         
         bldr_log_cmd "make $options PREFIX=\"$prefix\""
@@ -174,15 +172,15 @@ function bldr_pkg_install_method()
         return
     fi
 
-    local prefix="$BLDR_LOCAL_DIR/$pkg_ctry/$pkg_name/$pkg_vers"
+    local prefix="$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
 
-    bldr_push_dir "$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers"
+    bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
     local make_path=$(bldr_locate_makefile $pkg_cfg_path)
     bldr_pop_dir
 
-    bldr_log_info "Moving to build path: '$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers/$make_path' ..."
+    bldr_log_info "Moving to build path: '$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$make_path' ..."
     bldr_log_split
-    bldr_push_dir "$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers/$make_path"
+    bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$make_path"
 
     local output=$(bldr_get_stdout)
     local options="--stop"
@@ -190,13 +188,17 @@ function bldr_pkg_install_method()
     then
         options="--quiet $options"
     fi
+    if [ $BLDR_PARALLEL != false ]
+    then
+        options="-j $options"
+    fi
 
     if [ -f "./Makefile" ]
     then
         bldr_log_header "Building package '$pkg_name/$pkg_vers'"
         bldr_log_split
 
-        ln -sv "$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers" "$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers/gsl"
+        ln -sv "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers" "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/gsl"
         bldr_log_split
         
         bldr_log_cmd "make $options PREFIX=\"$prefix\" install "

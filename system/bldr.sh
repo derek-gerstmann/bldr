@@ -31,6 +31,7 @@ export BLDR_VERSION_MINOR="0"
 export BLDR_VERSION_PATCH="0"
 export BLDR_VERSION_STR="v$BLDR_VERSION_MAJOR.$BLDR_VERSION_MINOR.$BLDR_VERSION_PATCH"
 
+BLDR_PARALLEL=${BLDR_PARALLEL:=true}
 BLDR_VERBOSE=${BLDR_VERBOSE:=false}
 BLDR_DEBUG=${BLDR_DEBUG:=false}
 
@@ -122,21 +123,21 @@ function bldr_log_split()
 
 # setup project paths
 BLDR_ABS_PWD="$( cd "$( dirname "$0" )/.." && pwd )"
-BLDR_BASE_DIR="$( basename "$BLDR_ABS_PWD" )"
-BLDR_ROOT_DIR="$( dirname "$BLDR_ABS_PWD" )"
+BLDR_BASE_PATH="$( basename "$BLDR_ABS_PWD" )"
+BLDR_ROOT_PATH="$( dirname "$BLDR_ABS_PWD" )"
 
 # try one level up if we aren't resolving the root dir
-if [ "$BLDR_BASE_DIR" != "bldr" ]
+if [ "$BLDR_BASE_PATH" != "bldr" ]
 then
     BLDR_ABS_PWD="$( cd "$( dirname "$0" )/../.." && pwd )"
-    BLDR_BASE_DIR="$( basename "$BLDR_ABS_PWD" )"
-    BLDR_ROOT_DIR="$( dirname "$BLDR_ABS_PWD" )"
+    BLDR_BASE_PATH="$( basename "$BLDR_ABS_PWD" )"
+    BLDR_ROOT_PATH="$( dirname "$BLDR_ABS_PWD" )"
 fi
 
 ####################################################################################################
 
 # ensure we are run inside of the root dir
-if [ "$BLDR_BASE_DIR" != "bldr" ]
+if [ "$BLDR_BASE_PATH" != "bldr" ]
 then
     echo "Please execute package build script from within the 'bldr' subfolder: '$BLDR_ABS_PWD'!"
     exit 0
@@ -145,13 +146,17 @@ fi
 ####################################################################################################
 
 # setup system paths
-export BLDR_SCRIPTS_DIR="$BLDR_ABS_PWD/scripts"
-export BLDR_LOCAL_DIR="$BLDR_ABS_PWD/local"
-export BLDR_CACHE_DIR="$BLDR_ABS_PWD/cache"
-export BLDR_SYSTEM_DIR="$BLDR_ABS_PWD/system"
-export BLDR_PKGS_DIR="$BLDR_ABS_PWD/pkgs"
-export BLDR_MODULE_DIR="$BLDR_ABS_PWD/modules"
-export BLDR_BUILD_DIR="$BLDR_ABS_PWD/build"
+BLDR_CONFIG_PATH=${BLDR_CONFIG_PATH:=$BLDR_ABS_PWD}
+export BLDR_SCRIPTS_PATH="$BLDR_CONFIG_PATH/scripts"
+export BLDR_PKGS_PATH="$BLDR_CONFIG_PATH/pkgs"
+export BLDR_SYSTEM_PATH="$BLDR_CONFIG_PATH/system"
+export BLDR_CACHE_PATH="$BLDR_CONFIG_PATH/cache"
+export BLDR_BUILD_PATH="$BLDR_CONFIG_PATH/build"
+
+# setup install paths
+BLDR_INSTALL_PATH=${BLDR_INSTALL_PATH:=$BLDR_ABS_PWD}
+export BLDR_LOCAL_PATH="$BLDR_INSTALL_PATH/local"
+export BLDR_MODULE_PATH="$BLDR_INSTALL_PATH/modules"
 export BLDR_OS_LIB_EXT="a"
 
 ####################################################################################################
@@ -198,20 +203,28 @@ fi
 
 ####################################################################################################
 
-# import any existing system utility into our path for usage
-if [ -d "$BLDR_LOCAL_DIR/system" ]
+# import our internal tools for usage
+if [ -d "$BLDR_LOCAL_PATH/internal" ]
 then
-    loaded_system=false
-    for sys_path in "$BLDR_LOCAL_DIR/system"/*
+    loaded_internal=false
+    for internal_path in "$BLDR_LOCAL_PATH/internal"/*
     do
-        if [[ -d "$sys_path/latest/bin" ]]
+        if [ $BLDR_DEBUG != false ]
         then
-            if [ $BLDR_VERBOSE != false ]
+            bldr_log_info "Using internal utility: '$internal_path'"
+            loaded_internal=true
+        fi
+        if [[ -d "$internal_path/latest/bin" ]]
+        then
+            export PATH="$internal_path/latest/bin:$PATH"
+        fi
+        if [[ -d "$internal_path/latest/lib" ]]
+        then
+            export LD_LIBRARY_PATH="$internal_path/latest/lib:$LD_LIBRARY_PATH"
+            if [ "$BLDR_SYSTEM_IS_OSX" -eq 1 ]
             then
-                bldr_log_info "Using local system utility: '$sys_path'"
-                loaded_system=true
+                export DYLD_LIBRARY_PATH="$internal_path/latest/lib:$DYLD_LIBRARY_PATH"
             fi
-            export PATH="$sys_path/latest/bin:$PATH"
         fi
     done
     if [ $loaded_system != false ]
@@ -221,9 +234,9 @@ then
 fi
 
 # setup the environment to support our own version of MODULES
-if [ -d "$BLDR_LOCAL_DIR/system/modules/latest" ]
+if [ -d "$BLDR_LOCAL_PATH/internal/modules/latest" ]
 then
-    for md_path in "$BLDR_LOCAL_DIR/system/modules/latest/Modules"/*
+    for md_path in "$BLDR_LOCAL_PATH/internal/modules/latest/Modules"/*
     do
         if [[ -d "$md_path/bin" ]]
         then
@@ -232,21 +245,21 @@ then
         if [[ -d "$md_path/init" ]]
         then
             source "$md_path/init/bash"
-            module use $BLDR_MODULE_DIR/system
+            module use $BLDR_MODULE_PATH/internal
         fi
     done
 fi
 
 # setup the environment to support our own version of PKG_CONFIG
-if [ -d "$BLDR_LOCAL_DIR/system/pkg-config/latest/bin" ]
+if [ -d "$BLDR_LOCAL_PATH/internal/pkg-config/latest/bin" ]
 then
-    if [ ! -d "$BLDR_LOCAL_DIR/system/pkg-config/latest/lib/pkgconfig" ]
+    if [ ! -d "$BLDR_LOCAL_PATH/internal/pkg-config/latest/lib/pkgconfig" ]
     then
-        mkdir -p "$BLDR_LOCAL_DIR/system/pkg-config/latest/lib/pkgconfig"
+        mkdir -p "$BLDR_LOCAL_PATH/internal/pkg-config/latest/lib/pkgconfig"
     fi
 
-    export PKG_CONFIG=$BLDR_LOCAL_DIR/system/pkg-config/latest/bin/pkg-config
-    export PKG_CONFIG_PATH=$BLDR_LOCAL_DIR/system/pkg-config/latest/lib/pkgconfig
+    export PKG_CONFIG=$BLDR_LOCAL_PATH/internal/pkg-config/latest/bin/pkg-config
+    export PKG_CONFIG_PATH=$BLDR_LOCAL_PATH/internal/pkg-config/latest/lib/pkgconfig
 fi
 
 ####################################################################################################
@@ -573,9 +586,9 @@ function bldr_extract_archive()
     local archive=$1
     local extr=$(which tar)
 
-    if [ -e $BLDR_LOCAL_DIR/gtar/latest/bin/tar ]
+    if [ -e $BLDR_LOCAL_PATH/gtar/latest/bin/tar ]
     then
-        extr=$BLDR_LOCAL_DIR/gtar/latest/bin/tar
+        extr=$BLDR_LOCAL_PATH/gtar/latest/bin/tar
     fi
 
     local output=$(bldr_get_stdout)  
@@ -635,9 +648,9 @@ function bldr_list_archive()
     local extr=$(which tar)
     local result=""
 
-    if [ -e $BLDR_LOCAL_DIR/gtar/latest/bin/tar ]
+    if [ -e $BLDR_LOCAL_PATH/gtar/latest/bin/tar ]
     then
-        extr=$BLDR_LOCAL_DIR/gtar/latest/bin/tar
+        extr=$BLDR_LOCAL_PATH/gtar/latest/bin/tar
     fi
 
     if [ -f $archive ] ; then
@@ -807,14 +820,40 @@ function bldr_has_pkg()
         esac
     done
 
-    local existing=false
-
-    if [ -d "$BLDR_LOCAL_DIR/$pkg_ctry/$pkg_name/$pkg_vers" ]
+    local existing="false"
+    if [ -d "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers" ]
     then
-        existing=true
+        existing="true"
+        for pkg_spec in "$BLDR_PKGS_PATH/$pkg_ctry"/*
+        do
+            local m=$(echo "$pkg_spec" | grep -c "$pkg_name")
+            if [ "$m" == "0" ]
+            then
+                continue
+            fi
+
+            if [ "$BLDR_SYSTEM_IS_OSX" -eq 1 ]
+            then
+                local pkg_mtime=$(stat -f '%m' "$pkg_spec")
+                local bld_mtime=$(stat -f '%m' "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers")
+            else
+                local pkg_mtime=$(stat --printf '%Y\n' "$pkg_spec")
+                local bld_mtime=$(stat --printf '%Y\n' "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers")
+            fi
+
+            if [ $pkg_mtime -gt $bld_mtime ]
+            then
+                existing="false"
+                break
+            else
+                existing="true"
+                break
+            fi
+        done
     fi
 
     echo "$existing"
+#    echo "Tested: $pkg_spec -nt $BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
 }
 
 function bldr_setup_pkg()
@@ -869,27 +908,34 @@ function bldr_setup_pkg()
     bldr_log_header "Setting up package '$pkg_name/$pkg_vers' for '$BLDR_OS_NAME' ... "
     bldr_log_split
     
-    if [ ! -d $BLDR_BUILD_DIR ]
+    if [ ! -d $BLDR_BUILD_PATH ]
     then
-        bldr_make_dir "$BLDR_BUILD_DIR"
+        bldr_make_dir "$BLDR_BUILD_PATH"
         bldr_log_split
     fi
 
-    bldr_push_dir "$BLDR_BUILD_DIR"
+    bldr_push_dir "$BLDR_BUILD_PATH"
 
     if [ -d "$pkg_name/$pkg_vers" ]
     then
-        bldr_log_info "Removing stale build '$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers'"
+        bldr_log_info "Removing stale build '$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers'"
         bldr_log_split
         bldr_remove_dir "$pkg_name/$pkg_vers"
     fi
     bldr_pop_dir
 
-    if [ -f "$BLDR_MODULE_DIR/$pkg_ctry/$pkg_name/$pkg_vers" ]
+    if [ -f "$BLDR_MODULE_PATH/$pkg_ctry/$pkg_name/$pkg_vers" ]
     then
-        bldr_log_info "Removing stale module '$BLDR_MODULE_DIR/$pkg_ctry/$pkg_name/$pkg_vers'"
+        bldr_log_info "Removing stale module '$BLDR_MODULE_PATH/$pkg_ctry/$pkg_name/$pkg_vers'"
         bldr_log_split
-        bldr_remove_file "$BLDR_MODULE_DIR/$pkg_ctry/$pkg_name/$pkg_vers"
+        bldr_remove_file "$BLDR_MODULE_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
+    fi
+
+    if [ -d "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers" ]
+    then
+        bldr_log_info "Removing stale install '$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers'"
+        bldr_log_split
+        bldr_remove_dir "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
     fi
 }
 
@@ -944,12 +990,12 @@ function bldr_fetch_pkg()
     fi
 
     # create the local cache dir if it doesn't exist
-    if [ ! -d $BLDR_CACHE_DIR ]
+    if [ ! -d $BLDR_CACHE_PATH ]
     then
-        bldr_make_dir "$BLDR_CACHE_DIR"
+        bldr_make_dir "$BLDR_CACHE_PATH"
         bldr_log_split
     fi
-    bldr_push_dir "$BLDR_CACHE_DIR"
+    bldr_push_dir "$BLDR_CACHE_PATH"
 
     # if a local copy doesn't exist, grab the pkg from the url
     if [ ! -f "$pkg_file" ]
@@ -995,32 +1041,32 @@ function bldr_fetch_pkg()
     bldr_pop_dir
 
     # extract any pkg archives
-    bldr_log_info "Checking package '$BLDR_CACHE_DIR/$pkg_file'"
+    bldr_log_info "Checking package '$BLDR_CACHE_PATH/$pkg_file'"
     bldr_log_split
 
-    if [[ $(bldr_is_valid_archive "$BLDR_CACHE_DIR/$pkg_file") > 0 ]]
+    if [[ $(bldr_is_valid_archive "$BLDR_CACHE_PATH/$pkg_file") > 0 ]]
     then
-        bldr_log_info "Cloning package '$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers/$pkg_file'"
+        bldr_log_info "Cloning package '$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$pkg_file'"
         bldr_log_split
 
-        if [ ! -d "$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name" ]
+        if [ ! -d "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name" ]
         then
-            bldr_make_dir "$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name"
+            bldr_make_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name"
             bldr_log_split
         fi
 
-        if [ -d "$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers" ]
+        if [ -d "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers" ]
         then
-            bldr_remove_dir "$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers"
+            bldr_remove_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
             bldr_log_split
         fi
 
-        bldr_copy_file "$BLDR_CACHE_DIR/$pkg_file" "$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_file"
+        bldr_copy_file "$BLDR_CACHE_PATH/$pkg_file" "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_file"
 
-        bldr_push_dir "$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name"
+        bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name"
         local archive_listing=$(bldr_list_archive $pkg_file)
 
-        bldr_log_info "Extracting package '$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_file' as '$archive_listing'"
+        bldr_log_info "Extracting package '$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_file' as '$archive_listing'"
         bldr_log_split
         
         bldr_extract_archive $pkg_file 
@@ -1081,21 +1127,21 @@ function bldr_boot_pkg()
         return
     fi
 
-    local prefix="$BLDR_LOCAL_DIR/$pkg_ctry/$pkg_name/$pkg_vers"
+    local prefix="$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
     bldr_log_header "Booting package '$pkg_name/$pkg_vers'"
     bldr_log_split
 
-    if [ ! -d "$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers" ]
+    if [ ! -d "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers" ]
     then
-        bldr_make_dir "$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers"
+        bldr_make_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
         bldr_log_split
     fi
 
-    bldr_push_dir "$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers"
+    bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
     local cfg_path=$(bldr_locate_config_path $pkg_cfg_path)
     bldr_pop_dir
 
-    bldr_push_dir "$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers"
+    bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
     pkg_patches=$(bldr_trim_list_str "$pkg_patches")
     if [ "$pkg_patches" != "" ] && [ "$pkg_patches" != " " ] && [ "$pkg_patches" != ":" ]
     then
@@ -1120,7 +1166,7 @@ function bldr_boot_pkg()
         fi
     done
 
-    bldr_push_dir "$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers/$cfg_path"
+    bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$cfg_path"
     pkg_uses=$(bldr_trim_list_str "$pkg_uses")
     if [ "$pkg_uses" != "" ] && [ "$pkg_uses" != " " ] && [ "$pkg_uses" != ":" ]
     then
@@ -1132,9 +1178,9 @@ function bldr_boot_pkg()
     local cmd_mod="$(which modulecmd)"
     if [[ "$pkg_uses" != "" && "$cmd_mod" != "" ]]
     then
-        if [ -d "$BLDR_MODULE_DIR/$pkg_ctry" ]
+        if [ -d "$BLDR_MODULE_PATH/$pkg_ctry" ]
         then
-            module use "$BLDR_MODULE_DIR/$pkg_ctry"
+            module use "$BLDR_MODULE_PATH/$pkg_ctry"
         fi
 
         for using in ${pkg_uses}
@@ -1160,14 +1206,14 @@ function bldr_boot_pkg()
     fi
     bldr_pop_dir
 
-    bldr_push_dir "$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers"
+    bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
     local boot_path=$(bldr_locate_boot_path $pkg_cfg_path)
     bldr_pop_dir
 
     # bootstrap package
     if [ $bootstrap != false ]
     then
-        bldr_push_dir "$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers/$boot_path"
+        bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$boot_path"
         local boot_cmd=$(bldr_locate_boot_script $pkg_cfg_path)
 
         if [ -x "$boot_cmd" ]
@@ -1241,12 +1287,12 @@ function bldr_cmake_pkg()
         return
     fi
 
-    bldr_make_dir "$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers/build"
-    bldr_push_dir "$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers/build"
+    bldr_make_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/build"
+    bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/build"
 
     bldr_log_split
   
-    local prefix="$BLDR_LOCAL_DIR/$pkg_ctry/$pkg_name/$pkg_vers"
+    local prefix="$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
 
     local env_flags=" "
     pkg_cfg=$(bldr_trim_list_str "$pkg_cfg")
@@ -1291,8 +1337,8 @@ function bldr_cmake_pkg()
     bldr_log_header "Configuring package '$pkg_name/$pkg_vers' from source folder '$cmake_src_path' ..."
     bldr_log_split
 
-    local cmake_exec="$BLDR_LOCAL_DIR/system/cmake/latest/bin/cmake"
-    local cmake_mod="-DCMAKE_MODULE_PATH=$BLDR_LOCAL_DIR/system/cmake/latest/share/cmake-2.8/Modules"
+    local cmake_exec="$BLDR_LOCAL_PATH/internal/cmake/latest/bin/cmake"
+    local cmake_mod="-DCMAKE_MODULE_PATH=$BLDR_LOCAL_PATH/internal/cmake/latest/share/cmake-2.8/Modules"
     local cmake_pre="-DCMAKE_INSTALL_PREFIX=$prefix"
     if [ "$BLDR_SYSTEM_IS_OSX" -eq 1 ]
     then
@@ -1404,19 +1450,19 @@ function bldr_config_pkg()
         return
     fi
 
-    local prefix="$BLDR_LOCAL_DIR/$pkg_ctry/$pkg_name/$pkg_vers"
+    local prefix="$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
 
-    bldr_push_dir "$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers"
+    bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
     local cfg_path=$(bldr_locate_config_path $pkg_cfg_path)
     bldr_pop_dir
 
     bldr_log_header "Configuring package '$pkg_name/$pkg_vers' ..."
     bldr_log_split
 
-    bldr_log_info "Moving to config path: '$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers/$cfg_path' ..."
+    bldr_log_info "Moving to config path: '$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$cfg_path' ..."
     bldr_log_split
 
-    bldr_push_dir "$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers/$cfg_path"
+    bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$cfg_path"
 
     local use_cmake=1
     local has_cmake=0
@@ -1640,15 +1686,15 @@ function bldr_compile_pkg()
         return
     fi
 
-    local prefix="$BLDR_LOCAL_DIR/$pkg_ctry/$pkg_name/$pkg_vers"
+    local prefix="$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
 
-    bldr_push_dir "$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers"
+    bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
     local make_path=$(bldr_locate_makefile $pkg_cfg_path)
     bldr_pop_dir
 
-    bldr_log_info "Moving to build path: '$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers/$make_path' ..."
+    bldr_log_info "Moving to build path: '$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$make_path' ..."
     bldr_log_split
-    bldr_push_dir "$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers/$make_path"
+    bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$make_path"
 
     local output=$(bldr_get_stdout)
     local options="--stop"
@@ -1656,13 +1702,17 @@ function bldr_compile_pkg()
     then
         options="--quiet $options"
     fi
+    if [ $BLDR_PARALLEL != false ]
+    then
+        options="-j $options"
+    fi
 
     if [ -f "./Makefile" ]
     then
         bldr_log_header "Building package '$pkg_name/$pkg_vers'"
         bldr_log_split
         
-        bldr_log_cmd "make"
+        bldr_log_cmd "make $options"
         bldr_log_split
 
         if [ $BLDR_VERBOSE != false ]
@@ -1721,13 +1771,13 @@ function bldr_install_pkg()
         BLDR_VERBOSE=true
     fi
 
-    local prefix="$BLDR_LOCAL_DIR/$pkg_ctry/$pkg_name/$pkg_vers"
+    local prefix="$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
 
-    bldr_push_dir "$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers"
+    bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
     local make_path=$(bldr_locate_makefile $pkg_cfg_path)
     bldr_pop_dir
 
-    bldr_push_dir "$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers/$make_path"
+    bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$make_path"
 
     local output=$(bldr_get_stdout)
     local options="--stop"
@@ -1811,9 +1861,9 @@ function bldr_migrate_pkg()
         return
     fi
 
-    local prefix="$BLDR_LOCAL_DIR/$pkg_ctry/$pkg_name/$pkg_vers"
+    local prefix="$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
 
-    bldr_push_dir "$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers"
+    bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
     local make_path=$(bldr_locate_makefile $pkg_cfg_path)
     bldr_pop_dir
 
@@ -1821,7 +1871,7 @@ function bldr_migrate_pkg()
     bldr_log_split
 
     # build using make if a makefile exists
-    bldr_push_dir "$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers/$make_path"
+    bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$make_path"
     local bin_paths="lib bin lib32 lib64"
     for path in ${bin_paths}
     do
@@ -1842,7 +1892,7 @@ function bldr_migrate_pkg()
 
     if [[ $(echo $pkg_opts | grep -c 'migrate-build-headers' ) > 0 ]]
     then
-        bldr_push_dir "$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers"
+        bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
         local inc_paths="include inc man share"
         for path in ${inc_paths}
         do
@@ -1851,8 +1901,8 @@ function bldr_migrate_pkg()
             then
                 bldr_log_header "Migrating build files from '$path' for '$pkg_name/$pkg_vers'"
                 bldr_log_split
-                bldr_make_dir "$BLDR_LOCAL_DIR/$pkg_ctry/$pkg_name/$pkg_vers/$path"
-                bldr_copy_dir "$path" "$BLDR_LOCAL_DIR/$pkg_ctry/$pkg_name/$pkg_vers/$path" || bldr_bail "Failed to copy shared files into directory: $BLDR_LOCAL_DIR/$pkg_ctry/$pkg_name/$pkg_vers/$path"
+                bldr_make_dir "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$path"
+                bldr_copy_dir "$path" "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$path" || bldr_bail "Failed to copy shared files into directory: $BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$path"
                 bldr_log_split
             fi
         done
@@ -1861,7 +1911,7 @@ function bldr_migrate_pkg()
 
     if [[ $(echo $pkg_opts | grep -c 'migrate-build-source' ) > 0 ]]
     then
-        bldr_push_dir "$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers"
+        bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
         local inc_paths="src source"
         for path in ${inc_paths}
         do
@@ -1870,8 +1920,8 @@ function bldr_migrate_pkg()
             then
                 bldr_log_header "Migrating build files from '$path' for '$pkg_name/$pkg_vers'"
                 bldr_log_split
-                bldr_make_dir "$BLDR_LOCAL_DIR/$pkg_ctry/$pkg_name/$pkg_vers/$path"
-                bldr_copy_dir "$path" "$BLDR_LOCAL_DIR/$pkg_ctry/$pkg_name/$pkg_vers/$path" || bldr_bail "Failed to copy shared files into directory: $BLDR_LOCAL_DIR/$pkg_ctry/$pkg_name/$pkg_vers/$path"
+                bldr_make_dir "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$path"
+                bldr_copy_dir "$path" "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$path" || bldr_bail "Failed to copy shared files into directory: $BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$path"
                 bldr_log_split
             fi
         done
@@ -1880,7 +1930,7 @@ function bldr_migrate_pkg()
 
     if [[ $(echo $pkg_opts | grep -c 'migrate-build-libs' ) > 0 ]]
     then
-        bldr_push_dir "$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers"
+        bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
         local inc_paths="build"
         for path in ${inc_paths}
         do
@@ -1889,9 +1939,9 @@ function bldr_migrate_pkg()
             then
                 bldr_log_header "Migrating build libraries from '$path' for '$pkg_name/$pkg_vers'"
                 bldr_log_split
-                bldr_make_dir "$BLDR_LOCAL_DIR/$pkg_ctry/$pkg_name/$pkg_vers/$path"
+                bldr_make_dir "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$path"
                 bldr_log_split
-                eval cp -v "$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers/$path/*.$BLDR_OS_LIB_EXT" "$BLDR_LOCAL_DIR/$pkg_ctry/$pkg_name/$pkg_vers/$path" || bldr_bail "Failed to copy shared files into directory: $BLDR_LOCAL_DIR/$pkg_ctry/$pkg_name/$pkg_vers/$path"
+                eval cp -v "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$path/*.$BLDR_OS_LIB_EXT" "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$path" || bldr_bail "Failed to copy shared files into directory: $BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$path"
             fi
         done
         bldr_pop_dir
@@ -1899,17 +1949,17 @@ function bldr_migrate_pkg()
 
     bldr_log_info "Linking local '$pkg_name/$pkg_vers' as '$pkg_name/latest' ..."
     bldr_log_split
-    if [ -e "$BLDR_LOCAL_DIR/$pkg_ctry/$pkg_name/latest" ]
+    if [ -e "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/latest" ]
     then
-        bldr_remove_file "$BLDR_LOCAL_DIR/$pkg_ctry/$pkg_name/latest"
+        bldr_remove_file "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/latest"
     fi
 
     if [ $BLDR_VERBOSE != false ]
     then
-        ln -sv "$BLDR_LOCAL_DIR/$pkg_ctry/$pkg_name/$pkg_vers" "$BLDR_LOCAL_DIR/$pkg_ctry/$pkg_name/latest" || bldr_bail "Failed to link latest package version to '$pkg_name/$pkg_vers'!"
+        ln -sv "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers" "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/latest" || bldr_bail "Failed to link latest package version to '$pkg_name/$pkg_vers'!"
         bldr_log_split    
     else
-        ln -s "$BLDR_LOCAL_DIR/$pkg_ctry/$pkg_name/$pkg_vers" "$BLDR_LOCAL_DIR/$pkg_ctry/$pkg_name/latest"  || bldr_bail "Failed to link latest package version to '$pkg_name/$pkg_vers'!"
+        ln -s "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers" "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/latest"  || bldr_bail "Failed to link latest package version to '$pkg_name/$pkg_vers'!"
     fi
 }
 
@@ -1966,9 +2016,9 @@ function bldr_cleanup_pkg()
     bldr_log_header "Cleaning package '$pkg_name/$pkg_vers' ..."
     bldr_log_split
     
-    local prefix="$BLDR_LOCAL_DIR/$pkg_ctry/$pkg_name/$pkg_vers"
+    local prefix="$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
 
-    bldr_push_dir "$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers"
+    bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
     local make_path=$(bldr_locate_makefile $pkg_cfg_path)
     bldr_pop_dir
 
@@ -1981,7 +2031,7 @@ function bldr_cleanup_pkg()
         bldr_log_info "Removing package build directory for '$pkg_name/$pkg_vers'"
         bldr_log_split
 
-        bldr_remove_dir "$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers"
+        bldr_remove_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
         bldr_log_split
     fi
 }
@@ -2036,11 +2086,11 @@ function bldr_modulate_pkg()
         return
     fi
 
-    local prefix="$BLDR_LOCAL_DIR/$pkg_ctry/$pkg_name/$pkg_vers"
+    local prefix="$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
     local tstamp=$(date "+%Y-%m-%d-%H:%M:%S")
 
-    local module_dir="$BLDR_MODULE_DIR/$pkg_ctry/$pkg_name"
-    local module_file="$BLDR_MODULE_DIR/$pkg_ctry/$pkg_name/$pkg_vers"
+    local module_dir="$BLDR_MODULE_PATH/$pkg_ctry/$pkg_name"
+    local module_file="$BLDR_MODULE_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
 
     bldr_log_header "Modulating '$pkg_ctry' package '$pkg_name/$pkg_vers'"
     bldr_log_split
@@ -2262,7 +2312,7 @@ function bldr_modulate_pkg()
 
     if [ -d "$prefix/lib" ]
     then
-        if [ $BLDR_SYSTEM_IS_OSX != 0 ]
+        if [ "$BLDR_SYSTEM_IS_OSX" -eq 1 ]
         then
             echo "prepend-path DYLD_LIBRARY_PATH    $prefix/lib"     >> $module_file
         fi
@@ -2381,7 +2431,6 @@ function bldr_build_pkg()
     fi
 
     local existing=$(bldr_has_pkg --category "$pkg_ctry" --name "$pkg_name" --version "$pkg_vers" --options "$pkg_opts")
-
     if [ "$existing" != "false" ]
     then
         if [ $BLDR_VERBOSE != false ]
@@ -2753,12 +2802,14 @@ function bldr_build_pkgs()
     local use_verbose="false"
     local pkg_ctry=""
     local pkg_name="" 
+    local pkg_version=""
 
     while true ; do
         case "$1" in
-           --verbose)       use_verbose="true"; shift;;
+           --verbose)       use_verbose="$2"; shift 2;;
            --name)          pkg_name="$2"; shift 2;;
            --category)      pkg_ctry="$2"; shift 2;;
+           --version)       pkg_vers="$2"; shift 2;;
            * )              break ;;
         esac
     done
@@ -2770,7 +2821,7 @@ function bldr_build_pkgs()
 
     local pkg_ctry=$(echo "$pkg_ctry" | bldr_split_str ":" | bldr_join_str " ")
     local pkg_list=$(echo "$pkg_name" | bldr_split_str ":" | bldr_join_str " ")
-    local pkg_dir="$BLDR_PKGS_DIR"
+    local pkg_dir="$BLDR_PKGS_PATH"
 
     if [ ! "$pkg_ctry" ]
     then
@@ -2778,13 +2829,16 @@ function bldr_build_pkgs()
     fi
 
     # push the system category onto the list if it hasn't been built yet
-    if [[ ! -d $BLDR_LOCAL_DIR/system ]]
-    then
-        if [[ $(echo $pkg_ctry | grep -c 'system' ) < 1 ]]
+    for internal_pkg in "internal system"
+    do
+        if [[ ! -d $BLDR_LOCAL_PATH/$internal_pkg ]]
         then
-            pkg_ctry="system $pkg_ctry"
+            if [[ $(echo $pkg_ctry | grep -c $internal_pkg ) < 1 ]]
+            then
+                pkg_ctry="$internal_pkg $pkg_ctry"
+            fi
         fi
-    fi
+    done
 
     pkg_ctry=$(bldr_trim_str $pkg_ctry)
     pkg_list=$(bldr_trim_str $pkg_list)
@@ -2813,7 +2867,13 @@ function bldr_build_pkgs()
                         local m=$(echo "$pkg_def" | grep -c $entry )
                         if [[ $m > 0 ]]
                         then
+                            if [ $BLDR_VERBOSE != false ]
+                            then
+                                bldr_log_info "Building '$entry' from '$pkg_def'"
+                                bldr_log_split
+                            fi
                             eval $pkg_def || exit -1
+                            break
                         fi
                     done
                 fi

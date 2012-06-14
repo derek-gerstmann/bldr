@@ -29,13 +29,13 @@ pkg_urls="http://www.open-mpi.org/software/ompi/v1.6/downloads/$pkg_file"
 pkg_opts="configure"
 pkg_reqs="zlib/latest papi/latest torque/latest"
 pkg_uses="m4/latest autoconf/latest automake/latest $pkg_reqs"
-pkg_cflags="-I$BLDR_LOCAL_DIR/system/zlib/latest/include"
-pkg_ldflags="-L$BLDR_LOCAL_DIR/system/zlib/latest/lib"
+pkg_cflags="-I$BLDR_LOCAL_PATH/system/zlib/latest/include"
+pkg_ldflags="-L$BLDR_LOCAL_PATH/system/zlib/latest/lib"
 pkg_cfg="--enable-btl-openib-failover --enable-heterogeneous --enable-mpi-thread-multiple"
 
-if [ -d $BLDR_LOCAL_DIR/cluster/torque/latest ]
+if [ -d $BLDR_LOCAL_PATH/cluster/torque/latest ]
 then 
-     pkg_cfg="$pkg_cfg --with-tm=\"$BLDR_LOCAL_DIR/cluster/torque/latest\""
+     pkg_cfg="$pkg_cfg --with-tm=\"$BLDR_LOCAL_PATH/cluster/torque/latest\""
 fi
 
 if [ "$BLDR_SYSTEM_IS_OSX" -eq 1 ]

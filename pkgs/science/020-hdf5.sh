@@ -34,11 +34,11 @@ pkg_cflags=""
 pkg_ldflags=""
 
 pkg_cfg="-DMAKESTATIC=1:-DLINKSTATIC=1"
-pkg_cfg="$pkg_cfg:-DSZIP_INCLUDE_DIR=$BLDR_LOCAL_DIR/science/szip/latest/include"
-pkg_cfg="$pkg_cfg:-DSZIP_LIBRARY=$BLDR_LOCAL_DIR/system/szip/latest/lib/libsz.a"
+pkg_cfg="$pkg_cfg:-DSZIP_INCLUDE_DIR=$BLDR_LOCAL_PATH/science/szip/latest/include"
+pkg_cfg="$pkg_cfg:-DSZIP_LIBRARY=$BLDR_LOCAL_PATH/system/szip/latest/lib/libsz.a"
 
-pkg_cfg="$pkg_cfg:-DZLIB_INCLUDE_DIR=$BLDR_LOCAL_DIR/system/zlib/latest/include"
-pkg_cfg="$pkg_cfg:-DZLIB_LIBRARY=$BLDR_LOCAL_DIR/system/zlib/latest/lib/libz.a"
+pkg_cfg="$pkg_cfg:-DZLIB_INCLUDE_DIR=$BLDR_LOCAL_PATH/system/zlib/latest/include"
+pkg_cfg="$pkg_cfg:-DZLIB_LIBRARY=$BLDR_LOCAL_PATH/system/zlib/latest/lib/libz.a"
 
 pkg_cfg="$pkg_cfg:-DHDF5_ENABLE_ZLIB=ON"
 pkg_cfg="$pkg_cfg:-DHDF5_ENABLE_Z_LIB_SUPPORT=ON"
@@ -47,9 +47,9 @@ pkg_cfg="$pkg_cfg:-DHDF5_ENABLE_SZIP_SUPPORT=ON"
 pkg_cfg="$pkg_cfg:-DHDF5_BUILD_HL_LIB=ON"
 pkg_cfg="$pkg_cfg:-DHDF5_DISABLE_COMPILER_WARNINGS=ON"
 pkg_cfg="$pkg_cfg:-DHDF5_DISABLE_COMPILER_WARNINGS=ON"
-pkg_cfg="$pkg_cfg -DCMAKE_CXX_FLAGS='-I$BLDR_LOCAL_DIR/science/szip/latest/include -I$BLDR_LOCAL_DIR/science/szip/latest/src'"
-pkg_cfg="$pkg_cfg -DCMAKE_CPP_FLAGS='-I$BLDR_LOCAL_DIR/science/szip/latest/include -I$BLDR_LOCAL_DIR/science/szip/latest/src'"
-pkg_cfg="$pkg_cfg -DCMAKE_C_FLAGS='-I$BLDR_LOCAL_DIR/science/szip/latest/include -I$BLDR_LOCAL_DIR/science/szip/latest/src'"
+pkg_cfg="$pkg_cfg -DCMAKE_CXX_FLAGS='-I$BLDR_LOCAL_PATH/science/szip/latest/include -I$BLDR_LOCAL_PATH/science/szip/latest/src'"
+pkg_cfg="$pkg_cfg -DCMAKE_CPP_FLAGS='-I$BLDR_LOCAL_PATH/science/szip/latest/include -I$BLDR_LOCAL_PATH/science/szip/latest/src'"
+pkg_cfg="$pkg_cfg -DCMAKE_C_FLAGS='-I$BLDR_LOCAL_PATH/science/szip/latest/include -I$BLDR_LOCAL_PATH/science/szip/latest/src'"
 
 
 ####################################################################################################
@@ -104,15 +104,15 @@ function bldr_pkg_install_method()
         return
     fi
 
-    local prefix="$BLDR_LOCAL_DIR/$pkg_ctry/$pkg_name/$pkg_vers"
+    local prefix="$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
 
-    bldr_push_dir "$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers"
+    bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
     local make_path=$(bldr_locate_makefile $pkg_cfg_path)
     bldr_pop_dir
 
-    bldr_log_info "Moving to build path: '$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers/$make_path' ..."
+    bldr_log_info "Moving to build path: '$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$make_path' ..."
     bldr_log_split
-    bldr_push_dir "$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers/$make_path"
+    bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$make_path"
 
     mv "../release_docs/USING_CMake.txt" "../release_docs/Using_CMake.txt"
     bldr_log_split

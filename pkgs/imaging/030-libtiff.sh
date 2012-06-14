@@ -35,19 +35,19 @@ pkg_opts="configure"
 pkg_reqs="zlib/latest libpng/latest libjpeg/latest"
 pkg_uses="m4/latest autoconf/latest automake/latest $pkg_reqs"
 
-pkg_cflags="-I$BLDR_LOCAL_DIR/system/zlib/latest/include"
-pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_DIR/imaging/libpng/latest/include"
-pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_DIR/imaging/libjpeg/latest/include"
+pkg_cflags="-I$BLDR_LOCAL_PATH/system/zlib/latest/include"
+pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/imaging/libpng/latest/include"
+pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/imaging/libjpeg/latest/include"
 
-pkg_ldflags="-L$BLDR_LOCAL_DIR/system/zlib/latest/lib"
-pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_DIR/imaging/libpng/latest/lib"
-pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_DIR/imaging/libjpeg/latest/lib"
+pkg_ldflags="-L$BLDR_LOCAL_PATH/system/zlib/latest/lib"
+pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/imaging/libpng/latest/lib"
+pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/imaging/libjpeg/latest/lib"
 
 pkg_cfg="--with-gnu-ld"
-pkg_cfg="$pkg_cfg --with-jpeg-lib-dir=$BLDR_LOCAL_DIR/imaging/libjpeg/latest/lib"
-pkg_cfg="$pkg_cfg --with-jpeg-include-dir=$BLDR_LOCAL_DIR/imaging/libjpeg/latest/include"
-pkg_cfg="$pkg_cfg --with-zlib-lib-dir=$BLDR_LOCAL_DIR/system/zlib/latest/lib"
-pkg_cfg="$pkg_cfg --with-zlib-include-dir=$BLDR_LOCAL_DIR/system/zlib/latest/include"
+pkg_cfg="$pkg_cfg --with-jpeg-lib-dir=$BLDR_LOCAL_PATH/imaging/libjpeg/latest/lib"
+pkg_cfg="$pkg_cfg --with-jpeg-include-dir=$BLDR_LOCAL_PATH/imaging/libjpeg/latest/include"
+pkg_cfg="$pkg_cfg --with-zlib-lib-dir=$BLDR_LOCAL_PATH/system/zlib/latest/lib"
+pkg_cfg="$pkg_cfg --with-zlib-include-dir=$BLDR_LOCAL_PATH/system/zlib/latest/include"
 
 ####################################################################################################
 
@@ -92,15 +92,15 @@ function bldr_pkg_compile_method()
 
     # handle TIFF specific build stuff
     #
-    local prefix="$BLDR_LOCAL_DIR/$pkg_ctry/$pkg_name/$pkg_vers"
-    bldr_push_dir "$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers"
+    local prefix="$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
+    bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
     local make_path=$(bldr_locate_makefile)
     bldr_pop_dir
 
     local output=$(bldr_get_stdout)  
 
-    bldr_push_dir "$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers/$make_path"
-    bldr_log_info "Moving to '$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers/$make_path'"
+    bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$make_path"
+    bldr_log_info "Moving to '$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$make_path'"
     bldr_log_split
 
     # on OSX disable the tools from getting built since tiffgt.c fails to compile

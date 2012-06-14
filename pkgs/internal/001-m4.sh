@@ -10,20 +10,30 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_name="cmake"
-pkg_vers="2.8.8"
+pkg_name="m4"
+pkg_vers="1.4.16"
 
-pkg_info="CMake is a family of tools designed to build, test and package software."
+pkg_info="GNU M4 is an implementation of the traditional Unix macro processor. "
 
-pkg_desc="CMake is a family of tools designed to build, test and package software. 
-CMake is used to control the software compilation process using simple platform 
-and compiler independent configuration files. CMake generates native makefiles 
-and workspaces that can be used in the compiler environment of your choice. "
+pkg_desc="GNU M4 is an implementation of the traditional Unix macro processor. 
+It is mostly SVR4 compatible although it has some extensions (for example, handling 
+more than 9 positional parameters to macros). GNU M4 also has built-in functions 
+for including files, running shell commands, doing arithmetic, etc.
+
+GNU M4 is a macro processor in the sense that it copies its input to the output 
+expanding macros as it goes. Macros are either builtin or user-defined and can 
+take any number of arguments. Besides just doing macro expansion, m4 has builtin 
+functions for including named files, running UNIX commands, doing integer 
+arithmetic, manipulating text in various ways, recursion etc... 
+
+M4 can be used either as a front-end to a compiler or as a macro processor in its own right.
+
+One of the biggest users of GNU M4 is the GNU Autoconf project."
 
 pkg_file="$pkg_name-$pkg_vers.tar.gz"
-pkg_urls="http://www.cmake.org/files/v2.8/$pkg_file"
-pkg_opts="configure force-static force-bootstrap skip-config keep"
-pkg_uses="m4/latest autoconf/latest automake/latest libtool/latest"
+pkg_urls="http://gnu.mirror.iweb.com/gnu/m4/$pkg_file;http://ftp.gnu.org/gnu/m4/$pkg_file"
+pkg_opts="configure force-static"
+pkg_uses=""
 pkg_reqs=""
 pkg_cflags=""
 pkg_ldflags=""
@@ -33,7 +43,7 @@ pkg_cfg=""
 # build and install pkg as local module
 ####################################################################################################
 
-bldr_build_pkg --category    "system"       \
+bldr_build_pkg --category    "internal"     \
                --name        "$pkg_name"    \
                --version     "$pkg_vers"    \
                --info        "$pkg_info"    \
@@ -45,6 +55,6 @@ bldr_build_pkg --category    "system"       \
                --options     "$pkg_opts"    \
                --cflags      "$pkg_cflags"  \
                --ldflags     "$pkg_ldflags" \
-               --config      "$pkg_cfg"     
+               --config      "$pkg_cfg"
 
 

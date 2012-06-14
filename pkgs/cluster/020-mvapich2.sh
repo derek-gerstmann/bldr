@@ -26,8 +26,8 @@ pkg_urls="http://mvapich.cse.ohio-state.edu/download/mvapich2/$pkg_file"
 pkg_opts="configure"
 pkg_reqs="zlib/latest papi/latest"
 pkg_uses="m4/latest autoconf/latest automake/latest $pkg_reqs"
-pkg_cflags="-I$BLDR_LOCAL_DIR/system/zlib/latest/include"
-pkg_ldflags="-L$BLDR_LOCAL_DIR/system/zlib/latest/lib"
+pkg_cflags="-I$BLDR_LOCAL_PATH/system/zlib/latest/include"
+pkg_ldflags="-L$BLDR_LOCAL_PATH/system/zlib/latest/lib"
 
 pkg_cfg=""
 if [ -d /usr/local/cuda ]

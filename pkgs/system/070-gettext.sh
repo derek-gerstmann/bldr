@@ -32,26 +32,26 @@ pkg_opts="configure"
 pkg_reqs="zlib/latest libiconv/latest libicu/latest libxml2/latest"
 pkg_uses="m4/latest autoconf/latest automake/latest libtool/latest $pkg_reqs"
 
-pkg_cflags="-I$BLDR_LOCAL_DIR/system/zlib/latest/include"
-pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_DIR/system/libiconv/latest/include"
-pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_DIR/system/libicu/latest/include"
+pkg_cflags="-I$BLDR_LOCAL_PATH/system/zlib/latest/include"
+pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/system/libiconv/latest/include"
+pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/system/libicu/latest/include"
 
-pkg_ldflags="-L$BLDR_LOCAL_DIR/system/zlib/latest/lib"
-pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_DIR/system/libiconv/latest/lib"
-pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_DIR/system/libicu/latest/lib"
+pkg_ldflags="-L$BLDR_LOCAL_PATH/system/zlib/latest/lib"
+pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/system/libiconv/latest/lib"
+pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/system/libicu/latest/lib"
 
 pkg_cfg="--with-gnu-ld --without-emacs"
 pkg_cfg="$pkg_cfg --with-included-glib"
 pkg_cfg="$pkg_cfg --with-included-libunistring"
 pkg_cfg="$pkg_cfg --with-included-libcroco"
-pkg_cfg="$pkg_cfg --with-libiconv-prefix=$BLDR_LOCAL_DIR/system/libiconv/latest"
-pkg_cfg="$pkg_cfg --with-libxml2-prefix=$BLDR_LOCAL_DIR/system/libxml2/latest"
+pkg_cfg="$pkg_cfg --with-libiconv-prefix=$BLDR_LOCAL_PATH/system/libiconv/latest"
+pkg_cfg="$pkg_cfg --with-libxml2-prefix=$BLDR_LOCAL_PATH/system/libxml2/latest"
 
 pkg_patch=""
 
 if [ $BLDR_SYSTEM_IS_OSX -eq 1 ]
 then
-     pkg_patch="$BLDR_PKGS_DIR/data/gettext/gettext-0.18.1.1_osx_stpncpy_full.patch"
+     pkg_patch="$BLDR_PKGS_PATH/data/gettext/gettext-0.18.1.1_osx_stpncpy_full.patch"
      pkg_cfg="$pkg_cfg --disable-openmp"
 fi
 

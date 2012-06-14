@@ -10,23 +10,20 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_name="pkg-config"
-pkg_vers="0.24"
+pkg_name="automake"
+pkg_vers="1.11.3"
 
-pkg_info="Package Config is a helper tool used when compiling applications and libraries. "
+pkg_info="Automake is a Makefile generator."
 
-pkg_desc="pkg-config is a helper tool used when compiling applications and libraries. 
-It helps you insert the correct compiler options on the command line so an application 
-can use  gcc -o test test.c `pkg-config --libs --cflags glib-2.0`  for instance, rather 
-than hard-coding values on where to find glib (or other libraries). It is 
-language-agnostic, so it can be used for defining the location of documentation 
-tools, for instance."
+pkg_desc="Automake is a Makefile generator.  It was inspired by the 4.4BSD 
+make and include files, but aims to be portable and to conform to the 
+GNU Coding Standards for Makefile variables and targets."
 
 pkg_file="$pkg_name-$pkg_vers.tar.gz"
-pkg_urls="http://pkgconfig.freedesktop.org/releases/$pkg_file"
+pkg_urls="http://ftp.gnu.org/gnu/automake/$pkg_file"
 pkg_opts="configure force-static"
-pkg_uses="m4/latest autoconf/latest automake/latest libtool/latest"
-pkg_reqs="m4/latest autoconf/latest automake/latest libtool/latest"
+pkg_uses="m4/latest"
+pkg_reqs="m4/latest"
 pkg_cflags=""
 pkg_ldflags=""
 pkg_cfg=""
@@ -35,7 +32,7 @@ pkg_cfg=""
 # build and install pkg as local module
 ####################################################################################################
 
-bldr_build_pkg --category    "system"       \
+bldr_build_pkg --category    "internal"     \
                --name        "$pkg_name"    \
                --version     "$pkg_vers"    \
                --info        "$pkg_info"    \
@@ -48,3 +45,5 @@ bldr_build_pkg --category    "system"       \
                --cflags      "$pkg_cflags"  \
                --ldflags     "$pkg_ldflags" \
                --config      "$pkg_cfg"
+
+

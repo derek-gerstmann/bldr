@@ -10,23 +10,23 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_name="tcl"
-pkg_vers="8.5.11"
+pkg_name="pkg-config"
+pkg_vers="0.24"
 
-pkg_info="Tool Command Language (Tcl) is an interpreted language and very portable interpreter for that language. "
+pkg_info="Package Config is a helper tool used when compiling applications and libraries. "
 
-pkg_desc="Tool Command Language (Tcl) is an interpreted language and very portable interpreter for that language. 
+pkg_desc="pkg-config is a helper tool used when compiling applications and libraries. 
+It helps you insert the correct compiler options on the command line so an application 
+can use  gcc -o test test.c `pkg-config --libs --cflags glib-2.0`  for instance, rather 
+than hard-coding values on where to find glib (or other libraries). It is 
+language-agnostic, so it can be used for defining the location of documentation 
+tools, for instance."
 
-Tcl (Tool Command Language) is a very powerful but easy to learn dynamic programming language, 
-suitable for a very wide range of uses, including web and desktop applications, networking, 
-administration, testing and many more. Open source and business-friendly, Tcl is a mature yet 
-evolving language that is truly cross platform, easily deployed and highly extensible."
-
-pkg_file="tcl$pkg_vers-src.tar.gz"
-pkg_urls="http://prdownloads.sourceforge.net/tcl/$pkg_file"
-pkg_opts="configure"
-pkg_uses="m4/latest autoconf/latest automake/latest"
-pkg_reqs=""
+pkg_file="$pkg_name-$pkg_vers.tar.gz"
+pkg_urls="http://pkgconfig.freedesktop.org/releases/$pkg_file"
+pkg_opts="configure force-static"
+pkg_uses="m4/latest autoconf/latest automake/latest libtool/latest"
+pkg_reqs="m4/latest autoconf/latest automake/latest libtool/latest"
 pkg_cflags=""
 pkg_ldflags=""
 pkg_cfg=""
@@ -35,7 +35,7 @@ pkg_cfg=""
 # build and install pkg as local module
 ####################################################################################################
 
-bldr_build_pkg --category    "system"       \
+bldr_build_pkg --category    "internal"     \
                --name        "$pkg_name"    \
                --version     "$pkg_vers"    \
                --info        "$pkg_info"    \
@@ -47,7 +47,4 @@ bldr_build_pkg --category    "system"       \
                --options     "$pkg_opts"    \
                --cflags      "$pkg_cflags"  \
                --ldflags     "$pkg_ldflags" \
-               --config      "$pkg_cfg"     \
-               --config-path "unix"
-
-
+               --config      "$pkg_cfg"

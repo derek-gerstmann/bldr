@@ -30,8 +30,8 @@ pkg_opts="configure"
 pkg_reqs="zlib/latest libiconv/latest"
 pkg_uses="m4/latest autoconf/latest automake/latest $pkg_reqs"
 pkg_cfg="--enable-static --enable-shared"
-pkg_cflags="-I$BLDR_LOCAL_DIR/system/zlib/latest/include:-I$BLDR_LOCAL_DIR/system/libiconv/latest/include"
-pkg_ldflags="-L$BLDR_LOCAL_DIR/system/zlib/latest/lib:-L$BLDR_LOCAL_DIR/system/libiconv/latest/lib"
+pkg_cflags="-I$BLDR_LOCAL_PATH/system/zlib/latest/include:-I$BLDR_LOCAL_PATH/system/libiconv/latest/include"
+pkg_ldflags="-L$BLDR_LOCAL_PATH/system/zlib/latest/lib:-L$BLDR_LOCAL_PATH/system/libiconv/latest/lib"
 
 ####################################################################################################
 # build and install pkg as local module

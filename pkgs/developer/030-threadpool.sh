@@ -86,21 +86,21 @@ function bldr_pkg_install_method()
         BLDR_VERBOSE=true
     fi
 
-    local prefix="$BLDR_LOCAL_DIR/$pkg_ctry/$pkg_name/$pkg_vers"
+    local prefix="$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
 
-    bldr_push_dir "$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers"
+    bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
     local make_path=$(bldr_locate_makefile $pkg_cfg_path)
     bldr_pop_dir
 
-    bldr_push_dir "$BLDR_BUILD_DIR/$pkg_ctry/$pkg_name/$pkg_vers/$make_path"
+    bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$make_path"
 
     local hdr_path="boost/threadpool"
     if [ -d "$hdr_path" ]
     then
         bldr_log_header "Migrating build files from '$hdr_path' for '$pkg_name/$pkg_vers'"
         bldr_log_split
-        bldr_make_dir "$BLDR_LOCAL_DIR/$pkg_ctry/$pkg_name/$pkg_vers/include/$hdr_path"
-        bldr_copy_dir "$hdr_path" "$BLDR_LOCAL_DIR/$pkg_ctry/$pkg_name/$pkg_vers/include/$hdr_path" || bldr_bail "Failed to copy shared files into directory: $BLDR_LOCAL_DIR/$pkg_ctry/$pkg_name/$pkg_vers/$path"
+        bldr_make_dir "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/include/$hdr_path"
+        bldr_copy_dir "$hdr_path" "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/include/$hdr_path" || bldr_bail "Failed to copy shared files into directory: $BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$path"
         bldr_log_split
     fi
 

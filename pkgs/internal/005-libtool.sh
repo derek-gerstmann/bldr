@@ -10,31 +10,23 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_name="m4"
-pkg_vers="1.4.16"
+pkg_name="libtool"
+pkg_vers="2.4.2"
 
-pkg_info="GNU M4 is an implementation of the traditional Unix macro processor. "
+pkg_info="GNU libtool is a generic library support script."
 
-pkg_desc="GNU M4 is an implementation of the traditional Unix macro processor. 
-It is mostly SVR4 compatible although it has some extensions (for example, handling 
-more than 9 positional parameters to macros). GNU M4 also has built-in functions 
-for including files, running shell commands, doing arithmetic, etc.
+pkg_desc="GNU libtool is a generic library support script. 
 
-GNU M4 is a macro processor in the sense that it copies its input to the output 
-expanding macros as it goes. Macros are either builtin or user-defined and can 
-take any number of arguments. Besides just doing macro expansion, m4 has builtin 
-functions for including named files, running UNIX commands, doing integer 
-arithmetic, manipulating text in various ways, recursion etc... 
+Libtool hides the complexity of using shared libraries behind a consistent, portable interface. 
 
-M4 can be used either as a front-end to a compiler or as a macro processor in its own right.
-
-One of the biggest users of GNU M4 is the GNU Autoconf project."
+To use libtool, add the new generic library building commands to your Makefile, Makefile.in, 
+or Makefile.am. See the documentation for details."
 
 pkg_file="$pkg_name-$pkg_vers.tar.gz"
-pkg_urls="http://gnu.mirror.iweb.com/gnu/m4/$pkg_file;http://ftp.gnu.org/gnu/m4/$pkg_file"
+pkg_urls="http://ftpmirror.gnu.org/libtool/$pkg_file"
 pkg_opts="configure force-static"
-pkg_uses=""
-pkg_reqs=""
+pkg_uses="m4/latest autoconf/latest automake/latest"
+pkg_reqs="m4/latest autoconf/latest automake/latest"
 pkg_cflags=""
 pkg_ldflags=""
 pkg_cfg=""
@@ -43,7 +35,7 @@ pkg_cfg=""
 # build and install pkg as local module
 ####################################################################################################
 
-bldr_build_pkg --category    "system"       \
+bldr_build_pkg --category    "internal"     \
                --name        "$pkg_name"    \
                --version     "$pkg_vers"    \
                --info        "$pkg_info"    \
@@ -56,5 +48,3 @@ bldr_build_pkg --category    "system"       \
                --cflags      "$pkg_cflags"  \
                --ldflags     "$pkg_ldflags" \
                --config      "$pkg_cfg"
-
-

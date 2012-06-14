@@ -25,10 +25,10 @@ pkg_urls="http://ftp.gnu.org/gnu/tar/$pkg_file"
 pkg_opts="configure"
 pkg_reqs="xz/latest zlib/latest gzip/latest bzip2/latest"
 pkg_uses="m4/latest autoconf/latest automake/latest libtool/latest $pkg_reqs"
-pkg_cfg="         --with-xz=$BLDR_LOCAL_DIR/system/xz/latest/bin/xz"
-pkg_cfg="$pkg_cfg --with-lzip=$BLDR_LOCAL_DIR/system/zlib/latest/lib/libz.a"
-pkg_cfg="$pkg_cfg --with-gzip=$BLDR_LOCAL_DIR/system/gzip/latest/bin/gzip"
-pkg_cfg="$pkg_cfg --with-bzip2=$BLDR_LOCAL_DIR/system/bzip2/latest/bin/bzip2"
+pkg_cfg="         --with-xz=$BLDR_LOCAL_PATH/system/xz/latest/bin/xz"
+pkg_cfg="$pkg_cfg --with-lzip=$BLDR_LOCAL_PATH/system/zlib/latest/lib/libz.a"
+pkg_cfg="$pkg_cfg --with-gzip=$BLDR_LOCAL_PATH/system/gzip/latest/bin/gzip"
+pkg_cfg="$pkg_cfg --with-bzip2=$BLDR_LOCAL_PATH/system/bzip2/latest/bin/bzip2"
 
 ####################################################################################################
 # build and install pkg as local module

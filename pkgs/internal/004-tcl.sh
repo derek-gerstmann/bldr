@@ -10,20 +10,23 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_name="automake"
-pkg_vers="1.11.3"
+pkg_name="tcl"
+pkg_vers="8.5.11"
 
-pkg_info="Automake is a Makefile generator."
+pkg_info="Tool Command Language (Tcl) is an interpreted language and very portable interpreter for that language. "
 
-pkg_desc="Automake is a Makefile generator.  It was inspired by the 4.4BSD 
-make and include files, but aims to be portable and to conform to the 
-GNU Coding Standards for Makefile variables and targets."
+pkg_desc="Tool Command Language (Tcl) is an interpreted language and very portable interpreter for that language. 
 
-pkg_file="$pkg_name-$pkg_vers.tar.gz"
-pkg_urls="http://ftp.gnu.org/gnu/automake/$pkg_file"
-pkg_opts="configure force-static"
-pkg_uses="m4/latest"
-pkg_reqs="m4/latest"
+Tcl (Tool Command Language) is a very powerful but easy to learn dynamic programming language, 
+suitable for a very wide range of uses, including web and desktop applications, networking, 
+administration, testing and many more. Open source and business-friendly, Tcl is a mature yet 
+evolving language that is truly cross platform, easily deployed and highly extensible."
+
+pkg_file="tcl$pkg_vers-src.tar.gz"
+pkg_urls="http://prdownloads.sourceforge.net/tcl/$pkg_file"
+pkg_opts="configure"
+pkg_uses="m4/latest autoconf/latest automake/latest"
+pkg_reqs=""
 pkg_cflags=""
 pkg_ldflags=""
 pkg_cfg=""
@@ -32,7 +35,7 @@ pkg_cfg=""
 # build and install pkg as local module
 ####################################################################################################
 
-bldr_build_pkg --category    "system"       \
+bldr_build_pkg --category    "internal"     \
                --name        "$pkg_name"    \
                --version     "$pkg_vers"    \
                --info        "$pkg_info"    \
@@ -44,6 +47,7 @@ bldr_build_pkg --category    "system"       \
                --options     "$pkg_opts"    \
                --cflags      "$pkg_cflags"  \
                --ldflags     "$pkg_ldflags" \
-               --config      "$pkg_cfg"
+               --config      "$pkg_cfg"     \
+               --config-path "unix"
 
 
