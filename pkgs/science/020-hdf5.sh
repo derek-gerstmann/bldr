@@ -27,7 +27,7 @@ The HDF5 technology suite includes:
 
 pkg_file="hdf5-$pkg_vers.tar.gz"
 pkg_urls="http://www.hdfgroup.org/ftp/HDF5/current/src/$pkg_file"
-pkg_opts="cmake"
+pkg_opts="cmake keep"
 pkg_reqs="szip/latest zlib/latest"
 pkg_uses="m4/latest autoconf/latest automake/latest"
 pkg_cflags=""
@@ -50,7 +50,7 @@ pkg_cfg="$pkg_cfg:-DHDF5_DISABLE_COMPILER_WARNINGS=ON"
 pkg_cfg="$pkg_cfg -DCMAKE_CXX_FLAGS='-I$BLDR_LOCAL_PATH/science/szip/latest/include -I$BLDR_LOCAL_PATH/science/szip/latest/src'"
 pkg_cfg="$pkg_cfg -DCMAKE_CPP_FLAGS='-I$BLDR_LOCAL_PATH/science/szip/latest/include -I$BLDR_LOCAL_PATH/science/szip/latest/src'"
 pkg_cfg="$pkg_cfg -DCMAKE_C_FLAGS='-I$BLDR_LOCAL_PATH/science/szip/latest/include -I$BLDR_LOCAL_PATH/science/szip/latest/src'"
-
+hdf5_cfg="$pkg_cfg"
 
 ####################################################################################################
 
@@ -158,8 +158,56 @@ bldr_build_pkg --category    "science"      \
 
 ####################################################################################################
 
+####################################################################################################
+
+pkg_name="hdf5-threadsafe"
+pkg_cfg="$hdf5_cfg:-DHDF5_ENABLE_THREADSAFE=ON"
+
+####################################################################################################
+# build and install pkg as local module
+####################################################################################################
+
+bldr_build_pkg --category    "science"      \
+               --name        "$pkg_name"    \
+               --version     "$pkg_vers"    \
+               --info        "$pkg_info"    \
+               --description "$pkg_desc"    \
+               --file        "$pkg_file"    \
+               --url         "$pkg_urls"    \
+               --uses        "$pkg_uses"    \
+               --requires    "$pkg_reqs"    \
+               --options     "$pkg_opts"    \
+               --cflags      "$pkg_cflags"  \
+               --ldflags     "$pkg_ldflags" \
+               --config      "$pkg_cfg"
+
+####################################################################################################
+
+pkg_name="hdf5-threadsafe-16"
+pkg_cfg="$hdf5_cfg:-DHDF5_ENABLE_THREADSAFE=ON:-DH5_USE_16_API=ON"
+
+####################################################################################################
+# build and install pkg as local module
+####################################################################################################
+
+bldr_build_pkg --category    "science"      \
+               --name        "$pkg_name"    \
+               --version     "$pkg_vers"    \
+               --info        "$pkg_info"    \
+               --description "$pkg_desc"    \
+               --file        "$pkg_file"    \
+               --url         "$pkg_urls"    \
+               --uses        "$pkg_uses"    \
+               --requires    "$pkg_reqs"    \
+               --options     "$pkg_opts"    \
+               --cflags      "$pkg_cflags"  \
+               --ldflags     "$pkg_ldflags" \
+               --config      "$pkg_cfg"
+
+####################################################################################################
+
 pkg_name="hdf5-parallel"
-pkg_cfg="$pkg_cfg:-DHDF5_ENABLE_PARALLEL=ON"
+pkg_cfg="$hdf5_cfg:-DHDF5_ENABLE_PARALLEL=ON"
 
 ####################################################################################################
 # build and install pkg as local module
@@ -182,7 +230,7 @@ bldr_build_pkg --category    "science"      \
 ####################################################################################################
 
 pkg_name="hdf5-parallel-16"
-pkg_cfg="$pkg_cfg:-DH5_USE_16_API=ON"
+pkg_cfg="$hdf5_cfg:-DHDF5_ENABLE_PARALLEL=ON:-DH5_USE_16_API=ON"
 
 ####################################################################################################
 # build and install pkg as local module

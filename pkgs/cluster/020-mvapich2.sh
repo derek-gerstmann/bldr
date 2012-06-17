@@ -37,6 +37,14 @@ then
      pkg_cfg="$pkg_cfg --with-cuda-libpath=/usr/local/cuda/lib64"
 fi
 
+has_fortran=$(which "f77")
+if [ "$has_fortran" != "" ]
+then
+     pkg_cfg="$pkg_cfg --enable-f77 --enable-fc"
+else
+     pkg_cfg="$pkg_cfg --disable-f77 --disable-fc"
+fi
+
 pkg_cfg="$pkg_cfg --enable-threads=runtime"
 pkg_cfg="$pkg_cfg --with-thread-package=posix"
 pkg_cfg="$pkg_cfg --enable-romio"
