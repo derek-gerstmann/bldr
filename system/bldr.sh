@@ -2265,7 +2265,16 @@ function bldr_modulate_pkg()
     then
         for require in ${pkg_reqs}
         do
-            echo "prereq $require" >> $module_file
+            echo "if { ! [ is-loaded $require ] } {"     >> $module_file
+            echo "    module load $require"                     >> $module_file
+            echo "}"                                            >> $module_file
+            echo ""                                             >> $module_file
+        done
+        echo ""                                                 >> $module_file
+
+        for require in ${pkg_reqs}
+        do
+            echo "prereq $require"                              >> $module_file
         done
         echo ""                                                 >> $module_file
     fi
@@ -2273,135 +2282,136 @@ function bldr_modulate_pkg()
     # pkg specific environment settings
     echo "setenv $pkg_title""_VERSION                       $pkg_vers"       >> $module_file
 
-    if [ -d "$prefix/include" ]
-    then
-        echo "setenv $pkg_title""_INCLUDE_PATH              $prefix/include" >> $module_file
-    fi
+    local found=""
+    local subdir=""
+    for found in $(find $prefix -type d -iname "include")
+    do
+        echo ""                                                              >> $module_file
+        echo "setenv $pkg_title""_INCLUDE_PATH              $found"          >> $module_file
+        echo ""                                                              >> $module_file
+        echo "prepend-path C_INCLUDE_PATH                   $found"          >> $module_file
+        echo "prepend-path CPLUS_INCLUDE_PATH               $found"          >> $module_file
+        echo "prepend-path CPATH                            $found"          >> $module_file
+        echo "prepend-path FPATH                            $found"          >> $module_file
+    done
 
-    if [ -d "$prefix/inc" ]
-    then
-        echo "setenv $pkg_title""_INCLUDE_PATH              $prefix/inc"     >> $module_file
-    fi
+    for found in $(find $prefix -type d -iname "inc")
+    do
+        echo ""                                                              >> $module_file
+        echo "setenv $pkg_title""_INCLUDE_PATH              $found"          >> $module_file
+        echo ""                                                              >> $module_file
+        echo "prepend-path C_INCLUDE_PATH                   $found"          >> $module_file
+        echo "prepend-path CPLUS_INCLUDE_PATH               $found"          >> $module_file
+        echo "prepend-path CPATH                            $found"          >> $module_file
+        echo "prepend-path FPATH                            $found"          >> $module_file
+    done
 
-    if [ -d "$prefix/bin" ]
-    then
-        echo "setenv $pkg_title""_BIN_PATH                  $prefix/bin"     >> $module_file
-    fi
+    for found in $(find $prefix -type d -iname "bin")
+    do
+        echo ""                                                              >> $module_file
+        echo "setenv $pkg_title""_BIN_PATH                  $found"          >> $module_file
+        echo ""                                                              >> $module_file
+        echo "prepend-path PATH                             $found"          >> $module_file
+        for subdir in $found/*
+        do
+            if [ -d $subdir ]
+            then
+                echo "prepend-path PATH                     $subdir"         >> $module_file
+            fi
+        done
+    done
 
-    if [ -d "$prefix/sbin" ]
-    then
-        echo "setenv $pkg_title""_SBIN_PATH                 $prefix/sbin"    >> $module_file
-    fi
+    for found in $(find $prefix -type d -iname "sbin")
+    do
+        echo ""                                                              >> $module_file
+        echo "setenv $pkg_title""_SBIN_PATH                 $found"          >> $module_file
+        echo ""                                                              >> $module_file
+        echo "prepend-path PATH                             $found"          >> $module_file
+        for subdir in $found/*
+        do
+            if [ -d $subdir ]
+            then
+                echo "prepend-path PATH                     $subdir"         >> $module_file
+            fi
+        done
+    done
 
-    if [ -d "$prefix/lib" ]
-    then
-        echo "setenv $pkg_title""_LIB_PATH                  $prefix/lib"     >> $module_file
-    fi
+    for found in $(find $prefix -type d -iname "lib")
+    do
+        echo ""                                                              >> $module_file
+        echo "setenv $pkg_title""_LIB_PATH                  $found"          >> $module_file
+        echo ""                                                              >> $module_file
+        if [ "$BLDR_SYSTEM_IS_OSX" -eq 1 ]
+        then
+            echo "prepend-path DYLD_LIBRARY_PATH            $found"          >> $module_file
+        fi
+        echo "prepend-path LD_LIBRARY_PATH                  $found"          >> $module_file
+        echo "prepend-path LIBRARY_PATH                     $found"          >> $module_file
+    done
 
-    if [ -d "$prefix/lib32" ]
-    then
-        echo "setenv $pkg_title""_LIB32_PATH                $prefix/lib32"   >> $module_file
-    fi
+    for found in $(find $prefix -type d -iname "lib32")
+    do
+        echo ""                                                              >> $module_file
+        echo "setenv $pkg_title""_LIB32_PATH                $found"          >> $module_file
+        echo ""                                                              >> $module_file
+        if [ "$BLDR_SYSTEM_IS_OSX" -eq 1 ]
+        then
+            echo "prepend-path DYLD_LIBRARY_PATH            $found"          >> $module_file
+        fi
+        echo "prepend-path LD_LIBRARY_PATH                  $found"          >> $module_file
+        echo "prepend-path LIBRARY_PATH                     $found"          >> $module_file
+    done
 
-    if [ -d "$prefix/lib64" ]
-    then
-        echo "setenv $pkg_title""_LIB64_PATH                $prefix/lib64"   >> $module_file
-    fi
+    for found in $(find $prefix -type d -iname "lib64")
+    do
+        echo ""                                                              >> $module_file
+        echo "setenv $pkg_title""_LIB64_PATH                $found"          >> $module_file
+        echo ""                                                              >> $module_file
+        if [ "$BLDR_SYSTEM_IS_OSX" -eq 1 ]
+        then
+            echo "prepend-path DYLD_LIBRARY_PATH            $found"          >> $module_file
+        fi
+        echo "prepend-path LD_LIBRARY_PATH                  $found"          >> $module_file
+        echo "prepend-path LIBRARY_PATH                     $found"          >> $module_file
+    done
+
+    for found in $(find $prefix -type d -iname "man")
+    do
+        echo ""                                                              >> $module_file
+        echo "prepend-path MANPATH                          $found"          >> $module_file
+    done
+
+    for found in $(find $prefix -type d -iname "locale")
+    do
+        echo ""                                                              >> $module_file
+        echo "prepend-path NLSPATH                          $found"          >> $module_file
+    done
+
+    for found in $(find $prefix -type d -iname "info")
+    do
+        echo ""                                                              >> $module_file
+        echo "prepend-path INFOPATH                         $found"          >> $module_file
+    done
 
     if [ -d "$prefix/man" ]
     then
+        echo ""                                                              >> $module_file
         echo "setenv $pkg_title""_MAN_PATH                  $prefix/man"     >> $module_file
     fi
 
     if [ -d "$prefix/share" ]
     then
+        echo ""                                                              >> $module_file
         echo "setenv $pkg_title""_SHARE_PATH                $prefix/share"   >> $module_file
     fi
 
     if [ -d "$prefix/etc" ]
     then
+        echo ""                                                              >> $module_file
         echo "setenv $pkg_title""_CONFIG_PATH               $prefix/etc"     >> $module_file
     fi
 
-    echo ""                                                      >> $module_file
-
-    # system specific environment settings
-
-    if [ -d "$prefix/bin" ]
-    then
-        echo "prepend-path PATH                 $prefix/bin"     >> $module_file
-    fi
-
-    if [ -d "$prefix/sbin" ]
-    then
-        echo "prepend-path PATH                 $prefix/sbin"    >> $module_file
-    fi
-
-    if [ -d "$prefix/inc" ]
-    then
-        echo "prepend-path C_INCLUDE_PATH       $prefix/inc"     >> $module_file
-        echo "prepend-path CPLUS_INCLUDE_PATH   $prefix/inc"     >> $module_file
-        echo "prepend-path CPATH                $prefix/inc"     >> $module_file
-        echo "prepend-path FPATH                $prefix/inc"     >> $module_file
-    fi
-
-    if [ -d "$prefix/include" ]
-    then
-        echo "prepend-path C_INCLUDE_PATH       $prefix/include" >> $module_file
-        echo "prepend-path CPLUS_INCLUDE_PATH   $prefix/include" >> $module_file
-        echo "prepend-path CPATH                $prefix/include" >> $module_file
-        echo "prepend-path FPATH                $prefix/include" >> $module_file
-    fi
-
-    if [ -d "$prefix/lib" ]
-    then
-        if [ "$BLDR_SYSTEM_IS_OSX" -eq 1 ]
-        then
-            echo "prepend-path DYLD_LIBRARY_PATH    $prefix/lib"     >> $module_file
-        fi
-        echo "prepend-path LD_LIBRARY_PATH          $prefix/lib"     >> $module_file
-        echo "prepend-path LIBRARY_PATH             $prefix/lib"     >> $module_file
-    fi
-
-    if [ -d "$prefix/lib32" ]
-    then
-        echo "prepend-path LD_LIBRARY_PATH      $prefix/lib32"   >> $module_file
-        echo "prepend-path LIBRARY_PATH         $prefix/lib32"   >> $module_file
-    fi
-
-    if [ -d "$prefix/lib64" ]
-    then
-        echo "prepend-path LD_LIBRARY_PATH      $prefix/lib64"   >> $module_file
-        echo "prepend-path LIBRARY_PATH         $prefix/lib64"   >> $module_file
-    fi
-
-    if [ -d "$prefix/man" ]
-    then
-        echo "prepend-path MANPATH              $prefix/man"     >> $module_file
-    fi
-
-    if [ -d "$prefix/locale" ]
-    then
-        echo "prepend-path NLSPATH              $prefix/locale"  >> $module_file
-    fi
-
-    if [ -d "$prefix/share/man" ]
-    then
-        echo "prepend-path MANPATH              $prefix/share/man" >> $module_file
-    fi
-
-    if [ -d "$prefix/share/info" ]
-    then
-        echo "prepend-path INFOPATH             $prefix/share/info" >> $module_file
-    fi
-
-    if [ -d "$prefix/share/locale" ]
-    then
-        echo "prepend-path NLSPATH              $prefix/share/locale" >> $module_file
-    fi
-
-    echo ""                                                         >> $module_file
-
+    echo ""                                                                  >> $module_file
 
     bldr_log_info "Linking module '$pkg_name/$pkg_vers' as '$pkg_name/latest' ..."
     bldr_log_split    
@@ -2840,7 +2850,226 @@ function bldr_build_pkg()
 
 ####################################################################################################
 
+function bldr_modularize_pkg()
+{
+    local use_verbose="false"
+    local pkg_ctry=""
+    local pkg_name="" 
+    local pkg_vers=""
+    local pkg_info=""
+    local pkg_desc=""
+    local pkg_file=""
+    local pkg_urls=""
+    local pkg_uses=""
+    local pkg_reqs=""
+    local pkg_opts=""
+    local pkg_cflags=""
+    local pkg_ldflags=""
+    local pkg_patches=""
+    local pkg_cfg=""
+    local pkg_cfg_path=""
+
+    while true ; do
+        case "$1" in
+           --verbose)       use_verbose="true"; shift;;
+           --name)          pkg_name="$2"; shift 2;;
+           --version)       pkg_vers="$2"; shift 2;;
+           --info)          pkg_info="$2"; shift 2;;
+           --description)   pkg_desc="$2"; shift 2;;
+           --category)      pkg_ctry="$2"; shift 2;;
+           --options)       pkg_opts="$2"; shift 2;;
+           --file)          pkg_file="$2"; shift 2;;
+           --config)        pkg_cfg="$pkg_cfg:$2"; shift 2;;
+           --config-path)   pkg_cfg_path="$2"; shift 2;;
+           --cflags)        pkg_cflags="$pkg_cflags:$2"; shift 2;;
+           --ldflags)       pkg_ldflags="$pkg_ldflags:$2"; shift 2;;
+           --patch)         pkg_patches="$pkg_patches:$2"; shift 2;;
+           --uses)          pkg_uses="$pkg_uses:$2"; shift 2;;
+           --requires)      pkg_reqs="$pkg_reqs:$2"; shift 2;;
+           --url)           pkg_urls="$pkg_urls;$2"; shift 2;;
+           * )              break ;;
+        esac
+    done
+
+    if [ "$use_verbose" == "true" ]
+    then
+        BLDR_VERBOSE=true
+    fi
+
+    if [ "$pkg_name" == "" ] || [ "$pkg_vers" == "" ] || [ "$pkg_file" == "" ]
+    then
+        bldr_bail "Incomplete package definition!  Need at least 'name', 'version' and 'file' defined!"
+    fi
+
+    local existing=$(bldr_has_module --category "$pkg_ctry" --name "$pkg_name" --version "$pkg_vers" --options "$pkg_opts")
+    if [ "$existing" != "false" ]
+    then
+        if [ $BLDR_VERBOSE != false ]
+        then
+            bldr_log_header "Skipping existing package '$pkg_name/$pkg_vers' ... "
+            bldr_log_split
+        fi
+        return
+    fi
+
+    if [ $BLDR_VERBOSE != false ]
+    then
+        bldr_log_split
+        echo "PkgCategory:   '$pkg_ctry'"
+        echo "PkgName:       '$pkg_name'"
+        echo "PkgVersion:    '$pkg_vers'"
+        echo "PkgInfo:       '$pkg_info'"
+        echo "PkgFile:       '$pkg_file'"
+        echo "PkgUrls:       '$pkg_urls'"
+        echo "PkgOptions:    '$pkg_opts'"
+        echo "PkgUses:       '$pkg_uses'"
+        echo "PkgRequires:   '$pkg_reqs'"
+        echo "PkgCFlags:     '$pkg_cflags'"
+        echo "PkgLDFlags:    '$pkg_ldflags'"
+        echo "PkgConfig:     '$pkg_cfg'"
+        echo "PkgConfigPath: '$pkg_cfg_path'"
+        echo "PkgPatches:    '$pkg_patches'"
+        echo "PkgDesc:      "
+        echo " "
+        echo "$pkg_desc"
+        echo " "
+    fi
+
+    local override_modulate=$(type -t bldr_pkg_modulate_method)
+
+    # Call the overridden package methods for each build phase if they were defined
+    # -- otherwise use the default internal ones (which should handle 90% of most packages)
+    if [ "$override_modulate" == "function" ]
+    then
+        bldr_pkg_modulate_method          \
+            --category    "$pkg_ctry"     \
+            --name        "$pkg_name"     \
+            --version     "$pkg_vers"     \
+            --file        "$pkg_file"     \
+            --url         "$pkg_urls"     \
+            --uses        "$pkg_uses"     \
+            --requires    "$pkg_reqs"     \
+            --options     "$pkg_opts"     \
+            --cflags      "$pkg_cflags"   \
+            --ldflags     "$pkg_ldflags"  \
+            --patch       "$pkg_patches"  \
+            --config      "$pkg_cfg"      \
+            --config-path "$pkg_cfg_path" \
+            --verbose     "$use_verbose"
+    else
+        bldr_modulate_pkg                 \
+            --category    "$pkg_ctry"     \
+            --name        "$pkg_name"     \
+            --version     "$pkg_vers"     \
+            --file        "$pkg_file"     \
+            --url         "$pkg_urls"     \
+            --uses        "$pkg_uses"     \
+            --requires    "$pkg_reqs"     \
+            --options     "$pkg_opts"     \
+            --cflags      "$pkg_cflags"   \
+            --ldflags     "$pkg_ldflags"  \
+            --patch       "$pkg_patches"  \
+            --config      "$pkg_cfg"      \
+            --config-path "$pkg_cfg_path" \
+            --verbose     "$use_verbose"
+    fi
+
+    bldr_log_header "DONE with '$pkg_name/$pkg_vers'! --"
+    bldr_log_split
+}
+
+####################################################################################################
+
 function bldr_build_pkgs()
+{
+    local use_verbose="false"
+    local pkg_ctry=""
+    local pkg_name="" 
+    local pkg_version=""
+
+    while true ; do
+        case "$1" in
+           --verbose)       use_verbose="$2"; shift 2;;
+           --name)          pkg_name="$2"; shift 2;;
+           --category)      pkg_ctry="$2"; shift 2;;
+           --version)       pkg_vers="$2"; shift 2;;
+           * )              break ;;
+        esac
+    done
+
+    if [ "$use_verbose" == "true" ]
+    then
+        BLDR_VERBOSE=true
+    fi
+
+    local pkg_ctry=$(echo "$pkg_ctry" | bldr_split_str ":" | bldr_join_str " ")
+    local pkg_list=$(echo "$pkg_name" | bldr_split_str ":" | bldr_join_str " ")
+    local pkg_dir="$BLDR_PKGS_PATH"
+
+    # push the system category onto the list if it hasn't been built yet
+    pkg_ctry=$(bldr_trim_str $pkg_ctry)
+    if [ "$pkg_ctry" == "" ]
+    then
+        pkg_ctry="*"
+    else
+        pkg_ctry="internal system $pkg_ctry"
+        pkg_ctry=$(bldr_trim_str $pkg_ctry)
+    fi
+
+    pkg_list=$(bldr_trim_str $pkg_list)
+
+    if [[ -d $pkg_dir ]]
+    then
+        local builder
+        bldr_log_split
+        bldr_log_header "Starting build for '$pkg_ctry' in '$pkg_dir'..."
+        bldr_log_split
+        for pkg_category in $pkg_dir/$pkg_ctry
+        do
+            local base_ctry=$(basename $pkg_category)
+            bldr_log_info "Building category '$base_ctry'"
+            bldr_log_split
+
+            for pkg_def in $pkg_dir/$base_ctry/*
+            do
+                if [[ ! -x $pkg_def ]]
+                then
+                    continue
+                fi
+
+                if [[ "$pkg_list" == "" ]] 
+                then
+                    if [ $BLDR_VERBOSE != false ]
+                    then
+                        bldr_log_info "Building package '$pkg_def'"
+                        bldr_log_split
+                    fi
+                    eval $pkg_def || exit -1
+                else
+                    for entry in $pkg_list 
+                    do
+                        local m=$(echo "$pkg_def" | grep -c $entry )
+                        if [[ $m > 0 ]]
+                        then
+                            if [ $BLDR_VERBOSE != false ]
+                            then
+                                bldr_log_info "Building '$entry' from '$pkg_def'"
+                                bldr_log_split
+                            fi
+                            eval $pkg_def || exit -1
+                            break
+                        fi
+                    done
+                fi
+            done
+        done
+    fi
+}
+
+
+####################################################################################################
+
+function bldr_modularize_pkgs()
 {
     local use_verbose="false"
     local pkg_ctry=""
