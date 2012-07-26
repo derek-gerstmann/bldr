@@ -1,0 +1,12 @@
+--- glib-2.27.0-orig/glib/gconvert.c2010-09-17 17:33:50.000000000 -0500
++++ glib-2.27.0/glib/gconvert.c 2010-10-27 00:01:39.000000000 -0500
+@@ -61,9 +61,6 @@
+ #if defined(USE_LIBICONV_GNU) && !defined (_LIBICONV_H)
+ #error GNU libiconv in use but included iconv.h not from libiconv
+ #endif
+-#if !defined(USE_LIBICONV_GNU) && defined (_LIBICONV_H)
+-#error GNU libiconv not in use but included iconv.h is from libiconv
+-#endif
+ 
+ /**
+  * SECTION:conversions

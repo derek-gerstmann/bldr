@@ -10,23 +10,25 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_name="pkg-config"
-pkg_vers="0.24"
+pkg_name="xz"
+pkg_vers="5.0.3"
 
-pkg_info="Package Config is a helper tool used when compiling applications and libraries. "
+pkg_info="XZ utils is free general-purpose data compression software with high compression ratio."
 
-pkg_desc="pkg-config is a helper tool used when compiling applications and libraries. 
-It helps you insert the correct compiler options on the command line so an application 
-can use  gcc -o test test.c \`pkg-config --libs --cflags glib-2.0\`  for instance, rather 
-than hard-coding values on where to find glib (or other libraries). It is 
-language-agnostic, so it can be used for defining the location of documentation 
-tools, for instance."
+pkg_desc="XZ utils is free general-purpose data compression software with high compression ratio. 
+XZ Utils were written for POSIX-like systems, but also work on some not-so-POSIX systems. 
+XZ Utils are the successor to LZMA Utils.
+
+The core of the XZ Utils compression code is based on LZMA SDK, but it has been modified 
+quite a lot to be suitable for XZ Utils. The primary compression algorithm is currently LZMA2, 
+which is used inside the .xz container format. With typical files, XZ Utils create 30 % smaller 
+output than gzip and 15 % smaller output than bzip2. "
 
 pkg_file="$pkg_name-$pkg_vers.tar.gz"
-pkg_urls="http://pkgconfig.freedesktop.org/releases/$pkg_file"
+pkg_urls="http://tukaani.org/xz/$pkg_file"
 pkg_opts="configure force-static"
 pkg_uses="m4/latest autoconf/latest automake/latest libtool/latest"
-pkg_reqs="m4/latest autoconf/latest automake/latest libtool/latest"
+pkg_reqs=""
 pkg_cflags=""
 pkg_ldflags=""
 pkg_cfg=""
@@ -48,3 +50,4 @@ bldr_build_pkg --category    "internal"     \
                --cflags      "$pkg_cflags"  \
                --ldflags     "$pkg_ldflags" \
                --config      "$pkg_cfg"
+

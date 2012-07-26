@@ -31,9 +31,25 @@ export BLDR_VERSION_MINOR="0"
 export BLDR_VERSION_PATCH="0"
 export BLDR_VERSION_STR="v$BLDR_VERSION_MAJOR.$BLDR_VERSION_MINOR.$BLDR_VERSION_PATCH"
 
+####################################################################################################
+
 BLDR_PARALLEL=${BLDR_PARALLEL:=true}
 BLDR_VERBOSE=${BLDR_VERBOSE:=false}
 BLDR_DEBUG=${BLDR_DEBUG:=false}
+BLDR_INITIALIASED=${BLDR_INITIALIASED:=false}
+BLDR_LOADED_MODULES=${BLDR_LOADED_MODULES:=""}
+
+BLDR_USE_PKG_CTRY=${BLDR_USE_PKG_CTRY:=""}
+BLDR_USE_PKG_NAME=${BLDR_USE_PKG_NAME:=""}
+BLDR_USE_PKG_VERS=${BLDR_USE_PKG_VERS:=""}
+
+BLDR_XCODE_SDK=${BLDR_XCODE_SDK:=""}
+BLDR_XCODE_BASE=${BLDR_XCODE_BASE:="/Developer"}
+
+BLDR_OSX_SYSROOT=${BLDR_OSX_SYSROOT:=""}
+BLDR_OSX_DEPLOYMENT_TARGET=${BLDR_OSX_DEPLOYMENT_TARGET:=""}
+
+####################################################################################################
 
 if [ -t 1 ] ; 
 then 
@@ -55,7 +71,6 @@ else
 fi
 
 ####################################################################################################
-
 
 function bldr_get_stdout()
 {
@@ -110,7 +125,7 @@ function bldr_match_str
 {
     local $str
     local $fnd
-    local cnt=$(echo $str | grep -c '^'$fnd':')
+    local cnt=$(echo $str | grep -m1 -c '^'$fnd':')
     echo "$cnt"
 }
 
@@ -259,6 +274,7 @@ fi
 BLDR_CONFIG_PATH=${BLDR_CONFIG_PATH:=$BLDR_ABS_PWD}
 export BLDR_SCRIPTS_PATH="$BLDR_CONFIG_PATH/scripts"
 export BLDR_PKGS_PATH="$BLDR_CONFIG_PATH/pkgs"
+export BLDR_PATCHES_PATH="$BLDR_CONFIG_PATH/patches"
 export BLDR_SYSTEM_PATH="$BLDR_CONFIG_PATH/system"
 export BLDR_CACHE_PATH="$BLDR_CONFIG_PATH/cache"
 export BLDR_BUILD_PATH="$BLDR_CONFIG_PATH/build"
@@ -271,28 +287,62 @@ export BLDR_OS_LIB_EXT="a"
 
 ####################################################################################################
 
-export BLDR_SYSTEM_IS_LINUX=$( uname -s | grep -c Linux )
+export BLDR_SYSTEM_IS_LINUX=$( uname -s | grep -m1 -c Linux )
 if [ "$BLDR_SYSTEM_IS_LINUX" -eq 1 ]
 then
     export BLDR_OS_NAME="lnx"
 fi
 
-export BLDR_SYSTEM_IS_OSX=$( uname -s | grep -c Darwin )
+export BLDR_SYSTEM_IS_OSX=$( uname -s | grep -m1 -c Darwin )
 if [ "$BLDR_SYSTEM_IS_OSX" -eq 1 ]
 then
     export BLDR_OS_NAME="osx"
-    if [ -d "/Developer/SDKs/MacOSX10.6.sdk" ]
+
+    # Locate the SDK for OSX based on the active XCode environment
+    if [ "$BLDR_XCODE_SDK" == "" ]
     then
-        export MACOSX_DEPLOYMENT_TARGET=10.6
-        export LDFLAGS="-arch x86_64 -isysroot /Developer/SDKs/MacOSX10.6.sdk"
-        export CFLAGS="-arch x86_64 -isysroot /Developer/SDKs/MacOSX10.6.sdk"
-    else
-        if [ -d "/Developer/SDKs/MacOSX10.7.sdk" ]
+
+        BLDR_XCODE_SELECT=$(which xcode-select)
+        if [ -x "$BLDR_XCODE_SELECT" ]
         then
-            export MACOSX_DEPLOYMENT_TARGET=10.7
-            export LDFLAGS="-arch x86_64 -isysroot /Developer/SDKs/MacOSX10.7.sdk"
-            export CFLAGS="-arch x86_64 -isysroot /Developer/SDKs/MacOSX10.7.sdk"
-        fi        
+            export BLDR_XCODE_BASE=$(xcode-select --print-path)
+            if [ -d "$BLDR_XCODE_BASE/Platforms/MacOSX.platform" ]
+            then
+                BLDR_XCODE_SDK="$BLDR_XCODE_BASE/Platforms/MacOSX.platform/Developer/SDKs"
+            fi
+        fi
+
+        if [ -d "$BLDR_XCODE_SDK/MacOSX10.6.sdk" ]
+        then
+            export BLDR_XCODE_SDK="$BLDR_XCODE_SDK/MacOSX10.6.sdk"
+            export BLDR_OSX_ARCHITECTURES="i386"
+            export BLDR_OSX_SYSROOT="$BLDR_XCODE_SDK"
+            export BLDR_OSX_DEPLOYMENT_TARGET=10.6
+        else
+            if [ -d "$BLDR_XCODE_SDK/MacOSX10.7.sdk" ]
+            then
+                    export BLDR_XCODE_SDK="$BLDR_XCODE_SDK/MacOSX10.7.sdk"
+                    export BLDR_OSX_ARCHITECTURES="x86_64"
+                    export BLDR_OSX_SYSROOT="$BLDR_XCODE_SDK"
+                    export BLDR_OSX_DEPLOYMENT_TARGET=10.7
+            else
+                if [ -d "$BLDR_XCODE_SDK/MacOSX10.8.sdk" ]
+                then
+                    export BLDR_XCODE_SDK="$BLDR_XCODE_SDK/MacOSX10.8.sdk"
+                    export BLDR_OSX_ARCHITECTURES="x86_64"
+                    export BLDR_OSX_SYSROOT="$BLDR_XCODE_SDK"
+                    export BLDR_OSX_DEPLOYMENT_TARGET=10.8
+                fi                    
+            fi        
+        fi
+    fi
+    
+    # Use the chosen SDK for OSX
+    if [ "$BLDR_OSX_SYSROOT" != "" ]
+    then
+        export MACOSX_DEPLOYMENT_TARGET=$BLDR_OSX_DEPLOYMENT_TARGET
+        export BLDR_XCODE_LDFLAGS="-arch:$BLDR_OSX_ARCHITECTURES:-isysroot:$BLDR_OSX_SYSROOT:-L$BLDR_OSX_SYSROOT/usr/lib"
+        export BLDR_XCODE_CFLAGS="-arch:$BLDR_OSX_ARCHITECTURES:-isysroot:$BLDR_OSX_SYSROOT:-I$BLDR_OSX_SYSROOT/usr/include"
     fi
 fi
 
@@ -301,7 +351,7 @@ if [ "$BLDR_SYSTEM_IS_LINUX" -eq 1 ]
 then
     if [ -e /etc/redhat-release ]
     then
-        export BLDR_SYSTEM_IS_CENTOS=$( cat /etc/redhat-release | grep -c CentOS )
+        export BLDR_SYSTEM_IS_CENTOS=$( cat /etc/redhat-release | grep -m1 -c CentOS )
     fi
 fi
 
@@ -361,8 +411,24 @@ function bldr_load_modules()
             fi
         done
 
-        module use "$BLDR_MODULE_PATH/internal"
-        module use "$BLDR_MODULE_PATH/system"
+        if [ -d "$BLDR_MODULE_PATH/internal" ]
+        then
+            module use "$BLDR_MODULE_PATH/internal"
+            for internal_path in "$BLDR_MODULE_PATH/internal"/*
+            do
+                local internal_base=$(basename $internal_path)
+                if [ $BLDR_DEBUG != false ]
+                then
+                    bldr_log_info "Using internal module: '$internal_base'"
+                fi
+                module add $internal_base
+            done
+        fi
+        
+        if [ -d "$BLDR_MODULE_PATH/system" ]
+        then
+            module use "$BLDR_MODULE_PATH/system"
+        fi
 
         for md_path in $BLDR_MODULE_PATH/*
         do
@@ -390,9 +456,12 @@ function bldr_load_pkgconfig()
 ####################################################################################################
 
 # import our internal tools for usage
-bldr_load_internal
-bldr_load_modules
-bldr_load_pkgconfig
+if [[ $BLDR_INITIALIASED == false ]]; then
+    bldr_load_internal
+    bldr_load_modules
+    bldr_load_pkgconfig
+    BLDR_INITIALIASED=true
+fi
 
 ####################################################################################################
 
@@ -689,7 +758,7 @@ function bldr_list_archive()
        esac    
     fi
 
-    local basedir=$(echo "$result" | grep -E "^[^/]*(/)$" )
+    local basedir=$(echo "$result" | grep -m1 -E -o "(\S+)/$" )
 
     if [ "$basedir" == "" ]
     then
@@ -750,6 +819,57 @@ function bldr_remove_file()
 {
     local src=$1
     rm ${src} || bldr_bail "Failed to remove file!"
+}
+
+function bldr_apply_patch()
+{
+    local patch_file=$1
+    local patch_cmd=$(which patch)
+
+    # strip leading index '000_' from file name
+    local patch_base="$(basename $patch_file)"
+    local path_length=${#patch_base}
+    local patch_path=$(echo $patch_base|sed 's/^[0-9]*_//g' )
+
+    # split filename into dir parts replacing '_' with '/'
+    patch_path=$(echo $patch_path|sed 's/_/\//g')
+
+    if [[ $(echo $patch_file | grep -m1 -c '.diff$' ) > 0 ]]
+    then
+        # remove '.diff' suffix from filename
+        patch_path=$(echo $patch_path|sed 's/.diff$//g')
+
+        # provide the specific source file for the diff based on the name we reconstructed
+        patch_cmd="$patch_cmd $patch_path -N"
+        bldr_log_cmd "patch $patch_path < $patch_file"
+        bldr_log_split
+    
+        eval $patch_cmd < $patch_file 
+        bldr_log_split
+
+    elif [[ $(echo $patch_file | grep -m1 -c '.patch$' ) > 0 ]]
+    then
+
+        # assume a unified top-level patch
+        patch_cmd="$patch_cmd -p1 -N"
+        bldr_log_cmd "patch -p1 < $patch_file"
+        bldr_log_split
+
+        eval $patch_cmd < $patch_file 
+        bldr_log_split
+
+    elif [[ $(echo $patch_file | grep -m1 -c '.ed$' ) > 0 ]]
+    then
+        # remove '.ed' suffix from filename
+        patch_path=$(echo $patch_path|sed 's/.ed$//g')
+
+        # use 'ed' to apply the patch
+        patch_cmd=$(which ed)
+        patch_cmd="$patch_cmd - $patch_path"
+
+        eval $patch_cmd < $patch_file 
+        bldr_log_split
+    fi
 }
 
 function bldr_copy_file()
@@ -849,7 +969,7 @@ function bldr_has_pkg()
         existing="true"
         for pkg_spec in "$BLDR_PKGS_PATH/$pkg_ctry"/*
         do
-            local m=$(echo "$pkg_spec" | grep -c "$pkg_name")
+            local m=$(echo "$pkg_spec" | grep -m1 -c "$pkg_name")
             if [ "$m" == "0" ]
             then
                 continue
@@ -923,7 +1043,7 @@ function bldr_setup_pkg()
         BLDR_VERBOSE=true
     fi
 
-    if [[ $(echo $pkg_opts | grep -c 'skip-setup' ) > 0 ]]
+    if [[ $(echo $pkg_opts | grep -m1 -c 'skip-setup' ) > 0 ]]
     then
         return
     fi
@@ -1007,7 +1127,7 @@ function bldr_fetch_pkg()
         BLDR_VERBOSE=true
     fi
 
-    if [[ $(echo $pkg_opts | grep -c 'skip-fetch' ) > 0 ]]
+    if [[ $(echo $pkg_opts | grep -m1 -c 'skip-fetch' ) > 0 ]]
     then
         return
     fi
@@ -1029,25 +1149,28 @@ function bldr_fetch_pkg()
             bldr_log_info "Retrieving package '$pkg_name/$pkg_vers' from '$url'"
             bldr_log_split
 
-            if [[ $(echo "$url" | grep -c 'http://') == 1 ]]
+            if [[ $(echo "$url" | grep -m1 -c '^http://') == 1 ]]
             then
-                bldr_fetch $url $pkg_file 
-            fi
 
-            if [[ $(echo "$url" | grep -c 'git://') == 1 ]]
+                bldr_fetch $url $pkg_file 
+
+            elif [[ $(echo "$url" | grep -m1 -c '^git://') == 1 ]]
             then
+
                 bldr_clone $url $pkg_name 
+
                 if [ -d $pkg_name ]
                 then
                     bldr_log_split
                     bldr_log_info "Archiving package '$pkg_file' from '$pkg_name/$pkg_vers'"
                     bldr_make_archive $pkg_file $pkg_name
                 fi
-            fi
 
-            if [[ $(echo "$url" | grep -c 'svn://') == 1 ]]
+            elif [[ $(echo "$url" | grep -m1 -c '^svn://') == 1 ]]
             then
+
                 bldr_checkout $url $pkg_name 
+
                 if [ -d $pkg_name ]
                 then
                     bldr_log_split
@@ -1090,8 +1213,12 @@ function bldr_fetch_pkg()
         local archive_listing=$(bldr_list_archive $pkg_file)
 
         bldr_log_info "Extracting package '$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_file' as '$archive_listing'"
-        bldr_log_split
-        
+
+        if [ $BLDR_VERBOSE == false ]
+        then
+            bldr_log_split
+        fi
+
         bldr_extract_archive $pkg_file 
         bldr_move_file $archive_listing $pkg_vers
         bldr_remove_file "$pkg_file"
@@ -1132,7 +1259,7 @@ function bldr_boot_pkg()
            --config-path)   pkg_cfg_path="$2"; shift 2;;
            --cflags)        pkg_cflags="$pkg_cflags:$2"; shift 2;;
            --ldflags)       pkg_ldflags="$pkg_ldflags:$2"; shift 2;;
-           --patch)         pkg_patches="$pkg_patches:$2"; shift 2;;
+           --patch)         pkg_patches="$2"; shift 2;;
            --uses)          pkg_uses="$pkg_uses:$2"; shift 2;;
            --requires)      pkg_reqs="$pkg_reqs:$2"; shift 2;;
            --url)           pkg_urls="$pkg_urls;$2"; shift 2;;
@@ -1145,7 +1272,7 @@ function bldr_boot_pkg()
         BLDR_VERBOSE=true
     fi
 
-    if [[ $(echo $pkg_opts | grep -c 'skip-boot' ) > 0 ]]
+    if [[ $(echo $pkg_opts | grep -m1 -c 'skip-boot' ) > 0 ]]
     then
         return
     fi
@@ -1165,10 +1292,31 @@ function bldr_boot_pkg()
     bldr_pop_dir
 
     bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
+
+    local patch_file=""
+    if [[ $(echo $pkg_opts | grep -m1 -c 'skip-system-patches' ) > 0 ]]
+    then
+        bldr_log_info "Skipping system patches ..."
+        bldr_log_split
+    else
+        for patch_file in $BLDR_PATCHES_PATH/$pkg_name/$pkg_vers/$BLDR_OS_NAME/*
+        do
+            if [ -f "$patch_file" ] 
+            then
+                bldr_log_info "Applying patch from file '$patch_file' ..."
+                bldr_log_split
+
+                bldr_apply_patch $patch_file
+                bldr_log_split
+            fi
+        done
+    fi
+
+    patch_file=""
     pkg_patches=$(bldr_trim_list_str "$pkg_patches")
     if [ "$pkg_patches" != "" ] && [ "$pkg_patches" != " " ] && [ "$pkg_patches" != ":" ]
     then
-        pkg_patches=$(echo $pkg_patches | bldr_split_str ":" | bldr_join_str " ")
+        pkg_patches=$(echo $pkg_patches|sed 's/:/ /g')
     else
         pkg_patches=""
     fi
@@ -1180,11 +1328,7 @@ function bldr_boot_pkg()
             bldr_log_info "Applying patch from file '$patch_file' ..."
             bldr_log_split
 
-            bldr_log_cmd "patch -p1 < $patch_file"
-            bldr_log_split
-
-            patch -p1 -N < $patch_file
-            #  || bldr_bail "Failed to apply patch '$patch_file' to package '$pkg_name/$pkg_vers'!"
+            bldr_apply_patch $patch_file
             bldr_log_split
         fi
     done
@@ -1208,8 +1352,11 @@ function bldr_boot_pkg()
 
         for using in ${pkg_uses}
         do
-            bldr_log_info "Loading module '$using' ..."
-            module -f load $using
+            if [[ $(echo $BLDR_LOADED_MODULES | grep -m1 -c '$using' ) > 0 ]]; then
+                bldr_log_info "Loading module '$using' ..."
+                module load $using
+                BLDR_LOADED_MODULES="$BLDR_LOADED_MODULES:$using"
+            fi
         done
         bldr_log_split
     fi
@@ -1221,7 +1368,7 @@ function bldr_boot_pkg()
         bootstrap=true
     fi
 
-    if [[ $(echo $pkg_opts | grep -c 'force-bootstrap' ) > 0 ]]
+    if [[ $(echo $pkg_opts | grep -m1 -c 'force-bootstrap' ) > 0 ]]
     then
         bldr_log_info "Forcing bootstrap configuration ..."
         bldr_log_split
@@ -1247,7 +1394,7 @@ function bldr_boot_pkg()
 
             if [ $BLDR_VERBOSE != false ]
             then
-                eval $boot_cmd --prefix="$prefix" || bldr_bail "Failed to boot package '$pkg_name/$pkg_vers'!"
+                eval $boot_cmd --prefix="$prefix" --verbose || bldr_bail "Failed to boot package '$pkg_name/$pkg_vers'!"
                 bldr_log_split
             else
                 eval $boot_cmd --prefix="$prefix" &> /dev/null || bldr_bail "Failed to boot package '$pkg_name/$pkg_vers'!"
@@ -1295,7 +1442,7 @@ function bldr_cmake_pkg()
            --config-path)   pkg_cfg_path="$2"; shift 2;;
            --cflags)        pkg_cflags="$pkg_cflags:$2"; shift 2;;
            --ldflags)       pkg_ldflags="$pkg_ldflags:$2"; shift 2;;
-           --patch)         pkg_patches="$pkg_patches:$2"; shift 2;;
+           --patch)         pkg_patches="$2"; shift 2;;
            --uses)          pkg_uses="$pkg_uses:$2"; shift 2;;
            --requires)      pkg_reqs="$pkg_reqs:$2"; shift 2;;
            --url)           pkg_urls="$pkg_urls;$2"; shift 2;;
@@ -1308,7 +1455,7 @@ function bldr_cmake_pkg()
         BLDR_VERBOSE=true
     fi
 
-    if [[ $(echo $pkg_opts | grep -c 'skip-config' ) > 0 ]]
+    if [[ $(echo $pkg_opts | grep -m1 -c 'skip-config' ) > 0 ]]
     then
         return
     fi
@@ -1366,14 +1513,18 @@ function bldr_cmake_pkg()
     local cmake_exec="$BLDR_LOCAL_PATH/internal/cmake/latest/bin/cmake"
     local cmake_mod="-DCMAKE_MODULE_PATH=$BLDR_LOCAL_PATH/internal/cmake/latest/share/cmake-2.8/Modules"
     local cmake_pre="-DCMAKE_INSTALL_PREFIX=$prefix"
+
     if [ "$BLDR_SYSTEM_IS_OSX" -eq 1 ]
     then
-        cmake_pre="$cmake_pre -DCMAKE_OSX_ARCHITECTURES=x86_64"
+        cmake_pre="$cmake_pre -DCMAKE_OSX_ARCHITECTURES=$BLDR_OSX_ARCHITECTURES"
+        cmake_pre="$cmake_pre -DCMAKE_OSX_SYSROOT=$BLDR_OSX_SYSROOT"
+        cmake_pre="$cmake_pre -DCMAKE_OSX_DEPLOYMENT_TARGET=$BLDR_OSX_DEPLOYMENT_TARGET"
     fi
 
     local use_static=false
     local use_shared=false
-    if [[ $(echo $pkg_opts | grep -c 'enable-shared' ) > 0 ]]
+
+    if [[ $(echo $pkg_opts | grep -m1 -c 'enable-shared' ) > 0 ]]
     then
         bldr_log_info "Adding shared library configuration ..."
         bldr_log_split
@@ -1381,7 +1532,7 @@ function bldr_cmake_pkg()
         use_shared=true
     fi
     
-    if [[ $(echo $pkg_opts | grep -c 'enable-static' ) > 0 ]]
+    if [[ $(echo $pkg_opts | grep -m1 -c 'enable-static' ) > 0 ]]
     then
         bldr_log_info "Adding static library configuration ..."
         bldr_log_split
@@ -1389,7 +1540,7 @@ function bldr_cmake_pkg()
         use_static=true
     fi
 
-    if [[ $(echo $pkg_opts | grep -c 'force-shared' ) > 0 ]]
+    if [[ $(echo $pkg_opts | grep -m1 -c 'force-shared' ) > 0 ]]
     then
         bldr_log_info "Forcing shared library configuration ..."
         bldr_log_split
@@ -1399,7 +1550,7 @@ function bldr_cmake_pkg()
         fi
     fi
 
-    if [[ $(echo $pkg_opts | grep -c 'force-static' ) > 0 ]]
+    if [[ $(echo $pkg_opts | grep -m1 -c 'force-static' ) > 0 ]]
     then
         bldr_log_info "Forcing static library configuration ..."
         bldr_log_split
@@ -1458,7 +1609,7 @@ function bldr_config_pkg()
            --config-path)   pkg_cfg_path="$2"; shift 2;;
            --cflags)        pkg_cflags="$pkg_cflags:$2"; shift 2;;
            --ldflags)       pkg_ldflags="$pkg_ldflags:$2"; shift 2;;
-           --patch)         pkg_patches="$pkg_patches:$2"; shift 2;;
+           --patch)         pkg_patches="$2"; shift 2;;
            --uses)          pkg_uses="$pkg_uses:$2"; shift 2;;
            --requires)      pkg_reqs="$pkg_reqs:$2"; shift 2;;
            --url)           pkg_urls="$pkg_urls;$2"; shift 2;;
@@ -1471,7 +1622,7 @@ function bldr_config_pkg()
         BLDR_VERBOSE=true
     fi
 
-    if [[ $(echo $pkg_opts | grep -c 'skip-config' ) > 0 ]]
+    if [[ $(echo $pkg_opts | grep -m1 -c 'skip-config' ) > 0 ]]
     then
         return
     fi
@@ -1506,14 +1657,14 @@ function bldr_config_pkg()
         has_amake=1
     fi
 
-    if [[ $(echo $pkg_opts | grep -c 'cmake' ) > 0 ]]
+    if [[ $(echo $pkg_opts | grep -m1 -c 'cmake' ) > 0 ]]
     then
         use_cmake=1
         use_amake=0
         has_amake=0
     fi
 
-    if [[ $(echo $pkg_opts | grep -c 'configure' ) > 0 ]]
+    if [[ $(echo $pkg_opts | grep -m1 -c 'configure' ) > 0 ]]
     then
         use_cmake=0
         has_cmake=0
@@ -1552,6 +1703,23 @@ function bldr_config_pkg()
             pkg_cfg=$(echo $pkg_cfg | bldr_split_str ":" | bldr_join_str " ")
         else
             pkg_cfg=""
+        fi
+
+        if [ "$BLDR_SYSTEM_IS_OSX" -eq 1 ]
+        then
+            if [[ $(echo $pkg_opts | grep -m1 -c 'disable-xcode-cflags' ) > 0 ]]
+            then
+                bldr_log_info "Disabling XCode Compile FLAGS ..."
+            else
+                pkg_cflags="$pkg_cflags:$BLDR_XCODE_CFLAGS"
+            fi
+
+            if [[ $(echo $pkg_opts | grep -m1 -c 'disable-xcode-ldflags' ) > 0 ]]
+            then
+                bldr_log_info "Disabling XCode Linker FLAGS ..."
+            else
+                pkg_ldflags="$pkg_ldflags:$BLDR_XCODE_LDFLAGS"
+            fi
         fi
 
         pkg_cflags=$(bldr_trim_list_str "$pkg_cflags")
@@ -1606,7 +1774,7 @@ function bldr_config_pkg()
         local use_static=false
         local use_shared=false
 
-        if [[ $(echo $pkg_opts | grep -c 'enable-shared' ) > 0 ]]
+        if [[ $(echo $pkg_opts | grep -m1 -c 'enable-shared' ) > 0 ]]
         then
             bldr_log_info "Adding shared library configuration ..."
             bldr_log_split
@@ -1614,7 +1782,7 @@ function bldr_config_pkg()
             use_shared=true
         fi
         
-        if [[ $(echo $pkg_opts | grep -c 'enable-static' ) > 0 ]]
+        if [[ $(echo $pkg_opts | grep -m1 -c 'enable-static' ) > 0 ]]
         then
             bldr_log_info "Adding static library configuration ..."
             bldr_log_split
@@ -1622,7 +1790,7 @@ function bldr_config_pkg()
             use_static=true
         fi
 
-        if [[ $(echo $pkg_opts | grep -c 'force-shared' ) > 0 ]]
+        if [[ $(echo $pkg_opts | grep -m1 -c 'force-shared' ) > 0 ]]
         then
             bldr_log_info "Forcing shared library configuration ..."
             bldr_log_split
@@ -1632,7 +1800,7 @@ function bldr_config_pkg()
             fi
         fi
 
-        if [[ $(echo $pkg_opts | grep -c 'force-static' ) > 0 ]]
+        if [[ $(echo $pkg_opts | grep -m1 -c 'force-static' ) > 0 ]]
         then
             bldr_log_info "Forcing static library configuration ..."
             bldr_log_split
@@ -1694,7 +1862,7 @@ function bldr_compile_pkg()
            --config-path)   pkg_cfg_path="$2"; shift 2;;
            --cflags)        pkg_cflags="$pkg_cflags:$2"; shift 2;;
            --ldflags)       pkg_ldflags="$pkg_ldflags:$2"; shift 2;;
-           --patch)         pkg_patches="$pkg_patches:$2"; shift 2;;
+           --patch)         pkg_patches="$2"; shift 2;;
            --uses)          pkg_uses="$pkg_uses:$2"; shift 2;;
            --requires)      pkg_reqs="$pkg_reqs:$2"; shift 2;;
            --url)           pkg_urls="$pkg_urls;$2"; shift 2;;
@@ -1707,7 +1875,7 @@ function bldr_compile_pkg()
         BLDR_VERBOSE=true
     fi
 
-    if [[ $(echo $pkg_opts | grep -c 'skip-compile' ) > 0 ]]
+    if [[ $(echo $pkg_opts | grep -m1 -c 'skip-compile' ) > 0 ]]
     then
         return
     fi
@@ -1725,7 +1893,7 @@ function bldr_compile_pkg()
     bldr_log_split
     bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$make_path"
 
-    if [[ $(echo $pkg_opts | grep -c 'force-serial-build' ) > 0 ]]
+    if [[ $(echo $pkg_opts | grep -m1 -c 'force-serial-build' ) > 0 ]]
     then
         bldr_log_info "Forcing serial build for '$pkg_name/$pkg_vers' ..."
         bldr_log_split
@@ -1801,7 +1969,7 @@ function bldr_install_pkg()
            --config-path)   pkg_cfg_path="$2"; shift 2;;
            --cflags)        pkg_cflags="$pkg_cflags:$2"; shift 2;;
            --ldflags)       pkg_ldflags="$pkg_ldflags:$2"; shift 2;;
-           --patch)         pkg_patches="$pkg_patches:$2"; shift 2;;
+           --patch)         pkg_patches="$2"; shift 2;;
            --uses)          pkg_uses="$pkg_uses:$2"; shift 2;;
            --requires)      pkg_reqs="$pkg_reqs:$2"; shift 2;;
            --url)           pkg_urls="$pkg_urls;$2"; shift 2;;
@@ -1812,6 +1980,11 @@ function bldr_install_pkg()
     if [ "$use_verbose" == "true" ]
     then
         BLDR_VERBOSE=true
+    fi
+
+    if [[ $(echo $pkg_opts | grep -m1 -c 'skip-install' ) > 0 ]]
+    then
+        return
     fi
 
     local prefix="$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
@@ -1833,7 +2006,7 @@ function bldr_install_pkg()
     if [ -f "./Makefile" ]
     then
         # install using make if an 'install' rule exists
-        local rules=$(make -pnsk | grep -v ^$ | grep -v ^# | grep -c '^install:')
+        local rules=$(make -pnsk | grep -v ^$ | grep -v ^# | grep -m1 -c '^install:')
         if [[ $(echo "$rules") > 0 ]]
         then
             bldr_log_header "Installing package '$pkg_name/$pkg_vers'"
@@ -1886,7 +2059,7 @@ function bldr_migrate_pkg()
            --config-path)   pkg_cfg_path="$2"; shift 2;;
            --cflags)        pkg_cflags="$pkg_cflags:$2"; shift 2;;
            --ldflags)       pkg_ldflags="$pkg_ldflags:$2"; shift 2;;
-           --patch)         pkg_patches="$pkg_patches:$2"; shift 2;;
+           --patch)         pkg_patches="$2"; shift 2;;
            --uses)          pkg_uses="$pkg_uses:$2"; shift 2;;
            --requires)      pkg_reqs="$pkg_reqs:$2"; shift 2;;
            --url)           pkg_urls="$pkg_urls;$2"; shift 2;;
@@ -1899,7 +2072,7 @@ function bldr_migrate_pkg()
         BLDR_VERBOSE=true
     fi
 
-    if [[ $(echo $pkg_opts | grep -c 'skip-migrate' ) > 0 ]]
+    if [[ $(echo $pkg_opts | grep -m1 -c 'skip-migrate' ) > 0 ]]
     then
         return
     fi
@@ -1933,7 +2106,7 @@ function bldr_migrate_pkg()
     done
     bldr_pop_dir
 
-    if [[ $(echo $pkg_opts | grep -c 'migrate-build-headers' ) > 0 ]]
+    if [[ $(echo $pkg_opts | grep -m1 -c 'migrate-build-headers' ) > 0 ]]
     then
         bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
         local inc_paths="include inc man share"
@@ -1952,7 +2125,7 @@ function bldr_migrate_pkg()
         bldr_pop_dir
     fi    
 
-    if [[ $(echo $pkg_opts | grep -c 'migrate-build-source' ) > 0 ]]
+    if [[ $(echo $pkg_opts | grep -m1 -c 'migrate-build-source' ) > 0 ]]
     then
         bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
         local inc_paths="src source"
@@ -1971,7 +2144,46 @@ function bldr_migrate_pkg()
         bldr_pop_dir
     fi    
 
-    if [[ $(echo $pkg_opts | grep -c 'migrate-build-libs' ) > 0 ]]
+    if [[ $(echo $pkg_opts | grep -m1 -c 'migrate-build-binaries' ) > 0 ]]
+    then
+        bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
+        local bin_paths=". lib bin lib32 lib64"
+        local binary=""
+        local subdir=""
+        for path in ${bin_paths}
+        do
+            # move product into external path
+            if [ $path == "." ]
+            then
+                subdir="bin"
+            else
+                subdir="$path"
+            fi
+            if [ -d "$path" ]
+            then
+                local first_file=1
+                for binary in ${path}/*
+                do
+                    if [ -x "$binary" ]
+                    then
+                        if [ $first_file ]
+                        then
+                            bldr_log_header "Migrating build binaries from '$subdir' for '$pkg_name/$pkg_vers'"
+                            bldr_log_split
+                            bldr_make_dir "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$subdir"
+                            bldr_log_split
+                            first_file=0
+                        fi
+                        eval cp -v "$binary" "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$subdir" || bldr_bail "Failed to copy shared files into directory: $BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$subdir"
+                        bldr_log_split
+                    fi
+                done
+            fi
+        done
+        bldr_pop_dir
+    fi    
+
+    if [[ $(echo $pkg_opts | grep -m1 -c 'migrate-build-libs' ) > 0 ]]
     then
         bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
         local inc_paths="build"
@@ -2038,7 +2250,7 @@ function bldr_cleanup_pkg()
            --config-path)   pkg_cfg_path="$2"; shift 2;;
            --cflags)        pkg_cflags="$pkg_cflags:$2"; shift 2;;
            --ldflags)       pkg_ldflags="$pkg_ldflags:$2"; shift 2;;
-           --patch)         pkg_patches="$pkg_patches:$2"; shift 2;;
+           --patch)         pkg_patches="$2"; shift 2;;
            --uses)          pkg_uses="$pkg_uses:$2"; shift 2;;
            --requires)      pkg_reqs="$pkg_reqs:$2"; shift 2;;
            --url)           pkg_urls="$pkg_urls;$2"; shift 2;;
@@ -2051,7 +2263,7 @@ function bldr_cleanup_pkg()
         BLDR_VERBOSE=true
     fi
 
-    if [[ $(echo $pkg_opts | grep -c 'skip-cleanup' ) > 0 ]]
+    if [[ $(echo $pkg_opts | grep -m1 -c 'skip-cleanup' ) > 0 ]]
     then
         return
     fi
@@ -2066,7 +2278,7 @@ function bldr_cleanup_pkg()
     bldr_pop_dir
 
     # build using make if a makefile exists
-    if [[ $(echo $pkg_opts | grep -c 'keep' ) > 0 ]]
+    if [[ $(echo $pkg_opts | grep -m1 -c 'keep' ) > 0 ]]
     then
         bldr_log_info "Keeping package build directory for '$pkg_name/$pkg_vers'"
         bldr_log_split
@@ -2111,7 +2323,7 @@ function bldr_modulate_pkg()
            --config-path)   pkg_cfg_path="$2"; shift 2;;
            --cflags)        pkg_cflags="$pkg_cflags:$2"; shift 2;;
            --ldflags)       pkg_ldflags="$pkg_ldflags:$2"; shift 2;;
-           --patch)         pkg_patches="$pkg_patches:$2"; shift 2;;
+           --patch)         pkg_patches="$2"; shift 2;;
            --uses)          pkg_uses="$pkg_uses:$2"; shift 2;;
            --requires)      pkg_reqs="$pkg_reqs:$2"; shift 2;;
            --url)           pkg_urls="$pkg_urls;$2"; shift 2;;
@@ -2124,7 +2336,7 @@ function bldr_modulate_pkg()
         BLDR_VERBOSE=true
     fi
 
-    if [[ $(echo $pkg_opts | grep -c 'skip-modulate' ) > 0 ]]
+    if [[ $(echo $pkg_opts | grep -m1 -c 'skip-modulate' ) > 0 ]]
     then
         return
     fi
@@ -2276,6 +2488,14 @@ function bldr_modulate_pkg()
         do
             echo "prereq $require"                              >> $module_file
         done
+        echo ""                                                 >> $module_file
+
+        echo "if { [ module-info mode remove ] } { "            >> $module_file
+        for require in ${pkg_reqs}
+        do
+            echo "    module unload $require"                   >> $module_file
+        done
+        echo "}"                                                >> $module_file     
         echo ""                                                 >> $module_file
     fi
 
@@ -2465,7 +2685,7 @@ function bldr_build_pkg()
            --config-path)   pkg_cfg_path="$2"; shift 2;;
            --cflags)        pkg_cflags="$pkg_cflags:$2"; shift 2;;
            --ldflags)       pkg_ldflags="$pkg_ldflags:$2"; shift 2;;
-           --patch)         pkg_patches="$pkg_patches:$2"; shift 2;;
+           --patch)         pkg_patches="$2"; shift 2;;
            --uses)          pkg_uses="$pkg_uses:$2"; shift 2;;
            --requires)      pkg_reqs="$pkg_reqs:$2"; shift 2;;
            --url)           pkg_urls="$pkg_urls;$2"; shift 2;;
@@ -2483,6 +2703,11 @@ function bldr_build_pkg()
         bldr_bail "Incomplete package definition!  Need at least 'name', 'version' and 'file' defined!"
     fi
 
+    if [ "$pkg_ctry" == "" ]
+    then
+        pkg_ctry=$BLDR_USE_PKG_CTRY
+    fi
+    
     local existing=$(bldr_has_pkg --category "$pkg_ctry" --name "$pkg_name" --version "$pkg_vers" --options "$pkg_opts")
     if [ "$existing" != "false" ]
     then
@@ -2496,7 +2721,6 @@ function bldr_build_pkg()
 
     if [ $BLDR_VERBOSE != false ]
     then
-        bldr_log_split
         echo "PkgCategory:   '$pkg_ctry'"
         echo "PkgName:       '$pkg_name'"
         echo "PkgVersion:    '$pkg_vers'"
@@ -2515,6 +2739,7 @@ function bldr_build_pkg()
         echo " "
         echo "$pkg_desc"
         echo " "
+        bldr_log_split
     fi
 
     local override_setup=$(type -t bldr_pkg_setup_method)
@@ -3044,11 +3269,13 @@ function bldr_build_pkgs()
                         bldr_log_info "Building package '$pkg_def'"
                         bldr_log_split
                     fi
+                    export BLDR_USE_PKG_CTRY="$base_ctry"
                     eval $pkg_def || exit -1
+                    export BLDR_USE_PKG_CTRY=""
                 else
                     for entry in $pkg_list 
                     do
-                        local m=$(echo "$pkg_def" | grep -c $entry )
+                        local m=$(echo "$pkg_def" | grep -m1 -c $entry )
                         if [[ $m > 0 ]]
                         then
                             if [ $BLDR_VERBOSE != false ]
@@ -3056,7 +3283,9 @@ function bldr_build_pkgs()
                                 bldr_log_info "Building '$entry' from '$pkg_def'"
                                 bldr_log_split
                             fi
+                            export BLDR_USE_PKG_CTRY="$base_ctry"
                             eval $pkg_def || exit -1
+                            export BLDR_USE_PKG_CTRY=""
                             break
                         fi
                     done
@@ -3137,7 +3366,7 @@ function bldr_modularize_pkgs()
                 else
                     for entry in $pkg_list 
                     do
-                        local m=$(echo "$pkg_def" | grep -c $entry )
+                        local m=$(echo "$pkg_def" | grep -m1 -c $entry )
                         if [[ $m > 0 ]]
                         then
                             if [ $BLDR_VERBOSE != false ]
@@ -3214,8 +3443,11 @@ function bldr_load_pkgs()
 
             for entry in $md_path/$base_ctry/*
             do
-                local base_entry=$(basename $entry)
-                module load -f $base_entry || bldr_bail "Failed to load module '$entry'!"
+                if [[ $(echo $BLDR_LOADED_MODULES | grep -m1 -c '$using' ) > 0 ]]; then
+                    local $using=$(basename $entry)
+                    module load $using || bldr_bail "Failed to load module '$entry'!"
+                    BLDR_LOADED_MODULES="$BLDR_LOADED_MODULES:$using"
+                fi
             done
         done
     fi

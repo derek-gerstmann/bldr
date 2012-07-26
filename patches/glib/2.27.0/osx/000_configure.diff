@@ -1,0 +1,67 @@
+--- configure.ac	2010-09-18 06:33:53.000000000 +0800
++++ configure.ac.osx	2012-07-25 12:02:31.000000000 +0800
+@@ -582,9 +582,9 @@
+ AC_CHECK_SIZEOF(int)
+ AC_CHECK_SIZEOF(void *)
+ AC_CHECK_SIZEOF(long long)
+-AC_CHECK_SIZEOF(__int64)
++AC_CHECK_SIZEOF(int64_t)
+ 
+-if test x$ac_cv_sizeof_long = x8 || test x$ac_cv_sizeof_long_long = x8 || test x$ac_cv_sizeof___int64 = x8 ; then
++if test x$ac_cv_sizeof_long = x8 || test x$ac_cv_sizeof_long_long = x8 || test x$ac_cv_sizeof_int64_t = x8 ; then
+   :
+ else
+   AC_MSG_ERROR([
+@@ -621,8 +621,8 @@
+         else
+ 	  AC_MSG_RESULT(none)
+         fi
+-elif test x$ac_cv_sizeof___int64 = x8; then
+-	# __int64 is a 64 bit integer.
++elif test x$ac_cv_sizeof_int64_t = x8; then
++	# int64_t is a 64 bit integer.
+ 	AC_MSG_CHECKING(for format to printf and scanf a guint64)
+ 	# We know this is MSVCRT.DLL, and what the formats are
+ 	glib_cv_long_long_format=I64
+@@ -909,8 +909,8 @@
+   $ac_cv_sizeof_long_long)
+       glib_size_type='long long'
+       ;;
+-  $ac_cv_sizeof__int64)
+-      glib_size_type='__int64'
++  $ac_cv_sizeofint64_t)
++      glib_size_type='int64_t'
+       ;;
+   *)  AC_MSG_ERROR([No type matching size_t in size])
+       ;;
+@@ -3387,8 +3387,8 @@
+   gint64_constant='(G_GNUC_EXTENSION (val##LL))'
+   guint64_constant='(G_GNUC_EXTENSION (val##ULL))'
+   ;;
+-$ac_cv_sizeof___int64)
+-  gint64='__int64'
++$ac_cv_sizeof_int64_t)
++  gint64='int64_t'
+   if test -n "$glib_cv_long_long_format"; then
+     gint64_modifier='"'$glib_cv_long_long_format'"'
+     gint64_format='"'$glib_cv_long_long_format'i"'
+@@ -3423,7 +3423,7 @@
+   gssize_format='"li"'
+   glib_msize_type='LONG'
+   ;;
+-"long long"|__int64)
++"long long"|int64_t)
+   gsize_modifier='"I64"'
+   gsize_format='"I64u"'
+   gssize_format='"I64i"'
+@@ -3460,8 +3460,8 @@
+   glib_gpi_cast='(gint64)'
+   glib_gpui_cast='(guint64)'
+   ;;
+-$ac_cv_sizeof___int64)
+-  glib_intptr_type_define=__int64
++$ac_cv_sizeof_int64_t)
++  glib_intptr_type_define=int64_t
+   gintptr_modifier='"I64"'
+   gintptr_format='"I64i"'
+   guintptr_format='"I64u"'

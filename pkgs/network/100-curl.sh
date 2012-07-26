@@ -10,31 +10,33 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_name="tar"
-pkg_vers="1.26"
+pkg_name="curl"
+pkg_vers="7.26.0"
 
-pkg_info="GNU tar creates and manipulates archives which are actually collections of many other files."
+pkg_info="Curl is a command line tool for transferring data with URL syntax."
 
-pkg_desc="GNU tar creates and manipulates archives which are actually collections of many other files; 
-the program provides users with an organized and systematic method for controlling a large amount 
-of data. The name “tar” originally came from the phrase 'Tape ARchive', but archives need not 
-(and these days, typically do not) reside on tapes."
+pkg_desc="curl is a command line tool for transferring data with URL syntax, 
+supporting DICT, FILE, FTP, FTPS, Gopher, HTTP, HTTPS, IMAP, IMAPS, LDAP, 
+LDAPS, POP3, POP3S, RTMP, RTSP, SCP, SFTP, SMTP, SMTPS, Telnet and TFTP. 
+curl supports SSL certificates, HTTP POST, HTTP PUT, FTP uploading, 
+HTTP form based upload, proxies, cookies, user+password authentication 
+(Basic, Digest, NTLM, Negotiate, kerberos...), file transfer resume, 
+proxy tunneling and a busload of other useful tricks."
 
 pkg_file="$pkg_name-$pkg_vers.tar.gz"
-pkg_urls="http://ftp.gnu.org/gnu/tar/$pkg_file"
+pkg_urls="http://curl.haxx.se/download/$pkg_file"
 pkg_opts="configure"
-pkg_reqs="xz/latest zlib/latest gzip/latest bzip2/latest"
-pkg_uses="m4/latest autoconf/latest automake/latest libtool/latest $pkg_reqs"
-pkg_cfg="--with-xz=$BLDR_LOCAL_PATH/system/xz/latest/bin/xz"
-pkg_cfg="$pkg_cfg --with-lzip=$BLDR_LOCAL_PATH/system/zlib/latest/lib/libz.a"
-pkg_cfg="$pkg_cfg --with-gzip=$BLDR_LOCAL_PATH/system/gzip/latest/bin/gzip"
-pkg_cfg="$pkg_cfg --with-bzip2=$BLDR_LOCAL_PATH/system/bzip2/latest/bin/bzip2"
+pkg_uses="m4/latest autoconf/latest automake/latest libtool/latest zlib/latest"
+pkg_reqs=""
+pkg_cflags=""
+pkg_ldflags=""
+pkg_cfg="--enable-optimize --enable-threaded-resolver --enable-nonblocking"
 
 ####################################################################################################
 # build and install pkg as local module
 ####################################################################################################
 
-bldr_build_pkg --category    "system"       \
+bldr_build_pkg --category    "network"      \
                --name        "$pkg_name"    \
                --version     "$pkg_vers"    \
                --info        "$pkg_info"    \
@@ -47,5 +49,4 @@ bldr_build_pkg --category    "system"       \
                --cflags      "$pkg_cflags"  \
                --ldflags     "$pkg_ldflags" \
                --config      "$pkg_cfg"
-
 

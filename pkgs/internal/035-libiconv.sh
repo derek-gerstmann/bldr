@@ -37,15 +37,15 @@ pkg_urls="http://ftp.gnu.org/pub/gnu/libiconv/$pkg_file"
 pkg_opts="configure"
 pkg_reqs="zlib/latest"
 pkg_uses="m4/latest autoconf/latest automake/latest $pkg_reqs"
-pkg_cfg=""
-pkg_cflags="-I$BLDR_LOCAL_PATH/system/zlib/latest/include"
-pkg_ldflags="-L$BLDR_LOCAL_PATH/system/zlib/latest/lib"
+pkg_cfg="--enable-static --enable-shared"
+pkg_cflags="-I$BLDR_LOCAL_PATH/internal/zlib/latest/include"
+pkg_ldflags="-L$BLDR_LOCAL_PATH/internal/zlib/latest/lib"
 
 ####################################################################################################
 # build and install pkg as local module
 ####################################################################################################
 
-bldr_build_pkg --category    "system"       \
+bldr_build_pkg --category    "internal"     \
                --name        "$pkg_name"    \
                --version     "$pkg_vers"    \
                --info        "$pkg_info"    \

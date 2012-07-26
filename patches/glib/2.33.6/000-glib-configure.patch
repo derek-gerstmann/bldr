@@ -1,0 +1,84 @@
+--- configure.ac	2012-07-18 01:47:26.000000000 +0800
++++ configure.ac.osx	2012-07-25 11:56:39.000000000 +0800
+@@ -595,7 +595,7 @@
+ AC_CHECK_SIZEOF(int)
+ AC_CHECK_SIZEOF(void *)
+ AC_CHECK_SIZEOF(long long)
+-AC_CHECK_SIZEOF(__int64)
++AC_CHECK_SIZEOF(int64_t)
+ 
+ AC_CACHE_CHECK([for sig_atomic_t], ac_cv_type_sig_atomic_t,
+   [AC_TRY_LINK([#include <signal.h>
+@@ -609,7 +609,7 @@
+      [Define if you have the 'sig_atomic_t' type.])
+ fi
+ 
+-if test x$ac_cv_sizeof_long = x8 || test x$ac_cv_sizeof_long_long = x8 || test x$ac_cv_sizeof___int64 = x8 ; then
++if test x$ac_cv_sizeof_long = x8 || test x$ac_cv_sizeof_long_long = x8 || test x$ac_cv_sizeof_int64_t = x8 ; then
+   :
+ else
+   AC_MSG_ERROR([
+@@ -644,8 +644,8 @@
+ 	    AC_DEFINE(HAVE_INT64_AND_I64,1,[define to support printing 64-bit integers with format I64])
+           fi
+ 	], [AC_MSG_RESULT(none)])
+-],[ test x$ac_cv_sizeof___int64 = x8], [
+-	# __int64 is a 64 bit integer.
++],[ test x$ac_cv_sizeof_int64_t = x8], [
++	# int64_t is a 64 bit integer.
+ 	AC_MSG_CHECKING(for format to printf and scanf a guint64)
+ 	# We know this is MSVCRT.DLL, and what the formats are
+ 	glib_cv_long_long_format=I64
+@@ -942,8 +942,8 @@
+   $ac_cv_sizeof_long_long)
+       glib_size_type='long long'
+       ;;
+-  $ac_cv_sizeof__int64)
+-      glib_size_type='__int64'
++  $ac_cv_sizeofint64_t)
++      glib_size_type='int64_t'
+       ;;
+   *)  AC_MSG_ERROR([No type matching size_t in size])
+       ;;
+@@ -3186,8 +3186,8 @@
+   gint64_constant='(G_GNUC_EXTENSION (val##LL))'
+   guint64_constant='(G_GNUC_EXTENSION (val##ULL))'
+   ;;
+-$ac_cv_sizeof___int64)
+-  gint64='__int64'
++$ac_cv_sizeof_int64_t)
++  gint64='int64_t'
+   if test -n "$glib_cv_long_long_format"; then
+     gint64_modifier='"'$glib_cv_long_long_format'"'
+     gint64_format='"'$glib_cv_long_long_format'i"'
+@@ -3222,7 +3222,7 @@
+   gssize_format='"li"'
+   glib_msize_type='LONG'
+   ;;
+-"long long"|__int64)
++"long long"|int64_t)
+   gsize_modifier='"I64"'
+   gsize_format='"I64u"'
+   gssize_format='"I64i"'
+@@ -3259,8 +3259,8 @@
+   glib_gpi_cast='(gint64)'
+   glib_gpui_cast='(guint64)'
+   ;;
+-$ac_cv_sizeof___int64)
+-  glib_intptr_type_define=__int64
++$ac_cv_sizeof_int64_t)
++  glib_intptr_type_define=int64_t
+   gintptr_modifier='"I64"'
+   gintptr_format='"I64i"'
+   guintptr_format='"I64u"'
+@@ -3437,8 +3437,8 @@
+ $ac_cv_sizeof_long_long)
+   gint64='long long'
+   ;;
+-$ac_cv_sizeof___int64)
+-  gint64='__int64'
++$ac_cv_sizeof_int64_t)
++  gint64='int64_t'
+   ;;
+ esac
+ 

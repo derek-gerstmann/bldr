@@ -10,34 +10,31 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_name="xz"
-pkg_vers="5.0.3"
+pkg_name="tar"
+pkg_vers="1.26"
 
-pkg_info="XZ utils is free general-purpose data compression software with high compression ratio."
+pkg_info="GNU tar creates and manipulates archives which are actually collections of many other files."
 
-pkg_desc="XZ utils is free general-purpose data compression software with high compression ratio. 
-XZ Utils were written for POSIX-like systems, but also work on some not-so-POSIX systems. 
-XZ Utils are the successor to LZMA Utils.
-
-The core of the XZ Utils compression code is based on LZMA SDK, but it has been modified 
-quite a lot to be suitable for XZ Utils. The primary compression algorithm is currently LZMA2, 
-which is used inside the .xz container format. With typical files, XZ Utils create 30 % smaller 
-output than gzip and 15 % smaller output than bzip2. "
+pkg_desc="GNU tar creates and manipulates archives which are actually collections of many other files; 
+the program provides users with an organized and systematic method for controlling a large amount 
+of data. The name “tar” originally came from the phrase 'Tape ARchive', but archives need not 
+(and these days, typically do not) reside on tapes."
 
 pkg_file="$pkg_name-$pkg_vers.tar.gz"
-pkg_urls="http://tukaani.org/xz/$pkg_file"
-pkg_opts="configure force-static"
-pkg_uses="m4/latest autoconf/latest automake/latest libtool/latest"
-pkg_reqs=""
-pkg_cflags=""
-pkg_ldflags=""
-pkg_cfg=""
+pkg_urls="http://ftp.gnu.org/gnu/tar/$pkg_file"
+pkg_opts="configure"
+pkg_reqs="xz/latest zlib/latest gzip/latest bzip2/latest"
+pkg_uses="m4/latest autoconf/latest automake/latest libtool/latest $pkg_reqs"
+pkg_cfg="--with-xz=$BLDR_LOCAL_PATH/internal/xz/latest/bin/xz"
+pkg_cfg="$pkg_cfg --with-lzip=$BLDR_LOCAL_PATH/internal/zlib/latest/lib/libz.a"
+pkg_cfg="$pkg_cfg --with-gzip=$BLDR_LOCAL_PATH/internal/gzip/latest/bin/gzip"
+pkg_cfg="$pkg_cfg --with-bzip2=$BLDR_LOCAL_PATH/internal/bzip2/latest/bin/bzip2"
 
 ####################################################################################################
 # build and install pkg as local module
 ####################################################################################################
 
-bldr_build_pkg --category    "system"       \
+bldr_build_pkg --category    "internal"     \
                --name        "$pkg_name"    \
                --version     "$pkg_vers"    \
                --info        "$pkg_info"    \
@@ -50,4 +47,5 @@ bldr_build_pkg --category    "system"       \
                --cflags      "$pkg_cflags"  \
                --ldflags     "$pkg_ldflags" \
                --config      "$pkg_cfg"
+
 

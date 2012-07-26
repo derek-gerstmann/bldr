@@ -10,32 +10,29 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_name="libxml2"
-pkg_vers="2.8.0"
-pkg_info="Libxml2 is the XML C parser and toolkit developed for the Gnome project"
+pkg_name="wget"
+pkg_vers="1.13.4"
 
-pkg_desc="Libxml2 is the XML C parser and toolkit developed for the Gnome project 
-(but usable outside of the Gnome platform), it is free software available under 
-the MIT License. XML itself is a metalanguage to design markup languages, i.e. text 
-language where semantic and structure are added to the content using extra 'markup' 
-information enclosed between angle brackets. HTML is the most well-known markup 
-language. Though the library is written in C a variety of language bindings make 
-it available in other environments."
+pkg_info="wget is a command line tool for retrieving files with URL syntax."
+
+pkg_desc="wget is a command line tool for retrieving files using HTTP, HTTPS and FTP, 
+the most widely-used Internet protocols. It is a non-interactive commandline tool, 
+so it may easily be called from scripts, cron jobs, terminals without X-Windows support, etc."
 
 pkg_file="$pkg_name-$pkg_vers.tar.gz"
-pkg_urls="http://xmlsoft.org/sources/$pkg_file"
+pkg_urls="http://ftp.gnu.org/gnu/wget/$pkg_file"
 pkg_opts="configure"
-pkg_reqs="zlib/latest"
-pkg_uses="m4/latest autoconf/latest automake/latest $pkg_reqs"
+pkg_uses="m4/latest autoconf/latest automake/latest libtool/latest zlib/latest"
+pkg_reqs=""
+pkg_cflags=""
+pkg_ldflags=""
 pkg_cfg=""
-pkg_cflags="-I$BLDR_LOCAL_PATH/system/zlib/latest/include"
-pkg_ldflags="-L$BLDR_LOCAL_PATH/system/zlib/latest/lib"
 
 ####################################################################################################
 # build and install pkg as local module
 ####################################################################################################
 
-bldr_build_pkg --category    "system"       \
+bldr_build_pkg --category    "internal"     \
                --name        "$pkg_name"    \
                --version     "$pkg_vers"    \
                --info        "$pkg_info"    \
@@ -48,5 +45,4 @@ bldr_build_pkg --category    "system"       \
                --cflags      "$pkg_cflags"  \
                --ldflags     "$pkg_ldflags" \
                --config      "$pkg_cfg"
-
 

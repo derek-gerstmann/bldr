@@ -1,0 +1,205 @@
+diff -rupN glib-2.33.6/configure glib-2.33.6-bldr-osx/configure
+--- glib-2.33.6/configure	2012-07-18 01:51:43.000000000 +0800
++++ glib-2.33.6-bldr-osx/configure	2012-07-25 13:06:57.000000000 +0800
+@@ -21910,32 +21910,32 @@ _ACEOF
+ # version HP92453-01 B.11.11.23709.GP, which incorrectly rejects
+ # declarations like `int a3[[(sizeof (unsigned char)) >= 0]];'.
+ # This bug is HP SR number 8606223364.
+-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking size of __int64" >&5
+-$as_echo_n "checking size of __int64... " >&6; }
+-if ${ac_cv_sizeof___int64+:} false; then :
++{ $as_echo "$as_me:${as_lineno-$LINENO}: checking size of int64_t" >&5
++$as_echo_n "checking size of int64_t... " >&6; }
++if ${ac_cv_sizeof_int64_t+:} false; then :
+   $as_echo_n "(cached) " >&6
+ else
+-  if ac_fn_c_compute_int "$LINENO" "(long int) (sizeof (__int64))" "ac_cv_sizeof___int64"        "$ac_includes_default"; then :
++  if ac_fn_c_compute_int "$LINENO" "(long int) (sizeof (int64_t))" "ac_cv_sizeof_int64_t"        "$ac_includes_default"; then :
+ 
+ else
+-  if test "$ac_cv_type___int64" = yes; then
++  if test "$ac_cv_type_int64_t" = yes; then
+      { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+ $as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
+-as_fn_error 77 "cannot compute sizeof (__int64)
++as_fn_error 77 "cannot compute sizeof (int64_t)
+ See \`config.log' for more details" "$LINENO" 5; }
+    else
+-     ac_cv_sizeof___int64=0
++     ac_cv_sizeof_int64_t=0
+    fi
+ fi
+ 
+ fi
+-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_sizeof___int64" >&5
+-$as_echo "$ac_cv_sizeof___int64" >&6; }
++{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_sizeof_int64_t" >&5
++$as_echo "$ac_cv_sizeof_int64_t" >&6; }
+ 
+ 
+ 
+ cat >>confdefs.h <<_ACEOF
+-#define SIZEOF___INT64 $ac_cv_sizeof___int64
++#define SIZEOF___INT64 $ac_cv_sizeof_int64_t
+ _ACEOF
+ 
+ 
+@@ -21974,7 +21974,7 @@ $as_echo "#define HAVE_SIG_ATOMIC_T 1" >
+ 
+ fi
+ 
+-if test x$ac_cv_sizeof_long = x8 || test x$ac_cv_sizeof_long_long = x8 || test x$ac_cv_sizeof___int64 = x8 ; then
++if test x$ac_cv_sizeof_long = x8 || test x$ac_cv_sizeof_long_long = x8 || test x$ac_cv_sizeof_int64_t = x8 ; then
+   :
+ else
+   as_fn_error $? "
+@@ -22038,9 +22038,9 @@ else
+ $as_echo "none" >&6; }
+ fi
+ 
+-elif  test x$ac_cv_sizeof___int64 = x8; then :
++elif  test x$ac_cv_sizeof_int64_t = x8; then :
+ 
+-	# __int64 is a 64 bit integer.
++	# int64_t is a 64 bit integer.
+ 	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for format to printf and scanf a guint64" >&5
+ $as_echo_n "checking for format to printf and scanf a guint64... " >&6; }
+ 	# We know this is MSVCRT.DLL, and what the formats are
+@@ -23481,8 +23481,8 @@ case $ac_cv_sizeof_size_t in
+   $ac_cv_sizeof_long_long)
+       glib_size_type='long long'
+       ;;
+-  $ac_cv_sizeof__int64)
+-      glib_size_type='__int64'
++  $ac_cv_sizeofint64_t)
++      glib_size_type='int64_t'
+       ;;
+   *)  as_fn_error $? "No type matching size_t in size" "$LINENO" 5
+       ;;
+@@ -28682,8 +28682,8 @@ $ac_cv_sizeof_long)
+ $ac_cv_sizeof_long_long)
+   gint64='long long'
+   ;;
+-$ac_cv_sizeof___int64)
+-  gint64='__int64'
++$ac_cv_sizeof_int64_t)
++  gint64='int64_t'
+   ;;
+ esac
+ 
+@@ -30399,8 +30399,8 @@ $ac_cv_sizeof_long_long)
+   gint64_constant='(G_GNUC_EXTENSION (val##LL))'
+   guint64_constant='(G_GNUC_EXTENSION (val##ULL))'
+   ;;
+-$ac_cv_sizeof___int64)
+-  gint64='__int64'
++$ac_cv_sizeof_int64_t)
++  gint64='int64_t'
+   if test -n "$glib_cv_long_long_format"; then
+     gint64_modifier='"'$glib_cv_long_long_format'"'
+     gint64_format='"'$glib_cv_long_long_format'i"'
+@@ -30435,7 +30435,7 @@ long)
+   gssize_format='"li"'
+   glib_msize_type='LONG'
+   ;;
+-"long long"|__int64)
++"long long"|int64_t)
+   gsize_modifier='"I64"'
+   gsize_format='"I64u"'
+   gssize_format='"I64i"'
+@@ -30472,8 +30472,8 @@ $ac_cv_sizeof_long_long)
+   glib_gpi_cast='(gint64)'
+   glib_gpui_cast='(guint64)'
+   ;;
+-$ac_cv_sizeof___int64)
+-  glib_intptr_type_define=__int64
++$ac_cv_sizeof_int64_t)
++  glib_intptr_type_define=int64_t
+   gintptr_modifier='"I64"'
+   gintptr_format='"I64i"'
+   guintptr_format='"I64u"'
+diff -rupN glib-2.33.6/configure.ac glib-2.33.6-bldr-osx/configure.ac
+--- glib-2.33.6/configure.ac	2012-07-18 01:47:26.000000000 +0800
++++ glib-2.33.6-bldr-osx/configure.ac	2012-07-25 13:07:04.000000000 +0800
+@@ -595,7 +595,7 @@ AC_CHECK_SIZEOF(long)
+ AC_CHECK_SIZEOF(int)
+ AC_CHECK_SIZEOF(void *)
+ AC_CHECK_SIZEOF(long long)
+-AC_CHECK_SIZEOF(__int64)
++AC_CHECK_SIZEOF(int64_t)
+ 
+ AC_CACHE_CHECK([for sig_atomic_t], ac_cv_type_sig_atomic_t,
+   [AC_TRY_LINK([#include <signal.h>
+@@ -609,7 +609,7 @@ if test x$ac_cv_type_sig_atomic_t = xyes
+      [Define if you have the 'sig_atomic_t' type.])
+ fi
+ 
+-if test x$ac_cv_sizeof_long = x8 || test x$ac_cv_sizeof_long_long = x8 || test x$ac_cv_sizeof___int64 = x8 ; then
++if test x$ac_cv_sizeof_long = x8 || test x$ac_cv_sizeof_long_long = x8 || test x$ac_cv_sizeof_int64_t = x8 ; then
+   :
+ else
+   AC_MSG_ERROR([
+@@ -644,8 +644,8 @@ AS_IF([test x$glib_native_win32 != xyes 
+ 	    AC_DEFINE(HAVE_INT64_AND_I64,1,[define to support printing 64-bit integers with format I64])
+           fi
+ 	], [AC_MSG_RESULT(none)])
+-],[ test x$ac_cv_sizeof___int64 = x8], [
+-	# __int64 is a 64 bit integer.
++],[ test x$ac_cv_sizeof_int64_t = x8], [
++	# int64_t is a 64 bit integer.
+ 	AC_MSG_CHECKING(for format to printf and scanf a guint64)
+ 	# We know this is MSVCRT.DLL, and what the formats are
+ 	glib_cv_long_long_format=I64
+@@ -942,8 +942,8 @@ case $ac_cv_sizeof_size_t in
+   $ac_cv_sizeof_long_long)
+       glib_size_type='long long'
+       ;;
+-  $ac_cv_sizeof__int64)
+-      glib_size_type='__int64'
++  $ac_cv_sizeofint64_t)
++      glib_size_type='int64_t'
+       ;;
+   *)  AC_MSG_ERROR([No type matching size_t in size])
+       ;;
+@@ -3186,8 +3186,8 @@ $ac_cv_sizeof_long_long)
+   gint64_constant='(G_GNUC_EXTENSION (val##LL))'
+   guint64_constant='(G_GNUC_EXTENSION (val##ULL))'
+   ;;
+-$ac_cv_sizeof___int64)
+-  gint64='__int64'
++$ac_cv_sizeof_int64_t)
++  gint64='int64_t'
+   if test -n "$glib_cv_long_long_format"; then
+     gint64_modifier='"'$glib_cv_long_long_format'"'
+     gint64_format='"'$glib_cv_long_long_format'i"'
+@@ -3222,7 +3222,7 @@ long)
+   gssize_format='"li"'
+   glib_msize_type='LONG'
+   ;;
+-"long long"|__int64)
++"long long"|int64_t)
+   gsize_modifier='"I64"'
+   gsize_format='"I64u"'
+   gssize_format='"I64i"'
+@@ -3259,8 +3259,8 @@ $ac_cv_sizeof_long_long)
+   glib_gpi_cast='(gint64)'
+   glib_gpui_cast='(guint64)'
+   ;;
+-$ac_cv_sizeof___int64)
+-  glib_intptr_type_define=__int64
++$ac_cv_sizeof_int64_t)
++  glib_intptr_type_define=int64_t
+   gintptr_modifier='"I64"'
+   gintptr_format='"I64i"'
+   guintptr_format='"I64u"'
+@@ -3437,8 +3437,8 @@ $ac_cv_sizeof_long)
+ $ac_cv_sizeof_long_long)
+   gint64='long long'
+   ;;
+-$ac_cv_sizeof___int64)
+-  gint64='__int64'
++$ac_cv_sizeof_int64_t)
++  gint64='int64_t'
+   ;;
+ esac
+ 
