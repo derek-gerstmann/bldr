@@ -11,14 +11,8 @@ source "bldr.sh"
 ####################################################################################################
 
 pkg_name="glib"
-pkg_vers="2.32.4"
+pkg_vers="2.32.1"
 pkg_info="GLib provides the core application building blocks for libraries and applications written in C."
-
-if [ $BLDR_SYSTEM_IS_OSX -eq 1 ]
-then
-    bldr_log_info "$pkg_name $pkg_ver is not building on OSX right now.  Skipping..."
-    return
-fi
 
 pkg_desc="GLib provides the core application building blocks for libraries and applications written in C. 
 It provides the core object system used in GNOME, the main loop implementation, and a large set of 
@@ -32,7 +26,6 @@ pkg_uses="tar/latest tcl/latest m4/latest autoconf/latest automake/latest $pkg_r
 
 pkg_cflags="-m64 -I$BLDR_LOCAL_PATH/internal/zlib/latest/include"
 pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/internal/libicu/latest/include"
-pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/internal/libiconv/latest/include"
 pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/internal/libffi/latest/include"
 pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/internal/gettext/latest/include"
 pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/internal/gettext/latest/share/gettext"
@@ -41,19 +34,33 @@ pkg_ldflags="-L$BLDR_LOCAL_PATH/internal/zlib/latest/lib:-lz"
 pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/internal/libffi/latest/lib:-lffi"
 pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/internal/libicu/latest/lib"
 pkg_ldflags="$pkg_ldflags:-licudata:-licui18n:-licuio:-licule:-liculx:-licutest:-licutu:-licuuc"
-pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/internal/libiconv/latest/lib:-liconv"
 pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/internal/gettext/latest/lib:-lasprintf:-lgettextpo"
 
-pkg_cfg="--with-libiconv=gnu"
+pkg_cfg=""
 pkg_cfg="$pkg_cfg --disable-maintainer-mode"
 pkg_cfg="$pkg_cfg --disable-dependency-tracking"
 pkg_cfg="$pkg_cfg --disable-dtrace" 
+
+
+if [ $BLDR_SYSTEM_IS_OSX -eq 1 ]
+then
+     pkg_cfg="$pkg_cfg --with-libiconv-prefix=/usr"
+     pkg_cflags="$pkg_cflags:-I/usr/local/include:-I/usr/include"
+     pkg_ldflags="$pkg_ldflags:-L/usr/local/lib:-L/usr/lib:-lintl"
+else
+     pkg_reqs="$pkg_reqs libiconv/latest"
+     pkg_cfg="$pkg_cfg --with-libiconv-prefix=$BLDR_LOCAL_PATH/internal/libiconv/latest"
+     pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/internal/libiconv/latest/include"
+     pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/internal/libiconv/latest/lib"
+fi
+
 
 pkg_patch=""
 
 ####################################################################################################
 
-function bldr_pkg_config_method()
+# function bldr_pkg_config_method()
+function foo()
 {
     local use_verbose="false"
     local pkg_ctry=""
@@ -161,19 +168,25 @@ function bldr_pkg_config_method()
 # build and install pkg as local module
 ####################################################################################################
 
-bldr_build_pkg --category    "developer"    \
-               --name        "$pkg_name"    \
-               --version     "$pkg_vers"    \
-               --info        "$pkg_info"    \
-               --description "$pkg_desc"    \
-               --file        "$pkg_file"    \
-               --url         "$pkg_urls"    \
-               --uses        "$pkg_uses"    \
-               --requires    "$pkg_reqs"    \
-               --options     "$pkg_opts"    \
-               --patch       "$pkg_patch"   \
-               --cflags      "$pkg_cflags"  \
-               --ldflags     "$pkg_ldflags" \
-               --config      "$pkg_cfg"
 
+# if [ $BLDR_SYSTEM_IS_OSX -eq 1 ]
+# then
+#    bldr_log_status "$pkg_name $pkg_ver is not building on OSX right now.  Skipping..."
+#    bldr_log_split
+# else
+    bldr_build_pkg --category    "developer"    \
+                   --name        "$pkg_name"    \
+                   --version     "$pkg_vers"    \
+                   --info        "$pkg_info"    \
+                   --description "$pkg_desc"    \
+                   --file        "$pkg_file"    \
+                   --url         "$pkg_urls"    \
+                   --uses        "$pkg_uses"    \
+                   --requires    "$pkg_reqs"    \
+                   --options     "$pkg_opts"    \
+                   --patch       "$pkg_patch"   \
+                   --cflags      "$pkg_cflags"  \
+                   --ldflags     "$pkg_ldflags" \
+                   --config      "$pkg_cfg"
+# fi
 

@@ -29,25 +29,30 @@ remainder of the Translation Project, and consequently, have a glimpse at the bi
 pkg_file="$pkg_name-$pkg_vers.tar.gz"
 pkg_urls="http://ftp.gnu.org/pub/gnu/gettext/$pkg_file"
 pkg_opts="configure"
-pkg_reqs="zlib/latest libiconv/latest libicu/latest libxml2/latest"
+pkg_reqs="zlib/latest libicu/latest libxml2/latest"
 pkg_uses="m4/latest autoconf/latest automake/latest libtool/latest $pkg_reqs"
 
 pkg_cflags="-I$BLDR_LOCAL_PATH/internal/zlib/latest/include"
-pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/internal/libiconv/latest/include"
-pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/internal/libicu/latest/include"
-
 pkg_ldflags="-L$BLDR_LOCAL_PATH/internal/zlib/latest/lib"
-pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/internal/libiconv/latest/lib"
-pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/internal/libicu/latest/lib"
 
 pkg_cfg="--with-gnu-ld --without-emacs"
-# pkg_cfg="$pkg_cfg --with-included-glib"
 pkg_cfg="$pkg_cfg --with-included-libunistring"
 pkg_cfg="$pkg_cfg --with-included-libcroco"
-pkg_cfg="$pkg_cfg --with-libiconv-prefix=$BLDR_LOCAL_PATH/internal/libiconv/latest"
 pkg_cfg="$pkg_cfg --with-libxml2-prefix=$BLDR_LOCAL_PATH/internal/libxml2/latest"
 
 pkg_patch=""
+
+if [ $BLDR_SYSTEM_IS_OSX -eq 1 ]
+then
+     pkg_cfg="$pkg_cfg --with-libiconv-prefix=/usr"
+     pkg_cflags="$pkg_cflags:-I/usr/local/include:-I/usr/include"
+     pkg_ldflags="$pkg_ldflags:-L/usr/local/lib:-L/usr/lib:-lintl"
+else
+     pkg_reqs="$pkg_reqs libiconv/latest"
+     pkg_cfg="$pkg_cfg --with-libiconv-prefix=$BLDR_LOCAL_PATH/internal/libiconv/latest"
+     pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/internal/libiconv/latest/include"
+     pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/internal/libiconv/latest/lib"
+fi
 
 ####################################################################################################
 # build and install pkg as local module

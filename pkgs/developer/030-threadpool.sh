@@ -30,7 +30,7 @@ The threadpool library provides a convenient way for dispatching asynchronous ta
 Pools can be customized, managed dynamically and easily integrated into your software."
 
 pkg_file="threadpool-0_2_5-src.zip"
-pkg_urls="http://prdownloads.sourceforge.net/threadpool/$pkg_file"
+pkg_urls="http://sourceforge.net/projects/threadpool/files/threadpool/0.2.5%20%28Stable%29/$pkg_file"
 pkg_opts="configure force-static skip-compile keep"
 pkg_reqs="zlib/latest bzip2/latest libicu/latest boost/latest"
 pkg_uses="m4/latest autoconf/latest automake/latest $pkg_reqs"

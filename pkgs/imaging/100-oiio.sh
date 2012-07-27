@@ -20,7 +20,7 @@ There is a particular emphasis on formats and functionality used in professional
 work for film.  OpenImageIO is used extensively in animation and VFX studios all over the world, 
 and is also incorporated into several commercial products."
 
-pkg_file="$pkg_name-$pkg_vers.zip"
+pkg_file="$pkg_name-$pkg_vers.tar.gz"
 pkg_urls="http://nodeload.github.com/OpenImageIO/oiio/zipball/RB-1.0"
 pkg_opts="cmake force-bootstrap"
 pkg_reqs="zlib/latest libpng/latest libjpeg/latest libtiff/latest openjpeg/latest hdf5/latest f3d/latest lcms2/latest"

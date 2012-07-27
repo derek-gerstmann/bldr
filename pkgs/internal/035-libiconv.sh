@@ -45,18 +45,23 @@ pkg_ldflags="-L$BLDR_LOCAL_PATH/internal/zlib/latest/lib"
 # build and install pkg as local module
 ####################################################################################################
 
-bldr_build_pkg --category    "internal"     \
-               --name        "$pkg_name"    \
-               --version     "$pkg_vers"    \
-               --info        "$pkg_info"    \
-               --description "$pkg_desc"    \
-               --file        "$pkg_file"    \
-               --url         "$pkg_urls"    \
-               --uses        "$pkg_uses"    \
-               --requires    "$pkg_reqs"    \
-               --options     "$pkg_opts"    \
-               --cflags      "$pkg_cflags"  \
-               --ldflags     "$pkg_ldflags" \
-               --config      "$pkg_cfg"
-
+if [ $BLDR_SYSTEM_IS_OSX -eq 1 ]
+then
+     bldr_log_warning "$pkg_name uses the native OSX version bundled with MacOSX.  Skipping..."
+     bldr_log_split
+else
+     bldr_build_pkg --category    "internal"     \
+                    --name        "$pkg_name"    \
+                    --version     "$pkg_vers"    \
+                    --info        "$pkg_info"    \
+                    --description "$pkg_desc"    \
+                    --file        "$pkg_file"    \
+                    --url         "$pkg_urls"    \
+                    --uses        "$pkg_uses"    \
+                    --requires    "$pkg_reqs"    \
+                    --options     "$pkg_opts"    \
+                    --cflags      "$pkg_cflags"  \
+                    --ldflags     "$pkg_ldflags" \
+                    --config      "$pkg_cfg"
+fi
 
