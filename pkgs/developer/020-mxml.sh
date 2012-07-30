@@ -10,42 +10,31 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_ctry="cluster"
-pkg_name="torque"
-pkg_vers="2.5.7"
+pkg_ctry="developer"
+pkg_name="mxml"
+pkg_vers="2.7"
+pkg_info="Mini-XML is a small XML library that you can use to read and write XML and XML-like data files in your application without requiring large non-standard libraries."
 
-pkg_info="The TORQUE Resource Manager provides control over batch jobs and distributed computing resources."
+pkg_desc="Mini-XML is a small XML library that you can use to read and write XML and XML-like 
+data files in your application without requiring large non-standard libraries. Mini-XML only 
+requires an ANSI C compatible compiler (GCC works, as do most vendors' ANSI C compilers) and 
+a 'make' program.
 
-pkg_desc="TORQUE Resource Manager provides control over batch jobs and distributed computing resources. 
-
-It is an advanced open-source product based on the original PBS project* and incorporates the best 
-of both community and professional development. It incorporates significant advances in the areas 
-of scalability, reliability, and functionality and is currently in use at tens of thousands of 
-leading government, academic, and commercial sites throughout the world. 
-
-TORQUE may be freely used, modified, and distributed under the constraints of the included license."
+Mini-XML supports reading of UTF-8 and UTF-16 and writing of UTF-8 encoded XML files and 
+strings. Data is stored in a linked-list tree structure, preserving the XML data hierarchy, 
+and arbitrary element names, attributes, and attribute values are supported with no preset 
+limits, just available memory."
 
 pkg_file="$pkg_name-$pkg_vers.tar.gz"
-pkg_urls="http://www.adaptivecomputing.com/resources/downloads/torque/$pkg_file"
+pkg_urls="http://ftp.easysw.com/pub/$pkg_name/$pkg_vers/$pkg_file"
 pkg_opts="configure"
-pkg_reqs="zlib/latest papi/latest hwloc/latest"
-pkg_uses="m4/latest autoconf/latest automake/latest $pkg_reqs"
+pkg_reqs=""
+pkg_uses="tar/latest m4/latest autoconf/latest automake/latest $pkg_reqs"
 
-pkg_cflags="-I$BLDR_LOCAL_PATH/internal/zlib/latest/include"
-pkg_ldflags="-L$BLDR_LOCAL_PATH/internal/zlib/latest/lib"
+pkg_cflags=""
+pkg_ldflags=""
 
-pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/system/hwloc/latest/include"
-pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/system/hwloc/latest/lib"
-
-pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/system/papi/latest/include"
-pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/system/papi/latest/lib"
-
-pkg_cfg=""
-
-if [ "$BLDR_SYSTEM_IS_OSX" -eq 1 ]
-then
-     exit 0
-fi
+pkg_cfg="" 
 
 ####################################################################################################
 # build and install pkg as local module

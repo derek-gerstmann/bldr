@@ -10,6 +10,7 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
+pkg_ctry="cluster"
 pkg_name="openmpi"
 pkg_vers="1.6"
 
@@ -27,11 +28,22 @@ science researchers."
 pkg_file="$pkg_name-$pkg_vers.tar.bz2"
 pkg_urls="http://www.open-mpi.org/software/ompi/v1.6/downloads/$pkg_file"
 pkg_opts="configure"
-pkg_reqs="zlib/latest papi/latest"
+pkg_reqs="zlib/latest papi/latest hwloc/latest"
 pkg_uses="m4/latest autoconf/latest automake/latest $pkg_reqs"
-pkg_cflags="-I$BLDR_LOCAL_PATH/system/zlib/latest/include"
-pkg_ldflags="-L$BLDR_LOCAL_PATH/system/zlib/latest/lib"
-pkg_cfg="--enable-btl-openib-failover --enable-heterogeneous --enable-mpi-thread-multiple"
+
+pkg_cflags="-I$BLDR_LOCAL_PATH/internal/zlib/latest/include"
+pkg_ldflags="-L$BLDR_LOCAL_PATH/internal/zlib/latest/lib"
+
+pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/system/hwloc/latest/include"
+pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/system/hwloc/latest/lib"
+
+pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/system/papi/latest/include"
+pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/system/papi/latest/lib"
+
+pkg_cfg="--enable-btl-openib-failover"
+pkg_cfg="$pkg_cfg --enable-heterogeneous"
+pkg_cfg="$pkg_cfg --enable-mpi-thread-multiple"
+pkg_cfg="$pkg_cfg --with-hwloc=\"$BLDR_LOCAL_PATH/system/hwloc/latest\""
 
 if [ -d $BLDR_LOCAL_PATH/cluster/torque/latest ]
 then 
@@ -40,7 +52,7 @@ fi
 
 if [ "$BLDR_SYSTEM_IS_OSX" -eq 1 ]
 then
-     # Building v1.5.4 on OSX causes error due to missing '__builtin_expect' -- disable vampire trace avoids this
+     # Building > v1.5.4 on OSX causes error due to missing '__builtin_expect' -- disable vampire trace avoids this
     pkg_cfg="$pkg_cfg --disable-vt "
 fi
 
@@ -48,7 +60,7 @@ fi
 # build and install pkg as local module
 ####################################################################################################
 
-bldr_build_pkg --category    "cluster"      \
+bldr_build_pkg --category    "$pkg_ctry"    \
                --name        "$pkg_name"    \
                --version     "$pkg_vers"    \
                --info        "$pkg_info"    \

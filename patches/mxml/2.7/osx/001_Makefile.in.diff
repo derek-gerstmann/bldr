@@ -1,0 +1,11 @@
+--- ./build/developer/mxml/2.7/Makefile.in	2011-04-13 23:43:32.000000000 +0800
++++ ./001_Makefile.in	2012-07-30 11:30:43.000000000 +0800
+@@ -396,7 +396,7 @@
+ 			--css doc/docset.css --title "Mini-XML API Reference" \
+ 			mxml.xml || exit 1; \
+ 		$(RM) org.minixml.atom; \
+-		/Developer/usr/bin/docsetutil package --output org.minixml.xar \
++		docsetutil package --output org.minixml.xar \
+ 			--atom org.minixml.atom \
+ 			--download-url http://www.minixml.org/org.minixml.xar \
+ 			org.minixml.docset || exit 1; \

@@ -12,7 +12,7 @@ source "bldr.sh"
 
 pkg_ctry="developer"
 pkg_name="boost"
-pkg_vers="1.49.0"
+pkg_vers="1.50.0"
 
 pkg_info="Boost provides free peer-reviewed portable C++ source libraries."
 
@@ -30,8 +30,8 @@ Report (TR1) and in the new C++11 Standard. C++11 also includes several more
 Boost libraries in addition to those from TR1. More Boost libraries are 
 proposed for TR2."
 
-pkg_file="boost_1_49_0.tar.bz2"
-pkg_urls="http://sourceforge.net/projects/boost/files/boost/1.49.0/boost_1_49_0.tar.bz2/download"
+pkg_file="boost_1_50_0.tar.bz2"
+pkg_urls="http://sourceforge.net/projects/boost/files/$pkg_name/$pkg_vers/$pkg_file/download"
 pkg_opts="configure force-static"
 pkg_reqs="zlib/latest bzip2/latest libicu/latest"
 pkg_uses="m4/latest autoconf/latest automake/latest $pkg_reqs"

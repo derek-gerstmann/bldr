@@ -11,25 +11,22 @@ source "bldr.sh"
 ####################################################################################################
 
 pkg_ctry="system"
-pkg_name="papi"
-pkg_vers="4.4.0"
+pkg_name="hwloc"
+pkg_vers="1.5rc2"
 
-pkg_info="The Performance API (PAPI) project specifies a standard application programming interface (API) for accessing hardware performance counters available on most modern microprocessors."
+pkg_info="The Portable Hardware Locality (hwloc) software package provides a portable abstraction (across OS, versions, architectures, ...) of the hierarchical topology of modern architectures, including NUMA memory nodes, sockets, shared caches, cores and simultaneous multithreading."
 
-pkg_desc="The Performance API (PAPI) project specifies a standard application programming interface 
-(API) for accessing hardware performance counters available on most modern microprocessors. 
-
-These counters exist as a small set of registers that count Events, occurrences of specific signals 
-related to the processor's function. Monitoring these events facilitates correlation between the 
-structure of source/object code and the efficiency of the mapping of that code to the underlying 
-architecture. This correlation has a variety of uses in performance analysis including hand tuning, 
-compiler optimization, debugging, benchmarking, monitoring and performance modeling. In addition, 
-it is hoped that this information will prove useful in the development of new compilation technology 
-as well as in steering architectural development towards alleviating commonly occurring bottlenecks 
-in high performance computing."
+pkg_desc="The Portable Hardware Locality (hwloc) software package provides a 
+portable abstraction (across OS, versions, architectures, ...) of the hierarchical 
+topology of modern architectures, including NUMA memory nodes, sockets, shared caches, 
+cores and simultaneous multithreading. It also gathers various system attributes such 
+as cache and memory information as well as the locality of I/O devices such as 
+network interfaces, InfiniBand HCAs or GPUs. It primarily aims at helping applications
+with gathering information about modern computing hardware so as to exploit it 
+accordingly and efficiently."
 
 pkg_file="$pkg_name-$pkg_vers.tar.gz"
-pkg_urls="http://icl.cs.utk.edu/projects/papi/downloads/$pkg_file"
+pkg_urls="http://www.open-mpi.org/software/hwloc/v1.5/downloads/$pkg_file"
 pkg_opts="configure"
 pkg_uses="m4/latest autoconf/latest automake/latest libtool/latest"
 pkg_reqs=""
@@ -53,6 +50,5 @@ bldr_build_pkg --category    "$pkg_ctry"    \
                --options     "$pkg_opts"    \
                --cflags      "$pkg_cflags"  \
                --ldflags     "$pkg_ldflags" \
-               --config      "$pkg_cfg"     \
-               --config-path "src"
+               --config      "$pkg_cfg"     
 

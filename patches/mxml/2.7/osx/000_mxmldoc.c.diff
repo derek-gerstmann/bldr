@@ -1,0 +1,11 @@
+--- ./build/developer/mxml/2.7/mxmldoc.c	2011-08-12 02:51:26.000000000 +0800
++++ ./mxmldoc.c	2012-07-30 11:21:59.000000000 +0800
+@@ -3783,7 +3783,7 @@
+     int		status;			/* Exit status */
+ 
+ 
+-    args[0] = "/Developer/usr/bin/docsetutil";
++    args[0] = "docsetutil";
+     args[1] = "index";
+     args[2] = docset;
+     args[3] = NULL;

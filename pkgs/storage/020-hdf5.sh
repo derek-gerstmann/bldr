@@ -37,11 +37,11 @@ pkg_ldflags=""
 pkg_cfg=""
 pkg_cfg="$pkg_cfg:-DMAKESTATIC=1"
 pkg_cfg="$pkg_cfg:-DLINKSTATIC=1"
-pkg_cfg="$pkg_cfg:-DSZIP_INCLUDE_DIR=$BLDR_LOCAL_PATH/science/szip/latest/include"
+pkg_cfg="$pkg_cfg:-DSZIP_INCLUDE_DIR=$BLDR_LOCAL_PATH/storage/szip/latest/include"
 pkg_cfg="$pkg_cfg:-DSZIP_LIBRARY=$BLDR_LOCAL_PATH/system/szip/latest/lib/libsz.a"
 
-pkg_cfg="$pkg_cfg:-DZLIB_INCLUDE_DIR=$BLDR_LOCAL_PATH/system/zlib/latest/include"
-pkg_cfg="$pkg_cfg:-DZLIB_LIBRARY=$BLDR_LOCAL_PATH/system/zlib/latest/lib/libz.a"
+pkg_cfg="$pkg_cfg:-DZLIB_INCLUDE_DIR=$BLDR_LOCAL_PATH/internal/zlib/latest/include"
+pkg_cfg="$pkg_cfg:-DZLIB_LIBRARY=$BLDR_LOCAL_PATH/internal/zlib/latest/lib/libz.a"
 
 pkg_cfg="$pkg_cfg:-DHDF5_ENABLE_ZLIB=ON"
 pkg_cfg="$pkg_cfg:-DHDF5_ENABLE_Z_LIB_SUPPORT=ON"
@@ -50,9 +50,9 @@ pkg_cfg="$pkg_cfg:-DHDF5_ENABLE_SZIP_SUPPORT=ON"
 pkg_cfg="$pkg_cfg:-DHDF5_BUILD_HL_LIB=ON"
 pkg_cfg="$pkg_cfg:-DHDF5_DISABLE_COMPILER_WARNINGS=ON"
 pkg_cfg="$pkg_cfg:-DHDF5_DISABLE_COMPILER_WARNINGS=ON"
-pkg_cfg="$pkg_cfg -DCMAKE_CXX_FLAGS='-I$BLDR_LOCAL_PATH/science/szip/latest/include -I$BLDR_LOCAL_PATH/science/szip/latest/src'"
-pkg_cfg="$pkg_cfg -DCMAKE_CPP_FLAGS='-I$BLDR_LOCAL_PATH/science/szip/latest/include -I$BLDR_LOCAL_PATH/science/szip/latest/src'"
-pkg_cfg="$pkg_cfg -DCMAKE_C_FLAGS='-I$BLDR_LOCAL_PATH/science/szip/latest/include -I$BLDR_LOCAL_PATH/science/szip/latest/src'"
+pkg_cfg="$pkg_cfg -DCMAKE_CXX_FLAGS='-I$BLDR_LOCAL_PATH/storage/szip/latest/include -I$BLDR_LOCAL_PATH/storage/szip/latest/src'"
+pkg_cfg="$pkg_cfg -DCMAKE_CPP_FLAGS='-I$BLDR_LOCAL_PATH/storage/szip/latest/include -I$BLDR_LOCAL_PATH/storage/szip/latest/src'"
+pkg_cfg="$pkg_cfg -DCMAKE_C_FLAGS='-I$BLDR_LOCAL_PATH/storage/szip/latest/include -I$BLDR_LOCAL_PATH/storage/szip/latest/src'"
 hdf5_cfg="$pkg_cfg"
 
 ####################################################################################################
@@ -144,8 +144,10 @@ function bldr_pkg_install_method()
 # build and install pkg as local module
 ####################################################################################################
 
-pkg_name="hdf5-threadsafe"
+pkg_name="hdf5"
 pkg_cfg="$hdf5_cfg:-DHDF5_BUILD_CPP_LIB=ON"
+
+####################################################################################################
 
 bldr_build_pkg --category    "$pkg_ctry"    \
                --name        "$pkg_name"    \
@@ -161,6 +163,26 @@ bldr_build_pkg --category    "$pkg_ctry"    \
                --ldflags     "$pkg_ldflags" \
                --config      "$pkg_cfg"
 
+pkg_name="hdf5-16"
+pkg_cfg="$hdf5_cfg:-DHDF5_BUILD_CPP_LIB=ON:-DH5_USE_16_API=ON"
+
+####################################################################################################
+# build and install pkg as local module
+####################################################################################################
+
+bldr_build_pkg --category    "$pkg_ctry"    \
+               --name        "$pkg_name"    \
+               --version     "$pkg_vers"    \
+               --info        "$pkg_info"    \
+               --description "$pkg_desc"    \
+               --file        "$pkg_file"    \
+               --url         "$pkg_urls"    \
+               --uses        "$pkg_uses"    \
+               --requires    "$pkg_reqs"    \
+               --options     "$pkg_opts"    \
+               --cflags      "$pkg_cflags"  \
+               --ldflags     "$pkg_ldflags" \
+               --config      "$pkg_cfg"
 
 ####################################################################################################
 

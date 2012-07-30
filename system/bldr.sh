@@ -1146,6 +1146,16 @@ function bldr_fetch_pkg()
     fi
     bldr_push_dir "$BLDR_CACHE_PATH"
 
+    if [ -f "$pkg_file" ]
+    then
+        local filesize=$(stat -f %z "$pkg_file")
+        if [[ $filesize -lt 4096 ]]; then
+            bldr_log_info "Existing package file in cache appears truncated ($filesize < 4096 bytes!).  Retrieving '$pkg_name/$pkg_vers' again ..."
+            bldr_log_split
+            bldr_remove_file "$pkg_file"
+        fi
+    fi
+
     # if a local copy doesn't exist, grab the pkg from the url
     if [ ! -f "$pkg_file" ]
     then
@@ -1400,7 +1410,7 @@ function bldr_boot_pkg()
 
             if [ $BLDR_VERBOSE != false ]
             then
-                eval $boot_cmd --prefix="$prefix" --verbose || bldr_bail "Failed to boot package '$pkg_name/$pkg_vers'!"
+                eval $boot_cmd --prefix="$prefix" || bldr_bail "Failed to boot package '$pkg_name/$pkg_vers'!"
                 bldr_log_split
             else
                 eval $boot_cmd --prefix="$prefix" &> /dev/null || bldr_bail "Failed to boot package '$pkg_name/$pkg_vers'!"

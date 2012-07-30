@@ -10,6 +10,7 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
+pkg_ctry="cluster"
 pkg_name="mvapich2"
 pkg_vers="1.8"
 
@@ -21,13 +22,20 @@ This is an MPI-2 implementation (conforming to MPI 2.2 standard) which includes 
 MPI-1 features. It is based on MPICH2 and MVICH. The latest release is MVAPICH2 1.8 
 (includes MPICH2 1.4.1p1). It is available under BSD licensing."
 
-pkg_file="$pkg_name-$pkg_vers.tgz"
-pkg_urls="http://mvapich.cse.ohio-state.edu/download/mvapich2/$pkg_file"
+pkg_file="$pkg_name-latest.tar.gz"
+pkg_urls="http://mvapich.cse.ohio-state.edu/nightly/$pkg_name/branches/$pkg_vers/$pkg_file"
 pkg_opts="configure"
-pkg_reqs="zlib/latest papi/latest"
+pkg_reqs="zlib/latest papi/latest hwloc/latest"
 pkg_uses="m4/latest autoconf/latest automake/latest $pkg_reqs"
-pkg_cflags="-I$BLDR_LOCAL_PATH/system/zlib/latest/include"
-pkg_ldflags="-L$BLDR_LOCAL_PATH/system/zlib/latest/lib"
+
+pkg_cflags="-I$BLDR_LOCAL_PATH/internal/zlib/latest/include"
+pkg_ldflags="-L$BLDR_LOCAL_PATH/internal/zlib/latest/lib"
+
+pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/system/hwloc/latest/include"
+pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/system/hwloc/latest/lib"
+
+pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/system/papi/latest/include"
+pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/system/papi/latest/lib"
 
 pkg_cfg=""
 if [ -d /usr/local/cuda ]
@@ -52,7 +60,7 @@ pkg_cfg="$pkg_cfg --enable-cxx"
 
 if [ "$BLDR_SYSTEM_IS_OSX" -eq 1 ]
 then
-     # Building v1.5.4 on OSX causes error due to missing '__builtin_expect' -- disable vampire trace avoids this
+     # Building > v1.5.4 on OSX causes error due to missing '__builtin_expect' -- disable vampire trace avoids this
     pkg_cfg="$pkg_cfg --disable-vt "
 fi
 
@@ -60,18 +68,23 @@ fi
 # build and install pkg as local module
 ####################################################################################################
 
-bldr_build_pkg --category    "cluster"      \
-               --name        "$pkg_name"    \
-               --version     "$pkg_vers"    \
-               --info        "$pkg_info"    \
-               --description "$pkg_desc"    \
-               --file        "$pkg_file"    \
-               --url         "$pkg_urls"    \
-               --uses        "$pkg_uses"    \
-               --requires    "$pkg_reqs"    \
-               --options     "$pkg_opts"    \
-               --cflags      "$pkg_cflags"  \
-               --ldflags     "$pkg_ldflags" \
-               --config      "$pkg_cfg"
-
+if [ "$BLDR_SYSTEM_IS_OSX" -eq 1 ]
+then
+     bldr_log_status "$pkg_name $pkg_vers is not building on OSX right now.  Skipping ..."
+     bldr_log_split
+else
+     bldr_build_pkg --category    "$pkg_ctry"    \
+                    --name        "$pkg_name"    \
+                    --version     "$pkg_vers"    \
+                    --info        "$pkg_info"    \
+                    --description "$pkg_desc"    \
+                    --file        "$pkg_file"    \
+                    --url         "$pkg_urls"    \
+                    --uses        "$pkg_uses"    \
+                    --requires    "$pkg_reqs"    \
+                    --options     "$pkg_opts"    \
+                    --cflags      "$pkg_cflags"  \
+                    --ldflags     "$pkg_ldflags" \
+                    --config      "$pkg_cfg"
+fi
 
