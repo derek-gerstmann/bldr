@@ -10,6 +10,7 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
+pkg_ctry="developer"
 pkg_name="avro"
 pkg_vers="1.7.1"
 
@@ -43,7 +44,7 @@ pkg_cfg="$pkg_cfg:-DBOOST_ROOT=$BLDR_LOCAL_PATH/developer/boost/latest"
 # build and install pkg as local module
 ####################################################################################################
 
-bldr_build_pkg --category    "developer"    \
+bldr_build_pkg --category    "$pkg_ctry"    \
                --name        "$pkg_name"    \
                --version     "$pkg_vers"    \
                --info        "$pkg_info"    \

@@ -10,6 +10,7 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
+pkg_ctry="developer"
 pkg_name="glib"
 pkg_vers="2.32.1"
 pkg_info="GLib provides the core application building blocks for libraries and applications written in C."
@@ -168,25 +169,18 @@ function foo()
 # build and install pkg as local module
 ####################################################################################################
 
-
-# if [ $BLDR_SYSTEM_IS_OSX -eq 1 ]
-# then
-#    bldr_log_status "$pkg_name $pkg_ver is not building on OSX right now.  Skipping..."
-#    bldr_log_split
-# else
-    bldr_build_pkg --category    "developer"    \
-                   --name        "$pkg_name"    \
-                   --version     "$pkg_vers"    \
-                   --info        "$pkg_info"    \
-                   --description "$pkg_desc"    \
-                   --file        "$pkg_file"    \
-                   --url         "$pkg_urls"    \
-                   --uses        "$pkg_uses"    \
-                   --requires    "$pkg_reqs"    \
-                   --options     "$pkg_opts"    \
-                   --patch       "$pkg_patch"   \
-                   --cflags      "$pkg_cflags"  \
-                   --ldflags     "$pkg_ldflags" \
-                   --config      "$pkg_cfg"
-# fi
+bldr_build_pkg --category    "$pkg_ctry"    \
+               --name        "$pkg_name"    \
+               --version     "$pkg_vers"    \
+               --info        "$pkg_info"    \
+               --description "$pkg_desc"    \
+               --file        "$pkg_file"    \
+               --url         "$pkg_urls"    \
+               --uses        "$pkg_uses"    \
+               --requires    "$pkg_reqs"    \
+               --options     "$pkg_opts"    \
+               --patch       "$pkg_patch"   \
+               --cflags      "$pkg_cflags"  \
+               --ldflags     "$pkg_ldflags" \
+               --config      "$pkg_cfg"
 

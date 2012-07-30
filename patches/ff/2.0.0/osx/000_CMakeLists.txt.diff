@@ -1,0 +1,15 @@
+--- ./build/developer/ff/2.0.0/CMakeLists.txt	2011-04-22 21:36:38.000000000 +0800
++++ ./patches/ff/2.0.0/CMakeLists.txt	2012-07-27 13:47:01.000000000 +0800
+@@ -153,9 +153,9 @@
+ add_custom_target( uninstall
+     "${CMAKE_COMMAND}" -P "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake" )
+ 
+-install( FILES ${FFHEADERS} DESTINATION /include/ff/ )
+-install( FILES ${FFHEADERS_AT} DESTINATION /include/ff/atomic )
+-install( FILES ${FFHEADERS_PLAT} DESTINATION /include/ff/platforms )
++install( FILES ${FFHEADERS} DESTINATION include/ff/ )
++install( FILES ${FFHEADERS_AT} DESTINATION include/ff/atomic )
++install( FILES ${FFHEADERS_PLAT} DESTINATION include/ff/platforms )
+ 
+ if( BUILD_EXAMPLES )
+     enable_testing()

@@ -10,23 +10,20 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_name="hdf5"
-pkg_vers="1.8.9"
+pkg_name="eq"
+pkg_vers="1.4.9"
 
-pkg_info="HDF5 is a unique technology suite that makes possible the management of extremely large and complex data collections."
+pkg_info="Equalizer is a middleware library used to create and deploy parallel OpenGL-based applications."
 
-pkg_desc="HDF5 is a unique technology suite that makes possible the management of extremely large and complex data collections.
+pkg_desc="Equalizer is a middleware library used to create and deploy parallel OpenGL-based applications. 
 
-The HDF5 technology suite includes:
+It enables applications to benefit from multiple graphics cards, processors and computers to scale 
+the rendering performance, visual quality and display size. An Equalizer application runs unmodified 
+on any visualization system, from a simple workstation to large scale graphics clusters, 
+multi-GPU workstations and Virtual Reality installations"
 
-* A versatile data model that can represent very complex data objects and a wide variety of metadata.
-* A completely portable file format with no limit on the number or size of data objects in the collection.
-* A software library that runs on a range of computational platforms, from laptops to massively parallel systems, and implements a high-level API with C, C++, Fortran 90, and Java interfaces.
-* A rich set of integrated performance features that allow for access time and storage space optimizations.
-* Tools and applications for managing, manipulating, viewing, and analyzing the data in the collection."
-
-pkg_file="hdf5-$pkg_vers.tar.gz"
-pkg_urls="http://www.hdfgroup.org/ftp/HDF5/current/src/$pkg_file"
+pkg_file="$pkg_name-$pkg_vers.tar.gz"
+pkg_urls="https://github.com/Eyescale/Equalizer.git"
 pkg_opts="cmake keep"
 pkg_reqs="szip/latest zlib/latest"
 pkg_uses="m4/latest autoconf/latest automake/latest"

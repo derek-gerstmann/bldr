@@ -10,6 +10,7 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
+pkg_ctry="concurrent"
 pkg_name="ff"
 pkg_vers="2.0.0"
 
@@ -43,7 +44,7 @@ pkg_cfg="$pkg_cfg:-DQT_QMAKE_EXECUTABLE=$BLDR_LOCAL_PATH/developer/qt/latest/bin
 # build and install pkg as local module
 ####################################################################################################
 
-bldr_build_pkg --category    "developer"    \
+bldr_build_pkg --category    "$pkg_ctry"    \
                --name        "$pkg_name"    \
                --version     "$pkg_vers"    \
                --info        "$pkg_info"    \

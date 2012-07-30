@@ -10,6 +10,7 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
+pkg_ctry="storage"
 pkg_name="szip"
 pkg_vers="2.1"
 
@@ -37,7 +38,7 @@ pkg_cfg_path=""
 # build and install pkg as local module
 ####################################################################################################
 
-bldr_build_pkg --category    "science"      \
+bldr_build_pkg --category    "$pkg_ctry"    \
                --name        "$pkg_name"    \
                --version     "$pkg_vers"    \
                --info        "$pkg_info"    \

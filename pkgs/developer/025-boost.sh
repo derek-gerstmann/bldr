@@ -10,6 +10,7 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
+pkg_ctry="developer"
 pkg_name="boost"
 pkg_vers="1.49.0"
 
@@ -166,7 +167,7 @@ function bldr_pkg_compile_method()
 # build and install pkg as local module
 ####################################################################################################
 
-bldr_build_pkg --category    "developer"    \
+bldr_build_pkg --category    "$pkg_ctry"    \
                --name        "$pkg_name"    \
                --version     "$pkg_vers"    \
                --info        "$pkg_info"    \

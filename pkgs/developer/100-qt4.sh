@@ -10,6 +10,7 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
+pkg_ctry="developer"
 pkg_name="qt"
 pkg_vers="4.8.2"
 pkg_info="Qt is a cross-platform application and UI framework for developers using C++ or QML, a CSS & JavaScript like language."
@@ -49,7 +50,7 @@ pkg_cfg="$pkg_cfg -make tools"
 # build and install pkg as local module
 ####################################################################################################
 
-bldr_build_pkg --category    "developer"    \
+bldr_build_pkg --category    "$pkg_ctry"    \
                --name        "$pkg_name"    \
                --version     "$pkg_vers"    \
                --info        "$pkg_info"    \
