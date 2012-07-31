@@ -12,7 +12,7 @@ source "bldr.sh"
 
 pkg_ctry="typography"
 pkg_name="texlive"
-pkg_vers="2011"
+pkg_vers="2012"
 
 pkg_info="TeX Live provides a live, up-to-date, TeX document production system."
 
@@ -81,7 +81,7 @@ function bldr_pkg_compile_method()
     local prefix="$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
     local base="$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name"
 
-    bldr_log_header "Building package '$pkg_name/$pkg_vers'"
+    bldr_log_status "Building package '$pkg_name/$pkg_vers'"
     bldr_log_split
     
     bldr_log_info "Moving to build path: '$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers' ..."

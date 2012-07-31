@@ -1,0 +1,21 @@
+--- ./cache/CCfits/cookbook.cxx	2010-11-16 01:16:21.000000000 +0800
++++ ./cookbook.cxx	2012-07-31 16:03:24.000000000 +0800
+@@ -14,7 +14,12 @@
+ // The <CCfits> header file contains all that is necessary to use both the CCfits
+ // library and the cfitsio library (for example, it includes fitsio.h) thus making
+ // all of cfitsio's symbolic names available.
++int main(int argc, char** argv)
++{
++    return 0;
++}
+ 
++#if 0
+ #ifdef _MSC_VER
+ #include "MSconfig.h" // for truncation warning
+ #endif
+@@ -789,3 +794,5 @@
+         
+          return 0;       
+  }
++ #endif
++

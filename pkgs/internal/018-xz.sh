@@ -33,6 +33,12 @@ pkg_cflags=""
 pkg_ldflags=""
 pkg_cfg=""
 
+if [ "$BLDR_SYSTEM_IS_OSX" -eq 0 ]
+then
+     pkg_cflags="$pkg_cflags -fPIC"
+     pkg_ldflags="$pkg_ldflags -fPIC"
+fi
+
 ####################################################################################################
 # build and install pkg as local module
 ####################################################################################################

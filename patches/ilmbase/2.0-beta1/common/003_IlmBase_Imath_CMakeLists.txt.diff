@@ -1,0 +1,58 @@
+--- ./cache/openexr-openexr-d847d1e/IlmBase/Imath/CMakeLists.txt	2012-07-26 11:36:12.000000000 +0800
++++ 003_IlmBase_IlmMath_CMakeLists.txt	2012-07-31 15:04:51.000000000 +0800
+@@ -17,35 +17,38 @@
+ )
+ 
+ INSTALL ( FILES 
+-  ImathColorAlgo.h
+-  ImathMatrixAlgo.h
+-  ImathVec.h
+-  ImathShear.h
+-  ImathFun.h
+   ImathBox.h
+   ImathBoxAlgo.h
++  ImathColor.h
++  ImathColorAlgo.h
+   ImathEuler.h
+   ImathExc.h
++  ImathForward.h
++  ImathFrame.h
++  ImathFrustum.h
++  ImathFrustumTest.h
++  ImathFun.h
++  ImathGL.h
++  ImathGLU.h
++  ImathHalfLimits.h
++  ImathInt64.h
++  ImathInterval.h
+   ImathLimits.h
+   ImathLine.h
+   ImathLineAlgo.h
++  ImathMath.h
+   ImathMatrix.h
++  ImathMatrixAlgo.h
++  ImathNamespace.h
+   ImathPlane.h
+-  ImathSphere.h
+-  ImathVecAlgo.h
++  ImathPlatform.h
+   ImathQuat.h
+-  ImathFrustum.h
+-  ImathMath.h
+-  ImathGL.h
+-  ImathColor.h
+   ImathRandom.h
+   ImathRoots.h
+-  ImathHalfLimits.h
+-  ImathInterval.h
+-  ImathGLU.h
+-  ImathFrame.h
+-  ImathPlatform.h
+-  ImathInt64.h
++  ImathShear.h
++  ImathSphere.h
++  ImathVec.h
++  ImathVecAlgo.h
+   DESTINATION
+   include/OpenEXR
+ )

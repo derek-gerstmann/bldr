@@ -39,11 +39,11 @@ pkg_cflags=""
 pkg_ldflags=""
 
 pkg_cfg="variant=release link=static threading=multi runtime-link=static"
-pkg_cfg="$pkg_cfg -s ICU_PATH=$BLDR_LOCAL_PATH/system/libicu/latest"
-pkg_cfg="$pkg_cfg -s BZIP2_INCLUDE=$BLDR_LOCAL_PATH/system/bzip2/latest/include"
-pkg_cfg="$pkg_cfg -s BZIP2_LIBPATH=$BLDR_LOCAL_PATH/system/bzip2/latest/lib"
-pkg_cfg="$pkg_cfg -s ZLIB_INCLUDE=$BLDR_LOCAL_PATH/system/zlib/latest/include"
-pkg_cfg="$pkg_cfg -s ZLIB_LIBPATH=$BLDR_LOCAL_PATH/system/zlib/latest/lib"
+pkg_cfg="$pkg_cfg -s ICU_PATH=$BLDR_LOCAL_PATH/internal/libicu/latest"
+pkg_cfg="$pkg_cfg -s BZIP2_INCLUDE=$BLDR_LOCAL_PATH/internal/bzip2/latest/include"
+pkg_cfg="$pkg_cfg -s BZIP2_LIBPATH=$BLDR_LOCAL_PATH/internal/bzip2/latest/lib"
+pkg_cfg="$pkg_cfg -s ZLIB_INCLUDE=$BLDR_LOCAL_PATH/internal/zlib/latest/include"
+pkg_cfg="$pkg_cfg -s ZLIB_LIBPATH=$BLDR_LOCAL_PATH/internal/zlib/latest/lib"
 
 ####################################################################################################
 

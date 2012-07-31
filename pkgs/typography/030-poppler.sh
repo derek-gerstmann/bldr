@@ -10,35 +10,47 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_name="libjpeg"
-pkg_vers="8d"
+pkg_ctry="typography"
+pkg_name="poppler"
+pkg_vers="0.20.2"
 
-pkg_info="JPEG is a standardized compression method for full-color and gray-scale images."
+pkg_info="Poppler is a PDF rendering library based on the xpdf-3.0 code base."
 
-pkg_desc="JPEG is a standardized compression method for full-color and gray-scale images.
-This package from the Independent JPEG Group contains C software to implement JPEG 
-image encoding, decoding, and transcoding.  
+pkg_desc="Poppler is a PDF rendering library based on the xpdf-3.0 code base."
 
-The distributed programs provide conversion between JPEG 'JFIF' format and
-image files in PBMPLUS PPM/PGM, GIF, BMP, and Targa file formats.  The
-core compression and decompression library can easily be reused in other
-programs, such as image viewers.  The package is highly portable C code;
-we have tested it on many machines ranging from PCs to Crays."
-
-pkg_file="jpegsrc.v8d.tar.gz"
-pkg_urls="http://www.ijg.org/files/$pkg_file"
+pkg_file="$pkg_name-$pkg_vers.tar.gz"
+pkg_urls="http://poppler.freedesktop.org/$pkg_file"
 pkg_opts="configure"
-pkg_reqs="zlib/latest"
-pkg_uses="m4/latest autoconf/latest automake/latest $pkg_reqs"
-pkg_cflags="-I$BLDR_LOCAL_PATH/internal/zlib/latest/include"
-pkg_ldflags="-L$BLDR_LOCAL_PATH/internal/zlib/latest/lib"
-pkg_cfg=""
+pkg_cfg="--enable-zlib"
+pkg_reqs=""
+pkg_cflags=""
+pkg_ldflags=""
+
+dep_list="internal/zlib internal/libicu internal/libxml2"
+dep_list="$dep_list imaging/lcms2 imaging/libpng imaging/libjpeg"
+if [[ $BLDR_SYSTEM_IS_OSX -eq 0 ]]; then
+     dep_list="$dep_list internal/libiconv"
+fi
+
+for dep_pkg in $dep_list
+do
+     pkg_reqs="$pkg_reqs $dep_pkg/latest"
+     pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/$dep_pkg/latest/include"
+     pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/$dep_pkg/latest/lib"
+done
+
+pkg_uses="m4/latest autoconf/latest automake/latest libtool/latest $pkg_reqs"
+
+if [[ $BLDR_SYSTEM_IS_OSX -eq 1 ]]; then
+     pkg_cflags="$pkg_cflags:-I/usr/local/include:-I/usr/include"
+     pkg_ldflags="$pkg_ldflags:-L/usr/local/lib:-L/usr/lib:-lintl"
+fi
 
 ####################################################################################################
 # build and install pkg as local module
 ####################################################################################################
 
-bldr_build_pkg --category    "imaging"      \
+bldr_build_pkg --category    "$pkg_ctry"    \
                --name        "$pkg_name"    \
                --version     "$pkg_vers"    \
                --info        "$pkg_info"    \
@@ -51,5 +63,4 @@ bldr_build_pkg --category    "imaging"      \
                --cflags      "$pkg_cflags"  \
                --ldflags     "$pkg_ldflags" \
                --config      "$pkg_cfg"
-
 

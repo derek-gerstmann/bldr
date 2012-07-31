@@ -10,29 +10,26 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_name="libjpeg"
-pkg_vers="8d"
+pkg_name="cfitsio"
+pkg_vers="3.310"
 
-pkg_info="JPEG is a standardized compression method for full-color and gray-scale images."
+pkg_info="CFITSIO is a library of C and Fortran subroutines for reading and writing data files in FITS (Flexible Image Transport System) data format. "
 
-pkg_desc="JPEG is a standardized compression method for full-color and gray-scale images.
-This package from the Independent JPEG Group contains C software to implement JPEG 
-image encoding, decoding, and transcoding.  
+pkg_desc="CFITSIO is a library of C and Fortran subroutines for reading 
+and writing data files in FITS (Flexible Image Transport System) data format. 
+CFITSIO provides simple high-level routines for reading and writing 
+FITS files that insulate the programmer from the internal complexities 
+of the FITS format. CFITSIO also provides many advanced features for 
+manipulating and filtering the information in FITS files."
 
-The distributed programs provide conversion between JPEG 'JFIF' format and
-image files in PBMPLUS PPM/PGM, GIF, BMP, and Targa file formats.  The
-core compression and decompression library can easily be reused in other
-programs, such as image viewers.  The package is highly portable C code;
-we have tested it on many machines ranging from PCs to Crays."
-
-pkg_file="jpegsrc.v8d.tar.gz"
-pkg_urls="http://www.ijg.org/files/$pkg_file"
+pkg_file="cfitsio3310.tar.gz"
+pkg_urls="ftp://heasarc.gsfc.nasa.gov/software/fitsio/c/$pkg_file"
 pkg_opts="configure"
+pkg_uses="m4/latest autoconf/latest automake/latest"
 pkg_reqs="zlib/latest"
-pkg_uses="m4/latest autoconf/latest automake/latest $pkg_reqs"
 pkg_cflags="-I$BLDR_LOCAL_PATH/internal/zlib/latest/include"
 pkg_ldflags="-L$BLDR_LOCAL_PATH/internal/zlib/latest/lib"
-pkg_cfg=""
+pkg_cfg="--enable-reentrant --enable-sse2 --enable-sse3"
 
 ####################################################################################################
 # build and install pkg as local module

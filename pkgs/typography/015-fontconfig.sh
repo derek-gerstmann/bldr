@@ -10,35 +10,49 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_name="libjpeg"
-pkg_vers="8d"
+pkg_ctry="typography"
+pkg_name="fontconfig"
+pkg_vers="2.10.1"
 
-pkg_info="JPEG is a standardized compression method for full-color and gray-scale images."
+pkg_info="FontConfig is a library for configuring and customizing font access. "
 
-pkg_desc="JPEG is a standardized compression method for full-color and gray-scale images.
-This package from the Independent JPEG Group contains C software to implement JPEG 
-image encoding, decoding, and transcoding.  
+pkg_desc="Fontconfig is a library designed to provide system-wide font configuration, 
+customization and application access. 
 
-The distributed programs provide conversion between JPEG 'JFIF' format and
-image files in PBMPLUS PPM/PGM, GIF, BMP, and Targa file formats.  The
-core compression and decompression library can easily be reused in other
-programs, such as image viewers.  The package is highly portable C code;
-we have tested it on many machines ranging from PCs to Crays."
+Fontconfig contains two essential modules, the configuration module which builds an 
+internal configuration from XML files and the matching module which accepts font 
+patterns and returns the nearest matching font."
 
-pkg_file="jpegsrc.v8d.tar.gz"
-pkg_urls="http://www.ijg.org/files/$pkg_file"
+pkg_file="$pkg_name-$pkg_vers.tar.gz"
+pkg_urls="http://www.freedesktop.org/software/$pkg_name/release/$pkg_file"
 pkg_opts="configure"
-pkg_reqs="zlib/latest"
-pkg_uses="m4/latest autoconf/latest automake/latest $pkg_reqs"
+pkg_reqs="zlib/latest libicu/latest libxml2/latest freetype/latest"
+pkg_uses="m4/latest autoconf/latest automake/latest libtool/latest $pkg_reqs"
+
+pkg_cfg=""
+pkg_patch=""
+
 pkg_cflags="-I$BLDR_LOCAL_PATH/internal/zlib/latest/include"
 pkg_ldflags="-L$BLDR_LOCAL_PATH/internal/zlib/latest/lib"
-pkg_cfg=""
+
+pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/internal/freetype/latest/include"
+pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/internal/freetype/latest/lib"
+
+if [ "$BLDR_SYSTEM_IS_OSX" -eq 1 ]
+then
+     pkg_cfg="$pkg_cfg --with-arch=x86_64"
+     pkg_cfg="$pkg_cfg --with-sysroot=$BLDR_OSX_SYSROOT"
+else
+     pkg_reqs="$pkg_reqs libiconv/latest"
+     pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/internal/libiconv/latest/include"
+     pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/internal/libiconv/latest/lib"
+fi
 
 ####################################################################################################
 # build and install pkg as local module
 ####################################################################################################
 
-bldr_build_pkg --category    "imaging"      \
+bldr_build_pkg --category    "$pkg_ctry"    \
                --name        "$pkg_name"    \
                --version     "$pkg_vers"    \
                --info        "$pkg_info"    \

@@ -10,29 +10,27 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_name="libjpeg"
-pkg_vers="8d"
+pkg_name="ccfits"
+pkg_vers="2.4"
 
-pkg_info="JPEG is a standardized compression method for full-color and gray-scale images."
+pkg_info="CCfits is an object oriented interface to the cfitsio library."
 
-pkg_desc="JPEG is a standardized compression method for full-color and gray-scale images.
-This package from the Independent JPEG Group contains C software to implement JPEG 
-image encoding, decoding, and transcoding.  
+pkg_desc="CCfits is an object oriented interface to the cfitsio library. 
+It is designed to make the capabilities of cfitsio available to programmers 
+working in C++. It is written in ANSI C++ and implemented using the C++ 
+Standard Library with namespaces, exception handling, and member template 
+functions."
 
-The distributed programs provide conversion between JPEG 'JFIF' format and
-image files in PBMPLUS PPM/PGM, GIF, BMP, and Targa file formats.  The
-core compression and decompression library can easily be reused in other
-programs, such as image viewers.  The package is highly portable C code;
-we have tested it on many machines ranging from PCs to Crays."
-
-pkg_file="jpegsrc.v8d.tar.gz"
-pkg_urls="http://www.ijg.org/files/$pkg_file"
+pkg_file="CCfits-$pkg_vers.tar.gz"
+pkg_urls="http://heasarc.gsfc.nasa.gov/docs/software/fitsio/ccfits/$pkg_file"
 pkg_opts="configure"
-pkg_reqs="zlib/latest"
-pkg_uses="m4/latest autoconf/latest automake/latest $pkg_reqs"
+pkg_uses="m4/latest autoconf/latest automake/latest"
+pkg_reqs="zlib/latest cfitsio/latest "
 pkg_cflags="-I$BLDR_LOCAL_PATH/internal/zlib/latest/include"
+pkg_cflags="$pkg_cflags:-I$BLDR_BUILD_PATH/imaging/$pkg_name/$pkg_vers/include"
+pkg_cflags="$pkg_cflags:-I$BLDR_BUILD_PATH/imaging/$pkg_name/$pkg_vers/include/CCfits"
 pkg_ldflags="-L$BLDR_LOCAL_PATH/internal/zlib/latest/lib"
-pkg_cfg=""
+pkg_cfg="--with-cfitsio=$BLDR_LOCAL_PATH/imaging/cfitsio/latest"
 
 ####################################################################################################
 # build and install pkg as local module

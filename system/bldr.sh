@@ -591,8 +591,8 @@ function bldr_clone()
     local cmd="$(which git)"
     if [ -e $cmd ];
     then
-        cmd="git bldr_clone"
-        $cmd $url $dir || bldr_bail "Failed to bldr_clone '$url' into '$dir'"
+        cmd="git clone"
+        $cmd $url $dir || bldr_bail "Failed to clone '$url' into '$dir'"
     else
         bldr_bail "Failed to locate 'git' command!  Please install this command line utility!"
     fi
@@ -654,6 +654,26 @@ function bldr_fetch()
         bldr_log_split
         bldr_log_info "Downloaded '$url' to '$archive'..."
     fi
+}
+
+function bldr_get_archive_flag()
+{
+    local is="z"
+    local archive=$1
+    if [ -f $archive ] ; then
+       case $archive in
+        *.tar.bz2)  is="j";;
+        *.tar.gz)   is="z";;
+        *.tar.xz)   is="J";;
+        *.bz2)      is="j";;
+        *.gz)       is="z";;
+        *.tar)      is="";;
+        *.tbz2)     is="j";;
+        *.tgz)      is="z";;
+        *)          is=0;;
+       esac    
+    fi
+    echo "$is"
 }
 
 function bldr_is_valid_archive()
@@ -895,8 +915,13 @@ function bldr_make_archive()
 {
     local archive=$1
     local dir=$2
-    
-    tar cjf "${archive}" "${dir}" || bldr_bail "Failed to create archive!"
+    local flags=$(bldr_get_archive_flag "${archive}")
+    flags="c${flags}f"
+
+    bldr_log_cmd "tar ${flags} \"${archive}\" \"${dir}\""
+    bldr_log_split   
+
+    eval tar "${flags}" "${archive}" "${dir}" || bldr_bail "Failed to create archive!"
 }
 
 function bldr_cursor_pos()
@@ -1167,7 +1192,14 @@ function bldr_fetch_pkg()
 
             if [[ $(echo "$url" | grep -m1 -c '^http://') == 1 ]]
             then
+                bldr_fetch $url $pkg_file 
+            
+            elif [[ $(echo "$url" | grep -m1 -c '^https://') == 1 ]]
+            then
+                bldr_fetch $url $pkg_file 
 
+            elif [[ $(echo "$url" | grep -m1 -c '^ftp://') == 1 ]]
+            then
                 bldr_fetch $url $pkg_file 
 
             elif [[ $(echo "$url" | grep -m1 -c '^git://') == 1 ]]
@@ -1288,11 +1320,6 @@ function bldr_boot_pkg()
         BLDR_VERBOSE=true
     fi
 
-    if [[ $(echo $pkg_opts | grep -m1 -c 'skip-boot' ) > 0 ]]
-    then
-        return
-    fi
-
     local prefix="$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
     bldr_log_status "Booting package '$pkg_name/$pkg_vers'"
     bldr_log_split
@@ -1315,6 +1342,20 @@ function bldr_boot_pkg()
         bldr_log_info "Skipping system patches ..."
         bldr_log_split
     else
+        # common patches
+        for patch_file in $BLDR_PATCHES_PATH/$pkg_name/$pkg_vers/common/*
+        do
+            if [ -f "$patch_file" ] 
+            then
+                bldr_log_info "Applying patch from file '$patch_file' ..."
+                bldr_log_split
+
+                bldr_apply_patch $patch_file
+                bldr_log_split
+            fi
+        done
+
+        # os-specific patches
         for patch_file in $BLDR_PATCHES_PATH/$pkg_name/$pkg_vers/$BLDR_OS_NAME/*
         do
             if [ -f "$patch_file" ] 
@@ -1384,9 +1425,16 @@ function bldr_boot_pkg()
         bootstrap=true
     fi
 
+    if [[ $(echo $pkg_opts | grep -m1 -c 'skip-boot' ) > 0 ]]
+    then
+        bldr_log_info "Skipping bootstrap ..."
+        bldr_log_split
+        bootstrap=false
+    fi
+
     if [[ $(echo $pkg_opts | grep -m1 -c 'force-bootstrap' ) > 0 ]]
     then
-        bldr_log_info "Forcing bootstrap configuration ..."
+        bldr_log_info "Forcing bootstrap ..."
         bldr_log_split
         bootstrap=true
     fi
@@ -1476,13 +1524,17 @@ function bldr_cmake_pkg()
         return
     fi
 
+    bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
+    local cfg_path=$(bldr_locate_config_path $pkg_cfg_path)
+    bldr_pop_dir
+
     bldr_make_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/build"
     bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/build"
 
     bldr_log_split
   
     local prefix="$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
-
+    local env_mpath=""
     local env_flags=" "
     pkg_cfg=$(bldr_trim_list_str "$pkg_cfg")
     if [ "$pkg_cfg" != "" ] && [ "$pkg_cfg" != " " ] && [ "$pkg_cfg" != ":" ]
@@ -1495,8 +1547,14 @@ function bldr_cmake_pkg()
     pkg_cflags=$(bldr_trim_list_str "$pkg_cflags")
     if [ "$pkg_cflags" != "" ] && [ "$pkg_cflags" != " " ]  && [ "$pkg_cflags" != ":" ]
     then
-        pkg_mpath=$(echo $pkg_cflags | bldr_split_str ":" | bldr_join_str ";")
-        env_flags='-DCMAKE_PREFIX_PATH="'$pkg_mpath'"'
+        local env_cflags=$(echo $pkg_cflags | bldr_split_str ":" | bldr_join_str ";")
+        local env_c_mpath=$(echo $env_cflags | sed 's/\-I//g')
+        env_c_mpath=$(echo $env_c_mpath | sed 's/\/include;/;/g')
+        
+        local env_split_cflags=$(echo $pkg_cflags | bldr_split_str ":" | bldr_join_str " ")
+        env_flags="$env_flags -DCMAKE_C_FLAGS='$env_split_cflags'"
+        env_flags="$env_flags -DCMAKE_CXX_FLAGS='$env_split_cflags'"
+        env_mpath="$env_c_mpath;$env_mpath"
     else
         pkg_cflags=""
     fi
@@ -1504,25 +1562,22 @@ function bldr_cmake_pkg()
     pkg_ldflags=$(bldr_trim_list_str "$pkg_ldflags")
     if [ "$pkg_ldflags" != "" ] && [ "$pkg_ldflags" != " " ] && [ "$pkg_ldflags" != ":" ]
     then
-        pkg_env=$(echo $pkg_ldflags | bldr_split_str ":" | bldr_join_str " ")
-        env_flags=$env_flags' '$pkg_env
+        local env_ldflags=$(echo $pkg_ldflags | bldr_split_str ":" | bldr_join_str ";")
+        local env_ld_mpath=$(echo $env_ldflags | sed 's/\-L//g')
+        env_ld_mpath=$(echo $env_ld_mpath | sed 's/\/lib;/;/g')
+        env_ld_mpath=$(echo $env_ld_mpath | sed 's/\/lib32;/;/g')
+        env_ld_mpath=$(echo $env_ld_mpath | sed 's/\/lib64;/;/g')
+        local env_split_ldflags=$(echo $pkg_ldflags | bldr_split_str ":" | bldr_join_str " ")
+        env_flags="$env_flags -DCMAKE_EXE_LINKER_FLAGS='$env_split_ldflags'"
+        env_flags="$env_flags -DCMAKE_MODULE_LINKER_FLAGS='$env_split_ldflags'"
+        env_mpath="$env_ld_mpath;$env_mpath"
     else
         pkg_ldflags=""
     fi
 
-    env_flags="$env_flags $pkg_cfg"
+    env_flags="-DCMAKE_PREFIX_PATH=\"$env_mpath\" $env_flags $pkg_cfg"
 
-    local cmake_src_path=".."
-    local src_paths=".. ../src ../source"
-    for path in ${src_paths}
-    do
-        if [ -f "$path/CMakeLists.txt" ] 
-        then
-            cmake_src_path="$path"
-            break
-        fi
-    done
-
+    local cmake_src_path="$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$cfg_path"
     bldr_log_status "Configuring package '$pkg_name/$pkg_vers' from source folder '$cmake_src_path' ..."
     bldr_log_split
 

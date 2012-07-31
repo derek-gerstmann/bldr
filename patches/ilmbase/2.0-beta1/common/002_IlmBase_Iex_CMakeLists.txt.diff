@@ -1,0 +1,24 @@
+--- ./cache/openexr-openexr-d847d1e/IlmBase/Iex/CMakeLists.txt	2012-07-26 11:36:12.000000000 +0800
++++ 002_IlmBase_Iex_CMakeLists.txt	2012-07-31 14:30:55.000000000 +0800
+@@ -12,12 +12,18 @@
+ )
+ 
+ INSTALL ( FILES 
++  Iex.h
+   IexBaseExc.h
+-  IexMathExc.h
+-  IexThrowErrnoExc.h
+   IexErrnoExc.h
++  IexExport.h
++  IexForward.h
+   IexMacros.h
+-  Iex.h
++  IexMathExc.h
++  ../IexMath/IexMathFloatExc.h
++  ../IexMath/IexMathFpu.h
++  ../IexMath/IexMathIeeeExc.h
++  IexNamespace.h
++  IexThrowErrnoExc.h
+   DESTINATION
+   include/OpenEXR
+ )

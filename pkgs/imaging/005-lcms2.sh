@@ -33,8 +33,8 @@ pkg_urls="http://sourceforge.net/projects/lcms/files/lcms/2.3/$pkg_file?download
 pkg_opts="configure"
 pkg_uses="m4/latest autoconf/latest automake/latest"
 pkg_reqs="zlib/latest"
-pkg_cflags="-I$BLDR_LOCAL_PATH/system/zlib/latest/include"
-pkg_ldflags="-L$BLDR_LOCAL_PATH/system/zlib/latest/lib"
+pkg_cflags="-I$BLDR_LOCAL_PATH/internal/zlib/latest/include"
+pkg_ldflags="-L$BLDR_LOCAL_PATH/internal/zlib/latest/lib"
 pkg_cfg=""
 
 ####################################################################################################

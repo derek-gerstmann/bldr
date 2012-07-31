@@ -14,9 +14,10 @@ pkg_ctry="typography"
 pkg_name="lcdf"
 pkg_vers="2.92"
 
-pkg_info="The LCDF Typetools package contains several command-line programs for manipulating PostScript Type 1 and PostScript-flavored OpenType fonts."
+pkg_info="The LCDF Typetools package offers tools for manipulating PostScript-flavored fonts."
 
-pkg_desc="The LCDF Typetools package contains several command-line programs for manipulating PostScript Type 1 and PostScript-flavored OpenType fonts."
+pkg_desc="The LCDF Typetools package contains several command-line programs for 
+manipulating PostScript Type 1 and PostScript-flavored OpenType fonts."
 
 pkg_file="lcdf-typetools-2.92.tar.gz"
 pkg_urls="http://www.lcdf.org/type/$pkg_file"
