@@ -29,7 +29,7 @@ The Parallel-HDF5 technology suite includes:
 pkg_file="hdf5-$pkg_vers.tar.gz"
 pkg_urls="http://www.hdfgroup.org/ftp/HDF5/releases/$pkg_name-$pkg_vers/src/$pkg_file"
 pkg_opts="cmake"
-pkg_reqs="szip/latest zlib/latest openmpi/latest"
+pkg_reqs="szip/latest zlib/latest"
 pkg_uses="m4/latest autoconf/latest automake/latest"
 pkg_cflags=""
 pkg_ldflags=""
@@ -38,7 +38,19 @@ pkg_cfg=""
 pkg_cfg="$pkg_cfg:-DMAKESTATIC=1"
 pkg_cfg="$pkg_cfg:-DLINKSTATIC=1"
 pkg_cfg="$pkg_cfg:-DHDF5_ENABLE_PARALLEL=ON"
-pkg_cfg="$pkg_cfg:-DMPI_INCLUDE_PATH=$BLDR_LOCAL_PATH/cluster/openmpi/latest/include"
+
+if [ "$BLDR_SYSTEM_IS_OSX" -eq 1 ]
+then
+    pkg_reqs="$pkg_reqs openmpi/latest"     
+    pkg_cflags="-I$BLDR_LOCAL_PATH/cluster/openmpi/latest/include"
+    pkg_ldflags="-L$BLDR_LOCAL_PATH/cluster/openmpi/latest/lib"
+    pkg_cfg="$pkg_cfg:-DMPI_INCLUDE_PATH=$BLDR_LOCAL_PATH/cluster/openmpi/latest/include"
+else
+    pkg_reqs="$pkg_reqs openmpi/1.6"     
+    pkg_cflags="-I/opt/openmpi/1.6/include"
+    pkg_ldflags="-L/opt/openmpi/1.6/lib"
+    pkg_cfg="$pkg_cfg:-DMPI_INCLUDE_PATH=/opt/openmpi/1.6/include"
+fi
 
 pkg_cfg="$pkg_cfg:-DSZIP_INCLUDE_DIR=$BLDR_LOCAL_PATH/storage/szip/latest/include"
 pkg_cfg="$pkg_cfg:-DSZIP_LIBRARY=$BLDR_LOCAL_PATH/system/szip/latest/lib/libsz.a"

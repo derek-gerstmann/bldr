@@ -1173,7 +1173,12 @@ function bldr_fetch_pkg()
 
     if [ -f "$pkg_file" ]
     then
-        local filesize=$(stat -f %z "$pkg_file")
+        if [ $BLDR_SYSTEM_IS_OSX -eq 1 ]
+        then
+            local filesize=$(stat -f %z "$pkg_file")
+        else
+            local filesize=$(stat -c %s "$pkg_file") 
+        fi
         if [[ $filesize -lt 4096 ]]; then
             bldr_log_info "Existing package file in cache appears truncated ($filesize < 4096 bytes!).  Retrieving '$pkg_name/$pkg_vers' again ..."
             bldr_log_split

@@ -18,8 +18,8 @@ pkg_info="FreeGlut is an Open Source alternative to the OpenGL Utility Toolkit (
 
 pkg_desc="FreeGlut is an Open Source alternative to the OpenGL Utility Toolkit (GLUT) library"
 
-pkg_file="$pkg_name-$pkg_vers.tgz"
-pkg_urls="http://prdownloads.sourceforge.netglew/files/$pkg_name/$pkg_file?download"
+pkg_file="$pkg_name-$pkg_vers.tar.gz"
+pkg_urls="http://prdownloads.sourceforge.net/$pkg_name/$pkg_file?download"
 pkg_opts="configure"
 pkg_uses="m4/latest autoconf/latest automake/latest"
 pkg_reqs=""

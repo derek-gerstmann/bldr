@@ -31,8 +31,8 @@ pkg_urls="http://mirror.overthewire.com.au/pub/apache/$pkg_name/$pkg_name-$pkg_v
 pkg_opts="cmake"
 pkg_reqs="zlib/latest boost/latest"
 pkg_uses="m4/latest autoconf/latest automake/latest $pkg_reqs"
-pkg_cflags=""
-pkg_ldflags=""
+pkg_cflags="-I$BLDR_LOCAL_PATH/developer/boost/latest/include"
+pkg_ldflags="-L$BLDR_LOCAL_PATH/developer/boost/latest/lib:-lboost_program_options"
 
 pkg_cfg="-DMAKESTATIC=1:-DLINKSTATIC=1"
 pkg_cfg="$pkg_cfg:-DZLIB_INCLUDE_DIR=$BLDR_LOCAL_PATH/internal/zlib/latest/include"

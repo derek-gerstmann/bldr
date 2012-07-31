@@ -50,7 +50,7 @@ then
      pkg_ldflags="$pkg_ldflags:-L/usr/local/lib:-L/usr/lib:-lintl"
 else
      pkg_reqs="$pkg_reqs libiconv/latest"
-     pkg_cfg="$pkg_cfg --with-libiconv-prefix=$BLDR_LOCAL_PATH/internal/libiconv/latest"
+     pkg_cfg="$pkg_cfg --with-libiconv=gnu --with-libiconv-prefix=$BLDR_LOCAL_PATH/internal/libiconv/latest"
      pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/internal/libiconv/latest/include"
      pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/internal/libiconv/latest/lib"
 fi

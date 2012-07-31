@@ -26,7 +26,7 @@ can transparently change how they process the data."
 pkg_file="$pkg_name-$pkg_vers.tar.gz"
 pkg_urls="http://users.nccs.gov/~pnorbert/$pkg_file"
 pkg_opts="configure"
-pkg_reqs="szip/latest zlib/latest mxml/latest phdf5/latest pnetcdf/latest openmpi/latest"
+pkg_reqs="szip/latest zlib/latest mxml/latest phdf5/latest pnetcdf/latest"
 pkg_uses="m4/latest autoconf/latest automake/latest"
 
 pkg_cflags=""
@@ -36,13 +36,15 @@ pkg_ldflags=""
 
 pkg_cfg="--disable-fortran"
 pkg_cfg="$pkg_cfg --with-mxml=$BLDR_LOCAL_PATH/developer/mxml/latest"
-if [ "$BLDR_SYSTEM_IS_OSX" -eq 0 ]
-then
-     pkg_cfg="$pkg_cfg --with-infinband=$BLDR_LOCAL_PATH/network/ofed/latest"
-fi
 
-pkg_cflags="-I$BLDR_LOCAL_PATH/cluster/openmpi/latest/include"
-pkg_ldflags="-L$BLDR_LOCAL_PATH/cluster/openmpi/latest/lib"
+if [ "$BLDR_SYSTEM_IS_OSX" -eq 1 ]
+then
+     pkg_reqs="$pkg_reqs openmpi/latest"     
+     pkg_cflags="-I$BLDR_LOCAL_PATH/cluster/openmpi/latest/include"
+     pkg_ldflags="-L$BLDR_LOCAL_PATH/cluster/openmpi/latest/lib"
+else
+#     pkg_cfg="$pkg_cfg --with-infinband=$BLDR_LOCAL_PATH/network/ofed/latest"
+fi
 
 pkg_cflags="$pkg_cflags -I$BLDR_LOCAL_PATH/storage/phdf5/latest/include"
 pkg_ldflags="$pkg_ldflags -L$BLDR_LOCAL_PATH/storage/phdf5/latest/lib"
