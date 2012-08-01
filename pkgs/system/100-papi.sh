@@ -30,12 +30,18 @@ in high performance computing."
 
 pkg_file="$pkg_name-$pkg_vers.tar.gz"
 pkg_urls="http://icl.cs.utk.edu/projects/papi/downloads/$pkg_file"
-pkg_opts="configure"
+pkg_opts="configure force-serial-build"
 pkg_uses="m4/latest autoconf/latest automake/latest libtool/latest"
 pkg_reqs=""
 pkg_cflags=""
 pkg_ldflags=""
 pkg_cfg=""
+pkg_cfg_path="src"
+
+if [ $BLDR_SYSTEM_IS_OSX -eq 1 ]
+then
+     pkg_cfg="$pkg_cfg --with-OS=darwin"
+fi
 
 ####################################################################################################
 # build and install pkg as local module
@@ -54,5 +60,5 @@ bldr_build_pkg --category    "$pkg_ctry"    \
                --cflags      "$pkg_cflags"  \
                --ldflags     "$pkg_ldflags" \
                --config      "$pkg_cfg"     \
-               --config-path "src"
+               --config-path "$pkg_cfg_path"
 

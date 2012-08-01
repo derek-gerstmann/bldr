@@ -32,7 +32,7 @@ into metamodules that will load an entire suite of different applications."
 
 pkg_file="$pkg_name-$pkg_vers.tar.gz"
 pkg_urls="http://aarnet.dl.sourceforge.net/project/modules/Modules/modules-3.2.9/$pkg_file"
-pkg_opts="configure force-static"
+pkg_opts="configure force-static skip-modulate"
 pkg_uses="m4/latest autoconf/latest automake/latest libtool/latest tcl/latest"
 pkg_reqs="tcl/latest"
 pkg_cflags=""

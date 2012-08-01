@@ -33,11 +33,8 @@ pkg_cfg="--enable-static --enable-shared"
 pkg_cflags="-I$BLDR_LOCAL_PATH/internal/zlib/latest/include"
 pkg_ldflags="-L$BLDR_LOCAL_PATH/internal/zlib/latest/lib"
 
-if [ $BLDR_SYSTEM_IS_OSX -eq 1 ]
+if [ $BLDR_SYSTEM_IS_OSX -eq 0 ]
 then
-     pkg_cflags="$pkg_cflags:-I/usr/local/include:-I/usr/include"
-     pkg_ldflags="$pkg_ldflags:-L/usr/local/lib:-L/usr/lib:-lintl"
-else
      pkg_reqs="$pkg_reqs libiconv/latest"
      pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/internal/libiconv/latest/include"
      pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/internal/libiconv/latest/lib"

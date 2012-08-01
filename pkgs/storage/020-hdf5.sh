@@ -30,31 +30,28 @@ The HDF5 technology suite includes:
 
 pkg_file="hdf5-$pkg_vers.tar.gz"
 pkg_urls="http://www.hdfgroup.org/ftp/HDF5/releases/$pkg_name-$pkg_vers/src/$pkg_file"
-pkg_opts="cmake"
+pkg_opts="configure"
 pkg_reqs="szip/latest zlib/latest"
 pkg_uses="m4/latest autoconf/latest automake/latest"
-pkg_cflags=""
-pkg_ldflags=""
+
+pkg_cflags="-I$BLDR_LOCAL_PATH/internal/zlib/latest/include"
+pkg_ldflags="-L$BLDR_LOCAL_PATH/internal/zlib/latest/lib"
+
+pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/storage/szip/latest/include"
+pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/storage/szip/latest/lib"
 
 pkg_cfg=""
-pkg_cfg="$pkg_cfg:-DMAKESTATIC=1"
-pkg_cfg="$pkg_cfg:-DLINKSTATIC=1"
-pkg_cfg="$pkg_cfg:-DSZIP_INCLUDE_DIR=$BLDR_LOCAL_PATH/storage/szip/latest/include"
-pkg_cfg="$pkg_cfg:-DSZIP_LIBRARY=$BLDR_LOCAL_PATH/system/szip/latest/lib/libsz.a"
+pkg_cfg="$pkg_cfg --enable-hl"
+pkg_cfg="$pkg_cfg --enable-static-exec"
+pkg_cfg="$pkg_cfg --enable-filters=all"
+if [ $BLDR_SYSTEM_IS_OSX -eq 0 ]
+then
+    pkg_cfg="$pkg_cfg --enable-fortran"
+    pkg_cfg="$pkg_cfg --enable-linux-lfs"
+fi
+pkg_cfg="$pkg_cfg --with-szlib=$BLDR_LOCAL_PATH/system/szip/latest"
+pkg_cfg="$pkg_cfg --with-zlib=$BLDR_LOCAL_PATH/internal/zlib/latest"
 
-pkg_cfg="$pkg_cfg:-DZLIB_INCLUDE_DIR=$BLDR_LOCAL_PATH/internal/zlib/latest/include"
-pkg_cfg="$pkg_cfg:-DZLIB_LIBRARY=$BLDR_LOCAL_PATH/internal/zlib/latest/lib/libz.a"
-
-pkg_cfg="$pkg_cfg:-DHDF5_ENABLE_ZLIB=ON"
-pkg_cfg="$pkg_cfg:-DHDF5_ENABLE_Z_LIB_SUPPORT=ON"
-pkg_cfg="$pkg_cfg:-DHDF5_ENABLE_ZLIB_SUPPORT=ON"
-pkg_cfg="$pkg_cfg:-DHDF5_ENABLE_SZIP_SUPPORT=ON"
-pkg_cfg="$pkg_cfg:-DHDF5_BUILD_HL_LIB=ON"
-pkg_cfg="$pkg_cfg:-DHDF5_DISABLE_COMPILER_WARNINGS=ON"
-pkg_cfg="$pkg_cfg:-DHDF5_DISABLE_COMPILER_WARNINGS=ON"
-pkg_cfg="$pkg_cfg -DCMAKE_CXX_FLAGS='-I$BLDR_LOCAL_PATH/storage/szip/latest/include -I$BLDR_LOCAL_PATH/storage/szip/latest/src'"
-pkg_cfg="$pkg_cfg -DCMAKE_CPP_FLAGS='-I$BLDR_LOCAL_PATH/storage/szip/latest/include -I$BLDR_LOCAL_PATH/storage/szip/latest/src'"
-pkg_cfg="$pkg_cfg -DCMAKE_C_FLAGS='-I$BLDR_LOCAL_PATH/storage/szip/latest/include -I$BLDR_LOCAL_PATH/storage/szip/latest/src'"
 hdf5_cfg="$pkg_cfg"
 
 ####################################################################################################
@@ -161,7 +158,7 @@ do
     # hdf5 - standard
     #
     pkg_name="hdf5"
-    pkg_cfg="$hdf5_cfg:-DHDF5_BUILD_CPP_LIB=ON"
+    pkg_cfg="$hdf5_cfg --enable-cxx"
 
     bldr_build_pkg --category    "$pkg_ctry"    \
                    --name        "$pkg_name"    \
@@ -183,7 +180,8 @@ do
     if [[ $(echo $pkg_vers | grep -m1 -c '^1.8' ) > 0 ]]; then
 
         pkg_name="hdf5-16"
-        pkg_cfg="$hdf5_cfg:-DHDF5_BUILD_CPP_LIB=ON:-DH5_USE_16_API=ON"
+        pkg_cfg="$hdf5_cfg --enable-cxx"
+        pkg_cfg="$hdf5_cfg --with-default-api-version=v16"
 
         bldr_build_pkg --category    "$pkg_ctry"    \
                        --name        "$pkg_name"    \
@@ -205,7 +203,7 @@ do
     # hdf5 - threadsafe (re-entrant methods wrapped in mutex locks) 
     #
     pkg_name="hdf5-threadsafe"
-    pkg_cfg="$hdf5_cfg:-DHDF5_ENABLE_THREADSAFE=ON"
+    pkg_cfg="$hdf5_cfg --enable-threadsafe"
 
     bldr_build_pkg --category    "$pkg_ctry"    \
                    --name        "$pkg_name"    \
@@ -227,7 +225,8 @@ do
     if [[ $(echo $pkg_vers | grep -m1 -c '^1.8' ) > 0 ]]; then
 
         pkg_name="hdf5-threadsafe-16"
-        pkg_cfg="$hdf5_cfg:-DHDF5_ENABLE_THREADSAFE=ON:-DH5_USE_16_API=ON"
+        pkg_cfg="$hdf5_cfg --enable-threadsafe"
+        pkg_cfg="$hdf5_cfg --with-default-api-version=v16"
 
         bldr_build_pkg --category    "$pkg_ctry"    \
                        --name        "$pkg_name"    \

@@ -28,49 +28,43 @@ The Parallel-HDF5 technology suite includes:
 * A rich set of integrated performance features that allow for access time and storage space optimizations.
 * Tools and applications for managing, manipulating, viewing, and analyzing the data in the collection."
 
+
 pkg_file="hdf5-$pkg_vers.tar.gz"
 pkg_urls="http://www.hdfgroup.org/ftp/HDF5/releases/$pkg_name-$pkg_vers/src/$pkg_file"
-pkg_opts="cmake"
+pkg_opts="configure"
 pkg_reqs="szip/latest zlib/latest"
 pkg_uses="m4/latest autoconf/latest automake/latest"
-pkg_cflags=""
-pkg_ldflags=""
 
-pkg_cfg=""
-pkg_cfg="$pkg_cfg:-DMAKESTATIC=1"
-pkg_cfg="$pkg_cfg:-DLINKSTATIC=1"
-pkg_cfg="$pkg_cfg:-DHDF5_ENABLE_PARALLEL=ON"
+pkg_cflags="-I$BLDR_LOCAL_PATH/internal/zlib/latest/include"
+pkg_ldflags="-L$BLDR_LOCAL_PATH/internal/zlib/latest/lib"
+
+pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/storage/szip/latest/include"
+pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/storage/szip/latest/lib"
+
+pkg_cfg="--enable-parallel"
+pkg_cfg="$pkg_cfg --enable-hl"
+pkg_cfg="$pkg_cfg --enable-cxx"
+pkg_cfg="$pkg_cfg --enable-static-exec"
+pkg_cfg="$pkg_cfg --enable-filters=all"
+if [ $BLDR_SYSTEM_IS_OSX -eq 0 ]
+then
+    pkg_cfg="$pkg_cfg --enable-fortran"
+    pkg_cfg="$pkg_cfg --enable-linux-lfs"
+fi
+pkg_cfg="$pkg_cfg --with-szlib=$BLDR_LOCAL_PATH/system/szip/latest"
+pkg_cfg="$pkg_cfg --with-zlib=$BLDR_LOCAL_PATH/internal/zlib/latest"
 
 if [ "$BLDR_SYSTEM_IS_OSX" -eq 1 ]
 then
     pkg_reqs="$pkg_reqs openmpi/latest"     
-    pkg_cflags="-I$BLDR_LOCAL_PATH/cluster/openmpi/latest/include"
-    pkg_ldflags="-L$BLDR_LOCAL_PATH/cluster/openmpi/latest/lib"
-    pkg_cfg="$pkg_cfg:-DMPI_INCLUDE_PATH=$BLDR_LOCAL_PATH/cluster/openmpi/latest/include"
+    pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/cluster/openmpi/latest/include"
+    pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/cluster/openmpi/latest/lib"
 else
     pkg_reqs="$pkg_reqs openmpi/1.6"     
-    pkg_cflags="-I/opt/openmpi/1.6/include"
-    pkg_ldflags="-L/opt/openmpi/1.6/lib"
-    pkg_cfg="$pkg_cfg:-DMPI_INCLUDE_PATH=/opt/openmpi/1.6/include"
+    pkg_cflags="$pkg_cflags:-I/opt/openmpi/1.6/include"
+    pkg_ldflags="$pkg_ldflags:-L/opt/openmpi/1.6/lib"
 fi
 
-pkg_cfg="$pkg_cfg:-DSZIP_INCLUDE_DIR=$BLDR_LOCAL_PATH/storage/szip/latest/include"
-pkg_cfg="$pkg_cfg:-DSZIP_LIBRARY=$BLDR_LOCAL_PATH/system/szip/latest/lib/libsz.a"
-
-pkg_cfg="$pkg_cfg:-DZLIB_INCLUDE_DIR=$BLDR_LOCAL_PATH/internal/zlib/latest/include"
-pkg_cfg="$pkg_cfg:-DZLIB_LIBRARY=$BLDR_LOCAL_PATH/internal/zlib/latest/lib/libz.a"
-
-pkg_cfg="$pkg_cfg:-DHDF5_ENABLE_ZLIB=ON"
-pkg_cfg="$pkg_cfg:-DHDF5_ENABLE_Z_LIB_SUPPORT=ON"
-pkg_cfg="$pkg_cfg:-DHDF5_ENABLE_ZLIB_SUPPORT=ON"
-pkg_cfg="$pkg_cfg:-DHDF5_ENABLE_SZIP_SUPPORT=ON"
-pkg_cfg="$pkg_cfg:-DHDF5_BUILD_HL_LIB=ON"
-pkg_cfg="$pkg_cfg:-DHDF5_BUILD_CPP_LIB=ON"
-pkg_cfg="$pkg_cfg:-DHDF5_DISABLE_COMPILER_WARNINGS=ON"
-pkg_cfg="$pkg_cfg:-DHDF5_DISABLE_COMPILER_WARNINGS=ON"
-pkg_cfg="$pkg_cfg -DCMAKE_CXX_FLAGS='-I$BLDR_LOCAL_PATH/storage/szip/latest/include -I$BLDR_LOCAL_PATH/storage/szip/latest/src'"
-pkg_cfg="$pkg_cfg -DCMAKE_CPP_FLAGS='-I$BLDR_LOCAL_PATH/storage/szip/latest/include -I$BLDR_LOCAL_PATH/storage/szip/latest/src'"
-pkg_cfg="$pkg_cfg -DCMAKE_C_FLAGS='-I$BLDR_LOCAL_PATH/storage/szip/latest/include -I$BLDR_LOCAL_PATH/storage/szip/latest/src'"
 hdf5_cfg="$pkg_cfg"
 
 ####################################################################################################
@@ -198,7 +192,7 @@ do
     if [[ $(echo $pkg_vers | grep -m1 -c '^1.8' ) > 0 ]]; then
 
         pkg_name="phdf5-16"
-        pkg_cfg="$hdf5_cfg:-DH5_USE_16_API=ON"
+        pkg_cfg="$hdf5_cfg --with-default-api-version=v16"
 
         bldr_build_pkg --category    "$pkg_ctry"    \
                        --name        "$pkg_name"    \

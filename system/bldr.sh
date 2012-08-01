@@ -450,7 +450,7 @@ function bldr_load_modules()
                 then
                     bldr_log_info "Using internal module: '$internal_base'"
                 fi
-                module add $internal_base
+                module -f add $internal_base
             done
         fi
         
@@ -499,15 +499,17 @@ function bldr_locate_makefile
     local make_path="."
     local given=$(bldr_trim_str "$1")
     local mk_paths=$(bldr_trim_str "$given . ./build ../build .. ../src ../source")
+    local tst_path=""
+
     if [ -f "CMakeLists.txt" ] && [ -f "build/Makefile" ]
     then
         make_path="build"
     else
-        for path in ${mk_paths}
+        for tst_path in ${mk_paths}
         do
-            if [ -f "$path/Makefile" ]
+            if [ -f "$tst_path/Makefile" ]
             then
-                make_path="$path"
+                make_path="$tst_path"
                 break
             fi
         done
@@ -517,20 +519,28 @@ function bldr_locate_makefile
 
 function bldr_locate_boot_script
 {
-    local found_path=""
+    local found_path="."
     local given=$(bldr_trim_str "$1")
     local cfg_paths=$(bldr_trim_str "$given . build source src ../build ../source ../src")
     local cfg_files="bootstrap bootstrap.sh autogen.sh"
-    for path in ${cfg_paths}
+
+    local tst_path=""
+    local tst_file=""
+
+    for tst_path in ${cfg_paths}
     do
-        for file in ${cfg_files}
+        for tst_file in ${cfg_files}
         do
-            if [ -f "$path/$file" ]
+            if [ -f "$tst_path/$tst_file" ]
             then
-                found_path="$path/$file"
+                found_path="$tst_path/$tst_file"
                 break
             fi
         done
+        if [ $found_path != "." ]
+        then
+            break
+        fi
     done
     echo "$found_path"
 }
@@ -545,49 +555,70 @@ function bldr_locate_boot_path
 
 function bldr_locate_config_script
 {
+    local cfg_srch=$(bldr_trim_str "$1")
+    local cfg_opts=$2
+    local cfg_paths=$(bldr_trim_str "$cfg_srch . source src build .. ../build ../source ../src")
     local found_path="."
-    local given=$(bldr_trim_str "$1")
-    local cfg_paths=$(bldr_trim_str "$given . source src build ../build ../source ../src")
-    local cfg_files="configure configure.sh bootstrap bootstrap.sh autogen.sh CMakeLists.txt"
 
-    if [ -f "CMakeLists.txt" ]
+    local cmake_files="CMakeLists.txt"
+    local autocfg_files="configure configure.sh bootstrap bootstrap.sh autogen.sh"
+
+    local use_cmake=false
+    local use_autocfg=true
+
+    if [[ $(echo $cfg_opts | grep -m1 -c 'cmake' ) > 0 ]]
     then
-        found_path="./CMakeLists.txt"
-    elif [ -f "configure" ]
+        use_cmake=true
+        use_autocfg=false
+    
+    elif [[ $(echo $cfg_opts | grep -m1 -c 'configure' ) > 0 ]]
     then
-        found_path="./configure"
-    elif [ -f "configure.sh" ]
-    then
-        found_path="./configure.sh"
-    else
-        for path in ${cfg_paths}
-        do
-            for file in ${cfg_files}
+        use_cmake=false
+        use_autocfg=true
+    fi
+
+    local tst_path=""
+    local cmake_tst_file=""
+    local autocfg_tst_file=""
+    for tst_path in ${cfg_paths}
+    do
+        if [ $use_autocfg == true ]
+        then
+            for autocfg_tst_file in ${autocfg_files}
             do
-                if [ -f "$path/$file" ]
+                if [ -f "$tst_path/$autocfg_tst_file" ]
                 then
-                    found_path="$path/$file"
+                    found_path="$tst_path/$autocfg_tst_file"
                     break
                 fi
             done
-        done
-    fi
+
+        elif [ $use_cmake == true ]
+        then
+            for cmake_tst_file in ${cmake_files}
+            do
+                if [ -f "$tst_path/$cmake_tst_file" ]
+                then
+                    found_path="$tst_path/$cmake_tst_file"
+                    break
+                fi
+            done
+        fi
+
+        if [ $found_path != "." ]
+        then
+            break
+        fi
+    done
+
     echo "$found_path"
 }
 
 function bldr_locate_config_path
 {
-    local given=$(bldr_trim_str "$1")
-    local found_path="."
-    
-    if [ -f "CMakeLists.txt" ] || [ -f "configure" ] || [ -f "configure.sh" ]
-    then
-        found_path="."
-    else
-        local script=$(bldr_locate_config_script "$given")
-        found_path=$(dirname "$script")
-    fi
-    
+    local srch=$(bldr_trim_str "$1")
+    local script=$(bldr_locate_config_script "$srch" "$2")
+    local found_path=$(dirname "$script")
     echo "$found_path"
 }
 
@@ -1037,38 +1068,45 @@ function bldr_has_pkg()
     done
 
     local existing="false"
+    local found=""
     if [ -d "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers" ]
     then
         existing="true"
-        for pkg_spec in "$BLDR_PKGS_PATH/$pkg_ctry"/*
+        local pkg_mtime=0
+        local bld_mtime=0
+        for found in $BLDR_PKGS_PATH/$pkg_ctry/*
         do
-            local m=$(echo "$pkg_spec" | grep -m1 -c "$pkg_name")
-            if [ "$m" == "0" ]
-            then
+            if [[ $(echo $found | grep -m1 -c 'pkg_name' ) < 1 ]]; then
                 continue
             fi
 
             if [ "$BLDR_SYSTEM_IS_OSX" -eq 1 ]
             then
-                local pkg_mtime=$(stat -f '%m' "$pkg_spec")
-                local bld_mtime=$(stat -f '%m' "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers")
+                if [[ $(echo $BLDR_LOADED_MODULES | grep -m1 -c 'coreutils' ) > 0 ]]; then
+                    pkg_mtime=$(stat --printf '%Y\n' $found )
+                    bld_mtime=$(stat --printf '%Y\n' $BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers )
+                else
+                    pkg_mtime=$(stat -f %m $found )
+                    bld_mtime=$(stat -f %m $BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers )
+                fi
             else
-                local pkg_mtime=$(stat --printf '%Y\n' "$pkg_spec")
-                local bld_mtime=$(stat --printf '%Y\n' "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers")
+                pkg_mtime=$(stat --printf '%Y\n' "$found" )
+                bld_mtime=$(stat --printf '%Y\n' "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers" )
             fi
 
-            if [ $pkg_mtime -gt $bld_mtime ]
+            if [[ $pkg_mtime -gt $bld_mtime ]]
             then
                 existing="false"
                 break
             else
                 existing="true"
                 break
-            fi
+            fi             
         done
     fi
 
     echo "$existing"
+    
 #    echo "Tested: $pkg_spec -nt $BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
 }
 
@@ -1208,25 +1246,22 @@ function bldr_fetch_pkg()
         bldr_make_dir "$BLDR_CACHE_PATH"
         bldr_log_split
     fi
-    bldr_push_dir "$BLDR_CACHE_PATH"
 
-    if [ -f "$pkg_file" ]
+    local filesize=0
+    if [ -e "$BLDR_CACHE_PATH/$pkg_file" ]
     then
-        if [ $BLDR_SYSTEM_IS_OSX -eq 1 ]
+        local archive_test=$(bldr_list_archive "$BLDR_CACHE_PATH/$pkg_file" )
+        if [[ $(echo "$archive_test" | grep -m1 -c 'error') == 1 ]]
         then
-            local filesize=$(stat -f %z "$pkg_file")
-        else
-            local filesize=$(stat -c %s "$pkg_file") 
-        fi
-        if [[ $filesize -lt 4096 ]]; then
-            bldr_log_info "Existing package file in cache appears truncated ($filesize < 4096 bytes!).  Retrieving '$pkg_name/$pkg_vers' again ..."
+            bldr_log_info "Existing package file in cache appears invalid ($filesize < 4096 bytes!).  Retrieving '$pkg_name/$pkg_vers' again ..."
             bldr_log_split
-            bldr_remove_file "$pkg_file"
+            bldr_remove_file "$BLDR_CACHE_PATH/$pkg_file"
         fi
     fi
 
     # if a local copy doesn't exist, grab the pkg from the url
-    if [ ! -f "$pkg_file" ]
+    bldr_push_dir "$BLDR_CACHE_PATH"
+    if [ ! -e "$BLDR_CACHE_PATH/$pkg_file" ]
     then
         local pkg_url_list=$(echo $pkg_urls | bldr_split_str ';')
         for url in ${pkg_url_list}
@@ -1375,7 +1410,7 @@ function bldr_boot_pkg()
     fi
 
     bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
-    local cfg_path=$(bldr_locate_config_path $pkg_cfg_path)
+    local cfg_path=$(bldr_locate_config_path $pkg_cfg_path $pkg_opts)
     bldr_pop_dir
 
     bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
@@ -1455,7 +1490,7 @@ function bldr_boot_pkg()
         do
             if [[ $(echo $BLDR_LOADED_MODULES | grep -m1 -c '$using' ) > 0 ]]; then
                 bldr_log_info "Loading module '$using' ..."
-                module load $using
+                module -f load $using
                 BLDR_LOADED_MODULES="$BLDR_LOADED_MODULES:$using"
             fi
         done
@@ -1493,19 +1528,37 @@ function bldr_boot_pkg()
     then
         bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$boot_path"
         local boot_cmd=$(bldr_locate_boot_script $pkg_cfg_path)
+        local output=$(bldr_get_stdout)
 
-        if [ -x "$boot_cmd" ]
+        if [ -x "$boot_cmd" ] && [ "$boot_cmd" != "." ]
         then
-            local output=$(bldr_get_stdout)
-            bldr_log_cmd "$boot_cmd --prefix=\"$prefix\""
-            bldr_log_split
 
-            if [ $BLDR_VERBOSE != false ]
+            if [[ $(echo $pkg_opts | grep -m1 -c 'no-bootstrap-prefix' ) > 0 ]]
             then
-                eval $boot_cmd --prefix="$prefix" || bldr_bail "Failed to boot package '$pkg_name/$pkg_vers'!"
+
+                bldr_log_cmd "$boot_cmd"
                 bldr_log_split
+
+                if [ $BLDR_VERBOSE != false ]
+                then
+                    eval $boot_cmd || bldr_bail "Failed to boot package '$pkg_name/$pkg_vers'!"
+                    bldr_log_split
+                else
+                    eval $boot_cmd &> /dev/null || bldr_bail "Failed to boot package '$pkg_name/$pkg_vers'!"
+                fi
+
             else
-                eval $boot_cmd --prefix="$prefix" &> /dev/null || bldr_bail "Failed to boot package '$pkg_name/$pkg_vers'!"
+
+                bldr_log_cmd "$boot_cmd --prefix=\"$prefix\""
+                bldr_log_split
+
+                if [ $BLDR_VERBOSE != false ]
+                then
+                    eval $boot_cmd --prefix="$prefix" || bldr_bail "Failed to boot package '$pkg_name/$pkg_vers'!"
+                    bldr_log_split
+                else
+                    eval $boot_cmd --prefix="$prefix" &> /dev/null || bldr_bail "Failed to boot package '$pkg_name/$pkg_vers'!"
+                fi
             fi
         else
             if [ $BLDR_VERBOSE != false ]
@@ -1569,7 +1622,7 @@ function bldr_cmake_pkg()
     fi
 
     bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
-    local cfg_path=$(bldr_locate_config_path $pkg_cfg_path)
+    local cfg_path=$(bldr_locate_config_path $pkg_cfg_path $pkg_opts)
     bldr_pop_dir
 
     bldr_make_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/build"
@@ -1691,6 +1744,209 @@ function bldr_cmake_pkg()
     bldr_pop_dir
 }
 
+function bldr_autocfg_pkg()
+{
+    local use_verbose="false"
+    local pkg_ctry=""
+    local pkg_name="" 
+    local pkg_vers=""
+    local pkg_info=""
+    local pkg_desc=""
+    local pkg_file=""
+    local pkg_urls=""
+    local pkg_uses=""
+    local pkg_reqs=""
+    local pkg_opts=""
+    local pkg_patches=""
+    local pkg_cflags=""
+    local pkg_ldflags=""
+    local pkg_cfg=""
+    local pkg_cfg_path=""
+
+    while true ; do
+        case "$1" in
+           --verbose)       use_verbose="$2"; shift 2;;
+           --name)          pkg_name="$2"; shift 2;;
+           --version)       pkg_vers="$2"; shift 2;;
+           --info)          pkg_info="$2"; shift 2;;
+           --description)   pkg_desc="$2"; shift 2;;
+           --category)      pkg_ctry="$2"; shift 2;;
+           --options)       pkg_opts="$2"; shift 2;;
+           --file)          pkg_file="$2"; shift 2;;
+           --config)        pkg_cfg="$pkg_cfg:$2"; shift 2;;
+           --config-path)   pkg_cfg_path="$2"; shift 2;;
+           --cflags)        pkg_cflags="$pkg_cflags:$2"; shift 2;;
+           --ldflags)       pkg_ldflags="$pkg_ldflags:$2"; shift 2;;
+           --patch)         pkg_patches="$2"; shift 2;;
+           --uses)          pkg_uses="$pkg_uses:$2"; shift 2;;
+           --requires)      pkg_reqs="$pkg_reqs:$2"; shift 2;;
+           --url)           pkg_urls="$pkg_urls;$2"; shift 2;;
+           * )              break ;;
+        esac
+    done
+
+    if [ "$use_verbose" == "true" ]
+    then
+        BLDR_VERBOSE=true
+    fi
+
+    if [[ $(echo $pkg_opts | grep -m1 -c 'skip-config' ) > 0 ]]
+    then
+        return
+    fi
+
+    local prefix="$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
+
+    bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
+    local cfg_path=$(bldr_locate_config_path $pkg_cfg_path $pkg_opts)
+    bldr_pop_dir
+
+    local env_flags=" "
+    pkg_cfg=$(bldr_trim_list_str "$pkg_cfg")
+    if [ "$pkg_cfg" != "" ] && [ "$pkg_cfg" != " " ] && [ "$pkg_cfg" != ":" ]
+    then
+        pkg_cfg=$(echo $pkg_cfg | bldr_split_str ":" | bldr_join_str " ")
+    else
+        pkg_cfg=""
+    fi
+
+    if [ "$BLDR_SYSTEM_IS_OSX" -eq 1 ]
+    then
+        if [[ $(echo $pkg_opts | grep -m1 -c 'disable-xcode-cflags' ) > 0 ]]
+        then
+            bldr_log_info "Disabling XCode Compile FLAGS ..."
+        else
+            pkg_cflags="$pkg_cflags:$BLDR_XCODE_CFLAGS"
+        fi
+
+        if [[ $(echo $pkg_opts | grep -m1 -c 'disable-xcode-ldflags' ) > 0 ]]
+        then
+            bldr_log_info "Disabling XCode Linker FLAGS ..."
+        else
+            pkg_ldflags="$pkg_ldflags:$BLDR_XCODE_LDFLAGS"
+        fi
+    fi
+
+    pkg_cflags=$(bldr_trim_list_str "$pkg_cflags")
+    if [ "$pkg_cflags" != "" ] && [ "$pkg_cflags" != " " ]  && [ "$pkg_cflags" != ":" ]
+    then
+        pkg_cflags=$(echo $pkg_cflags | bldr_split_str ":" | bldr_join_str " ")
+        if [ "$BLDR_SYSTEM_IS_CENTOS" -eq 1 ]
+        then
+            pkg_cflags="$pkg_cflags":-I/usr/include
+        fi
+    else
+        pkg_cflags=""
+    fi
+
+    local all_cxxflags=$(bldr_trim_str "$pkg_cflags $CXXFLAGS")
+    if [ "$all_cxxflags" != "" ]
+    then
+        env_flags="$env_flags CXXFLAGS=\"$all_cxxflags\""
+    fi
+
+    local all_cppflags=$(bldr_trim_str "$pkg_cflags $CPPFLAGS")
+    if [ "$all_cppflags" != "" ]
+    then
+        env_flags="$env_flags CPPFLAGS=\"$all_cppflags\""
+    fi
+
+    local all_cflags=$(bldr_trim_str "$pkg_cflags $CFLAGS")
+    if [ "$all_cflags" != "" ]
+    then
+        env_flags="$env_flags CFLAGS=\"$all_cflags\""
+    fi
+
+    pkg_ldflags=$(bldr_trim_list_str "$pkg_ldflags")
+    if [ "$pkg_ldflags" != "" ] && [ "$pkg_ldflags" != " " ] && [ "$pkg_ldflags" != ":" ]
+    then
+        pkg_ldflags=$(echo $pkg_ldflags | bldr_split_str ":" | bldr_join_str " ")
+        if [ "$BLDR_SYSTEM_IS_CENTOS" -eq 1 ]
+        then
+            pkg_ldflags="$pkg_ldflags":-L/usr/lib64:-L/usr/lib
+        fi
+
+    else
+        pkg_ldflags=""
+    fi
+
+    local all_ldflags=$(bldr_trim_str "$pkg_ldflags $LDFLAGS")
+    if [ "$all_ldflags" != "" ]
+    then
+        env_flags="$env_flags LDFLAGS=\"$all_ldflags\""
+    fi
+
+    local use_static=false
+    local use_shared=false
+
+    if [[ $(echo $pkg_opts | grep -m1 -c 'enable-shared' ) > 0 ]]
+    then
+        bldr_log_info "Adding shared library configuration ..."
+        bldr_log_split
+        pkg_cfg="$pkg_cfg --enable-shared"
+        use_shared=true
+    fi
+    
+    if [[ $(echo $pkg_opts | grep -m1 -c 'enable-static' ) > 0 ]]
+    then
+        bldr_log_info "Adding static library configuration ..."
+        bldr_log_split
+        pkg_cfg="$pkg_cfg --enable-static"
+        use_static=true
+    fi
+
+    if [[ $(echo $pkg_opts | grep -m1 -c 'force-shared' ) > 0 ]]
+    then
+        bldr_log_info "Forcing shared library configuration ..."
+        bldr_log_split
+        if [ $use_shared != true ]
+        then
+            pkg_cfg="$pkg_cfg --enable-shared --disable-static"
+        fi
+    fi
+
+    if [[ $(echo $pkg_opts | grep -m1 -c 'force-static' ) > 0 ]]
+    then
+        bldr_log_info "Forcing static library configuration ..."
+        bldr_log_split
+        if [ $use_static != true ]
+        then
+            pkg_cfg="$pkg_cfg --disable-shared --enable-static"
+        fi
+    fi
+
+    bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
+    local cfg_cmd=$(bldr_locate_config_script $pkg_cfg_path $pkg_opts)
+    local output=$(bldr_get_stdout)  
+
+    bldr_log_cmd "$cfg_cmd --prefix=\"$prefix\" $pkg_cfg $env_flags"
+    bldr_log_split
+
+    if [[ $(echo $pkg_opts | grep -m1 -c 'config-agree-to-prompt') > 0 ]]
+    then
+        if [ $BLDR_VERBOSE != false ]
+        then
+            echo "yes" | eval $cfg_cmd "--prefix=$prefix ${pkg_cfg} ${env_flags}" || bldr_bail "Failed to configure: '$prefix'"
+            bldr_log_split
+        else
+            echo "yes" | eval $cfg_cmd "--prefix=$prefix ${pkg_cfg} ${env_flags}" &>/dev/null || bldr_bail "Failed to configure: '$prefix'"
+        fi
+    else    
+        if [ $BLDR_VERBOSE != false ]
+        then
+            eval $cfg_cmd "--prefix=$prefix ${pkg_cfg} ${env_flags}" || bldr_bail "Failed to configure: '$prefix'"
+            bldr_log_split
+        else
+            eval $cfg_cmd "--prefix=$prefix ${pkg_cfg} ${env_flags}" &>/dev/null || bldr_bail "Failed to configure: '$prefix'"
+        fi
+    fi
+
+    bldr_log_info "Done configuring package '$pkg_name/$pkg_vers'"
+    bldr_log_split
+    bldr_pop_dir
+}
+
+
 function bldr_config_pkg()
 {
     local use_verbose="false"
@@ -1745,50 +2001,51 @@ function bldr_config_pkg()
     local prefix="$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
 
     bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
-    local cfg_path=$(bldr_locate_config_path $pkg_cfg_path)
+    local cfg_path=$(bldr_locate_config_path $pkg_cfg_path $pkg_opts)
     bldr_pop_dir
 
-    bldr_log_status "Configuring package '$pkg_name/$pkg_vers' ..."
+    bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
+    local cfg_cmd=$(bldr_locate_config_script $pkg_cfg_path $pkg_opts)
+    local output=$(bldr_get_stdout)  
+
+    bldr_log_status "Configuring package '$pkg_name/$pkg_vers' using '$cfg_cmd' ..."
     bldr_log_split
 
-    bldr_log_info "Moving to config path: '$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$cfg_path' ..."
-    bldr_log_split
+    local use_cmake=true
+    local has_cmake=false
 
-    bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$cfg_path"
+    local use_autocfg=false
+    local has_autocfg=false
 
-    local use_cmake=1
-    local has_cmake=0
-
-    local use_amake=0
-    local has_amake=0
-
-    if [ -f "./CMakeLists.txt" ] || [ -f "./src/CMakeLists.txt" ] || [ -f "./source/CMakeLists.txt" ]
+    if [[ $(echo $cfg_cmd | grep -m1 -c 'CMakeLists.txt' ) > 0 ]]
     then
-        has_cmake=1
+        has_cmake=true
     fi    
-
-    if [ -f "./configure" ] || [ -f "./Configure.sh" ] || [ -f "./Configure" ]
+    
+    if [[ $(echo $cfg_cmd | grep -m1 -c 'configure' ) > 0 ]]
     then
-        has_amake=1
+        has_autocfg=true
     fi
 
     if [[ $(echo $pkg_opts | grep -m1 -c 'cmake' ) > 0 ]]
     then
-        use_cmake=1
-        use_amake=0
-        has_amake=0
+        use_cmake=true
+        use_autocfg=false
+        has_autocfg=false
     fi
 
     if [[ $(echo $pkg_opts | grep -m1 -c 'configure' ) > 0 ]]
     then
         use_cmake=0
         has_cmake=0
-        use_amake=1
+        use_autocfg=1
     fi
-    bldr_pop_dir
 
-    if [ $use_cmake != 0 ] && [ $has_cmake != 0 ]
+    if [ $use_cmake == true ] && [ $has_cmake == true ]
     then
+        bldr_log_info "Using cmake for '$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$cfg_path' ..."
+        bldr_log_split
+
         bldr_cmake_pkg                    \
             --category    "$pkg_ctry"     \
             --name        "$pkg_name"     \
@@ -1805,155 +2062,29 @@ function bldr_config_pkg()
             --config-path "$pkg_cfg_path" \
             --verbose     "$use_verbose"
     else
-        use_amake=1
+        use_autocfg=true
     fi
 
-    if [ $use_amake != 0 ] && [ $has_amake != 0 ]
+    if [ $use_autocfg == true ] && [ $has_autocfg == true ]
     then
-        local env_flags=" "
-
-        pkg_cfg=$(bldr_trim_list_str "$pkg_cfg")
-        if [ "$pkg_cfg" != "" ] && [ "$pkg_cfg" != " " ] && [ "$pkg_cfg" != ":" ]
-        then
-            pkg_cfg=$(echo $pkg_cfg | bldr_split_str ":" | bldr_join_str " ")
-        else
-            pkg_cfg=""
-        fi
-
-        if [ "$BLDR_SYSTEM_IS_OSX" -eq 1 ]
-        then
-            if [[ $(echo $pkg_opts | grep -m1 -c 'disable-xcode-cflags' ) > 0 ]]
-            then
-                bldr_log_info "Disabling XCode Compile FLAGS ..."
-            else
-                pkg_cflags="$pkg_cflags:$BLDR_XCODE_CFLAGS"
-            fi
-
-            if [[ $(echo $pkg_opts | grep -m1 -c 'disable-xcode-ldflags' ) > 0 ]]
-            then
-                bldr_log_info "Disabling XCode Linker FLAGS ..."
-            else
-                pkg_ldflags="$pkg_ldflags:$BLDR_XCODE_LDFLAGS"
-            fi
-        fi
-
-        pkg_cflags=$(bldr_trim_list_str "$pkg_cflags")
-        if [ "$pkg_cflags" != "" ] && [ "$pkg_cflags" != " " ]  && [ "$pkg_cflags" != ":" ]
-        then
-            pkg_cflags=$(echo $pkg_cflags | bldr_split_str ":" | bldr_join_str " ")
-            if [ "$BLDR_SYSTEM_IS_CENTOS" -eq 1 ]
-            then
-                pkg_cflags="$pkg_cflags":-I/usr/include
-            fi
-        else
-            pkg_cflags=""
-        fi
-
-        local all_cxxflags=$(bldr_trim_str "$pkg_cflags $CXXFLAGS")
-        if [ "$all_cxxflags" != "" ]
-        then
-            env_flags="$env_flags CXXFLAGS=\"$all_cxxflags\""
-        fi
-
-        local all_cppflags=$(bldr_trim_str "$pkg_cflags $CPPFLAGS")
-        if [ "$all_cppflags" != "" ]
-        then
-            env_flags="$env_flags CPPFLAGS=\"$all_cppflags\""
-        fi
-
-        local all_cflags=$(bldr_trim_str "$pkg_cflags $CFLAGS")
-        if [ "$all_cflags" != "" ]
-        then
-            env_flags="$env_flags CFLAGS=\"$all_cflags\""
-        fi
-
-        pkg_ldflags=$(bldr_trim_list_str "$pkg_ldflags")
-        if [ "$pkg_ldflags" != "" ] && [ "$pkg_ldflags" != " " ] && [ "$pkg_ldflags" != ":" ]
-        then
-            pkg_ldflags=$(echo $pkg_ldflags | bldr_split_str ":" | bldr_join_str " ")
-            if [ "$BLDR_SYSTEM_IS_CENTOS" -eq 1 ]
-            then
-                pkg_ldflags="$pkg_ldflags":-L/usr/lib64:-L/usr/lib
-            fi
-
-        else
-            pkg_ldflags=""
-        fi
-
-        local all_ldflags=$(bldr_trim_str "$pkg_ldflags $LDFLAGS")
-        if [ "$all_ldflags" != "" ]
-        then
-            env_flags="$env_flags LDFLAGS=\"$all_ldflags\""
-        fi
-
-        local use_static=false
-        local use_shared=false
-
-        if [[ $(echo $pkg_opts | grep -m1 -c 'enable-shared' ) > 0 ]]
-        then
-            bldr_log_info "Adding shared library configuration ..."
-            bldr_log_split
-            pkg_cfg="$pkg_cfg --enable-shared"
-            use_shared=true
-        fi
-        
-        if [[ $(echo $pkg_opts | grep -m1 -c 'enable-static' ) > 0 ]]
-        then
-            bldr_log_info "Adding static library configuration ..."
-            bldr_log_split
-            pkg_cfg="$pkg_cfg --enable-static"
-            use_static=true
-        fi
-
-        if [[ $(echo $pkg_opts | grep -m1 -c 'force-shared' ) > 0 ]]
-        then
-            bldr_log_info "Forcing shared library configuration ..."
-            bldr_log_split
-            if [ $use_shared != true ]
-            then
-                pkg_cfg="$pkg_cfg --enable-shared --disable-static"
-            fi
-        fi
-
-        if [[ $(echo $pkg_opts | grep -m1 -c 'force-static' ) > 0 ]]
-        then
-            bldr_log_info "Forcing static library configuration ..."
-            bldr_log_split
-            if [ $use_static != true ]
-            then
-                pkg_cfg="$pkg_cfg --disable-shared --enable-static"
-            fi
-        fi
-
-        bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
-        local cfg_cmd=$(bldr_locate_config_script $pkg_cfg_path)
-        local output=$(bldr_get_stdout)  
-
-        bldr_log_cmd "$cfg_cmd --prefix=\"$prefix\" $pkg_cfg $env_flags"
+        bldr_log_info "Using autoconfig for '$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$cfg_path' ..."
         bldr_log_split
 
-        if [[ $(echo $pkg_opts | grep -m1 -c 'config-agree-to-prompt') > 0 ]]
-        then
-            if [ $BLDR_VERBOSE != false ]
-            then
-                echo "yes" | eval $cfg_cmd "--prefix=$prefix ${pkg_cfg} ${env_flags}" || bldr_bail "Failed to configure: '$prefix'"
-                bldr_log_split
-            else
-                echo "yes" | eval $cfg_cmd "--prefix=$prefix ${pkg_cfg} ${env_flags}" &>/dev/null || bldr_bail "Failed to configure: '$prefix'"
-            fi
-        else    
-            if [ $BLDR_VERBOSE != false ]
-            then
-                eval $cfg_cmd "--prefix=$prefix ${pkg_cfg} ${env_flags}" || bldr_bail "Failed to configure: '$prefix'"
-                bldr_log_split
-            else
-                eval $cfg_cmd "--prefix=$prefix ${pkg_cfg} ${env_flags}" &>/dev/null || bldr_bail "Failed to configure: '$prefix'"
-            fi
-        fi
-
-        bldr_log_info "Done configuring package '$pkg_name/$pkg_vers'"
-        bldr_log_split
-        bldr_pop_dir
+        bldr_autocfg_pkg                     \
+            --category    "$pkg_ctry"     \
+            --name        "$pkg_name"     \
+            --version     "$pkg_vers"     \
+            --file        "$pkg_file"     \
+            --url         "$pkg_urls"     \
+            --uses        "$pkg_uses"     \
+            --requires    "$pkg_reqs"     \
+            --options     "$pkg_opts"     \
+            --cflags      "$pkg_cflags"   \
+            --ldflags     "$pkg_ldflags"  \
+            --patch       "$pkg_patches"  \
+            --config      "$pkg_cfg"      \
+            --config-path "$pkg_cfg_path" \
+            --verbose     "$use_verbose"
     fi
 }
 
@@ -2335,13 +2466,16 @@ function bldr_migrate_pkg()
 
     bldr_log_info "Linking local '$pkg_name/$pkg_vers' as '$pkg_name/latest' ..."
     bldr_log_split
+
+    local pkg_latest=$pkg_vers
     if [ -L "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/latest" ]
     then
         bldr_remove_file "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/latest"
+        pkg_latest=$(bldr_find_latest_version_dir "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name")
     fi
 
-    local pkg_latest=$(bldr_find_latest_version_dir "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name")
-    if [[ -d $pkg_latest ]]; then
+    if [ -d "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_latest" ]
+    then
         if [ $BLDR_VERBOSE != false ]
         then
             ln -sv "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_latest" "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/latest" || bldr_bail "Failed to link latest package version to '$pkg_name/$pkg_latest'!"
@@ -2413,7 +2547,7 @@ function bldr_cleanup_pkg()
         bldr_log_info "Removing package build directory for '$pkg_name/$pkg_vers'"
         bldr_log_split
 
-        bldr_remove_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
+        bldr_remove_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name"
         bldr_log_split
     fi
 }
@@ -2760,17 +2894,18 @@ function bldr_modulate_pkg()
 
     echo ""                                                                  >> $module_file
 
+    local pkg_latest=$pkg_vers
+
     if [ -L "$module_dir/latest" ]
     then
         bldr_remove_file "$module_dir/latest"
+        pkg_latest=$(bldr_find_latest_version_dir "$module_dir")
     fi
 
-    local pkg_latest=$(bldr_find_latest_version_dir "$module_dir")
-    if [ -d "$pkg_latest" ] 
+    if [ -f "$module_dir/$pkg_latest" ] 
     then
         bldr_log_info "Linking module '$pkg_name/$pkg_latest' as '$pkg_name/latest' ..."
         bldr_log_split    
-
         if [ $BLDR_VERBOSE != false ]
         then
             ln -sv "$module_dir/$pkg_latest" "$module_dir/latest" || bldr_bail "Failed to link latest module version to '$pkg_name/$pkg_latest'!"
@@ -3578,7 +3713,7 @@ function bldr_load_pkgs()
             do
                 if [[ $(echo $BLDR_LOADED_MODULES | grep -m1 -c '$using' ) > 0 ]]; then
                     local $using=$(basename $entry)
-                    module load $using || bldr_bail "Failed to load module '$entry'!"
+                    module -f load $using || bldr_bail "Failed to load module '$entry'!"
                     BLDR_LOADED_MODULES="$BLDR_LOADED_MODULES:$using"
                 fi
             done
