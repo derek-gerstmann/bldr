@@ -10,6 +10,8 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
+pkg_ver_list="1.6.10 1.8.2 1.8.8 1.8.9"
+
 pkg_ctry="storage"
 pkg_name="hdf5"
 pkg_vers="1.8.8"
@@ -117,8 +119,11 @@ function bldr_pkg_install_method()
     bldr_log_split
     bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$make_path"
 
-    mv "../release_docs/USING_CMake.txt" "../release_docs/Using_CMake.txt"
-    bldr_log_split
+    if [ -f "../release_docs/USING_CMake.txt" ]
+    then
+        mv "../release_docs/USING_CMake.txt" "../release_docs/Using_CMake.txt"
+        bldr_log_split
+    fi
     bldr_pop_dir
 
     # call the standard BLDR compile method
@@ -141,93 +146,102 @@ function bldr_pkg_install_method()
 }
 
 ####################################################################################################
-# build and install pkg as local module
+# build and install each pkg version as local module
 ####################################################################################################
 
-pkg_name="hdf5"
-pkg_cfg="$hdf5_cfg:-DHDF5_BUILD_CPP_LIB=ON"
+for hdf5_ver in ${pkg_ver_list}
+do
 
-####################################################################################################
+    pkg_name="hdf5"
+    pkg_vers="$hdf5_ver"
+    pkg_file="hdf5-$pkg_vers.tar.gz"
+    pkg_urls="http://www.hdfgroup.org/ftp/HDF5/releases/$pkg_name-$pkg_vers/src/$pkg_file"
 
-bldr_build_pkg --category    "$pkg_ctry"    \
-               --name        "$pkg_name"    \
-               --version     "$pkg_vers"    \
-               --info        "$pkg_info"    \
-               --description "$pkg_desc"    \
-               --file        "$pkg_file"    \
-               --url         "$pkg_urls"    \
-               --uses        "$pkg_uses"    \
-               --requires    "$pkg_reqs"    \
-               --options     "$pkg_opts"    \
-               --cflags      "$pkg_cflags"  \
-               --ldflags     "$pkg_ldflags" \
-               --config      "$pkg_cfg"
+    #
+    # hdf5 - standard
+    #
+    pkg_name="hdf5"
+    pkg_cfg="$hdf5_cfg:-DHDF5_BUILD_CPP_LIB=ON"
 
-pkg_name="hdf5-16"
-pkg_cfg="$hdf5_cfg:-DHDF5_BUILD_CPP_LIB=ON:-DH5_USE_16_API=ON"
+    bldr_build_pkg --category    "$pkg_ctry"    \
+                   --name        "$pkg_name"    \
+                   --version     "$pkg_vers"    \
+                   --info        "$pkg_info"    \
+                   --description "$pkg_desc"    \
+                   --file        "$pkg_file"    \
+                   --url         "$pkg_urls"    \
+                   --uses        "$pkg_uses"    \
+                   --requires    "$pkg_reqs"    \
+                   --options     "$pkg_opts"    \
+                   --cflags      "$pkg_cflags"  \
+                   --ldflags     "$pkg_ldflags" \
+                   --config      "$pkg_cfg"
 
-####################################################################################################
-# build and install pkg as local module
-####################################################################################################
+    #
+    # hdf5 - with legacy v1.6 API methods
+    #
+    if [[ $(echo $pkg_vers | grep -m1 -c '^1.8' ) > 0 ]]; then
 
-bldr_build_pkg --category    "$pkg_ctry"    \
-               --name        "$pkg_name"    \
-               --version     "$pkg_vers"    \
-               --info        "$pkg_info"    \
-               --description "$pkg_desc"    \
-               --file        "$pkg_file"    \
-               --url         "$pkg_urls"    \
-               --uses        "$pkg_uses"    \
-               --requires    "$pkg_reqs"    \
-               --options     "$pkg_opts"    \
-               --cflags      "$pkg_cflags"  \
-               --ldflags     "$pkg_ldflags" \
-               --config      "$pkg_cfg"
+        pkg_name="hdf5-16"
+        pkg_cfg="$hdf5_cfg:-DHDF5_BUILD_CPP_LIB=ON:-DH5_USE_16_API=ON"
 
-####################################################################################################
+        bldr_build_pkg --category    "$pkg_ctry"    \
+                       --name        "$pkg_name"    \
+                       --version     "$pkg_vers"    \
+                       --info        "$pkg_info"    \
+                       --description "$pkg_desc"    \
+                       --file        "$pkg_file"    \
+                       --url         "$pkg_urls"    \
+                       --uses        "$pkg_uses"    \
+                       --requires    "$pkg_reqs"    \
+                       --options     "$pkg_opts"    \
+                       --cflags      "$pkg_cflags"  \
+                       --ldflags     "$pkg_ldflags" \
+                       --config      "$pkg_cfg"
+    fi
 
-pkg_name="hdf5-threadsafe"
-pkg_cfg="$hdf5_cfg:-DHDF5_ENABLE_THREADSAFE=ON"
 
-####################################################################################################
-# build and install pkg as local module
-####################################################################################################
+    #
+    # hdf5 - threadsafe (re-entrant methods wrapped in mutex locks) 
+    #
+    pkg_name="hdf5-threadsafe"
+    pkg_cfg="$hdf5_cfg:-DHDF5_ENABLE_THREADSAFE=ON"
 
-bldr_build_pkg --category    "$pkg_ctry"    \
-               --name        "$pkg_name"    \
-               --version     "$pkg_vers"    \
-               --info        "$pkg_info"    \
-               --description "$pkg_desc"    \
-               --file        "$pkg_file"    \
-               --url         "$pkg_urls"    \
-               --uses        "$pkg_uses"    \
-               --requires    "$pkg_reqs"    \
-               --options     "$pkg_opts"    \
-               --cflags      "$pkg_cflags"  \
-               --ldflags     "$pkg_ldflags" \
-               --config      "$pkg_cfg"
+    bldr_build_pkg --category    "$pkg_ctry"    \
+                   --name        "$pkg_name"    \
+                   --version     "$pkg_vers"    \
+                   --info        "$pkg_info"    \
+                   --description "$pkg_desc"    \
+                   --file        "$pkg_file"    \
+                   --url         "$pkg_urls"    \
+                   --uses        "$pkg_uses"    \
+                   --requires    "$pkg_reqs"    \
+                   --options     "$pkg_opts"    \
+                   --cflags      "$pkg_cflags"  \
+                   --ldflags     "$pkg_ldflags" \
+                   --config      "$pkg_cfg"
 
-####################################################################################################
+    #
+    # hdf5 - threadsafe w/v1.6 API methods
+    #
+    if [[ $(echo $pkg_vers | grep -m1 -c '^1.8' ) > 0 ]]; then
 
-pkg_name="hdf5-threadsafe-16"
-pkg_cfg="$hdf5_cfg:-DHDF5_ENABLE_THREADSAFE=ON:-DH5_USE_16_API=ON"
+        pkg_name="hdf5-threadsafe-16"
+        pkg_cfg="$hdf5_cfg:-DHDF5_ENABLE_THREADSAFE=ON:-DH5_USE_16_API=ON"
 
-####################################################################################################
-# build and install pkg as local module
-####################################################################################################
+        bldr_build_pkg --category    "$pkg_ctry"    \
+                       --name        "$pkg_name"    \
+                       --version     "$pkg_vers"    \
+                       --info        "$pkg_info"    \
+                       --description "$pkg_desc"    \
+                       --file        "$pkg_file"    \
+                       --url         "$pkg_urls"    \
+                       --uses        "$pkg_uses"    \
+                       --requires    "$pkg_reqs"    \
+                       --options     "$pkg_opts"    \
+                       --cflags      "$pkg_cflags"  \
+                       --ldflags     "$pkg_ldflags" \
+                       --config      "$pkg_cfg"
 
-bldr_build_pkg --category    "$pkg_ctry"    \
-               --name        "$pkg_name"    \
-               --version     "$pkg_vers"    \
-               --info        "$pkg_info"    \
-               --description "$pkg_desc"    \
-               --file        "$pkg_file"    \
-               --url         "$pkg_urls"    \
-               --uses        "$pkg_uses"    \
-               --requires    "$pkg_reqs"    \
-               --options     "$pkg_opts"    \
-               --cflags      "$pkg_cflags"  \
-               --ldflags     "$pkg_ldflags" \
-               --config      "$pkg_cfg"
-
-####################################################################################################
+    fi
+done

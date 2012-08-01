@@ -251,6 +251,28 @@ function bldr_log_split()
     bldr_echo "---------------------------------------------------------------------------------------------------------------"
 }
 
+function bldr_format_version()
+{
+    echo "$@" | awk -F. '{ printf("%d%03d%03d%03d\n", $1,$2,$3,$4); }';
+}
+
+function bldr_is_newer_version()
+{
+    if [[ ! $(echo -e "$1\n$2" | sort -r --version-sort | head -1) == "$1" ]]; then
+        return true
+    fi
+    return false
+}
+
+function bldr_find_latest_version_dir()
+{
+    local path=$1
+    bldr_push_dir $path
+    local latest=$(find ./ -maxdepth 1 -mindepth 1 -type d | sort -r --version-sort | head -1)
+    bldr_pop_dir
+    echo "$latest"
+}
+
 ####################################################################################################
 
 # setup project paths
@@ -527,26 +549,46 @@ function bldr_locate_config_script
     local given=$(bldr_trim_str "$1")
     local cfg_paths=$(bldr_trim_str "$given . source src build ../build ../source ../src")
     local cfg_files="configure configure.sh bootstrap bootstrap.sh autogen.sh CMakeLists.txt"
-    for path in ${cfg_paths}
-    do
-        for file in ${cfg_files}
+
+    if [ -f "CMakeLists.txt" ]
+    then
+        found_path="./CMakeLists.txt"
+    elif [ -f "configure" ]
+    then
+        found_path="./configure"
+    elif [ -f "configure.sh" ]
+    then
+        found_path="./configure.sh"
+    else
+        for path in ${cfg_paths}
         do
-            if [ -f "$path/$file" ]
-            then
-                found_path="$path/$file"
-                break
-            fi
+            for file in ${cfg_files}
+            do
+                if [ -f "$path/$file" ]
+                then
+                    found_path="$path/$file"
+                    break
+                fi
+            done
         done
-    done
+    fi
     echo "$found_path"
 }
 
 function bldr_locate_config_path
 {
     local given=$(bldr_trim_str "$1")
-    local script=$(bldr_locate_config_script "$given")
-    local path=$(dirname "$script")
-    echo "$path"
+    local found_path="."
+    
+    if [ -f "CMakeLists.txt" ] || [ -f "configure" ] || [ -f "configure.sh" ]
+    then
+        found_path="."
+    else
+        local script=$(bldr_locate_config_script "$given")
+        found_path=$(dirname "$script")
+    fi
+    
+    echo "$found_path"
 }
 
 function bldr_output_header()
@@ -1088,15 +1130,12 @@ function bldr_setup_pkg()
         bldr_log_split
     fi
 
-    bldr_push_dir "$BLDR_BUILD_PATH"
-
-    if [ -d "$pkg_name/$pkg_vers" ]
+    if [ -d "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers" ]
     then
         bldr_log_info "Removing stale build '$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers'"
         bldr_log_split
-        bldr_remove_dir "$pkg_name/$pkg_vers"
+        bldr_remove_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
     fi
-    bldr_pop_dir
 
     if [ -f "$BLDR_MODULE_PATH/$pkg_ctry/$pkg_name/$pkg_vers" ]
     then
@@ -1394,8 +1433,8 @@ function bldr_boot_pkg()
             bldr_log_split
         fi
     done
+    bldr_pop_dir
 
-    bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$cfg_path"
     pkg_uses=$(bldr_trim_list_str "$pkg_uses")
     if [ "$pkg_uses" != "" ] && [ "$pkg_uses" != " " ] && [ "$pkg_uses" != ":" ]
     then
@@ -1422,8 +1461,8 @@ function bldr_boot_pkg()
         done
         bldr_log_split
     fi
-    bldr_pop_dir
 
+    bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$cfg_path"
     local bootstrap=false
     if [ ! -x "./configure" ] && [ ! -x "./configure.sh" ]
     then
@@ -1558,6 +1597,7 @@ function bldr_cmake_pkg()
         
         local env_split_cflags=$(echo $pkg_cflags | bldr_split_str ":" | bldr_join_str " ")
         env_flags="$env_flags -DCMAKE_C_FLAGS='$env_split_cflags'"
+        env_flags="$env_flags -DCMAKE_CPP_FLAGS='$env_split_cflags'"
         env_flags="$env_flags -DCMAKE_CXX_FLAGS='$env_split_cflags'"
         env_mpath="$env_c_mpath;$env_mpath"
     else
@@ -1636,8 +1676,6 @@ function bldr_cmake_pkg()
         fi
     fi
 
-
-#    bldr_log_cmd "$cmake_exec $cmake_mod $cmake_pre $env_flags $cmake_src_path"
     bldr_log_cmd "$cmake_exec $cmake_pre $env_flags $cmake_src_path"
     bldr_log_split
 
@@ -1747,10 +1785,10 @@ function bldr_config_pkg()
         has_cmake=0
         use_amake=1
     fi
+    bldr_pop_dir
 
     if [ $use_cmake != 0 ] && [ $has_cmake != 0 ]
     then
-        bldr_pop_dir
         bldr_cmake_pkg                    \
             --category    "$pkg_ctry"     \
             --name        "$pkg_name"     \
@@ -1887,6 +1925,7 @@ function bldr_config_pkg()
             fi
         fi
 
+        bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
         local cfg_cmd=$(bldr_locate_config_script $pkg_cfg_path)
         local output=$(bldr_get_stdout)  
 
@@ -2175,24 +2214,28 @@ function bldr_migrate_pkg()
     bldr_log_split
 
     # build using make if a makefile exists
-    bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$make_path"
-    local bin_paths="lib bin lib32 lib64"
-    for path in ${bin_paths}
-    do
-        # move product into external os specific path
-        if [ -d "$prefix/$path" ]
-        then
-            if [ -d "$prefix/$path/pkgconfig" ] && [ -d "$PKG_CONFIG_PATH" ]
-            then
-                bldr_log_info "Adding package config '$prefix/$path/pkgconfig' for '$pkg_name/$pkg_vers'"
-                bldr_log_split
+    if [ -d "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$make_path" ] 
+    then
 
-                cp -v $prefix/$path/pkgconfig/*.pc "$PKG_CONFIG_PATH" || bldr_bail "Failed to copy pkg-config into directory: $PKG_CONFIG_PATH"
-                bldr_log_split
+        bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$make_path"
+        local bin_paths="lib bin lib32 lib64"
+        for path in ${bin_paths}
+        do
+            # move product into external os specific path
+            if [ -d "$prefix/$path" ]
+            then
+                if [ -d "$prefix/$path/pkgconfig" ] && [ -d "$PKG_CONFIG_PATH" ]
+                then
+                    bldr_log_info "Adding package config '$prefix/$path/pkgconfig' for '$pkg_name/$pkg_vers'"
+                    bldr_log_split
+
+                    cp -v $prefix/$path/pkgconfig/*.pc "$PKG_CONFIG_PATH" || bldr_bail "Failed to copy pkg-config into directory: $PKG_CONFIG_PATH"
+                    bldr_log_split
+                fi
             fi
-        fi
-    done
-    bldr_pop_dir
+        done
+        bldr_pop_dir
+    fi
 
     if [[ $(echo $pkg_opts | grep -m1 -c 'migrate-build-headers' ) > 0 ]]
     then
@@ -2292,17 +2335,20 @@ function bldr_migrate_pkg()
 
     bldr_log_info "Linking local '$pkg_name/$pkg_vers' as '$pkg_name/latest' ..."
     bldr_log_split
-    if [ -e "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/latest" ]
+    if [ -L "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/latest" ]
     then
         bldr_remove_file "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/latest"
     fi
 
-    if [ $BLDR_VERBOSE != false ]
-    then
-        ln -sv "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers" "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/latest" || bldr_bail "Failed to link latest package version to '$pkg_name/$pkg_vers'!"
-        bldr_log_split    
-    else
-        ln -s "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers" "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/latest"  || bldr_bail "Failed to link latest package version to '$pkg_name/$pkg_vers'!"
+    local pkg_latest=$(bldr_find_latest_version_dir "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name")
+    if [[ -d $pkg_latest ]]; then
+        if [ $BLDR_VERBOSE != false ]
+        then
+            ln -sv "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_latest" "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/latest" || bldr_bail "Failed to link latest package version to '$pkg_name/$pkg_latest'!"
+            bldr_log_split    
+        else
+            ln -s "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_latest" "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/latest"  || bldr_bail "Failed to link latest package version to '$pkg_name/$pkg_latest'!"
+        fi
     fi
 }
 
@@ -2359,13 +2405,6 @@ function bldr_cleanup_pkg()
     bldr_log_status "Cleaning package '$pkg_name/$pkg_vers' ..."
     bldr_log_split
     
-    local prefix="$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
-
-    bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
-    local make_path=$(bldr_locate_makefile $pkg_cfg_path)
-    bldr_pop_dir
-
-    # build using make if a makefile exists
     if [[ $(echo $pkg_opts | grep -m1 -c 'keep' ) > 0 ]]
     then
         bldr_log_info "Keeping package build directory for '$pkg_name/$pkg_vers'"
@@ -2374,7 +2413,7 @@ function bldr_cleanup_pkg()
         bldr_log_info "Removing package build directory for '$pkg_name/$pkg_vers'"
         bldr_log_split
 
-        bldr_remove_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name"
+        bldr_remove_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
         bldr_log_split
     fi
 }
@@ -2721,20 +2760,24 @@ function bldr_modulate_pkg()
 
     echo ""                                                                  >> $module_file
 
-    bldr_log_info "Linking module '$pkg_name/$pkg_vers' as '$pkg_name/latest' ..."
-    bldr_log_split    
-
-    if [ -e "$module_dir/latest" ]
+    if [ -L "$module_dir/latest" ]
     then
         bldr_remove_file "$module_dir/latest"
     fi
 
-    if [ $BLDR_VERBOSE != false ]
-    then       
-        ln -sv "$module_dir/$pkg_vers" "$module_dir/latest" || bldr_bail "Failed to link latest module version to '$pkg_name/$pkg_vers'!"
+    local pkg_latest=$(bldr_find_latest_version_dir "$module_dir")
+    if [ -d "$pkg_latest" ] 
+    then
+        bldr_log_info "Linking module '$pkg_name/$pkg_latest' as '$pkg_name/latest' ..."
         bldr_log_split    
-    else
-        ln -s "$module_dir/$pkg_vers" "$module_dir/latest" || bldr_bail "Failed to link latest module version to '$pkg_name/$pkg_vers'!"
+
+        if [ $BLDR_VERBOSE != false ]
+        then
+            ln -sv "$module_dir/$pkg_latest" "$module_dir/latest" || bldr_bail "Failed to link latest module version to '$pkg_name/$pkg_latest'!"
+            bldr_log_split    
+        else
+            ln -s "$module_dir/$pkg_latest" "$module_dir/latest"  || bldr_bail "Failed to link latest module version to '$pkg_name/$pkg_latest'!"
+        fi
     fi
 }
 
