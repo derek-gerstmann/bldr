@@ -24,12 +24,12 @@ manipulating and filtering the information in FITS files."
 
 pkg_file="cfitsio3310.tar.gz"
 pkg_urls="ftp://heasarc.gsfc.nasa.gov/software/fitsio/c/$pkg_file"
-pkg_opts="configure"
+pkg_opts="configure force-serial-build"
 pkg_uses="m4/latest autoconf/latest automake/latest"
 pkg_reqs="zlib/latest"
 pkg_cflags="-I$BLDR_LOCAL_PATH/internal/zlib/latest/include"
 pkg_ldflags="-L$BLDR_LOCAL_PATH/internal/zlib/latest/lib"
-pkg_cfg="--enable-reentrant --enable-sse2 --enable-sse3"
+pkg_cfg="--enable-reentrant --enable-sse2 --enable-ssse3"
 
 ####################################################################################################
 # build and install pkg as local module
