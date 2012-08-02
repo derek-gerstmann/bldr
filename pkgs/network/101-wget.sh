@@ -22,11 +22,11 @@ so it may easily be called from scripts, cron jobs, terminals without X-Windows 
 pkg_file="$pkg_name-$pkg_vers.tar.gz"
 pkg_urls="http://ftp.gnu.org/gnu/wget/$pkg_file"
 pkg_opts="configure"
+pkg_reqs="openssl/latest"
 pkg_uses="m4/latest autoconf/latest automake/latest libtool/latest zlib/latest"
-pkg_reqs=""
 pkg_cflags=""
 pkg_ldflags=""
-pkg_cfg=""
+pkg_cfg="--with-ssl=openssl --with-libssl-prefix=$BLDR_LOCAL_PATH/network/openssl/latest"
 
 ####################################################################################################
 # build and install pkg as local module
