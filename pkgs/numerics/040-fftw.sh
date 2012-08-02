@@ -10,29 +10,32 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_ctry="system"
-pkg_name="hwloc"
-pkg_vers="1.5"
+pkg_ctry="numerics"
+pkg_name="fftw"
+pkg_vers="3.3.2"
 
-pkg_info="The Portable Hardware Locality (hwloc) software package provides a portable abstraction (across OS, versions, architectures, ...) of the hierarchical topology of modern architectures, including NUMA memory nodes, sockets, shared caches, cores and simultaneous multithreading."
+pkg_info="FFTW is a C subroutine library for computing the discrete Fourier transform (DFT) in one or more dimensions, of arbitrary input size, and of both real and complex data."
 
-pkg_desc="The Portable Hardware Locality (hwloc) software package provides a 
-portable abstraction (across OS, versions, architectures, ...) of the hierarchical 
-topology of modern architectures, including NUMA memory nodes, sockets, shared caches, 
-cores and simultaneous multithreading. It also gathers various system attributes such 
-as cache and memory information as well as the locality of I/O devices such as 
-network interfaces, InfiniBand HCAs or GPUs. It primarily aims at helping applications
-with gathering information about modern computing hardware so as to exploit it 
-accordingly and efficiently."
+pkg_desc="FFTW is a C subroutine library for computing the discrete Fourier transform (DFT) 
+in one or more dimensions, of arbitrary input size, and of both real and complex data 
+(as well as of even/odd data, i.e. the discrete cosine/sine transforms or DCT/DST). 
+We believe that FFTW, which is free software, should become the FFT library of choice 
+for most applications."
 
 pkg_file="$pkg_name-$pkg_vers.tar.gz"
-pkg_urls="http://www.open-mpi.org/software/hwloc/v1.5/downloads/$pkg_file"
+pkg_urls="http://www.fftw.org/$pkg_file"
 pkg_opts="configure"
-pkg_uses="m4/latest autoconf/latest automake/latest libtool/latest"
+pkg_uses="m4/latest autoconf/latest automake/latest"
 pkg_reqs=""
+pkg_cfg="--enable-threads --enable-sse2"
+
+if [ $BLDR_SYSTEM_IS_OSX -eq 0 ]
+then
+  pkg_cfg="$pkg_cfg --enable-openmp --enable-avx"
+fi
+
 pkg_cflags=""
 pkg_ldflags=""
-pkg_cfg=""
 
 ####################################################################################################
 # build and install pkg as local module
@@ -50,5 +53,6 @@ bldr_build_pkg --category    "$pkg_ctry"    \
                --options     "$pkg_opts"    \
                --cflags      "$pkg_cflags"  \
                --ldflags     "$pkg_ldflags" \
-               --config      "$pkg_cfg"     
+               --config      "$pkg_cfg"
+
 

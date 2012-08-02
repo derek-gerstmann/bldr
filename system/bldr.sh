@@ -561,9 +561,9 @@ function bldr_locate_config_script
     local found_path="."
 
     local cmake_files="CMakeLists.txt"
-    local autocfg_files="configure configure.sh bootstrap bootstrap.sh autogen.sh"
+    local autocfg_files="configure configure.sh bootstrap bootstrap.sh autogen.sh config"
 
-    local use_cmake=false
+    local use_cmake=true
     local use_autocfg=true
 
     if [[ $(echo $cfg_opts | grep -m1 -c 'cmake' ) > 0 ]]
@@ -571,7 +571,7 @@ function bldr_locate_config_script
         use_cmake=true
         use_autocfg=false
     
-    elif [[ $(echo $cfg_opts | grep -m1 -c 'configure' ) > 0 ]]
+    elif [[ $(echo $cfg_opts | grep -m1 -c 'config' ) > 0 ]]
     then
         use_cmake=false
         use_autocfg=true
@@ -592,8 +592,8 @@ function bldr_locate_config_script
                     break
                 fi
             done
-
-        elif [ $use_cmake == true ]
+        fi
+        if [ $use_cmake == true ]
         then
             for cmake_tst_file in ${cmake_files}
             do
@@ -858,7 +858,7 @@ function bldr_list_archive()
        esac    
     fi
 
-    local basedir=$(echo "$result" | grep -m1 -E -o "(\S+)/$" )
+    local basedir=$(echo "$result" | grep -m1 -E -o "(\S+)/" )
 
     if [ "$basedir" == "" ]
     then
@@ -1507,7 +1507,7 @@ function bldr_boot_pkg()
 
     bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$cfg_path"
     local bootstrap=false
-    if [ ! -x "./configure" ] && [ ! -x "./configure.sh" ]
+    if [ ! -x "./configure" ] && [ ! -x "./configure.sh" ] && [ ! -x "./config" ]
     then
         bootstrap=true
     fi
@@ -1532,8 +1532,11 @@ function bldr_boot_pkg()
     bldr_pop_dir
 
     # bootstrap package
-    if [ $bootstrap != false ]
+    if [ $bootstrap == false ]
     then
+        bldr_log_info "No bootstrap script detected.  Skipping... "
+        bldr_log_split
+    else
         bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$boot_path"
         local boot_cmd=$(bldr_locate_boot_script $pkg_cfg_path)
         local output=$(bldr_get_stdout)
@@ -1805,7 +1808,14 @@ function bldr_autocfg_pkg()
 
     local prefix="$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
 
-    bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
+    if [[ $(echo $pkg_opts | grep -m1 -c 'use-build-dir' ) > 0 ]]
+    then
+        bldr_make_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/build"
+        bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/build"
+    else
+        bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
+    fi
+
     local cfg_path=$(bldr_locate_config_path $pkg_cfg_path $pkg_opts)
     bldr_pop_dir
 
@@ -1823,6 +1833,7 @@ function bldr_autocfg_pkg()
         if [[ $(echo $pkg_opts | grep -m1 -c 'disable-xcode-cflags' ) > 0 ]]
         then
             bldr_log_info "Disabling XCode Compile FLAGS ..."
+            bldr_log_split
         else
             pkg_cflags="$pkg_cflags:$BLDR_XCODE_CFLAGS"
         fi
@@ -1830,6 +1841,7 @@ function bldr_autocfg_pkg()
         if [[ $(echo $pkg_opts | grep -m1 -c 'disable-xcode-ldflags' ) > 0 ]]
         then
             bldr_log_info "Disabling XCode Linker FLAGS ..."
+            bldr_log_split
         else
             pkg_ldflags="$pkg_ldflags:$BLDR_XCODE_LDFLAGS"
         fi
@@ -1923,7 +1935,13 @@ function bldr_autocfg_pkg()
         fi
     fi
 
-    bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$cfg_path"
+    if [[ $(echo $pkg_opts | grep -m1 -c 'use-build-dir' ) > 0 ]]
+    then
+        bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/build"
+    else
+        bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$cfg_path"
+    fi
+
     local cfg_cmd=$(bldr_locate_config_script $pkg_cfg_path $pkg_opts)
     local output=$(bldr_get_stdout)  
 
@@ -2030,7 +2048,7 @@ function bldr_config_pkg()
         has_cmake=true
     fi    
     
-    if [[ $(echo $cfg_cmd | grep -m1 -c 'configure' ) > 0 ]]
+    if [[ $(echo $cfg_cmd | grep -m1 -c 'config' ) > 0 ]]
     then
         has_autocfg=true
     fi
@@ -2042,7 +2060,7 @@ function bldr_config_pkg()
         has_autocfg=false
     fi
 
-    if [[ $(echo $pkg_opts | grep -m1 -c 'configure' ) > 0 ]]
+    if [[ $(echo $pkg_opts | grep -m1 -c 'config' ) > 0 ]]
     then
         use_cmake=0
         has_cmake=0
@@ -2207,10 +2225,10 @@ function bldr_compile_pkg()
 
         if [ $BLDR_VERBOSE != false ]
         then
-            eval make $options || bldr_bail "Failed to install package: '$prefix'"
+            eval make $options || bldr_bail "Failed to build package: '$prefix'"
             bldr_log_split
         else
-            eval make $options &> /dev/null || bldr_bail "Failed to install package: '$prefix'"
+            eval make $options &> /dev/null || bldr_bail "Failed to build package: '$prefix'"
         fi
     fi
     bldr_pop_dir

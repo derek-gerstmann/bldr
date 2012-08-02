@@ -10,29 +10,35 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_ctry="system"
-pkg_name="hwloc"
-pkg_vers="1.5"
+pkg_ctry="network"
+pkg_name="openssl"
+pkg_vers="1.0.1c"
 
-pkg_info="The Portable Hardware Locality (hwloc) software package provides a portable abstraction (across OS, versions, architectures, ...) of the hierarchical topology of modern architectures, including NUMA memory nodes, sockets, shared caches, cores and simultaneous multithreading."
+pkg_info="OpenSSL provides a Secure-Sockets Layer implementation (SSL v2/v3) and supports Transport Layer Security (TLS v1)."
 
-pkg_desc="The Portable Hardware Locality (hwloc) software package provides a 
-portable abstraction (across OS, versions, architectures, ...) of the hierarchical 
-topology of modern architectures, including NUMA memory nodes, sockets, shared caches, 
-cores and simultaneous multithreading. It also gathers various system attributes such 
-as cache and memory information as well as the locality of I/O devices such as 
-network interfaces, InfiniBand HCAs or GPUs. It primarily aims at helping applications
-with gathering information about modern computing hardware so as to exploit it 
-accordingly and efficiently."
+pkg_desc="The OpenSSL Project is a collaborative effort to develop a robust, 
+commercial-grade, full-featured, and Open Source toolkit implementing the 
+Secure Sockets Layer (SSL v2/v3) and Transport Layer Security (TLS v1) protocols 
+as well as a full-strength general purpose cryptography library managed by a 
+worldwide community of volunteers that use the Internet to communicate, plan, 
+and develop the OpenSSL toolkit and its related documentation."
 
 pkg_file="$pkg_name-$pkg_vers.tar.gz"
-pkg_urls="http://www.open-mpi.org/software/hwloc/v1.5/downloads/$pkg_file"
-pkg_opts="configure"
-pkg_uses="m4/latest autoconf/latest automake/latest libtool/latest"
+pkg_urls="http://www.openssl.org/source/$pkg_file"
+pkg_opts="configure disable-xcode-cflags disable-xcode-ldflags force-serial-build"
+pkg_uses="m4/latest autoconf/latest automake/latest libtool/latest zlib/latest"
 pkg_reqs=""
 pkg_cflags=""
 pkg_ldflags=""
-pkg_cfg=""
+pkg_cfg="-L$BLDR_LOCAL_PATH/internal/zlib/latest/lib"
+pkg_cfg="$pkg_cfg --openssldir=$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/ssl"
+pkg_cfg="$pkg_cfg zlib"
+
+if [ $BLDR_SYSTEM_IS_OSX -eq 1 ]
+then
+     pkg_cfg="$pkg_cfg no-asm no-krb5 shared"
+     pkg_cfg="$pkg_cfg darwin64-x86_64-cc"
+fi
 
 ####################################################################################################
 # build and install pkg as local module
@@ -50,5 +56,5 @@ bldr_build_pkg --category    "$pkg_ctry"    \
                --options     "$pkg_opts"    \
                --cflags      "$pkg_cflags"  \
                --ldflags     "$pkg_ldflags" \
-               --config      "$pkg_cfg"     
+               --config      "$pkg_cfg"
 

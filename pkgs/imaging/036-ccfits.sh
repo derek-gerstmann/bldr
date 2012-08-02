@@ -23,13 +23,15 @@ functions."
 
 pkg_file="CCfits-$pkg_vers.tar.gz"
 pkg_urls="http://heasarc.gsfc.nasa.gov/docs/software/fitsio/ccfits/$pkg_file"
-pkg_opts="configure"
-pkg_uses="m4/latest autoconf/latest automake/latest"
-pkg_reqs="zlib/latest cfitsio/latest "
+pkg_opts="configure force-serial-build"
+pkg_reqs="zlib/latest cfitsio/latest"
+pkg_uses="m4/latest autoconf/latest automake/latest $pkg_reqs"
 pkg_cflags="-I$BLDR_LOCAL_PATH/internal/zlib/latest/include"
+pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/imaging/cfitsio/latest/include"
 pkg_cflags="$pkg_cflags:-I$BLDR_BUILD_PATH/imaging/$pkg_name/$pkg_vers/include"
 pkg_cflags="$pkg_cflags:-I$BLDR_BUILD_PATH/imaging/$pkg_name/$pkg_vers/include/CCfits"
 pkg_ldflags="-L$BLDR_LOCAL_PATH/internal/zlib/latest/lib"
+pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/imaging/cfitsio/latest/lib"
 pkg_cfg="--with-cfitsio=$BLDR_LOCAL_PATH/imaging/cfitsio/latest"
 
 ####################################################################################################

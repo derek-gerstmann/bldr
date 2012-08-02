@@ -10,7 +10,7 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_ctry="science"
+pkg_ctry="numerics"
 pkg_name="gsl"
 pkg_vers="1.15"
 

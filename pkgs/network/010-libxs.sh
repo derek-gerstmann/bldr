@@ -36,7 +36,7 @@ pkg_cfg="-enable-libzmq"
 # build and install pkg as local module
 ####################################################################################################
 
-bldr_build_pkg --category    "developer"    \
+bldr_build_pkg --category    "network"      \
                --name        "$pkg_name"    \
                --version     "$pkg_vers"    \
                --info        "$pkg_info"    \
