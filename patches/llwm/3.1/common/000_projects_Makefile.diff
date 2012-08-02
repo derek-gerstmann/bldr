@@ -1,0 +1,13 @@
+--- ./build/compilers/clang/3.1/projects/Makefile	2012-08-02 12:30:06.000000000 +0800
++++ ./000_projects_Makefile	2012-08-02 12:47:31.000000000 +0800
+@@ -20,9 +20,7 @@
+ # Don't build libcxx, it isn't designed to be built directly.
+ DIRS := $(filter-out libcxx,$(DIRS))
+ 
+-# Sparc cannot link shared libraries (libtool problem?)
+-ifeq ($(ARCH), Sparc)
++# Don't build the sample!
+ DIRS := $(filter-out sample, $(DIRS))
+-endif
+ 
+ include $(PROJ_SRC_ROOT)/Makefile.rules

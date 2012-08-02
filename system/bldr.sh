@@ -195,13 +195,13 @@ function bldr_log_info()
 function bldr_log_warning()
 {
     local ts=$(date "+%Y-%m-%d-%H:%M:%S")
-    echo -e ${BLDR_TXT_WARN}"[ ${ts} ]" ${BLDR_TXT_WARN}" ${@} "${BLDR_TXT_RST}
+    echo -e ${BLDR_TXT_WARN}"[ ${ts} ]"${BLDR_TXT_ERROR}" ${@} "${BLDR_TXT_RST}
 }
 
 function bldr_log_error()
 {
     local ts=$(date "+%Y-%m-%d-%H:%M:%S")
-    echo -e ${BLDR_TXT_ERROR}"[ ${ts} ]" ${BLDR_TXT_WARN}" ${@} "${BLDR_TXT_RST}
+    echo -e ${BLDR_TXT_ERROR}"[ ${ts} ]"${BLDR_TXT_WARN}" ${@} "${BLDR_TXT_RST}
 }
 
 function bldr_log_status()
@@ -1032,6 +1032,61 @@ function bldr_copy_dir()
     fi
 }
 
+function bldr_download_pkg()
+{
+    local pkg_name="$1"
+    local pkg_vers="$2"
+    local pkg_urls="$3"
+    local pkg_file="$4"
+    local use_verbose="$5"
+
+    local pkg_url_list=$(echo $pkg_urls | bldr_split_str ';')
+    for url in ${pkg_url_list}
+    do
+        bldr_log_info "Retrieving package '$pkg_name/$pkg_vers' from '$url'"
+        bldr_log_split
+
+        if [[ $(echo "$url" | grep -m1 -c '^http://') == 1 ]]
+        then
+            bldr_fetch $url $pkg_file 
+        
+        elif [[ $(echo "$url" | grep -m1 -c '^https://') == 1 ]]
+        then
+            bldr_fetch $url $pkg_file 
+
+        elif [[ $(echo "$url" | grep -m1 -c '^ftp://') == 1 ]]
+        then
+            bldr_fetch $url $pkg_file 
+
+        elif [[ $(echo "$url" | grep -m1 -c '^git://') == 1 ]]
+        then
+            bldr_clone $url $pkg_name 
+
+            if [ -d $pkg_name ]
+            then
+                bldr_log_split
+                bldr_log_info "Archiving package '$pkg_file' from '$pkg_name/$pkg_vers'"
+                bldr_make_archive $pkg_file $pkg_name
+            fi
+
+        elif [[ $(echo "$url" | grep -m1 -c '^svn://') == 1 ]]
+        then
+            bldr_checkout $url $pkg_name 
+
+            if [ -d $pkg_name ]
+            then
+                bldr_log_split
+                bldr_log_info "Archiving package '$pkg_file' from '$pkg_name/$pkg_vers'"
+                bldr_make_archive $pkg_file $pkg_name
+            fi
+        fi
+
+        if [ -e $pkg_file ]; then
+            break;
+        fi
+    done
+}
+
 ####################################################################################################
 
 function bldr_build_all()
@@ -1263,53 +1318,7 @@ function bldr_fetch_pkg()
     bldr_push_dir "$BLDR_CACHE_PATH"
     if [ ! -e "$BLDR_CACHE_PATH/$pkg_file" ]
     then
-        local pkg_url_list=$(echo $pkg_urls | bldr_split_str ';')
-        for url in ${pkg_url_list}
-        do
-            bldr_log_info "Retrieving package '$pkg_name/$pkg_vers' from '$url'"
-            bldr_log_split
-
-            if [[ $(echo "$url" | grep -m1 -c '^http://') == 1 ]]
-            then
-                bldr_fetch $url $pkg_file 
-            
-            elif [[ $(echo "$url" | grep -m1 -c '^https://') == 1 ]]
-            then
-                bldr_fetch $url $pkg_file 
-
-            elif [[ $(echo "$url" | grep -m1 -c '^ftp://') == 1 ]]
-            then
-                bldr_fetch $url $pkg_file 
-
-            elif [[ $(echo "$url" | grep -m1 -c '^git://') == 1 ]]
-            then
-
-                bldr_clone $url $pkg_name 
-
-                if [ -d $pkg_name ]
-                then
-                    bldr_log_split
-                    bldr_log_info "Archiving package '$pkg_file' from '$pkg_name/$pkg_vers'"
-                    bldr_make_archive $pkg_file $pkg_name
-                fi
-
-            elif [[ $(echo "$url" | grep -m1 -c '^svn://') == 1 ]]
-            then
-
-                bldr_checkout $url $pkg_name 
-
-                if [ -d $pkg_name ]
-                then
-                    bldr_log_split
-                    bldr_log_info "Archiving package '$pkg_file' from '$pkg_name/$pkg_vers'"
-                    bldr_make_archive $pkg_file $pkg_name
-                fi
-            fi
-
-            if [ -e $pkg_file ]; then
-                break;
-            fi
-        done
+        bldr_download_pkg "$pkg_name" "$pkg_vers" "$pkg_urls" "$pkg_file" "$use_verbose"
     fi
     bldr_pop_dir
 
@@ -1338,7 +1347,6 @@ function bldr_fetch_pkg()
 
         bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name"
         local archive_listing=$(bldr_list_archive $pkg_file)
-
         bldr_log_info "Extracting package '$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_file' as '$archive_listing'"
 
         if [ $BLDR_VERBOSE == false ]
@@ -1346,8 +1354,8 @@ function bldr_fetch_pkg()
             bldr_log_split
         fi
 
-        bldr_extract_archive $pkg_file 
-        bldr_move_file $archive_listing $pkg_vers
+        bldr_extract_archive "$pkg_file" 
+        bldr_move_file "$archive_listing" "$pkg_vers"
         bldr_remove_file "$pkg_file"
         bldr_pop_dir
     fi
@@ -1915,7 +1923,7 @@ function bldr_autocfg_pkg()
         fi
     fi
 
-    bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
+    bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$cfg_path"
     local cfg_cmd=$(bldr_locate_config_script $pkg_cfg_path $pkg_opts)
     local output=$(bldr_get_stdout)  
 
@@ -2158,8 +2166,10 @@ function bldr_compile_pkg()
         BLDR_PARALLEL=false
     fi
 
+    local defines=""
     local output=$(bldr_get_stdout)
     local options="--stop"
+
     if [ $BLDR_VERBOSE != true ]
     then
         options="--quiet $options"
@@ -2177,6 +2187,17 @@ function bldr_compile_pkg()
             procs=$(grep "^core id" /proc/cpuinfo | sort -u | wc -l)
         fi
         options="-j$procs $options"
+    fi
+
+    # append any -M directives as macros to the make command (eg. -MMAKE_EXAMPLES=0 -> MAKE_EXAMPLES=0)
+    if [[ $(echo $pkg_opts | grep -m1 -c '\-M') > 0 ]]
+    then
+        local def=""
+        defines=$(echo $pkg_opts | grep -E -o "\-M(\S+)\s*" | sed 's/-M//g' )
+        for def in ${defines}
+        do
+            options="$options $def"
+        done
     fi
 
     if [ -f "./Makefile" ]
@@ -2344,23 +2365,25 @@ function bldr_migrate_pkg()
     bldr_log_status "Migrating package '$pkg_name/$pkg_vers' ..."
     bldr_log_split
 
+    local src_path=""
+
     # build using make if a makefile exists
     if [ -d "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$make_path" ] 
     then
 
         bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$make_path"
         local bin_paths="lib bin lib32 lib64"
-        for path in ${bin_paths}
+        for src_path in ${bin_paths}
         do
             # move product into external os specific path
-            if [ -d "$prefix/$path" ]
+            if [ -d "$prefix/$src_path" ]
             then
-                if [ -d "$prefix/$path/pkgconfig" ] && [ -d "$PKG_CONFIG_PATH" ]
+                if [ -d "$prefix/$src_path/pkgconfig" ] && [ -d "$PKG_CONFIG_PATH" ]
                 then
-                    bldr_log_info "Adding package config '$prefix/$path/pkgconfig' for '$pkg_name/$pkg_vers'"
+                    bldr_log_info "Adding package config '$prefix/$src_path/pkgconfig' for '$pkg_name/$pkg_vers'"
                     bldr_log_split
 
-                    cp -v $prefix/$path/pkgconfig/*.pc "$PKG_CONFIG_PATH" || bldr_bail "Failed to copy pkg-config into directory: $PKG_CONFIG_PATH"
+                    cp -v $prefix/$src_path/pkgconfig/*.pc "$PKG_CONFIG_PATH" || bldr_bail "Failed to copy pkg-config into directory: $PKG_CONFIG_PATH"
                     bldr_log_split
                 fi
             fi
@@ -2368,19 +2391,26 @@ function bldr_migrate_pkg()
         bldr_pop_dir
     fi
 
+    if [[ $(echo $pkg_opts | grep -m1 -c 'migrate-build-tree' ) > 0 ]]
+    then
+        bldr_make_dir "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
+        bldr_copy_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers" "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers" || bldr_bail "Failed to copy shared files into directory: $BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
+        bldr_log_split
+    fi
+    
     if [[ $(echo $pkg_opts | grep -m1 -c 'migrate-build-headers' ) > 0 ]]
     then
         bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
         local inc_paths="include inc man share"
-        for path in ${inc_paths}
+        for src_path in ${inc_paths}
         do
             # move product into external path
-            if [ -d "$path" ]
+            if [ -d "$src_path" ]
             then
-                bldr_log_status "Migrating build files from '$path' for '$pkg_name/$pkg_vers'"
+                bldr_log_status "Migrating build files from '$src_path' for '$pkg_name/$pkg_vers'"
                 bldr_log_split
-                bldr_make_dir "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$path"
-                bldr_copy_dir "$path" "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$path" || bldr_bail "Failed to copy shared files into directory: $BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$path"
+                bldr_make_dir "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$src_path"
+                bldr_copy_dir "$src_path" "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$src_path" || bldr_bail "Failed to copy shared files into directory: $BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$src_path"
                 bldr_log_split
             fi
         done
@@ -2391,15 +2421,15 @@ function bldr_migrate_pkg()
     then
         bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
         local inc_paths="src source"
-        for path in ${inc_paths}
+        for src_path in ${inc_paths}
         do
             # move product into external path
-            if [ -d "$path" ]
+            if [ -d "$src_path" ]
             then
-                bldr_log_status "Migrating build files from '$path' for '$pkg_name/$pkg_vers'"
+                bldr_log_status "Migrating build files from '$src_path' for '$pkg_name/$pkg_vers'"
                 bldr_log_split
-                bldr_make_dir "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$path"
-                bldr_copy_dir "$path" "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$path" || bldr_bail "Failed to copy shared files into directory: $BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$path"
+                bldr_make_dir "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$src_path"
+                bldr_copy_dir "$src_path" "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$src_path" || bldr_bail "Failed to copy shared files into directory: $BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$src_path"
                 bldr_log_split
             fi
         done
@@ -2412,21 +2442,21 @@ function bldr_migrate_pkg()
         local bin_paths=". lib bin lib32 lib64"
         local binary=""
         local subdir=""
-        for path in ${bin_paths}
+        for src_path in ${bin_paths}
         do
             # move product into external path
-            if [ $path == "." ]
+            if [ $src_path == "." ]
             then
                 subdir="bin"
             else
-                subdir="$path"
+                subdir="$src_path"
             fi
-            if [ -d "$path" ]
+            if [ -d "$src_path" ]
             then
                 local first_file=1
-                for binary in ${path}/*
+                for binary in ${src_path}/*
                 do
-                    if [ -x "$binary" ]
+                    if [ -x "$binary" ] && [ ! -d "$binary" ]
                     then
                         if [ $first_file ]
                         then
@@ -2449,16 +2479,16 @@ function bldr_migrate_pkg()
     then
         bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
         local inc_paths="build"
-        for path in ${inc_paths}
+        for src_path in ${inc_paths}
         do
             # move product into external path
-            if [ -d "$path" ]
+            if [ -d "$src_path" ]
             then
-                bldr_log_status "Migrating build libraries from '$path' for '$pkg_name/$pkg_vers'"
+                bldr_log_status "Migrating build libraries from '$src_path' for '$pkg_name/$pkg_vers'"
                 bldr_log_split
                 bldr_make_dir "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$path"
                 bldr_log_split
-                eval cp -v "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$path/*.$BLDR_OS_LIB_EXT" "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$path" || bldr_bail "Failed to copy shared files into directory: $BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$path"
+                eval cp -v "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$path/*.$BLDR_OS_LIB_EXT" "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$src_path" || bldr_bail "Failed to copy shared files into directory: $BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$src_path"
             fi
         done
         bldr_pop_dir
