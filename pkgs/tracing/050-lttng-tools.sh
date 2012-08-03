@@ -29,11 +29,16 @@ or by the liblttng-ctl provided with the lttng-tools package."
 pkg_file="$pkg_name-$pkg_vers.tar.bz2"
 pkg_urls="http://lttng.org/files/$pkg_name/$pkg_file"
 pkg_opts="configure"
-pkg_reqs="liburcu/latest lttng-ust/latest"
+pkg_reqs="liburcu/latest lttng-ust/latest babeltrace/latest"
 pkg_uses="m4/latest autoconf/latest automake/latest libtool/latest zlib/latest"
-pkg_cflags=""
-pkg_ldflags=""
-pkg_cfg="--enable-static --enable-shared"
+
+pkg_cflags="-I$BLDR_LOCAL_PATH/internal/zlib/latest/include"
+pkg_ldflags="-L$BLDR_LOCAL_PATH/internal/zlib/latest/lib"
+
+pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/tracing/lttng-ust/latest/include"
+pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/tracing/lttng-ust/latest/lib"
+
+pkg_cfg="--enable-static --enable-shared --with-babeltrace-bin=$BLDR_LOCAL_PATH/tracing/babeltrace/latest/bin/babeltrace"
 
 ####################################################################################################
 # build and install pkg as local module

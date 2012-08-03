@@ -11,26 +11,27 @@ source "bldr.sh"
 ####################################################################################################
 
 pkg_ctry="tracing"
-pkg_name="lttng-ust"
-pkg_vers="2.0.4"
+pkg_name="babeltrace"
+pkg_vers="1.0.0-rc4"
 
-pkg_info="Linux Trace Toolkit next generation userspace tracer (LTTng-UST) is designed to provide detailed information about userspace 
-activity."
+pkg_info="Babeltrace is a command-line tool and library to read and convert trace files to and from different formats."
 
-pkg_desc="Linux Trace Toolkit next generation userspace tracer (LTTng-UST) 
-is designed to provide detailed information about userspace activity. UST is 
-a port of the LTTng kernel tracer to userspace. Like the LTTng kernel 
-tracer, performance is the main goal. Tracing does not require system calls or traps. 
-UST instrumentation points may be added in any userspace code including signal 
-handlers and libraries­."
+pkg_desc="Babeltrace is a command-line tool and library to read and convert 
+trace files to and from different formats. It supports the CTF format, which 
+is outputted by the LTTng 2.0 tracers."
 
 pkg_file="$pkg_name-$pkg_vers.tar.bz2"
 pkg_urls="http://lttng.org/files/$pkg_name/$pkg_file"
 pkg_opts="configure"
-pkg_reqs="liburcu/latest"
+pkg_reqs="liburcu/latest lttng-ust/latest"
 pkg_uses="m4/latest autoconf/latest automake/latest libtool/latest zlib/latest"
-pkg_cflags=""
-pkg_ldflags=""
+
+pkg_cflags="-I$BLDR_LOCAL_PATH/internal/zlib/latest/include"
+pkg_ldflags="-L$BLDR_LOCAL_PATH/internal/zlib/latest/lib"
+
+pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/tracing/lttng-ust/latest/include"
+pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/tracing/lttng-ust/latest/lib"
+
 pkg_cfg="--enable-static --enable-shared"
 
 ####################################################################################################
