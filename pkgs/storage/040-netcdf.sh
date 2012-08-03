@@ -28,7 +28,7 @@ the creation, access, and sharing of scientific data."
 pkg_file="$pkg_name-$pkg_vers.tar.gz"
 pkg_urls="http://www.unidata.ucar.edu/downloads/netcdf/ftp/$pkg_file"
 pkg_opts="configure"
-pkg_reqs="szip/latest zlib/latest hdf5/latest"
+pkg_reqs="szip/latest zlib/latest hdf5/1.8.8"
 pkg_uses="m4/latest autoconf/latest automake/latest"
 
 pkg_cflags="-I$BLDR_LOCAL_PATH/internal/zlib/latest/include"
