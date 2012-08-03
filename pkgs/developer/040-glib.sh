@@ -22,7 +22,7 @@ utility functions for strings and common data structures."
 pkg_file="$pkg_name-$pkg_vers.tar.xz"
 pkg_urls="http://ftp.gnome.org/pub/GNOME/sources/glib/2.32/$pkg_file"
 pkg_opts="configure"
-pkg_reqs="pkg-config/latest zlib/latest libiconv/latest libicu/latest libxml2/latest libffi/latest gettext/latest"
+pkg_reqs="pkg-config/latest zlib/latest libicu/latest libxml2/latest libffi/latest gettext/latest"
 pkg_uses="tar/latest tcl/latest m4/latest autoconf/latest automake/latest $pkg_reqs"
 
 pkg_cflags="-m64 -I$BLDR_LOCAL_PATH/internal/zlib/latest/include"

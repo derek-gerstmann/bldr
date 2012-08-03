@@ -1752,6 +1752,7 @@ function bldr_cmake_pkg()
     fi
 
     bldr_log_info "Done configuring package '$pkg_name/$pkg_vers'"
+    bldr_log_split
     bldr_pop_dir
 }
 
@@ -2786,7 +2787,7 @@ function bldr_modulate_pkg()
     then
         for require in ${pkg_reqs}
         do
-            echo "if { ! [ is-loaded $require ] } {"     >> $module_file
+            echo "if { ! [ is-loaded $require ] } {"            >> $module_file
             echo "    module load $require"                     >> $module_file
             echo "}"                                            >> $module_file
             echo ""                                             >> $module_file
@@ -2810,6 +2811,36 @@ function bldr_modulate_pkg()
 
     # pkg specific environment settings
     echo "setenv $pkg_title""_VERSION                       $pkg_vers"       >> $module_file
+    echo ""                                                                  >> $module_file
+    
+    # append any -E directives as environment variables to export (eg. -EPYTHONPATH=path/to/export -> PYTHONPATH=path/to/export)
+    local def_name=""
+    local def_value=""
+    if [[ $(echo $pkg_opts | grep -m1 -c '\-E') > 0 ]]
+    then
+        local def=""
+        local defines=$(echo $pkg_opts | grep -E -o "\-E(\S+)\s*" | sed 's/-E//g' )
+        for def in ${defines}
+        do
+            if [[ $(echo $def | grep -m1 -c '\+=') > 0 ]]
+            then
+                def_name=$(echo $def | sed 's/+=.*//g')
+                def_value=$(echo $def | sed 's/.*+=//g')
+                echo "append-path  $def_name                $def_value"      >> $module_file
+            elif [[ $(echo $def | grep -m1 -c '\:=') > 0 ]]
+            then
+                def_name=$(echo $def | sed 's/:=.*//g')
+                def_value=$(echo $def | sed 's/.*:=//g')
+                echo "prepend-path $def_name                $def_value"      >> $module_file
+            elif [[ $(echo $def | grep -m1 -c '=') > 0 ]]
+            then
+                def_name=$(echo $def | sed 's/=.*//g')
+                def_value=$(echo $def | sed 's/.*=//g')
+                echo "setenv       $def_name                $def_value"      >> $module_file
+            fi
+        done
+        echo ""                                                              >> $module_file
+    fi
 
     local found=""
     local subdir=""
@@ -2863,6 +2894,13 @@ function bldr_modulate_pkg()
                 echo "prepend-path PATH                     $subdir"         >> $module_file
             fi
         done
+    done
+
+    for found in $(find $prefix -type d -iname "site-packages")
+    do
+        echo ""                                                              >> $module_file
+        echo "append-path $pkg_title""_PYTHON_SITE_PACKAGES_PATH $found"     >> $module_file
+        echo "append-path PYTHONPATH $found"                                 >> $module_file
     done
 
     for found in $(find $prefix -type d -iname "lib")

@@ -10,7 +10,7 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_ctry="network"
+pkg_ctry="protocols"
 pkg_name="thrift"
 pkg_vers="0.8.0"
 
@@ -23,20 +23,20 @@ Haskell, C#, Cocoa, JavaScript, Node.js, Smalltalk, OCaml and Delphi and other l
 
 pkg_file="$pkg_name-$pkg_vers.tar.gz"
 pkg_urls="https://dist.apache.org/repos/dist/release/$pkg_name/$pkg_vers/$pkg_file"
-pkg_opts="configure force-serial-build"
+pkg_opts="configure force-serial-build -EPYTHONPATH+=$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/bindings/python/lib/python2.7/site-packages"
 pkg_reqs="bison/latest flex/latest boost/latest openssl/latest libevent/latest python/2.7.3 glib/latest"
 pkg_uses="m4/latest autoconf/latest automake/latest libtool/latest zlib/latest $pkg_reqs"
 pkg_cflags=""
 pkg_ldflags=""
-pkg_cfg="--with-c_glib --with-ruby=no"
+pkg_cfg="--with-c_glib --with-ruby=no --with-php=no"
 pkg_cfg="$pkg_cfg --with-boost=$BLDR_LOCAL_PATH/developer/boost/latest"
 pkg_cfg="$pkg_cfg --with-libevent=$BLDR_LOCAL_PATH/system/libevent/latest"
 pkg_cfg="$pkg_cfg --with-zlib=$BLDR_LOCAL_PATH/internal/zlib/latest"
-pkg_cfg="$pkg_cfg PY_PREFIX=$BLDR_LOCAL_PATH/$pkg_ctry/bindings/python/site-packages"
-pkg_cfg="$pkg_cfg JAVA_PREFIX=$BLDR_LOCAL_PATH/$pkg_ctry/bindings/java"
-pkg_cfg="$pkg_cfg PERL_PREFIX=$BLDR_LOCAL_PATH/$pkg_ctry/bindings/perl"
-pkg_cfg="$pkg_cfg PHP_PREFIX=$BLDR_LOCAL_PATH/$pkg_ctry/bindings/php"
-pkg_cfg="$pkg_cfg PHP_CONFIG_PREFIX=$BLDR_LOCAL_PATH/$pkg_ctry/bindings/php/etc"
+pkg_cfg="$pkg_cfg PY_PREFIX=$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/bindings/python"
+pkg_cfg="$pkg_cfg JAVA_PREFIX=$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/bindings/java"
+pkg_cfg="$pkg_cfg PERL_PREFIX=$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/bindings/perl"
+pkg_cfg="$pkg_cfg PHP_PREFIX=$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/bindings/php"
+pkg_cfg="$pkg_cfg PHP_CONFIG_PREFIX=$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/bindings/php/etc"
 
 ####################################################################################################
 # build and install pkg as local module

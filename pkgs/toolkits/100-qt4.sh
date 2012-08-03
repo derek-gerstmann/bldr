@@ -10,7 +10,7 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_ctry="developer"
+pkg_ctry="toolkits"
 pkg_name="qt"
 pkg_vers="4.8.2"
 pkg_info="Qt is a cross-platform application and UI framework for developers using C++ or QML, a CSS & JavaScript like language."

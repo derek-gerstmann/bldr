@@ -10,7 +10,7 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_ctry="developer"
+pkg_ctry="protocols"
 pkg_name="avro"
 pkg_vers="1.7.1"
 
