@@ -48,6 +48,7 @@ if [ $BLDR_SYSTEM_IS_OSX -eq 0 ]
 then
     pkg_cfg="$pkg_cfg --enable-fortran"
     pkg_cfg="$pkg_cfg --enable-linux-lfs"
+    pkg_cfg="$pkg_cfg --with-pthread=/usr"
 fi
 pkg_cfg="$pkg_cfg --with-szlib=$BLDR_LOCAL_PATH/system/szip/latest"
 pkg_cfg="$pkg_cfg --with-zlib=$BLDR_LOCAL_PATH/internal/zlib/latest"

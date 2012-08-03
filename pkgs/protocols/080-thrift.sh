@@ -28,7 +28,7 @@ pkg_reqs="bison/latest flex/latest boost/latest openssl/latest libevent/latest p
 pkg_uses="m4/latest autoconf/latest automake/latest libtool/latest zlib/latest $pkg_reqs"
 pkg_cflags=""
 pkg_ldflags=""
-pkg_cfg="--with-c_glib --with-ruby=no --with-php=no"
+pkg_cfg="--with-c_glib --with-ruby=no --with-php=no --with-erlang=no"
 pkg_cfg="$pkg_cfg --with-boost=$BLDR_LOCAL_PATH/developer/boost/latest"
 pkg_cfg="$pkg_cfg --with-libevent=$BLDR_LOCAL_PATH/system/libevent/latest"
 pkg_cfg="$pkg_cfg --with-zlib=$BLDR_LOCAL_PATH/internal/zlib/latest"

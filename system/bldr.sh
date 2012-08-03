@@ -2612,11 +2612,14 @@ function bldr_cleanup_pkg()
         bldr_log_info "Keeping package build directory for '$pkg_name/$pkg_vers'"
         bldr_log_split
     else
-        bldr_log_info "Removing package build directory for '$pkg_name/$pkg_vers'"
-        bldr_log_split
+        if [ -d "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers" ]
+        then
+            bldr_log_info "Removing package build directory for '$pkg_name/$pkg_vers'"
+            bldr_log_split
 
-        bldr_remove_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name"
-        bldr_log_split
+            bldr_remove_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
+            bldr_log_split
+        fi
     fi
 }
 
