@@ -941,10 +941,14 @@ function bldr_apply_patch()
         # provide the specific source file for the diff based on the name we reconstructed
         patch_cmd="$patch_cmd $patch_path -N"
         bldr_log_cmd "patch $patch_path < $patch_file"
-        bldr_log_split
-    
-        eval $patch_cmd < $patch_file 
-        bldr_log_split
+
+        if [ $BLDR_VERBOSE != false ]
+        then
+            bldr_log_split
+            eval $patch_cmd < $patch_file || bldr_bail "Failed to apply patch: '$patch_file'"
+        else
+            eval $patch_cmd < $patch_file &> /dev/null || bldr_bail "Failed to apply patch: '$patch_file'"
+        fi
 
     elif [[ $(echo $patch_file | grep -m1 -c '.patch$' ) > 0 ]]
     then
@@ -952,10 +956,14 @@ function bldr_apply_patch()
         # assume a unified top-level patch
         patch_cmd="$patch_cmd -p1 -N"
         bldr_log_cmd "patch -p1 < $patch_file"
-        bldr_log_split
 
-        eval $patch_cmd < $patch_file 
-        bldr_log_split
+        if [ $BLDR_VERBOSE != false ]
+        then
+            bldr_log_split
+            eval $patch_cmd < $patch_file || bldr_bail "Failed to apply patch: '$patch_file'"
+        else
+            eval $patch_cmd < $patch_file &> /dev/null || bldr_bail "Failed to apply patch: '$patch_file'"
+        fi
 
     elif [[ $(echo $patch_file | grep -m1 -c '.ed$' ) > 0 ]]
     then
@@ -966,8 +974,15 @@ function bldr_apply_patch()
         patch_cmd=$(which ed)
         patch_cmd="$patch_cmd - $patch_path"
 
-        eval $patch_cmd < $patch_file 
-        bldr_log_split
+        bldr_log_cmd "$patch_cmd < $patch_file"
+
+        if [ $BLDR_VERBOSE != false ]
+        then
+            bldr_log_split
+            eval $patch_cmd < $patch_file
+        else
+            eval $patch_cmd < $patch_file &> /dev/null
+        fi
     fi
 }
 
@@ -1228,6 +1243,7 @@ function bldr_setup_pkg()
         bldr_log_info "Removing stale build '$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers'"
         bldr_log_split
         bldr_remove_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
+        bldr_log_split
     fi
 
     if [ -f "$BLDR_MODULE_PATH/$pkg_ctry/$pkg_name/$pkg_vers" ]
@@ -1235,6 +1251,7 @@ function bldr_setup_pkg()
         bldr_log_info "Removing stale module '$BLDR_MODULE_PATH/$pkg_ctry/$pkg_name/$pkg_vers'"
         bldr_log_split
         bldr_remove_file "$BLDR_MODULE_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
+        bldr_log_split
     fi
 
     if [ -d "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers" ]
@@ -1242,6 +1259,7 @@ function bldr_setup_pkg()
         bldr_log_info "Removing stale install '$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers'"
         bldr_log_split
         bldr_remove_dir "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
+        bldr_log_split
     fi
 }
 

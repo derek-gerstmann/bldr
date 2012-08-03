@@ -12,7 +12,7 @@ source "bldr.sh"
 
 pkg_ctry="developer"
 pkg_name="glib"
-pkg_vers="2.32.1"
+pkg_vers="2.32.4"
 pkg_info="GLib provides the core application building blocks for libraries and applications written in C."
 
 pkg_desc="GLib provides the core application building blocks for libraries and applications written in C. 

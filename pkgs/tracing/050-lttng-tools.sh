@@ -29,7 +29,7 @@ or by the liblttng-ctl provided with the lttng-tools package."
 pkg_file="$pkg_name-$pkg_vers.tar.bz2"
 pkg_urls="http://lttng.org/files/$pkg_name/$pkg_file"
 pkg_opts="configure"
-pkg_reqs="liburcu/latest lttng-ust/latest babeltrace/latest"
+pkg_reqs="liburcu/latest lttng-ust/latest babeltrace/latest glib/latest"
 pkg_uses="m4/latest autoconf/latest automake/latest libtool/latest zlib/latest"
 
 pkg_cflags="-I$BLDR_LOCAL_PATH/internal/zlib/latest/include"
