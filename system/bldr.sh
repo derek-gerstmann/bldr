@@ -278,15 +278,23 @@ function bldr_find_latest_version_dir()
 
 # setup project paths
 BLDR_ABS_PWD="$( cd "$( dirname "$0" )" && pwd )"
+BLDR_ROOT_PATH="$( dirname "$BLDR_ABS_PWD/.." )"
 BLDR_BASE_PATH="$( basename "$BLDR_ABS_PWD" )"
-BLDR_ROOT_PATH="$( dirname "$BLDR_ABS_PWD" )"
 
 # try one level up if we aren't resolving the root dir
 if [ ! -f "$BLDR_ROOT_PATH/system/bldr.sh" ]
 then
     BLDR_ABS_PWD="$( cd "$( dirname "$0" )/.." && pwd )"
+    BLDR_ROOT_PATH="$( dirname "$BLDR_ABS_PWD/.." )"
     BLDR_BASE_PATH="$( basename "$BLDR_ABS_PWD" )"
-    BLDR_ROOT_PATH="$( dirname "$BLDR_ABS_PWD" )"
+fi
+
+# try one level up if we aren't resolving the root dir
+if [ ! -f "$BLDR_ROOT_PATH/system/bldr.sh" ]
+then
+    BLDR_ABS_PWD="$( cd "$( dirname "$0" )/../.." && pwd )"
+    BLDR_ROOT_PATH="$( dirname "$BLDR_ABS_PWD/.." )"
+    BLDR_BASE_PATH="$( basename "$BLDR_ABS_PWD" )"
 fi
 
 ####################################################################################################
@@ -294,7 +302,7 @@ fi
 # ensure we are run inside of the root dir
 if [ ! -f "$BLDR_ROOT_PATH/system/bldr.sh" ]
 then
-    echo "Please execute package build script from within the 'bldr' subfolder: '$BLDR_ABS_PWD'!"
+    echo "Please execute package build script from within the 'bldr' subfolder: '$BLDR_ABS_PWD' '$BLDR_ROOT_PATH'!"
     exit 0
 fi 
 
@@ -1435,6 +1443,7 @@ function bldr_boot_pkg()
     if [ ! -d "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers" ]
     then
         bldr_make_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
+        bldr_log_split
     fi
 
     bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
