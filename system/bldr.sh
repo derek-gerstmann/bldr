@@ -1247,6 +1247,9 @@ function bldr_setup_pkg()
         bldr_log_split
     fi
 
+    bldr_make_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
+    bldr_log_split
+
     if [ -f "$BLDR_MODULE_PATH/$pkg_ctry/$pkg_name/$pkg_vers" ]
     then
         bldr_log_info "Removing stale module '$BLDR_MODULE_PATH/$pkg_ctry/$pkg_name/$pkg_vers'"
@@ -1334,13 +1337,13 @@ function bldr_fetch_pkg()
     fi
 
     # if a local copy doesn't exist, grab the pkg from the url
-    bldr_push_dir "$BLDR_CACHE_PATH"
     if [ ! -e "$BLDR_CACHE_PATH/$pkg_file" ]
     then
+        bldr_push_dir "$BLDR_CACHE_PATH"
         bldr_download_pkg "$pkg_name" "$pkg_vers" "$pkg_urls" "$pkg_file" "$use_verbose"
+        bldr_pop_dir
     fi
-    bldr_pop_dir
-
+    
     # extract any pkg archives
     bldr_log_info "Checking package '$BLDR_CACHE_PATH/$pkg_file'"
     bldr_log_split
@@ -1376,7 +1379,6 @@ function bldr_fetch_pkg()
         bldr_extract_archive "$pkg_file" 
         bldr_move_file "$archive_listing" "$pkg_vers"
         bldr_remove_file "$pkg_file"
-        bldr_pop_dir
     fi
 }
 
