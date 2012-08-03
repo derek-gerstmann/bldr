@@ -1435,7 +1435,6 @@ function bldr_boot_pkg()
     if [ ! -d "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers" ]
     then
         bldr_make_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
-        bldr_log_split
     fi
 
     bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"

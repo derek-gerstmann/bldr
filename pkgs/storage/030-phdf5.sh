@@ -43,14 +43,14 @@ pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/storage/szip/latest/lib"
 
 pkg_cfg="--enable-parallel"
 pkg_cfg="$pkg_cfg --enable-hl"
-pkg_cfg="$pkg_cfg --enable-cxx"
-pkg_cfg="$pkg_cfg --enable-static-exec"
 pkg_cfg="$pkg_cfg --enable-filters=all"
 if [ $BLDR_SYSTEM_IS_OSX -eq 0 ]
 then
-    pkg_cfg="$pkg_cfg FC=gfortran"
+    pkg_cfg="$pkg_cfg FC=mpif90"
     pkg_cfg="$pkg_cfg --enable-fortran"
     pkg_cfg="$pkg_cfg --enable-linux-lfs"
+else
+    pkg_cfg="$pkg_cfg --enable-static-exec"
 fi
 pkg_cfg="$pkg_cfg --with-szlib=$BLDR_LOCAL_PATH/system/szip/latest"
 pkg_cfg="$pkg_cfg --with-zlib=$BLDR_LOCAL_PATH/internal/zlib/latest"
