@@ -601,8 +601,7 @@ function bldr_locate_config_script
                     break
                 fi
             done
-        fi
-        if [ $use_cmake == true ]
+        elif [ $use_cmake == true ]
         then
             for cmake_tst_file in ${cmake_files}
             do
