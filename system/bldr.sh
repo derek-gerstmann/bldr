@@ -277,14 +277,14 @@ function bldr_find_latest_version_dir()
 ####################################################################################################
 
 # setup project paths
-BLDR_ABS_PWD="$( cd "$( dirname "$0" )/.." && pwd )"
+BLDR_ABS_PWD="$( cd "$( dirname "$0" )" && pwd )"
 BLDR_BASE_PATH="$( basename "$BLDR_ABS_PWD" )"
 BLDR_ROOT_PATH="$( dirname "$BLDR_ABS_PWD" )"
 
 # try one level up if we aren't resolving the root dir
 if [ ! -f "$BLDR_ROOT_PATH/system/bldr.sh" ]
 then
-    BLDR_ABS_PWD="$( cd "$( dirname "$0" )/../.." && pwd )"
+    BLDR_ABS_PWD="$( cd "$( dirname "$0" )/.." && pwd )"
     BLDR_BASE_PATH="$( basename "$BLDR_ABS_PWD" )"
     BLDR_ROOT_PATH="$( dirname "$BLDR_ABS_PWD" )"
 fi
@@ -301,7 +301,7 @@ fi
 ####################################################################################################
 
 # setup system paths
-BLDR_CONFIG_PATH=${BLDR_CONFIG_PATH:=$BLDR_ABS_PWD}
+BLDR_CONFIG_PATH=${BLDR_CONFIG_PATH:=$BLDR_ROOT_PATH}
 export BLDR_SCRIPTS_PATH="$BLDR_CONFIG_PATH/scripts"
 export BLDR_PKGS_PATH="$BLDR_CONFIG_PATH/pkgs"
 export BLDR_PATCHES_PATH="$BLDR_CONFIG_PATH/patches"
