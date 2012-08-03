@@ -48,6 +48,7 @@ pkg_cfg="$pkg_cfg --enable-static-exec"
 pkg_cfg="$pkg_cfg --enable-filters=all"
 if [ $BLDR_SYSTEM_IS_OSX -eq 0 ]
 then
+    pkg_cfg="$pkg_cfg FC=gfortran"
     pkg_cfg="$pkg_cfg --enable-fortran"
     pkg_cfg="$pkg_cfg --enable-linux-lfs"
 fi
