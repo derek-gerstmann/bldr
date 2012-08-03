@@ -38,6 +38,7 @@ BLDR_VERBOSE=${BLDR_VERBOSE:=false}
 BLDR_DEBUG=${BLDR_DEBUG:=false}
 BLDR_INITIALIASED=${BLDR_INITIALIASED:=false}
 BLDR_LOADED_MODULES=${BLDR_LOADED_MODULES:=""}
+BLDR_DEFAULT_BUILD_LIST="internal system concurrent developer network protocols cluster storage compilers"
 
 BLDR_USE_PKG_CTRY=${BLDR_USE_PKG_CTRY:=""}
 BLDR_USE_PKG_NAME=${BLDR_USE_PKG_NAME:=""}
@@ -281,7 +282,7 @@ BLDR_BASE_PATH="$( basename "$BLDR_ABS_PWD" )"
 BLDR_ROOT_PATH="$( dirname "$BLDR_ABS_PWD" )"
 
 # try one level up if we aren't resolving the root dir
-if [ "$BLDR_BASE_PATH" != "bldr" ]
+if [ ! -f "$BLDR_ROOT_PATH/system/bldr.sh" ]
 then
     BLDR_ABS_PWD="$( cd "$( dirname "$0" )/../.." && pwd )"
     BLDR_BASE_PATH="$( basename "$BLDR_ABS_PWD" )"
@@ -291,7 +292,7 @@ fi
 ####################################################################################################
 
 # ensure we are run inside of the root dir
-if [ "$BLDR_BASE_PATH" != "bldr" ]
+if [ ! -f "$BLDR_ROOT_PATH/system/bldr.sh" ]
 then
     echo "Please execute package build script from within the 'bldr' subfolder: '$BLDR_ABS_PWD'!"
     exit 0
@@ -3700,7 +3701,7 @@ function bldr_modularize_pkgs()
     pkg_ctry=$(bldr_trim_str $pkg_ctry)
     if [ "$pkg_ctry" == "" ]
     then
-        pkg_ctry="*"
+        pkg_ctry="$BLDR_DEFAULT_BUILD_LIST"
     else
         pkg_ctry="internal system $pkg_ctry"
         pkg_ctry=$(bldr_trim_str $pkg_ctry)
