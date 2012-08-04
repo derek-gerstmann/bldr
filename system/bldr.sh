@@ -993,7 +993,7 @@ function bldr_apply_patch()
     # split filename into dir parts replacing '_' with '/'
     patch_path=$(echo $patch_path|sed 's/_/\//g')
 
-    if [[ $(bldr_matches_regex "$patch_file" '.diff$' ) == "true" ]]
+    if [[ $(echo $patch_path | grep -m1 -c '.diff$' ) == "true" ]]
     then
         # remove '.diff' suffix from filename
         patch_path=$(echo $patch_path|sed 's/.diff$//g')
@@ -1121,19 +1121,19 @@ function bldr_download_pkg()
         bldr_log_info "Retrieving package '$pkg_name/$pkg_vers' from '$url'"
         bldr_log_split
 
-        if [[ $(bldr_matches_regex "$url" '^http://') == "true" ]]
+        if [[ $(echo "$url" | grep -m1 -c '^http://') > 0 ]]
         then
             bldr_fetch $url $pkg_file 
         
-        elif [[ $(bldr_matches_regex "$url" '^https://') == "true" ]]
+        elif [[ $(echo "$url" | grep -m1 -c '^https://') > 0 ]]
         then
             bldr_fetch $url $pkg_file 
 
-        elif [[ $(bldr_matches_regex "$url" '^ftp://') == "true" ]]
+        elif [[ $(echo "$url" | grep -m1 -c '^ftp://') > 0 ]]
         then
             bldr_fetch $url $pkg_file 
 
-        elif [[ $(bldr_matches_regex "$url" '^git://') == "true" ]]
+        elif [[ $(echo "$url" | grep -m1 -c '^git://') > 0 ]]
         then
             bldr_clone $url $pkg_name 
 
@@ -1144,7 +1144,7 @@ function bldr_download_pkg()
                 bldr_make_archive $pkg_file $pkg_name
             fi
 
-        elif [[ $(bldr_matches_regex "$url" '^svn://') == "true" ]]
+        elif [[ $(echo "$url" | grep -m1 -c '^svn://') > 0 ]]
         then
             bldr_checkout $url $pkg_name 
 
