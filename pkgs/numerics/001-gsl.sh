@@ -101,7 +101,7 @@ function bldr_pkg_compile_method()
 
     if [ -f "./Makefile" ]
     then
-        bldr_log_header "Building package '$pkg_name/$pkg_vers'"
+        bldr_log_status "Building package '$pkg_name/$pkg_vers'"
         bldr_log_split
 
         ln -sv "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers" "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/gsl"
