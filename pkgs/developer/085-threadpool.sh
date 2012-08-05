@@ -74,7 +74,7 @@ function bldr_pkg_install_method()
            --config-path)   pkg_cfg_path="$2"; shift 2;;
            --cflags)        pkg_cflags="$pkg_cflags:$2"; shift 2;;
            --ldflags)       pkg_ldflags="$pkg_ldflags:$2"; shift 2;;
-           --patch)         pkg_patches="$pkg_patches:$2"; shift 2;;
+           --patch)         pkg_patches="$2"; shift 2;;
            --uses)          pkg_uses="$pkg_uses:$2"; shift 2;;
            --requires)      pkg_reqs="$pkg_reqs:$2"; shift 2;;
            --url)           pkg_urls="$pkg_urls;$2"; shift 2;;
@@ -90,10 +90,10 @@ function bldr_pkg_install_method()
     local prefix="$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
 
     bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
-    local make_path=$(bldr_locate_makefile $pkg_cfg_path)
+    local build_path=$(bldr_locate_build_path $pkg_cfg_path)
     bldr_pop_dir
 
-    bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$make_path"
+    bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$build_path"
 
     local hdr_path="boost"
     if [ -d "$hdr_path" ]

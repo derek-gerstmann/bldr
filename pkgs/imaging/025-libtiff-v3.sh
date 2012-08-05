@@ -10,6 +10,7 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
+pkg_ctry="imaging"
 pkg_name="libtiff"
 pkg_vers="3.9.6"
 
@@ -66,8 +67,8 @@ function bldr_pkg_compile_method()
     local pkg_opts=""
     local pkg_cflags=""
     local pkg_ldflags=""
-    local pkg_patches=""
     local pkg_cfg=""
+    local pkg_cfg_path=""
 
     while true ; do
         case "$1" in
@@ -80,9 +81,10 @@ function bldr_pkg_compile_method()
            --options)       pkg_opts="$2"; shift 2;;
            --file)          pkg_file="$2"; shift 2;;
            --config)        pkg_cfg="$pkg_cfg:$2"; shift 2;;
+           --config-path)   pkg_cfg_path="$2"; shift 2;;
            --cflags)        pkg_cflags="$pkg_cflags:$2"; shift 2;;
            --ldflags)       pkg_ldflags="$pkg_ldflags:$2"; shift 2;;
-           --patch)         pkg_patches="$pkg_patches:$2"; shift 2;;
+           --patch)         pkg_patches="$2"; shift 2;;
            --uses)          pkg_uses="$pkg_uses:$2"; shift 2;;
            --requires)      pkg_reqs="$pkg_reqs:$2"; shift 2;;
            --url)           pkg_urls="$pkg_urls;$2"; shift 2;;
@@ -90,22 +92,31 @@ function bldr_pkg_compile_method()
         esac
     done
 
-    # handle TIFF specific build stuff
-    #
+    if [ "$use_verbose" == "true" ]
+    then
+        BLDR_VERBOSE=true
+    fi
+
+    if [[ $(bldr_has_substr "$pkg_opts" "skip-compile" ) == "true" ]]
+    then
+        return
+    fi
+
     local prefix="$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
     bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
-    local make_path=$(bldr_locate_makefile)
+    local build_path=$(bldr_locate_build_path $pkg_cfg_path)
     bldr_pop_dir
 
+    # handle TIFF specific build stuff
+    #
     local output=$(bldr_get_stdout)  
-
     bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$make_path"
     bldr_log_info "Moving to '$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$make_path'"
     bldr_log_split
 
     # on OSX disable the tools from getting built since tiffgt.c fails to compile
     #
-    if [ $BLDR_SYSTEM_IS_OSX != 0 ]
+    if [ $BLDR_SYSTEM_IS_OSX -eq 1 ]
     then
         bldr_remove_file tools/Makefile
         echo "all:"      >  tools/Makefile
@@ -131,15 +142,16 @@ function bldr_pkg_compile_method()
                              --cflags      "$pkg_cflags"  \
                              --ldflags     "$pkg_ldflags" \
                              --config      "$pkg_cfg"     \
+                             --config-path "$pkg_cfg_path"\
                              --patch       "$pkg_patches" \
                              --verbose     "$use_verbose"
-    }
+}
 
 ####################################################################################################
 # build and install pkg as local module
 ####################################################################################################
 
-bldr_build_pkg --category    "imaging"      \
+bldr_build_pkg --category    "$pkg_ctry"    \
                --name        "$pkg_name"    \
                --version     "$pkg_vers"    \
                --info        "$pkg_info"    \
@@ -151,6 +163,7 @@ bldr_build_pkg --category    "imaging"      \
                --options     "$pkg_opts"    \
                --cflags      "$pkg_cflags"  \
                --ldflags     "$pkg_ldflags" \
-               --config      "$pkg_cfg"
+               --config      "$pkg_cfg"     \
+               --config-path "$pkg_cfg_path"
 
 
