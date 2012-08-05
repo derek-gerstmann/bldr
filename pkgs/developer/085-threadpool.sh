@@ -98,7 +98,7 @@ function bldr_pkg_install_method()
     local hdr_path="boost"
     if [ -d "$hdr_path" ]
     then
-        bldr_log_header "Migrating build files from '$hdr_path' for '$pkg_name/$pkg_vers'"
+        bldr_log_status "Migrating build files from '$hdr_path' for '$pkg_name/$pkg_vers'"
         bldr_log_split
         bldr_make_dir "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/include/$hdr_path"
         bldr_copy_dir "$hdr_path" "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/include/$hdr_path" || bldr_bail "Failed to copy shared files into directory: $BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$path"

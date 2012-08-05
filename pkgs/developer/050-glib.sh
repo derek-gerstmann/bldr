@@ -154,7 +154,7 @@ function foo()
           bldr_log_split
           bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$cfg_path"
 
-          bldr_log_header "Patching package '$pkg_name/$pkg_vers' ..."
+          bldr_log_info "Patching package '$pkg_name/$pkg_vers' ..."
           bldr_log_split
 
           if [ -f "$BLDR_PATCHES_PATH/$pkg_name/$pkg_vers/osx/config.h.in.ed" ]

@@ -96,7 +96,7 @@ function bldr_pkg_compile_method()
         BLDR_VERBOSE=true
     fi
 
-    if [[ $(bldr_has_substr "$pkg_opts" "skip-compile" ) == "true" ]]
+    if [[ $(echo "$pkg_opts" | grep -m1 -c "skip-compile" ) > 0 ]]
     then
         return
     fi

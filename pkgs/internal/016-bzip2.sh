@@ -76,7 +76,7 @@ function bldr_pkg_compile_method()
         BLDR_VERBOSE=true
     fi
 
-    if [[ $(bldr_has_substr "$pkg_opts" "skip-compile" ) == "true" ]]
+    if [[ $(echo "$pkg_opts" | grep -m1 -c "skip-compile" ) > 0 ]]
     then
         return
     fi
@@ -100,7 +100,7 @@ function bldr_pkg_compile_method()
 
     if [ -f "./Makefile" ]
     then
-        bldr_log_header "Building package '$pkg_name/$pkg_vers'"
+        bldr_log_status "Building package '$pkg_name/$pkg_vers'"
         bldr_log_split
 
         ln -sv "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers" "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/gsl"
@@ -195,7 +195,7 @@ function bldr_pkg_install_method()
 
     if [ -f "./Makefile" ]
     then
-        bldr_log_header "Building package '$pkg_name/$pkg_vers'"
+        bldr_log_status "Building package '$pkg_name/$pkg_vers'"
         bldr_log_split
 
         ln -sv "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers" "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/gsl"

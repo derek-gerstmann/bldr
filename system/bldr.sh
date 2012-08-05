@@ -662,12 +662,12 @@ function bldr_locate_config_script
     local use_cmake=true
     local use_autocfg=true
 
-    if [[ $(bldr_has_substr "$cfg_opts" "cmake" ) == "true" ]]
+    if [[ $(echo "$cfg_opts" | grep -m1 -c "cmake" ) > 0 ]]
     then
         use_cmake=true
         use_autocfg=false
     
-    elif [[ $(bldr_has_substr "$cfg_opts" "config" ) == "true" ]]
+    elif [[ $(echo "$cfg_opts" | grep -m1 -c "config" ) > 0 ]]
     then
         use_cmake=false
         use_autocfg=true
@@ -1388,7 +1388,7 @@ function bldr_setup_pkg()
         BLDR_VERBOSE=true
     fi
 
-    if [[ $(bldr_has_substr "$pkg_opts" "skip-setup" ) == "true" ]]
+    if [[ $(echo "$pkg_opts" | grep -m1 -c "skip-setup" ) > 0 ]]
     then
         return
     fi
@@ -1481,7 +1481,7 @@ function bldr_fetch_pkg()
         BLDR_VERBOSE=true
     fi
 
-    if [[ $(bldr_has_substr "$pkg_opts" "skip-fetch") == "true" ]]
+    if [[ $(echo "$pkg_opts" | grep -m1 -c "skip-fetch" ) > 0 ]]
     then
         return
     fi
@@ -1620,7 +1620,7 @@ function bldr_boot_pkg()
     bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
 
     local patch_file=""
-    if [[ $(bldr_has_substr "$pkg_opts" "skip-system-patches" ) == "true" ]]
+    if [[ $(echo "$pkg_opts" | grep -m1 -c "skip-system-patches" ) > 0 ]]
     then
         bldr_log_info "Skipping system patches ..."
         bldr_log_split
@@ -1700,13 +1700,13 @@ function bldr_boot_pkg()
         bootstrap=true
     fi
 
-    if [[ $(bldr_has_substr "$pkg_opts" "skip-boot" ) == "true" ]]
+    if [[ $(echo "$pkg_opts" | grep -m1 -c "skip-boot" ) > 0 ]]
     then
         bldr_log_info "Skipping bootstrap ..."
         bldr_log_split
         bootstrap=false
     
-    elif [[ $(bldr_has_substr "$pkg_opts" "force-bootstrap" ) == "true" ]]
+    elif [[ $(echo "$pkg_opts" | grep -m1 -c "force-bootstrap" ) > 0 ]]
     then
         bldr_log_info "Forcing bootstrap ..."
         bldr_log_split
@@ -1734,7 +1734,7 @@ function bldr_boot_pkg()
         if [ -x "$boot_cmd" ] && [ "$boot_cmd" != "." ]
         then
 
-            if [[ $(bldr_has_substr "$pkg_opts" "no-bootstrap-prefix" ) == "true" ]]
+            if [[ $(echo "$pkg_opts" | grep -m1 -c "no-bootstrap-prefix" ) > 0 ]]
             then
 
                 bldr_log_cmd "$boot_cmd"
@@ -1817,7 +1817,7 @@ function bldr_cmake_pkg()
         BLDR_VERBOSE=true
     fi
 
-    if [[ $(bldr_has_substr "$pkg_opts" "skip-config" ) == "true" ]]
+    if [[ $(echo "$pkg_opts" | grep -m1 -c "skip-config" ) > 0 ]]
     then
         return
     fi
@@ -1894,7 +1894,7 @@ function bldr_cmake_pkg()
     local use_static=false
     local use_shared=false
 
-    if [[ $(bldr_has_substr "$pkg_opts" "enable-shared" ) == "true" ]]
+    if [[ $(echo "$pkg_opts" | grep -m1 -c "enable-shared" ) > 0 ]]
     then
         bldr_log_info "Adding shared library configuration ..."
         bldr_log_split
@@ -1902,7 +1902,7 @@ function bldr_cmake_pkg()
         use_shared=true
     fi
     
-    if [[ $(bldr_has_substr "$pkg_opts" "enable-static" ) == "true" ]]
+    if [[ $(echo "$pkg_opts" | grep -m1 -c "enable-static" ) > 0 ]]
     then
         bldr_log_info "Adding static library configuration ..."
         bldr_log_split
@@ -1910,7 +1910,7 @@ function bldr_cmake_pkg()
         use_static=true
     fi
 
-    if [[ $(bldr_has_substr "$pkg_opts" "force-shared" ) == "true" ]]
+    if [[ $(echo "$pkg_opts" | grep -m1 -c "force-shared" ) > 0 ]]
     then
         bldr_log_info "Forcing shared library configuration ..."
         bldr_log_split
@@ -1920,7 +1920,7 @@ function bldr_cmake_pkg()
         fi
     fi
 
-    if [[ $(bldr_has_substr "$pkg_opts" "force-static" ) == "true" ]]
+    if [[ $(echo "$pkg_opts" | grep -m1 -c "force-static" ) > 0 ]]
     then
         bldr_log_info "Forcing static library configuration ..."
         bldr_log_split
@@ -1992,14 +1992,14 @@ function bldr_autocfg_pkg()
         BLDR_VERBOSE=true
     fi
 
-    if [[ $(bldr_has_substr "$pkg_opts" "skip-config" ) == "true" ]]
+    if [[ $(echo "$pkg_opts" | grep -m1 -c "skip-config" ) > 0 ]]
     then
         return
     fi
 
     local prefix="$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
 
-    if [[ $(bldr_has_substr "$pkg_opts" "use-build-dir" ) == "true" ]]
+    if [[ $(echo "$pkg_opts" | grep -m1 -c "use-build-dir" ) > 0 ]]
     then
         bldr_make_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/build"
         bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/build"
@@ -2021,7 +2021,7 @@ function bldr_autocfg_pkg()
 
     if [ "$BLDR_SYSTEM_IS_OSX" -eq 1 ]
     then
-        if [[ $(bldr_has_substr "$pkg_opts" "disable-xcode-cflags" ) == "true" ]]
+        if [[ $(echo "$pkg_opts" | grep -m1 -c "disable-xcode-cflags" ) > 0 ]]
         then
             bldr_log_info "Disabling XCode Compile FLAGS ..."
             bldr_log_split
@@ -2029,7 +2029,7 @@ function bldr_autocfg_pkg()
             pkg_cflags="$pkg_cflags:$BLDR_XCODE_CFLAGS"
         fi
 
-        if [[ $(bldr_has_substr "$pkg_opts" "disable-xcode-ldflags" ) == "true" ]]
+        if [[ $(echo "$pkg_opts" | grep -m1 -c "disable-xcode-ldflags" ) > 0 ]]
         then
             bldr_log_info "Disabling XCode Linker FLAGS ..."
             bldr_log_split
@@ -2089,7 +2089,7 @@ function bldr_autocfg_pkg()
     local use_static=false
     local use_shared=false
 
-    if [[ $(bldr_has_substr "$pkg_opts" "enable-shared" ) == "true" ]]
+    if [[ $(echo "$pkg_opts" | grep -m1 -c "enable-shared" ) > 0 ]]
     then
         bldr_log_info "Adding shared library configuration ..."
         bldr_log_split
@@ -2097,7 +2097,7 @@ function bldr_autocfg_pkg()
         use_shared=true
     fi
     
-    if [[ $(bldr_has_substr "$pkg_opts" "enable-static" ) == "true" ]]
+    if [[ $(echo "$pkg_opts" | grep -m1 -c "enable-static" ) > 0 ]]
     then
         bldr_log_info "Adding static library configuration ..."
         bldr_log_split
@@ -2105,7 +2105,7 @@ function bldr_autocfg_pkg()
         use_static=true
     fi
 
-    if [[ $(bldr_has_substr "$pkg_opts" "force-shared" ) == "true" ]]
+    if [[ $(echo "$pkg_opts" | grep -m1 -c "force-shared" ) > 0 ]]
     then
         bldr_log_info "Forcing shared library configuration ..."
         bldr_log_split
@@ -2114,7 +2114,7 @@ function bldr_autocfg_pkg()
             pkg_cfg="$pkg_cfg --enable-shared --disable-static"
         fi
 
-    elif [[ $(bldr_has_substr "$pkg_opts" "force-static" ) == "true" ]]
+    elif [[ $(echo "$pkg_opts" | grep -m1 -c "force-static" ) > 0 ]]
     then
         bldr_log_info "Forcing static library configuration ..."
         bldr_log_split
@@ -2124,7 +2124,7 @@ function bldr_autocfg_pkg()
         fi
     fi
 
-    if [[ $(bldr_has_substr "$pkg_opts" "use-build-dir" ) == "true" ]]
+    if [[ $(echo "$pkg_opts" | grep -m1 -c "use-build-dir" ) > 0 ]]
     then
         bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/build"
     else
@@ -2137,7 +2137,7 @@ function bldr_autocfg_pkg()
     bldr_log_cmd "$cfg_cmd --prefix=\"$prefix\" $pkg_cfg $env_flags"
     bldr_log_split
 
-    if [[ $(bldr_has_substr "$pkg_opts" "config-agree-to-prompt" ) == "true" ]]
+    if [[ $(echo "$pkg_opts" | grep -m1 -c "config-agree-to-prompt" ) > 0 ]]
     then
         if [ $BLDR_VERBOSE != false ]
         then
@@ -2208,7 +2208,7 @@ function bldr_config_pkg()
         BLDR_VERBOSE=true
     fi
 
-    if [[ $(bldr_has_substr "$pkg_opts" "skip-config" ) == "true" ]]
+    if [[ $(echo "$pkg_opts" | grep -m1 -c "skip-config" ) > 0 ]]
     then
         return
     fi
@@ -2232,26 +2232,26 @@ function bldr_config_pkg()
     local use_autocfg=false
     local has_autocfg=false
 
-    if [[ $(bldr_has_substr "$cfg_cmd" "CMakeLists.txt" ) == "true" ]]
+    if [[ $(echo "$cfg_cmd" | grep -m1 -c "CMakeLists.txt" ) > 0 ]]
     then
         has_cmake=true
     
-    elif [[ $(bldr_has_substr "$cfg_cmd" "config" ) == "true" ]]
+    elif [[ $(echo "$cfg_cmd" | grep -m1 -c "config" ) > 0 ]]
     then
         has_autocfg=true
     
-    elif [[ $(bldr_has_substr "$cfg_cmd" "configure" ) == "true" ]]
+    elif [[ $(echo "$cfg_cmd" | grep -m1 -c "configure" ) > 0 ]]
     then
         has_autocfg=true
     fi
 
-    if [[ $(bldr_has_substr "$pkg_opts" "cmake" ) == "true" ]]
+    if [[ $(echo "$pkg_opts" | grep -m1 -c "cmake" ) > 0 ]]
     then
         use_cmake=true
         use_autocfg=false
         has_autocfg=false
     
-    elif [[ $(bldr_has_substr "$pkg_opts" "configure" ) == "true" ]]
+    elif [[ $(echo "$pkg_opts" | grep -m1 -c "configure" ) > 0 ]]
     then
         use_cmake=false
         has_cmake=false
@@ -2350,7 +2350,7 @@ function bldr_compile_pkg()
         BLDR_VERBOSE=true
     fi
 
-    if [[ $(bldr_has_substr "$pkg_opts" "skip-compile" ) == "true" ]]
+    if [[ $(echo "$pkg_opts" | grep -m1 -c "skip-compile" ) > 0 ]]
     then
         return
     fi
@@ -2368,7 +2368,7 @@ function bldr_compile_pkg()
     bldr_log_split
     bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$build_path"
 
-    if [[ $(bldr_has_substr "$pkg_opts" "force-serial-build" ) == "true" ]]
+    if [[ $(echo "$pkg_opts" | grep -m1 -c "force-serial-build" ) > 0 ]]
     then
         bldr_log_info "Forcing serial build for '$pkg_name/$pkg_vers' ..."
         bldr_log_split
@@ -2470,7 +2470,7 @@ function bldr_install_pkg()
         BLDR_VERBOSE=true
     fi
 
-    if [[ $(bldr_has_substr "$pkg_opts" "skip-install" ) == "true" ]]
+    if [[ $(echo "$pkg_opts" | grep -m1 -c "skip-install" ) > 0 ]]
     then
         return
     fi
@@ -2560,7 +2560,7 @@ function bldr_migrate_pkg()
         BLDR_VERBOSE=true
     fi
 
-    if [[ $(bldr_has_substr "$pkg_opts" "skip-migrate" ) == "true" ]]
+    if [[ $(echo "$pkg_opts" | grep -m1 -c "skip-migrate" ) > 0 ]]
     then
         return
     fi
@@ -2600,14 +2600,14 @@ function bldr_migrate_pkg()
         bldr_pop_dir
     fi
 
-    if [[ $(bldr_has_substr "$pkg_opts" "migrate-build-tree" ) == "true" ]]
+    if [[ $(echo "$pkg_opts" | grep -m1 -c "migrate-build-tree" ) > 0 ]]
     then
         bldr_make_dir "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
         bldr_copy_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers" "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers" || bldr_bail "Failed to copy shared files into directory: $BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
         bldr_log_split
     fi
     
-    if [[ $(bldr_has_substr "$pkg_opts" "migrate-build-headers" ) == "true" ]]
+    if [[ $(echo "$pkg_opts" | grep -m1 -c "migrate-build-headers" ) > 0 ]]
     then
         bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
         local inc_paths="include inc man share"
@@ -2626,7 +2626,7 @@ function bldr_migrate_pkg()
         bldr_pop_dir
     fi    
 
-    if [[ $(bldr_has_substr "$pkg_opts" "migrate-build-source" ) == "true" ]]
+    if [[ $(echo "$pkg_opts" | grep -m1 -c "migrate-build-source" ) > 0 ]]
     then
         bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
         local inc_paths="src source"
@@ -2645,7 +2645,7 @@ function bldr_migrate_pkg()
         bldr_pop_dir
     fi    
 
-    if [[ $(bldr_has_substr "$pkg_opts" "migrate-build-binaries" ) == "true" ]]
+    if [[ $(echo "$pkg_opts" | grep -m1 -c "migrate-build-binaries" ) > 0 ]]
     then
         bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
         local bin_paths=". lib bin lib32 lib64"
@@ -2684,7 +2684,7 @@ function bldr_migrate_pkg()
         bldr_pop_dir
     fi    
 
-    if [[ $(bldr_has_substr "$pkg_opts" "migrate-build-libs" ) == "true" ]]
+    if [[ $(echo "$pkg_opts" | grep -m1 -c "migrate-build-libs" ) > 0 ]]
     then
         bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
         local inc_paths="build"
@@ -2770,7 +2770,7 @@ function bldr_cleanup_pkg()
         BLDR_VERBOSE=true
     fi
 
-    if [[ $(bldr_has_substr "$pkg_opts" "skip-cleanup" ) == "true" ]]
+    if [[ $(echo "$pkg_opts" | grep -m1 -c "skip-cleanup" ) > 0 ]]
     then
         return
     fi
@@ -2778,7 +2778,7 @@ function bldr_cleanup_pkg()
     bldr_log_status "Cleaning package '$pkg_name/$pkg_vers' ..."
     bldr_log_split
     
-    if [[ $(bldr_has_substr "$pkg_opts" "keep" ) == "true" ]]
+    if [[ $(echo "$pkg_opts" | grep -m1 -c "keep" ) > 0 ]]
     then
         bldr_log_info "Keeping package build directory for '$pkg_name/$pkg_vers'"
         bldr_log_split
@@ -2839,7 +2839,7 @@ function bldr_modulate_pkg()
         BLDR_VERBOSE=true
     fi
 
-    if [[ $(bldr_has_substr "$pkg_opts" "skip-modulate" ) == "true" ]]
+    if [[ $(echo "$pkg_opts" | grep -m1 -c "skip-modulate" ) > 0 ]]
     then
         return
     fi
@@ -3822,7 +3822,7 @@ function bldr_build_pkgs()
                 else
                     for entry in $pkg_list 
                     do
-                        if [[ $(bldr_has_substr "$pkg_def" "$entry" )  == "true" ]]
+                        if [[ $(echo "$pkg_def" | grep -m1 -c "$entry" ) > 0 ]]
                         then
                             if [ $BLDR_VERBOSE != false ]
                             then
@@ -3912,7 +3912,7 @@ function bldr_modularize_pkgs()
                 else
                     for entry in $pkg_list 
                     do
-                        if [[ $(bldr_has_substr "$pkg_def" "$entry" ) == "true" ]]
+                        if [[ $(echo "$pkg_def" | grep -m1 -c "*$entry*" ) > 0 ]]
                         then
                             if [ $BLDR_VERBOSE != false ]
                             then
@@ -3991,7 +3991,7 @@ function bldr_load_pkgs()
 
             for pkg_entry in $md_path/$base_ctry/*
             do
-                if [[ $(bldr_has_substr "$BLDR_LOADED_MODULES" "$using" ) == "true" ]]; then
+                if [[ $(echo "$BLDR_LOADED_MODULES" | grep -m1 -c "$using" ) > 0 ]]; then
                     local $using=$(basename $pkg_entry)
                     module load $using || bldr_bail "Failed to load module '$pkg_entry' from '$base_ctry'!"
                     BLDR_LOADED_MODULES="$BLDR_LOADED_MODULES:$using"
