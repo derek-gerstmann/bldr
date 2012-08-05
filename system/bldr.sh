@@ -2253,9 +2253,9 @@ function bldr_config_pkg()
     
     elif [[ $(bldr_has_substr "$pkg_opts" "configure" ) == "true" ]]
     then
-        use_cmake=0
-        has_cmake=0
-        use_autocfg=1
+        use_cmake=false
+        has_cmake=false
+        use_autocfg=true
     fi
 
     if [ $use_cmake == true ] && [ $has_cmake == true ]
