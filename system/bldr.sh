@@ -38,7 +38,7 @@ BLDR_VERBOSE=${BLDR_VERBOSE:=false}
 BLDR_DEBUG=${BLDR_DEBUG:=false}
 BLDR_INITIALIASED=${BLDR_INITIALIASED:=false}
 BLDR_LOADED_MODULES=${BLDR_LOADED_MODULES:=""}
-BLDR_DEFAULT_BUILD_LIST="internal system concurrent developer network protocols compilers numerics cluster storage imaging toolkits"
+BLDR_DEFAULT_BUILD_LIST="internal system concurrent developer network protocols numerics compilers cluster storage imaging toolkits"
 
 BLDR_USE_PKG_CTRY=${BLDR_USE_PKG_CTRY:=""}
 BLDR_USE_PKG_NAME=${BLDR_USE_PKG_NAME:=""}
