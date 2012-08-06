@@ -31,7 +31,7 @@ It has several advantages and distinct features:
 
 As well as other features."
 
-pkg_file="release-$pkg_vers.tar.xz"
+pkg_file="release-$pkg_vers.tar.bz2"
 pkg_urls="http://bitbucket.org/$pkg_name/$pkg_name/get/$pkg_file"
 pkg_opts="configure"
 pkg_reqs=""
