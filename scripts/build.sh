@@ -1,5 +1,4 @@
 #!/bin/bash
-
 ####################################################################################################
 ##
 ## License:    The MIT License
@@ -62,6 +61,7 @@ usage () {
 pkg_ctry=""
 pkg_name=""
 pkg_opts=""
+pkg_args=""
 
 ####################################################################################################
 
@@ -70,20 +70,20 @@ for arg
 do
     delim=""
     case "$arg" in
-       --help) args="${args}-h ";;
-       --verbose) args="${args}-v ";;
-       --version) args="${args}-V ";;
-       --category) args="${args}-c ";;
-       --name) args="${args}-n ";;
-       --options) args="${args}-o ";;
+       --help) pkg_args="${pkg_args}-h ";;
+       --verbose) pkg_args="${pkg_args}-v ";;
+       --version) pkg_args="${pkg_args}-V ";;
+       --category) pkg_args="${pkg_args}-c ";;
+       --name) pkg_args="${pkg_args}-n ";;
+       --options) pkg_args="${pkg_args}-o ";;
        # pass through anything else
        *) [[ "${arg:0:1}" == "-" ]] || delim="\""
-           args="${args}${delim}${arg}${delim} ";;
+           pkg_args="${pkg_args}${delim}${arg}${delim} ";;
     esac
 done
 
 # reset the translated args
-eval set -- $args
+eval set -- $pkg_args
 
 # now we can process with getopt
 while getopts ":hdvVc:n:o:" opt; do
@@ -103,6 +103,6 @@ done
 
 ####################################################################################################
 
-bldr_build_pkgs --category "$pkg_ctry" --name "$pkg_name" --options "$pkg_opts" $*
+bldr_build_pkgs --category "$pkg_ctry" --name "$pkg_name" --options "$pkg_opts" ${pkg_args}
 
 ####################################################################################################
