@@ -27,7 +27,7 @@ pkg_file="$pkg_name-$pkg_vers.tar.gz"
 pkg_urls="http://users.nccs.gov/~pnorbert/$pkg_file"
 pkg_opts="configure"
 pkg_reqs="szip/latest zlib/latest mxml/latest phdf5/latest pnetcdf/latest"
-pkg_uses="m4/latest autoconf/latest automake/latest"
+pkg_uses="$pkg_reqs"
 
 pkg_cflags=""
 pkg_ldflags=""

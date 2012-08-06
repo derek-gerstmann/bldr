@@ -26,7 +26,7 @@ pkg_file="$pkg_name-latest.tar.gz"
 pkg_urls="http://mvapich.cse.ohio-state.edu/nightly/$pkg_name/branches/$pkg_vers/$pkg_file"
 pkg_opts="configure"
 pkg_reqs="zlib/latest papi/latest hwloc/latest"
-pkg_uses="m4/latest autoconf/latest automake/latest $pkg_reqs"
+pkg_uses="$pkg_reqs"
 
 pkg_cflags="-I$BLDR_LOCAL_PATH/internal/zlib/latest/include"
 pkg_ldflags="-L$BLDR_LOCAL_PATH/internal/zlib/latest/lib"

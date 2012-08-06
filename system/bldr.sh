@@ -36,13 +36,15 @@ export BLDR_VERSION_STR="v$BLDR_VERSION_MAJOR.$BLDR_VERSION_MINOR.$BLDR_VERSION_
 BLDR_PARALLEL=${BLDR_PARALLEL:=true}
 BLDR_VERBOSE=${BLDR_VERBOSE:=false}
 BLDR_DEBUG=${BLDR_DEBUG:=false}
-BLDR_INITIALIASED=${BLDR_INITIALIASED:=false}
+BLDR_IS_INTERNAL_LOADED=${BLDR_IS_INTERNAL_LOADED:=false}
 BLDR_LOADED_MODULES=${BLDR_LOADED_MODULES:=""}
-BLDR_DEFAULT_BUILD_LIST="internal system concurrent developer network protocols numerics compilers cluster storage imaging toolkits"
+BLDR_DEFAULT_BUILD_LIST=${BLDR_DEFAULT_BUILD_LIST:="internal system concurrent developer network protocols numerics compilers cluster storage imaging databases toolkits"}
+BLDR_DEFAULT_PKG_USES=${BLDR_DEFAULT_PKG_USES:=""}
 
 BLDR_USE_PKG_CTRY=${BLDR_USE_PKG_CTRY:=""}
 BLDR_USE_PKG_NAME=${BLDR_USE_PKG_NAME:=""}
 BLDR_USE_PKG_VERS=${BLDR_USE_PKG_VERS:=""}
+BLDR_USE_PKG_OPTS=${BLDR_USE_PKG_OPTS:=""}
 
 BLDR_XCODE_SDK=${BLDR_XCODE_SDK:=""}
 BLDR_XCODE_BASE=${BLDR_XCODE_BASE:="/Developer"}
@@ -553,11 +555,7 @@ function bldr_startup()
 ####################################################################################################
 
 # import our internal tools for usage
-if [[ $BLDR_INITIALIASED == false ]]; then
-    bldr_startup
-    bldr_load_pkgconfig
-    BLDR_INITIALIASED=true
-fi
+bldr_startup
 
 ####################################################################################################
 
@@ -1679,16 +1677,23 @@ function bldr_boot_pkg()
     then
         pkg_uses=$(echo $pkg_uses | bldr_split_str ":" | bldr_join_str " ")
     else
-        pkg_uses=""
+        pkg_uses="$BLDR_DEFAULT_PKG_USES"
     fi
 
     if [ "$pkg_uses" != "" ]
     then
         for using in ${pkg_uses}
         do
-            local req_name=$(echo "$using" | sed 's/\/.*//g')
-            local req_vers=$(echo "$using" | sed 's/.*\///g')
-            bldr_load_pkg --name "$req_name" --version "$req_vers" --verbose $use_verbose
+            if [[ $(echo $using | grep -m1 -c '\/') > 0 ]]
+            then
+                local req_name=$(echo "$using" | sed 's/\/.*//g')
+                local req_vers=$(echo "$using" | sed 's/.*\///g')
+                bldr_load_pkg --name "$req_name" --version "$req_vers" --verbose $use_verbose
+            else
+                local req_name=$(echo "$using" | sed 's/\/.*//g')
+                local req_vers="latest"
+                bldr_load_pkg --name "$req_name" --version "$req_vers" --verbose $use_verbose                
+            fi
         done
         bldr_log_split
     fi
@@ -2355,6 +2360,15 @@ function bldr_compile_pkg()
         return
     fi
 
+    if [ ! -d "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers" ]
+    then
+        bldr_log_warning "Build directory not found for '$pkg_name/$pkg_vers'!  Skipping 'compile' stage ..."
+        bldr_log_split
+        return
+    fi
+
+    # setup the build and prep for the compile
+    #
     local prefix="$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
 
     bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
@@ -2475,6 +2489,13 @@ function bldr_install_pkg()
         return
     fi
 
+    if [ ! -d "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers" ]
+    then
+        bldr_log_warning "Build directory not found for '$pkg_name/$pkg_vers'!  Skipping 'install' stage ..."
+        bldr_log_split
+        return
+    fi
+
     local prefix="$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
 
     bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
@@ -2565,6 +2586,13 @@ function bldr_migrate_pkg()
         return
     fi
 
+    if [ ! -d "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers" ]
+    then
+        bldr_log_warning "Build directory not found for '$pkg_name/$pkg_vers'!  Skipping 'migrate' stage ..."
+        bldr_log_split
+        return
+    fi
+
     local prefix="$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
 
     bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
@@ -2579,7 +2607,6 @@ function bldr_migrate_pkg()
     # build using make if a makefile exists
     if [ -d "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$build_path" ] 
     then
-
         bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$build_path"
         local bin_paths="lib bin lib32 lib64"
         for src_path in ${bin_paths}
@@ -2648,21 +2675,24 @@ function bldr_migrate_pkg()
     if [[ $(echo "$pkg_opts" | grep -m1 -c "migrate-build-binaries" ) > 0 ]]
     then
         bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
-        local bin_paths=". lib bin lib32 lib64"
+        local bin_paths=". lib bin lib32 lib64 src"
         local binary=""
         local subdir=""
+        local src_path=""
         for src_path in ${bin_paths}
         do
             # move product into external path
-            if [ $src_path == "." ]
+            if [ $src_path == "." ] || [ $src_path = "src" ]
             then
                 subdir="bin"
             else
                 subdir="$src_path"
             fi
+
             if [ -d "$src_path" ]
             then
                 local first_file=1
+                local binary=""
                 for binary in ${src_path}/*
                 do
                     if [ -x "$binary" ] && [ ! -d "$binary" ]
@@ -2775,6 +2805,13 @@ function bldr_cleanup_pkg()
         return
     fi
 
+    if [ ! -d "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers" ]
+    then
+        bldr_log_warning "Build directory not found for '$pkg_name/$pkg_vers'!  Skipping 'cleanup' stage ..."
+        bldr_log_split
+        return
+    fi
+
     bldr_log_status "Cleaning package '$pkg_name/$pkg_vers' ..."
     bldr_log_split
     
@@ -2841,6 +2878,12 @@ function bldr_modulate_pkg()
 
     if [[ $(echo "$pkg_opts" | grep -m1 -c "skip-modulate" ) > 0 ]]
     then
+        return
+    fi
+    if [ ! -d "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers" ]
+    then
+        bldr_log_warning "Local directory not found for '$pkg_name/$pkg_vers'!  Skipping 'modulate' stage ..."
+        bldr_log_split
         return
     fi
 
@@ -3209,7 +3252,7 @@ function bldr_build_pkg()
     local pkg_urls=""
     local pkg_uses=""
     local pkg_reqs=""
-    local pkg_opts=""
+    local pkg_opts=" "
     local pkg_cflags=""
     local pkg_ldflags=""
     local pkg_patches=""
@@ -3250,11 +3293,24 @@ function bldr_build_pkg()
 
     if [ "$pkg_ctry" == "" ]
     then
-        pkg_ctry=$BLDR_USE_PKG_CTRY
+        pkg_ctry="$BLDR_USE_PKG_CTRY"
     fi
     
-    local existing=$(bldr_has_pkg --category "$pkg_ctry" --name "$pkg_name" --version "$pkg_vers" --options "$pkg_opts")
-    if [ "$existing" != "false" ]
+    if [ "$BLDR_USE_PKG_OPTS" != "" ]
+    then
+        pkg_opts="$BLDR_USE_PKG_OPTS $pkg_opts"
+    fi
+
+    local existing="false"
+    if [[ $(echo "$pkg_opts" | grep -m1 -c "force-rebuild" ) > 0 ]]
+    then
+        bldr_log_status "Rebuilding package '$pkg_name/$pkg_vers' ... "
+        bldr_log_split
+    else
+        existing=$(bldr_has_pkg --category "$pkg_ctry" --name "$pkg_name" --version "$pkg_vers" --options "$pkg_opts" )
+    fi
+
+    if [ "$existing" == "true" ]
     then
         if [ $BLDR_VERBOSE != false ]
         then
@@ -3755,7 +3811,8 @@ function bldr_build_pkgs()
     local use_verbose="false"
     local pkg_ctry=""
     local pkg_name="" 
-    local pkg_version=""
+    local pkg_vers=""
+    local pkg_opts=""
 
     while true ; do
         case "$1" in
@@ -3763,6 +3820,7 @@ function bldr_build_pkgs()
            --name)          pkg_name="$2"; shift 2;;
            --category)      pkg_ctry="$2"; shift 2;;
            --version)       pkg_vers="$2"; shift 2;;
+           --options)       pkg_opts="$pkg_opts $2"; shift 2;;
            * )              break ;;
         esac
     done
@@ -3772,6 +3830,16 @@ function bldr_build_pkgs()
         BLDR_VERBOSE=true
     fi
 
+    local bld_cnt=1
+    local bld_idx=1
+
+    if [ "$BLDR_USE_PKG_OPTS" != "" ]
+    then
+        pkg_opts="$BLDR_USE_PKG_OPTS $pkg_opts"
+    fi
+
+    local existing="false"
+    local force_rebuild=$(echo "$pkg_opts" | grep -m1 -c "force-rebuild" )
     local pkg_ctry=$(echo "$pkg_ctry" | bldr_split_str ":" | bldr_join_str " ")
     local pkg_list=$(echo "$pkg_name" | bldr_split_str ":" | bldr_join_str " ")
     local pkg_dir="$BLDR_PKGS_PATH"
@@ -3790,55 +3858,119 @@ function bldr_build_pkgs()
 
     pkg_list=$(bldr_trim_str $pkg_list)
 
-    if [[ -d $pkg_dir ]]
+    if [[ ! -d $pkg_dir ]]
     then
-        local builder
         bldr_log_split
-        bldr_log_status "Starting build for '$pkg_ctry' in '$pkg_dir'..."
+        bldr_log_error "Unable to locate package repository!  Please checkout the 'bldr/pkgs' into your local repo!"
         bldr_log_split
-        for pkg_category in $pkg_dir/$pkg_ctry
+        return
+    fi
+
+    bldr_log_split
+    bldr_log_status "Starting build for '$pkg_ctry' in '$pkg_dir'..."
+    bldr_log_split
+
+
+    local pkg_ctry_path=""
+    for pkg_ctry_path in $pkg_dir/$pkg_ctry
+    do
+        local ctry_name=$(basename "$pkg_ctry_path")
+        local pkg_sh
+        for pkg_sh in $pkg_dir/$ctry_name/*
         do
-            local base_ctry=$(basename $pkg_category)
-            bldr_log_info "Scanning category '$base_ctry'"
-            bldr_log_split
+            if [[ ! -x $pkg_sh ]]
+            then
+                continue
+            fi
 
-            for pkg_def in $pkg_dir/$base_ctry/*
+            local pkg_tst_list=$pkg_list
+            if [ "$pkg_list" == "" ]
+            then
+                local pkg_base=$(basename "$pkg_sh" )
+                pkg_tst_list=$(echo "$pkg_base" | sed 's/\S*\.sh$//g' | sed 's/[0-9]*\-//' )
+            fi
+            
+            local pkg_entry
+            for pkg_entry in ${pkg_tst_list} 
             do
-                if [[ ! -x $pkg_def ]]
+                if [[ $(echo "$pkg_sh" | grep -m1 -c "$pkg_entry" ) > 0 ]]
                 then
-                    continue
-                fi
-
-                if [[ "$pkg_list" == "" ]] 
-                then
-                    if [ $BLDR_VERBOSE != false ]
+                    if [ "$force_rebuild" == "1" ]
                     then
-                        bldr_log_info "Building package '$pkg_def'"
-                        bldr_log_split
+                        existing="false"
+                    else
+                        existing=$(bldr_has_pkg --category "$ctry_name" --name "$pkg_entry" --options "$pkg_opts" )
                     fi
-                    export BLDR_USE_PKG_CTRY="$base_ctry"
-                    eval $pkg_def || exit -1
-                    export BLDR_USE_PKG_CTRY=""
-                else
-                    for entry in $pkg_list 
-                    do
-                        if [[ $(echo "$pkg_def" | grep -m1 -c "$entry" ) > 0 ]]
-                        then
-                            if [ $BLDR_VERBOSE != false ]
-                            then
-                                bldr_log_info "Building '$entry' from '$pkg_def'"
-                                bldr_log_split
-                            fi
-                            export BLDR_USE_PKG_CTRY="$base_ctry"
-                            eval $pkg_def || exit -1
-                            export BLDR_USE_PKG_CTRY=""
-                            break
-                        fi
-                    done
+
+                    if [ "$existing" == "false" ]
+                    then
+                        let bld_cnt=$bld_cnt+1
+                    fi
+                    break
                 fi
             done
         done
+
+        if [ $BLDR_VERBOSE != false ]
+        then
+            bldr_log_info "Found '$bld_cnt' packages -- scanning '$ctry_name' ..."
+        fi
+    done
+
+    if [ $bld_cnt > 0 ] && [ $BLDR_VERBOSE != false ]
+    then
+        bldr_log_split
     fi
+
+    for pkg_ctry_path in $pkg_dir/$pkg_ctry
+    do
+        local ctry_name=$(basename "$pkg_ctry_path")
+        local pkg_sh
+        for pkg_sh in $pkg_dir/$ctry_name/*
+        do
+            if [[ ! -x $pkg_sh ]]
+            then
+                continue
+            fi
+
+            local pkg_tst_list=$pkg_list
+            if [ "$pkg_list" == "" ]
+            then
+                local pkg_base=$(basename "$pkg_sh" )
+                pkg_tst_list=$(echo "$pkg_base" | sed 's/\S*\.sh$//g' | sed 's/[0-9]*\-//' )
+            fi
+            
+            local pkg_entry
+            for pkg_entry in ${pkg_tst_list} 
+            do
+                if [[ $(echo "$pkg_sh" | grep -m1 -c "$pkg_entry" ) > 0 ]]
+                then
+                    if [ "$force_rebuild" == "1" ]
+                    then
+                        existing="false"
+                    else
+                        existing=$(bldr_has_pkg --category "$ctry_name" --name "$pkg_entry" --options "$pkg_opts" )
+                    fi
+
+                    if [ "$existing" == "false" ]
+                    then
+                        bldr_log_status "Building '$pkg_entry' from '$pkg_sh' [ $bld_idx / $bld_cnt ]"
+                        bldr_log_split
+
+                        export BLDR_USE_PKG_CTRY="$ctry_name"
+                        export BLDR_USE_PKG_OPTS="$pkg_opts"
+
+                        eval $pkg_sh || exit -1
+                        let bld_idx=$bld_idx+1
+
+                        export BLDR_USE_PKG_CTRY=""
+                        export BLDR_USE_PKG_OPTS=""
+                    fi
+                    break
+                fi
+            done
+        done
+    done
 }
 
 
@@ -3849,7 +3981,7 @@ function bldr_modularize_pkgs()
     local use_verbose="false"
     local pkg_ctry=""
     local pkg_name="" 
-    local pkg_version=""
+    local pkg_vers=""
 
     while true ; do
         case "$1" in

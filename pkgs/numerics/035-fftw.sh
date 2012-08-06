@@ -25,7 +25,7 @@ for most applications."
 pkg_file="$pkg_name-$pkg_vers.tar.gz"
 pkg_urls="http://www.fftw.org/$pkg_file"
 pkg_opts="configure"
-pkg_uses="m4/latest autoconf/latest automake/latest"
+pkg_uses=""
 pkg_reqs=""
 pkg_cfg="--enable-threads --enable-sse2"
 

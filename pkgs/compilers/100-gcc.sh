@@ -33,8 +33,8 @@ pkg_file="$pkg_name-$pkg_vers.tar.bz2"
 pkg_urls="http://ftp.tsukuba.wide.ad.jp/software/gcc/releases/$pkg_name-$pkg_vers/$pkg_file"
 pkg_opts="configure disable-xcode-cflags disable-xcode-ldflags"
 
-pkg_reqs="gmp/latest mpfr/latest mpc/latest isl/latest osl/latest cloog/latest"
-pkg_uses="tar/latest tcl/latest m4/latest autoconf/latest automake/latest $pkg_reqs"
+pkg_reqs="gmp/latest mpfr/latest mpc/latest isl/latest osl/latest cloog/latest binutils"
+pkg_uses="$pkg_reqs"
 
 pkg_cflags="-I$BLDR_LOCAL_PATH/internal/zlib/latest/include"
 pkg_ldflags="-L$BLDR_LOCAL_PATH/internal/zlib/latest/lib"
@@ -65,6 +65,7 @@ pkg_cfg="$pkg_cfg --with-mpc=$BLDR_LOCAL_PATH/numerics/mpc/latest"
 pkg_cfg="$pkg_cfg --with-isl=$BLDR_LOCAL_PATH/numerics/isl/latest"
 pkg_cfg="$pkg_cfg --with-ppl=$BLDR_LOCAL_PATH/numerics/ppl/latest"
 pkg_cfg="$pkg_cfg --with-cloog=$BLDR_LOCAL_PATH/compilers/cloog/latest"
+pkg_cfg="$pkg_cfg --with-host-libstdcxx=-lstdc++"
 pkg_patch=""
 
 ####################################################################################################

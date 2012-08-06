@@ -29,7 +29,7 @@ pkg_file="llvm-$pkg_vers.src.tar.gz"
 pkg_urls="http://llvm.org/releases/$pkg_vers/$pkg_file"
 pkg_opts="configure -MBUILD_EXAMPLES=0"
 pkg_reqs="libffi/latest"
-pkg_uses="tar/latest coreutils/latest m4/latest autoconf/latest automake/latest $pkg_reqs"
+pkg_uses="$pkg_reqs"
 
 pkg_cflags=""
 pkg_ldflags=""

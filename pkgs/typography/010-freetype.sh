@@ -30,7 +30,7 @@ pkg_file="$pkg_name-$pkg_vers.tar.gz"
 pkg_urls="http://download.savannah.gnu.org/releases/freetype/$pkg_file;http://downloads.sourceforge.net/project/$pkg_name/freetype2/$pkg_vers/$pkg_file?use_mirror=aarnet"
 pkg_opts="configure force-serial-build"
 pkg_reqs="zlib/latest libicu/latest libxml2/latest"
-pkg_uses="m4/latest autoconf/latest automake/latest libtool/latest $pkg_reqs"
+pkg_uses="$pkg_reqs"
 
 pkg_cflags="-I$BLDR_LOCAL_PATH/internal/zlib/latest/include"
 pkg_ldflags="-L$BLDR_LOCAL_PATH/internal/zlib/latest/lib"

@@ -10,32 +10,39 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_name="libicu"
-pkg_vers="49.1.2"
-pkg_info="ICU is the premier library for software internationalization."
+pkg_ctry="databases"
+pkg_name="neo4j"
+pkg_vers="2.1.0"
 
-pkg_desc="ICU is the premier library for software internationalization.
+pkg_info="Neo4j is a high-performance, NOSQL graph database with all the features of a mature and robust database."
 
-ICU is a mature, widely used set of C/C++ and Java libraries providing Unicode and 
-Globalization support for software applications. ICU is widely portable and gives 
-applications the same results on all platforms and between C/C++ and Java software.
-ICU is released under a nonrestrictive open source license that is suitable for use 
-with both commercial software and with other open source or free software."
+pkg_desc="Neo4j is a high-performance, NOSQL graph database with all the features 
+of a mature and robust database. 
 
-pkg_file="icu4c-49_1_2-src.tgz"
-pkg_urls="http://download.icu-project.org/files/icu4c/49.1.2/$pkg_file"
-pkg_opts="configure force-serial-build"
-pkg_reqs="zlib/latest"
-pkg_uses="m4/latest autoconf/latest automake/latest $pkg_reqs"
+The programmer works with an object-oriented, flexible network structure rather than 
+with strict and static tables — yet enjoys all the benefits of a fully transactional, 
+enterprise-strength database. For many applications, Neo4j offers performance improvements 
+on the order of 1000x or more compared to relational DBs.
+
+Neo4j is an open source project available in a GPLv3 Community edition, with Advanced 
+and Enterprise editions available under both the AGPLv3 and commercial licenses, 
+supported by Neo Technology. Learn which license is right for you."
+
+pkg_file="$pkg_name-community-$pkg_vers-unix.tar.gz"
+pkg_urls="http://dist.neo4j.org/$pkg_file"
+pkg_opts="skip-config skip-compile skip-install migrate-build-tree"
+pkg_uses="tar/latest"
+pkg_reqs=""
+pkg_cflags=""
+pkg_ldflags=""
 pkg_cfg=""
-pkg_cflags="-I$BLDR_LOCAL_PATH/internal/zlib/latest/include"
-pkg_ldflags="-L$BLDR_LOCAL_PATH/internal/zlib/latest/lib"
+pkg_cfg_path=""
 
 ####################################################################################################
 # build and install pkg as local module
 ####################################################################################################
 
-bldr_build_pkg --category    "internal"       \
+bldr_build_pkg --category    "$pkg_ctry"    \
                --name        "$pkg_name"    \
                --version     "$pkg_vers"    \
                --info        "$pkg_info"    \
@@ -48,6 +55,6 @@ bldr_build_pkg --category    "internal"       \
                --cflags      "$pkg_cflags"  \
                --ldflags     "$pkg_ldflags" \
                --config      "$pkg_cfg"     \
-               --config-path "source"
+               --config-path "$pkg_cfg_src"
 
 

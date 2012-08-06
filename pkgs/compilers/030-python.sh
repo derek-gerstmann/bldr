@@ -11,10 +11,8 @@ source "bldr.sh"
 ####################################################################################################
 
 pkg_ver_list="2.7.3 3.2.3"
-
 pkg_ctry="compilers"
 pkg_name="python"
-pkg_vers="2.7.3"
 
 pkg_info="Python is a programming language that lets you work more quickly and integrate your systems more effectively."
 
@@ -32,7 +30,7 @@ pkg_file="Python-$pkg_vers.tar.bz2"
 pkg_urls="http://www.python.org/ftp/python/$pkg_vers/$pkg_file"
 pkg_opts="configure"
 pkg_reqs="zlib/latest bzip2/latest"
-pkg_uses="coreutils/latest m4/latest autoconf/latest automake/latest"
+pkg_uses="$pkg_reqs"
 
 pkg_cflags="-I$BLDR_LOCAL_PATH/internal/zlib/latest/include"
 pkg_ldflags="-L$BLDR_LOCAL_PATH/internal/zlib/latest/lib"
@@ -41,15 +39,13 @@ pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/storage/szip/latest/include"
 pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/storage/szip/latest/lib"
 
 pkg_cfg=""
-py_cfg="$pkg_cfg"
 
 ####################################################################################################
 # build and install each pkg version as local module
 ####################################################################################################
 
-for py_vers in ${pkg_ver_list}
+for pkg_vers in ${pkg_ver_list}
 do
-    pkg_vers="$py_vers"
     pkg_file="Python-$pkg_vers.tar.bz2"
     pkg_urls="http://www.python.org/ftp/python/$pkg_vers/$pkg_file"
 

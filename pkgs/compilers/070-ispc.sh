@@ -30,7 +30,7 @@ fi
 pkg_urls="https://github.com/downloads/ispc/ispc/$pkg_file"
 pkg_opts="configure migrate-build-binaries migrate-build-tree"
 pkg_reqs="bison/latest flex/latest clang/latest"
-pkg_uses="tar/latest coreutils/latest m4/latest autoconf/latest automake/latest $pkg_reqs"
+pkg_uses="$pkg_reqs"
 
 pkg_cflags=""
 pkg_ldflags=""

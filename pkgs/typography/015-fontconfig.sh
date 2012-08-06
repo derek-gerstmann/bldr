@@ -27,7 +27,7 @@ pkg_file="$pkg_name-$pkg_vers.tar.gz"
 pkg_urls="http://www.freedesktop.org/software/$pkg_name/release/$pkg_file"
 pkg_opts="configure"
 pkg_reqs="zlib/latest libicu/latest libxml2/latest freetype/latest"
-pkg_uses="m4/latest autoconf/latest automake/latest libtool/latest $pkg_reqs"
+pkg_uses="$pkg_reqs"
 
 pkg_cfg=""
 pkg_patch=""

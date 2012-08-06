@@ -34,7 +34,7 @@ pkg_urls="http://www.lri.fr/~bastoul/development/openscop/docs/$pkg_file"
 pkg_opts="configure force-bootstrap"
 
 pkg_reqs="gmp/latest isl/latest"
-pkg_uses="tar/latest tcl/latest m4/latest autoconf/latest automake/latest $pkg_reqs"
+pkg_uses="$pkg_reqs"
 
 pkg_cflags="-I$BLDR_LOCAL_PATH/internal/zlib/latest/include"
 pkg_ldflags="-L$BLDR_LOCAL_PATH/internal/zlib/latest/lib"

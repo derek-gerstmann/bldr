@@ -10,34 +10,32 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_ctry="protocols"
-pkg_name="libxs"
-pkg_vers="1.2.0"
-pkg_info="Crossroads I/O provides lego bricks for building scalable and high performance distributed applications"
+pkg_name="libicu"
+pkg_vers="49.1.2"
+pkg_info="ICU is the premier library for software internationalization."
 
-pkg_desc="Crossroads I/O provides lego bricks for building scalable and high performance 
-distributed applications, and is what BSD sockets might have looked like if designed for 
-today's requirements.  It is message based, and supports many different network protocols.  
-LibXS works with all major programming languages, and all major operating systems.  
-It is part of a wider effort to make messaging a standard part of the networking stack. 
-It is Free Software licensed under the LGPL license, and is a fork of the ZeroMQ project."
+pkg_desc="ICU is the premier library for software internationalization.
 
-pkg_file="$pkg_name-$pkg_vers.tar.gz"
-pkg_urls="http://download.crossroads.io/$pkg_file"
-pkg_opts="configure"
-pkg_reqs=""
-pkg_uses=""
+ICU is a mature, widely used set of C/C++ and Java libraries providing Unicode and 
+Globalization support for software applications. ICU is widely portable and gives 
+applications the same results on all platforms and between C/C++ and Java software.
+ICU is released under a nonrestrictive open source license that is suitable for use 
+with both commercial software and with other open source or free software."
 
-pkg_cflags=""
-pkg_ldflags=""
-
-pkg_cfg="-enable-libzmq" 
+pkg_file="icu4c-49_1_2-src.tgz"
+pkg_urls="http://download.icu-project.org/files/icu4c/49.1.2/$pkg_file"
+pkg_opts="configure force-serial-build"
+pkg_reqs="zlib/latest"
+pkg_uses="$pkg_reqs"
+pkg_cfg=""
+pkg_cflags="-I$BLDR_LOCAL_PATH/internal/zlib/latest/include"
+pkg_ldflags="-L$BLDR_LOCAL_PATH/internal/zlib/latest/lib"
 
 ####################################################################################################
 # build and install pkg as local module
 ####################################################################################################
 
-bldr_build_pkg --category    "$pkg_ctry"    \
+bldr_build_pkg --category    "internal"       \
                --name        "$pkg_name"    \
                --version     "$pkg_vers"    \
                --info        "$pkg_info"    \
@@ -49,6 +47,7 @@ bldr_build_pkg --category    "$pkg_ctry"    \
                --options     "$pkg_opts"    \
                --cflags      "$pkg_cflags"  \
                --ldflags     "$pkg_ldflags" \
-               --config      "$pkg_cfg"
+               --config      "$pkg_cfg"     \
+               --config-path "source"
 
 

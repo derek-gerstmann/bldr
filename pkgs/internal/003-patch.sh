@@ -10,34 +10,30 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_ctry="protocols"
-pkg_name="libxs"
-pkg_vers="1.2.0"
-pkg_info="Crossroads I/O provides lego bricks for building scalable and high performance distributed applications"
+pkg_ctry="internal"
+pkg_name="patch"
+pkg_vers="2.6.1"
 
-pkg_desc="Crossroads I/O provides lego bricks for building scalable and high performance 
-distributed applications, and is what BSD sockets might have looked like if designed for 
-today's requirements.  It is message based, and supports many different network protocols.  
-LibXS works with all major programming languages, and all major operating systems.  
-It is part of a wider effort to make messaging a standard part of the networking stack. 
-It is Free Software licensed under the LGPL license, and is a fork of the ZeroMQ project."
+pkg_info="GNU Patch takes a patch file containing a difference listing produced by the diff program and applies those differences to one or more original files, producing patched versions."
+
+pkg_desc="GNU Patch takes a patch file containing a difference listing produced by the diff 
+program and applies those differences to one or more original files, producing patched 
+versions."
 
 pkg_file="$pkg_name-$pkg_vers.tar.gz"
-pkg_urls="http://download.crossroads.io/$pkg_file"
-pkg_opts="configure"
-pkg_reqs=""
+pkg_urls="http://ftp.gnu.org/gnu/$pkg_name/$pkg_file"
+pkg_opts="configure force-static"
 pkg_uses=""
-
+pkg_reqs=""
 pkg_cflags=""
 pkg_ldflags=""
-
-pkg_cfg="-enable-libzmq" 
+pkg_cfg=""
 
 ####################################################################################################
 # build and install pkg as local module
 ####################################################################################################
 
-bldr_build_pkg --category    "$pkg_ctry"    \
+bldr_build_pkg --category    "$pkg_ctry"     \
                --name        "$pkg_name"    \
                --version     "$pkg_vers"    \
                --info        "$pkg_info"    \

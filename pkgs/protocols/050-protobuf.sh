@@ -26,7 +26,7 @@ pkg_file="$pkg_name-$pkg_vers.tar.bz2"
 pkg_urls="http://protobuf.googlecode.com/files/$pkg_file"
 pkg_opts="configure"
 pkg_reqs="python/2.7.3"
-pkg_uses="tar/latest m4/latest autoconf/latest automake/latest $pkg_reqs"
+pkg_uses="$pkg_reqs"
 
 pkg_cflags=""
 pkg_ldflags=""

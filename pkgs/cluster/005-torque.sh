@@ -29,7 +29,7 @@ pkg_file="$pkg_name-$pkg_vers.tar.gz"
 pkg_urls="http://www.adaptivecomputing.com/resources/downloads/torque/$pkg_file"
 pkg_opts="configure"
 pkg_reqs="zlib/latest papi/latest hwloc/latest"
-pkg_uses="m4/latest autoconf/latest automake/latest $pkg_reqs"
+pkg_uses="$pkg_reqs"
 
 pkg_cfg=""
 pkg_cflags=""

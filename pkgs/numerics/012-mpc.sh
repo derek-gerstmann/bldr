@@ -33,7 +33,7 @@ pkg_file="$pkg_name-$pkg_vers.tar.gz"
 pkg_urls="http://www.multiprecision.org/mpc/download/$pkg_file"
 pkg_opts="configure"
 pkg_reqs="gmp/latest mpfr/latest"
-pkg_uses="tar/latest tcl/latest m4/latest autoconf/latest automake/latest $pkg_reqs"
+pkg_uses="$pkg_reqs"
 
 pkg_cflags="-I$BLDR_LOCAL_PATH/internal/zlib/latest/include"
 pkg_ldflags="-L$BLDR_LOCAL_PATH/internal/zlib/latest/lib"

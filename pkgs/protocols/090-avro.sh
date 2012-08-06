@@ -30,7 +30,7 @@ pkg_file="$pkg_name-cpp-$pkg_vers.tar.gz"
 pkg_urls="http://mirror.overthewire.com.au/pub/apache/$pkg_name/$pkg_name-$pkg_vers/cpp/$pkg_file;http://mirror.nexcess.net/apache/$pkg_name/$pkg_name-$pkg_vers/cpp/$pkg_file"
 pkg_opts="cmake"
 pkg_reqs="zlib/latest boost/latest"
-pkg_uses="m4/latest autoconf/latest automake/latest $pkg_reqs"
+pkg_uses="$pkg_reqs"
 pkg_cflags="-I$BLDR_LOCAL_PATH/developer/boost/latest/include"
 pkg_ldflags="-L$BLDR_LOCAL_PATH/developer/boost/latest/lib:-lboost_program_options"
 
