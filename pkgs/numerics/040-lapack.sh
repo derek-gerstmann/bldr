@@ -30,9 +30,10 @@ pkg_urls="http://www.netlib.org/$pkg_name/$pkg_file"
 pkg_opts="cmake"
 pkg_uses=""
 pkg_reqs=""
-pkg_cfg=""
 pkg_cflags=""
 pkg_ldflags=""
+pkg_cfg=""
+pkg_cfg_path="src"
 
 ####################################################################################################
 # build and install pkg as local module
@@ -52,7 +53,8 @@ then
                  --options     "$pkg_opts"    \
                  --cflags      "$pkg_cflags"  \
                  --ldflags     "$pkg_ldflags" \
-                 --config      "$pkg_cfg"
+                 --config      "$pkg_cfg"     \
+                 --config-path "$pkg_cfg_path"
 else
   bldr_build_pkg --category    "$pkg_ctry"    \
                  --name        "$pkg_name"    \
@@ -66,6 +68,7 @@ else
                  --options     "$pkg_opts"    \
                  --cflags      "$pkg_cflags"  \
                  --ldflags     "$pkg_ldflags" \
-                 --config      "$pkg_cfg"
+                 --config      "$pkg_cfg"     \
+                 --config-path "$pkg_cfg_path"
 fi
 
