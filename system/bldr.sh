@@ -3899,7 +3899,7 @@ function bldr_build_pkgs()
             local pkg_tst_list=$pkg_list
             if [[ "$pkg_list" == "" ]]; then
                 local pkg_base="$(basename "$pkg_sh" )"
-                local pkg_base_name="$(echo "$pkg_base" | sed 's/\S*\.sh$//g' | sed 's/[0-9]*\-//' )"
+                local pkg_base_name="$(echo "$pkg_base" | sed 's/(\S*)\.sh$//g' | sed 's/[0-9]*\-//' )"
                 pkg_tst_list="$pkg_base_name"
             fi
             
@@ -3952,7 +3952,7 @@ function bldr_build_pkgs()
             local pkg_tst_list=$pkg_list
             if [[ "$pkg_list" == "" ]]; then
                 local pkg_base="$(basename "$pkg_sh" )"
-                local pkg_base_name="$(echo "$pkg_base" | sed 's/\S*\.sh$//g' | sed 's/[0-9]*\-//' )"
+                local pkg_base_name="$(echo "$pkg_base" | sed 's/(\S*)\.sh$//g' | sed 's/[0-9]*\-//' )"
                 pkg_tst_list="$pkg_base_name"
             fi
             
