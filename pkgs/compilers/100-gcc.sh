@@ -14,7 +14,6 @@ pkg_ver_list="4.3.6 4.4.7 4.5.4 4.6.3 4.7.1"
 
 pkg_ctry="compilers"
 pkg_name="gcc"
-pkg_vers="0.17.0"
 pkg_info="The GNU Compiler Collection includes front ends for C, C++, Objective-C, Fortran, Java, Ada, and Go, as well as libraries for these languages (libstdc++, libgcj,...)."
 
 pkg_desc="The GNU Compiler Collection includes front ends for C, C++, Objective-C, 
@@ -72,13 +71,10 @@ pkg_patch=""
 # build and install each pkg version as local module
 ####################################################################################################
 
-for gcc_ver in ${pkg_ver_list}
+for pkg_vers in ${pkg_ver_list}
 do
-     pkg_name="gcc"
-     pkg_vers="$gcc_ver"
      pkg_file="$pkg_name-$pkg_vers.tar.bz2"
      pkg_urls="http://ftp.tsukuba.wide.ad.jp/software/gcc/releases/$pkg_name-$pkg_vers/$pkg_file"
-
      bldr_build_pkg --category    "$pkg_ctry"    \
                     --name        "$pkg_name"    \
                     --version     "$pkg_vers"    \
