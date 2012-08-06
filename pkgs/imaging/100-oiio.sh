@@ -25,7 +25,7 @@ pkg_file="$pkg_name-$pkg_vers.zip"
 pkg_urls="http://nodeload.github.com/OpenImageIO/oiio/zipball/RB-1.0"
 pkg_opts="cmake force-bootstrap"
 pkg_reqs="zlib/latest libpng/latest libjpeg/latest libtiff/latest openjpeg/latest hdf5/latest f3d/latest lcms2/latest"
-pkg_uses="m4/latest autoconf/latest automake/latest $pkg_reqs"
+pkg_uses=""
 pkg_reqs=""
 pkg_cflags=""
 pkg_ldflags=""
@@ -40,7 +40,7 @@ do
      pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/$dep_pkg/latest/lib"
 done
 
-pkg_uses="m4/latest autoconf/latest automake/latest libtool/latest $pkg_reqs"
+pkg_uses="$pkg_reqs"
 
 pkg_cfg="--disable-dependency-tracking --enable-tiff "
 pkg_cfg="$pkg_cfg Z_CFLAGS=-I$BLDR_LOCAL_PATH/internal/zlib/latest/include"

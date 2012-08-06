@@ -29,11 +29,9 @@ pkg_file="$pkg_name-$pkg_vers.tar.gz"
 pkg_urls="http://ftp.easysw.com/pub/$pkg_name/$pkg_vers/$pkg_file"
 pkg_opts="configure"
 pkg_reqs=""
-pkg_uses="tar/latest m4/latest autoconf/latest automake/latest $pkg_reqs"
-
+pkg_uses=""
 pkg_cflags=""
 pkg_ldflags=""
-
 pkg_cfg="" 
 
 ####################################################################################################

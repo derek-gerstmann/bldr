@@ -34,7 +34,7 @@ pkg_file="boost_1_50_0.tar.bz2"
 pkg_urls="http://sourceforge.net/projects/boost/files/$pkg_name/$pkg_vers/$pkg_file/download"
 pkg_opts="configure force-static"
 pkg_reqs="zlib/latest bzip2/latest libicu/latest"
-pkg_uses="m4/latest autoconf/latest automake/latest $pkg_reqs"
+pkg_uses="$pkg_reqs"
 pkg_cflags=""
 pkg_ldflags=""
 

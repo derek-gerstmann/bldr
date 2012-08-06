@@ -25,7 +25,7 @@ pkg_file="gc-$pkg_vers.tar.gz"
 pkg_urls="http://www.hpl.hp.com/personal/Hans_Boehm/gc/gc_source/$pkg_file"
 pkg_opts="configure"
 pkg_reqs="pkg-config/latest zlib/latest"
-pkg_uses="tar/latest tcl/latest m4/latest autoconf/latest automake/latest $pkg_reqs"
+pkg_uses="$pkg_reqs"
 
 pkg_cflags="-I$BLDR_LOCAL_PATH/internal/zlib/latest/include"
 pkg_ldflags="-L$BLDR_LOCAL_PATH/internal/zlib/latest/lib:-lz"

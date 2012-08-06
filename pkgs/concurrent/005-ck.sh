@@ -25,11 +25,9 @@ pkg_file="$pkg_name-$pkg_vers.tar.gz"
 pkg_urls="http://www.concurrencykit.org/releases/$pkg_file"
 pkg_opts="configure disable-xcode-cflags disable-xcode-ldflags"
 pkg_reqs=""
-pkg_uses="tar/latest m4/latest autoconf/latest automake/latest $pkg_reqs"
-
+pkg_uses=""
 pkg_cflags=""
 pkg_ldflags=""
-
 pkg_cfg="" 
 
 ####################################################################################################

@@ -42,7 +42,7 @@ done
 pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/imaging/ilmbase/latest/include/OpenEXR"
 pkg_cflags="$pkg_cflags:-I$BLDR_BUILD_PATH/imaging/$pkg_name/$pkg_vers/openexr/OpenEXR/IlmImf"
 
-pkg_uses="m4/latest autoconf/latest automake/latest libtool/latest $pkg_reqs"
+pkg_uses="$pkg_reqs"
 
 pkg_cfg="--disable-dependency-tracking "
 pkg_cfg="$pkg_cfg Z_CFLAGS=-I$BLDR_LOCAL_PATH/internal/zlib/latest/include"

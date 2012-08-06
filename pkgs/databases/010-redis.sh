@@ -41,16 +41,12 @@ systems like SmartOS, but the support is best effort. There is no official suppo
 builds, although you may have some options."
 
 pkg_opts="configure migrate-build-binaries"
-pkg_uses="m4/latest autoconf/latest automake/latest"
 pkg_reqs=""
+pkg_uses="tar/latest"
 pkg_cflags=""
 pkg_ldflags=""
 pkg_cfg=""
 pkg_cfg_path=""
-
-####################################################################################################
-# build and install pkg as local module
-####################################################################################################
 
 ####################################################################################################
 # build and install each pkg version as local module

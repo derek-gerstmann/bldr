@@ -32,7 +32,7 @@ pkg_file="hdf5-$pkg_vers.tar.gz"
 pkg_urls="http://www.hdfgroup.org/ftp/HDF5/releases/$pkg_name-$pkg_vers/src/$pkg_file"
 pkg_opts="configure"
 pkg_reqs="szip/latest zlib/latest"
-pkg_uses=""
+pkg_uses="$pkg_reqs"
 
 pkg_cflags="-I$BLDR_LOCAL_PATH/internal/zlib/latest/include"
 pkg_ldflags="-L$BLDR_LOCAL_PATH/internal/zlib/latest/lib"
