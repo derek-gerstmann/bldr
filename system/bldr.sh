@@ -3612,6 +3612,7 @@ function bldr_build_pkg()
         pkg_needs=""
     fi
 
+    local pkg_req_has=""
     local pkg_req_build=""
     local pkg_need_name=""
 
@@ -3627,7 +3628,9 @@ function bldr_build_pkg()
                 local req_name=$(echo "$pkg_need_name" | sed 's/\/.*//g')
                 local req_vers="latest"
             fi
+
             local has_existing=$(bldr_has_required_pkg --name "$req_name" --version "$req_vers" )
+            
             if [ $has_existing == "false" ]
             then
                 if [[ $(echo $pkg_req_build | grep -m1 -c "$req_name/$req_vers") < 1 ]]
@@ -3635,30 +3638,38 @@ function bldr_build_pkg()
                     pkg_req_build="$pkg_req_build $req_name/$req_vers"
                 fi
             else
-                bldr_log_info "Using required package '$req_name/$req_vers' for '$pkg_name/$pkg_vers' ... "                
+                if [[ $(echo $pkg_req_has | grep -m1 -c "$req_name/$req_vers") < 1 ]]
+                then
+                    bldr_log_info "Using required package '$req_name/$req_vers' for '$pkg_name/$pkg_vers' ... "                
+                    pkg_req_has="$pkg_req_has $req_name/$req_vers"
+                fi
             fi
         done
 
         bldr_log_split
-        bldr_log_status "Building required dependencies:"
-        bldr_log_split
 
-        bldr_log_list $pkg_req_build
-        bldr_log_split
+        if [ "$pkg_req_build" != "" ]
+        then
+            bldr_log_status "Building required dependencies:"
+            bldr_log_split
 
-        for pkg_need_name in ${pkg_req_build}
-        do
-            if [[ $(echo $pkg_need_name | grep -m1 -c '\/') > 0 ]]
-            then
-                local req_name=$(echo "$pkg_need_name" | sed 's/\/.*//g')
-                local req_vers=$(echo "$pkg_need_name" | sed 's/.*\///g')
-            else
-                local req_name=$(echo "$pkg_need_name" | sed 's/\/.*//g')
-                local req_vers="latest"
-            fi
-            bldr_build_required_pkg --name "$req_name" --version "$req_vers" --verbose "$use_verbose"
-        done
-        bldr_log_split
+            bldr_log_list $pkg_req_build
+            bldr_log_split
+
+            for pkg_need_name in ${pkg_req_build}
+            do
+                if [[ $(echo $pkg_need_name | grep -m1 -c '\/') > 0 ]]
+                then
+                    local req_name=$(echo "$pkg_need_name" | sed 's/\/.*//g')
+                    local req_vers=$(echo "$pkg_need_name" | sed 's/.*\///g')
+                else
+                    local req_name=$(echo "$pkg_need_name" | sed 's/\/.*//g')
+                    local req_vers="latest"
+                fi
+                bldr_build_required_pkg --name "$req_name" --version "$req_vers" --verbose "$use_verbose"
+            done
+            bldr_log_split
+        fi
     fi
 
     if [ $BLDR_VERBOSE != false ]
