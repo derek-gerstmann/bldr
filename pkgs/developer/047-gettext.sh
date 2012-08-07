@@ -10,6 +10,7 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
+pkg_ctry="developer"
 pkg_name="gettext"
 pkg_vers="0.18.1.1"
 pkg_info="GNU gettext is designed to minimize the impact of internationalization on program sources."
@@ -28,7 +29,7 @@ remainder of the Translation Project, and consequently, have a glimpse at the bi
 
 pkg_file="$pkg_name-$pkg_vers.tar.gz"
 pkg_urls="http://ftp.gnu.org/pub/gnu/gettext/$pkg_file"
-pkg_opts="configure force-rebuild"
+pkg_opts="configure"
 pkg_reqs="zlib/latest libicu/latest libxml2/latest"
 pkg_uses="$pkg_reqs"
 
@@ -56,7 +57,7 @@ fi
 # build and install pkg as local module
 ####################################################################################################
 
-bldr_build_pkg --category    "internal"     \
+bldr_build_pkg --category    "$pkg_ctry"    \
                --name        "$pkg_name"    \
                --version     "$pkg_vers"    \
                --info        "$pkg_info"    \

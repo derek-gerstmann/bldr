@@ -38,7 +38,7 @@ BLDR_VERBOSE=${BLDR_VERBOSE:=false}
 BLDR_DEBUG=${BLDR_DEBUG:=false}
 BLDR_IS_INTERNAL_LOADED=${BLDR_IS_INTERNAL_LOADED:=false}
 BLDR_LOADED_MODULES=${BLDR_LOADED_MODULES:=""}
-BLDR_DEFAULT_BUILD_LIST=${BLDR_DEFAULT_BUILD_LIST:="internal system concurrent developer network protocols numerics compilers cluster storage imaging databases toolkits"}
+BLDR_DEFAULT_BUILD_LIST=${BLDR_DEFAULT_BUILD_LIST:="internal system developer network protocols concurrent numerics compilers cluster storage imaging databases toolkits"}
 BLDR_DEFAULT_PKG_USES=${BLDR_DEFAULT_PKG_USES:=""}
 
 BLDR_USE_PKG_CTRY=${BLDR_USE_PKG_CTRY:=""}
@@ -269,6 +269,43 @@ function bldr_log_cmd()
     then
         line_string=$(bldr_trim_str $line_string)
         echo -e ${BLDR_TXT_TITLE}"      "${BLDR_TXT_CMD}" $line_string "${BLDR_TXT_RST}
+        line_string=""
+    fi
+}
+
+function bldr_log_list()
+{
+    local word=""
+    local first_line=true
+    local line_string=""
+    local log_lines=$(echo ${@} | bldr_split_str ' \n')
+    local list_idx
+    let list_idx=0
+    for word in ${log_lines}
+    do
+        line_string="$line_string $word"
+        if [[ ${#line_string} -ge 1 ]]
+        then
+            let list_idx++
+            local txt_idx=$(printf "%03d" $list_idx)
+            if [ $first_line == true ]
+            then
+                echo -e ${BLDR_TXT_TITLE}"[ $txt_idx ]"${BLDR_TXT_WARN}"$line_string"${BLDR_TXT_RST}
+                first_line=false
+            else
+                line_string=$(bldr_trim_str $line_string)
+                echo -e ${BLDR_TXT_TITLE}"[ $txt_idx ]"${BLDR_TXT_WARN}" $line_string"${BLDR_TXT_RST}
+            fi
+        fi
+        line_string=""
+    done
+
+    if [[ ${#line_string} -ge 1 ]]
+    then
+        let list_idx++
+        local txt_idx=$(printf "%03d" $list_idx)
+        line_string=$(bldr_trim_str $line_string)
+        echo -e ${BLDR_TXT_TITLE}"[ $txt_idx ]"${BLDR_TXT_WARN}" $line_string"${BLDR_TXT_RST}
         line_string=""
     fi
 }
@@ -1075,7 +1112,7 @@ function bldr_apply_patch()
     elif [[ $(echo "$patch_file" | grep -m1 -c '.ed$' ) > 0 ]]
     then
         # remove '.ed' suffix from filename
-        patch_path=$(echo $patch_path|sed 's/.ed$//g')
+        patch_path=$(echo $patch_path|sed 's/\.ed$//g')
 
         # use 'ed' to apply the patch
         patch_cmd=$(which ed)
@@ -1245,13 +1282,26 @@ function bldr_has_pkg()
     done
 
     local has_existing="false"
-    if [ -d "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers" ]
+    if [ "$pkg_version" == "" ] || [ "$pkg_vers" == "latest" ]
+    then
+        pkg_vers="latest"
+        if [ -L "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/latest" ]
+        then
+            has_existing="true"
+        fi
+
+    elif [ -d "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers" ]
     then
         has_existing="true"
     fi
+
     if [ $pkg_name != "modules" ] && [ $has_existing == "true" ]
     then
-        if [ -d "$BLDR_PKGS_PATH/$pkg_ctry" ]
+        if [ ! -f "$BLDR_MODULE_PATH/$pkg_ctry/$pkg_name/$pkg_vers" ]
+        then
+            has_existing="false"
+
+        elif [ -d "$BLDR_PKGS_PATH/$pkg_ctry" ]
         then
             local found=""
             local fnd_list=""
@@ -1909,7 +1959,7 @@ function bldr_cmake_pkg()
 
     if [[ $(echo "$pkg_opts" | grep -m1 -c "enable-shared" ) > 0 ]]
     then
-        bldr_log_info "Adding shared library configuration ..."
+        bldr_log_info "Adding 'shared' build configuration ..."
         bldr_log_split
         cmake_pre="$cmake_pre -DBUILD_SHARED_LIBS=ON"
         use_shared=true
@@ -1917,7 +1967,7 @@ function bldr_cmake_pkg()
     
     if [[ $(echo "$pkg_opts" | grep -m1 -c "enable-static" ) > 0 ]]
     then
-        bldr_log_info "Adding static library configuration ..."
+        bldr_log_info "Adding 'static' build configuration ..."
         bldr_log_split
         cmake_pre="$cmake_pre -DBUILD_STATIC_LIBS=ON"
         use_static=true
@@ -1925,7 +1975,7 @@ function bldr_cmake_pkg()
 
     if [[ $(echo "$pkg_opts" | grep -m1 -c "force-shared" ) > 0 ]]
     then
-        bldr_log_info "Forcing shared library configuration ..."
+        bldr_log_info "Forcing 'shared' build configuration ..."
         bldr_log_split
         if [ use_shared != true ]
         then
@@ -1935,7 +1985,7 @@ function bldr_cmake_pkg()
 
     if [[ $(echo "$pkg_opts" | grep -m1 -c "force-static" ) > 0 ]]
     then
-        bldr_log_info "Forcing static library configuration ..."
+        bldr_log_info "Forcing 'static' build configuration ..."
         bldr_log_split
         if [ use_static != true ]
         then
@@ -3322,7 +3372,7 @@ function bldr_build_pkg()
     then
         if [ $BLDR_VERBOSE != false ]
         then
-            bldr_log_status "Skipping existing package '$pkg_name/$pkg_vers' ... "
+            bldr_log_info "Skipping existing package '$pkg_name/$pkg_vers' ... "
             bldr_log_split
         fi
         return
@@ -3847,7 +3897,10 @@ function bldr_build_pkgs()
     local pkg_list=$(echo "$pkg_name" | bldr_split_str ":" | bldr_join_str " ")
     local pkg_dir="$BLDR_PKGS_PATH"
 
-    local force_rebuild=$(echo "$pkg_opts" | grep -m1 -c 'force-rebuild' )
+    local force_rebuild=false
+    if [[ $(echo "$pkg_opts" | grep -m1 -c 'force-rebuild' ) > 0 ]]; then
+        force_rebuild=true
+    fi
     
     # push the system category onto the list if it hasn't been built yet
     pkg_ctry=$(bldr_trim_str $pkg_ctry)
@@ -3861,8 +3914,8 @@ function bldr_build_pkgs()
             pkg_ctry="internal $pkg_ctry"
         fi
     fi
-    pkg_ctry=$(bldr_trim_str $pkg_ctry)
 
+    pkg_ctry=$(bldr_trim_str $pkg_ctry)
     pkg_list=$(bldr_trim_str $pkg_list)
 
     if [[ ! -d $pkg_dir ]]; then
@@ -3873,9 +3926,9 @@ function bldr_build_pkgs()
     fi
 
     bldr_log_split
-    bldr_log_status "Starting build for '$pkg_ctry' in '$pkg_dir'..."
+    bldr_log_status "Starting build from '$pkg_dir' ..."
     bldr_log_split
-
+    
     local bld_cnt
     let bld_cnt=0
     local pkg_ctry_path=""
@@ -3896,23 +3949,35 @@ function bldr_build_pkgs()
             local pkg_tst_list=$pkg_list
             if [[ "$pkg_list" == "" ]]; then
                 local pkg_base="$(basename "$pkg_sh" )"
-                local pkg_base_name="$(echo "$pkg_base" | sed 's/(\S*)\.sh$//g' | sed 's/[0-9]*\-//' )"
+                local pkg_base_name="$(echo "$pkg_base" | sed 's/\.sh$//g' | sed 's/[0-9]*\-//' )"
                 pkg_tst_list="$pkg_base_name"
             fi
             
             local pkg_entry=""
+            local pkg_tst_name=""
+            local pkg_tst_vers=""
             for pkg_entry in $pkg_tst_list
             do
-                if [[ $(echo "$pkg_sh" | grep -m1 -c "$pkg_entry" ) > 0 ]]; then
+                if [[ $(echo "$pkg_entry" | grep -m1 -c '\/') > 0 ]]
+                then
+                    pkg_tst_name=$(echo "$pkg_entry" | sed 's/\/.*//g')
+                    pkg_tst_vers=$(echo "$pkg_entry" | sed 's/.*\///g')
+                else
+                    pkg_tst_name=$(echo "$pkg_entry" | sed 's/\/.*//g')
+                    pkg_tst_vers="latest"
+                fi
+
+                if [[ $(echo "$pkg_sh" | grep -m1 -c "$pkg_tst_name" ) > 0 ]]; then
 
                     local use_existing="false"
-                    if [[ "$force_rebuild" == "1" ]]; then
+                    if [[ $force_rebuild == true ]]; then
                         use_existing="false"
                     else
-                        use_existing=$(bldr_has_pkg --category "$ctry_name" --name "$pkg_entry" --options "$pkg_opts" )
+                        use_existing=$(bldr_has_pkg --category "$ctry_name" --name "$pkg_tst_name" --version "$pkg_tst_vers" --options "$pkg_opts" )
                     fi
 
-                    if [[ "$use_existing" == "false" ]]; then
+                    if [ "$use_existing" == "false" ]
+                    then
                         let bld_cnt++
                     fi
                 fi
@@ -3920,7 +3985,8 @@ function bldr_build_pkgs()
         done
 
         if [[ $BLDR_VERBOSE != false ]]; then
-            bldr_log_info "Found '$bld_cnt' packages -- scanning '$ctry_name' ..."
+            local txt_cnt=$(printf "%03d" $bld_cnt)
+            bldr_log_info "$BLDR_TXT_TITLE[ $txt_cnt ]$BLDR_TXT_RST$BLDR_TXT_HEADER Matching packages in '$BLDR_TXT_TITLE$ctry_name$BLDR_TXT_HEADER' ..."
         fi
     done
 
@@ -3929,8 +3995,16 @@ function bldr_build_pkgs()
         bldr_log_split
     fi
     
+    if [ $bld_cnt -lt 1 ]
+    then
+        bldr_log_warning "No matching packages found!  Use --option 'force-rebuild' to override!"
+        bldr_log_split
+        return
+    fi
+
     local bld_idx
     let bld_idx=0
+    local txt_cnt=$(printf "%03d" $bld_cnt)
     local pkg_ctry_path=""
     for pkg_ctry_path in $pkg_dir/$pkg_ctry
     do
@@ -3947,29 +4021,41 @@ function bldr_build_pkgs()
             fi
 
             local pkg_tst_list=$pkg_list
+            local pkg_base_name=""
             if [[ "$pkg_list" == "" ]]; then
                 local pkg_base="$(basename "$pkg_sh" )"
-                local pkg_base_name="$(echo "$pkg_base" | sed 's/(\S*)\.sh$//g' | sed 's/[0-9]*\-//' )"
+                pkg_base_name="$(echo "$pkg_base" | sed 's/\.sh$//g' | sed 's/[0-9]*\-//' )"
                 pkg_tst_list="$pkg_base_name"
             fi
-            
+
             local pkg_entry=""
+            local pkg_tst_name=""
+            local pkg_tst_vers=""
             for pkg_entry in $pkg_tst_list
             do
-                if [[ $(echo "$pkg_sh" | grep -m1 -c "$pkg_entry" ) > 0 ]]; then
-                    local existing=false
+                if [[ $(echo "$pkg_entry" | grep -m1 -c '\/') > 0 ]]
+                then
+                    pkg_tst_name=$(echo "$pkg_entry" | sed 's/\/.*//g')
+                    pkg_tst_vers=$(echo "$pkg_entry" | sed 's/.*\///g')
+                else
+                    pkg_tst_name=$(echo "$pkg_entry" | sed 's/\/.*//g')
+                    pkg_tst_vers="latest"
+                fi
+
+                if [[ $(echo "$pkg_sh" | grep -m1 -c "$pkg_tst_name" ) > 0 ]]; then
 
                     local use_existing="false"
-                    if [ "$force_rebuild" == "1" ]
-                    then
+                    if [[ $force_rebuild == true ]]; then
                         use_existing="false"
                     else
-                        use_existing=$(bldr_has_pkg --category "$ctry_name" --name "$pkg_entry" --options "$pkg_opts" )
+                        use_existing=$(bldr_has_pkg --category "$ctry_name" --name "$pkg_tst_name" --version "$pkg_tst_vers" --options "$pkg_opts" )
                     fi
 
-                    if [[ "$use_existing" == "false" ]]; then
+                    if [ "$use_existing" == "false" ]
+                    then
                         let bld_idx++
-                        bldr_log_item "$BLDR_TXT_TITLE[ $bld_idx / $bld_cnt ]$BLDR_TXT_RST$BLDR_TXT_ERROR Building '$pkg_entry' from '$pkg_sh' $BLDR_TXT_RST"
+                        local txt_idx=$(printf "%03d" $bld_idx)
+                        bldr_log_item "$BLDR_TXT_TITLE[ $txt_idx / $txt_cnt ]$BLDR_TXT_RST$BLDR_TXT_ERROR Building '$pkg_tst_name/$pkg_tst_vers' from '$ctry_name' ... $BLDR_TXT_RST"
                         bldr_log_split
 
                         export BLDR_USE_PKG_CTRY="$ctry_name"
