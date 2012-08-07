@@ -10,11 +10,9 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_ver_list="1.6.10 1.8.2 1.8.8 1.8.9"
-
+pkg_ver_list="1.6.10 1.8.2 1.8.8"
 pkg_ctry="storage"
 pkg_name="phdf5"
-pkg_vers="1.8.8"
 
 pkg_info="The Parallel-HDF5 technology suite includes HDF5 compiled with MPI support to enable distributed parallel file access."
 
@@ -156,10 +154,9 @@ function bldr_pkg_install_method()
 # build and install each pkg version as local module
 ####################################################################################################
 
-for hdf5_ver in ${pkg_ver_list}
+for pkg_vers in ${pkg_ver_list}
 do
     pkg_name="phdf5"
-    pkg_vers="$hdf5_ver"
     pkg_file="hdf5-$pkg_vers.tar.gz"
     pkg_urls="http://www.hdfgroup.org/ftp/HDF5/releases/$pkg_name-$pkg_vers/src/$pkg_file"
 

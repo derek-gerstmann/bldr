@@ -38,7 +38,7 @@ BLDR_VERBOSE=${BLDR_VERBOSE:=false}
 BLDR_DEBUG=${BLDR_DEBUG:=false}
 BLDR_IS_INTERNAL_LOADED=${BLDR_IS_INTERNAL_LOADED:=false}
 BLDR_LOADED_MODULES=${BLDR_LOADED_MODULES:=""}
-BLDR_DEFAULT_BUILD_LIST=${BLDR_DEFAULT_BUILD_LIST:="internal system runtime developer network concurrency numerics protocols cluster storage imaging databases toolkits compilers"}
+BLDR_DEFAULT_BUILD_LIST=${BLDR_DEFAULT_BUILD_LIST:="internal system languages developer network concurrency numerics protocols cluster storage imaging databases toolkits compilers"}
 BLDR_DEFAULT_PKG_USES=${BLDR_DEFAULT_PKG_USES:=""}
 
 BLDR_USE_PKG_CTRY=${BLDR_USE_PKG_CTRY:=""}

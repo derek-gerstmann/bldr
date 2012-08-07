@@ -42,7 +42,7 @@ then
      pkg_reqs="$pkg_reqs openmpi/latest"     
      pkg_cflags="-I$BLDR_LOCAL_PATH/cluster/openmpi/latest/include"
      pkg_ldflags="-L$BLDR_LOCAL_PATH/cluster/openmpi/latest/lib"
-else
+#else
 #     pkg_cfg="$pkg_cfg --with-infinband=$BLDR_LOCAL_PATH/network/ofed/latest"
 fi
 
