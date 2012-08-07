@@ -10,7 +10,7 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_ctry="concurrent"
+pkg_ctry="concurrency"
 pkg_name="ck"
 pkg_vers="0.2.5"
 pkg_info="Concurrency Kit provides a plethora of concurrency primitives for high-performance concurrent systems."

@@ -11,7 +11,7 @@ source "bldr.sh"
 ####################################################################################################
 
 pkg_ver_list="2.7.3 3.2.3"
-pkg_ctry="compilers"
+pkg_ctry="languages"
 pkg_name="python"
 
 pkg_info="Python is a programming language that lets you work more quickly and integrate your systems more effectively."
@@ -35,8 +35,8 @@ pkg_uses="$pkg_reqs"
 pkg_cflags="-I$BLDR_LOCAL_PATH/internal/zlib/latest/include"
 pkg_ldflags="-L$BLDR_LOCAL_PATH/internal/zlib/latest/lib"
 
-pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/storage/szip/latest/include"
-pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/storage/szip/latest/lib"
+pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/internal/bzip2/latest/include"
+pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/internal/bzip2/latest/lib"
 
 pkg_cfg=""
 

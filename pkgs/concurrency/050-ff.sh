@@ -10,7 +10,7 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_ctry="concurrent"
+pkg_ctry="concurrency"
 pkg_name="ff"
 pkg_vers="2.0.0"
 

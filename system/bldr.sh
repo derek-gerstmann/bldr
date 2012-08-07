@@ -38,7 +38,7 @@ BLDR_VERBOSE=${BLDR_VERBOSE:=false}
 BLDR_DEBUG=${BLDR_DEBUG:=false}
 BLDR_IS_INTERNAL_LOADED=${BLDR_IS_INTERNAL_LOADED:=false}
 BLDR_LOADED_MODULES=${BLDR_LOADED_MODULES:=""}
-BLDR_DEFAULT_BUILD_LIST=${BLDR_DEFAULT_BUILD_LIST:="internal system developer network protocols concurrent numerics compilers cluster storage imaging databases toolkits"}
+BLDR_DEFAULT_BUILD_LIST=${BLDR_DEFAULT_BUILD_LIST:="internal system runtime developer network concurrency numerics protocols cluster storage imaging databases toolkits compilers"}
 BLDR_DEFAULT_PKG_USES=${BLDR_DEFAULT_PKG_USES:=""}
 
 BLDR_USE_PKG_CTRY=${BLDR_USE_PKG_CTRY:=""}
@@ -1321,6 +1321,232 @@ function bldr_has_pkg()
 #    echo "Tested: $pkg_spec -nt $BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
 }
 
+function bldr_has_required_pkg()
+{
+    local use_verbose="false"
+    local pkg_ctry=""
+    local pkg_name="" 
+    local pkg_vers=""
+    local pkg_opts=""
+    local has_package="false"
+
+    while true ; do
+        case "$1" in
+           --verbose)       use_verbose="$2"; shift 2;;
+           --name)          pkg_name="$2"; shift 2;;
+           --category)      pkg_ctry="$2"; shift 2;;
+           --version)       pkg_vers="$2"; shift 2;;
+           --options)       pkg_opts="$pkg_opts $2"; shift 2;;
+           * )              break ;;
+        esac
+    done
+
+    if [ "$use_verbose" == "true" ]
+    then
+        BLDR_VERBOSE=true
+    fi
+    
+    local force_rebuild=false
+    if [[ $(echo "$pkg_opts" | grep -m1 -c 'force-rebuild' ) > 0 ]]; then
+        force_rebuild=true
+    fi
+    
+    pkg_ctry=$(bldr_trim_str $pkg_ctry)
+    pkg_list=$(bldr_trim_str $pkg_name)
+
+    if [ "$pkg_ctry" == "" ]
+    then
+        pkg_ctry="*"
+    fi
+
+    local pkg_dir="$BLDR_PKGS_PATH"
+    if [[ ! -d $pkg_dir ]]; then
+        bldr_log_split
+        bldr_log_error "Unable to locate package repository!  Please checkout the 'bldr/pkgs' into your local repo!"
+        bldr_log_split
+        return
+    fi
+
+    local bld_cnt
+    let bld_cnt=0
+    local found_pkg=false
+    local pkg_ctry_path=""
+
+    for pkg_ctry_path in $pkg_dir/$pkg_ctry
+    do
+        if [ $found_pkg == true ]
+        then
+            break
+        fi
+
+        local ctry_name=$(basename "$pkg_ctry_path")
+        if [[ ! -d $pkg_dir/$ctry_name ]]; then
+            continue
+        fi
+
+        local pkg_sh=""
+        for pkg_sh in $pkg_dir/$ctry_name/*
+        do
+            if [ $found_pkg == true ]
+            then
+                break
+            fi
+            
+            if [[ ! -x "$pkg_sh" ]]; then
+                continue
+            fi
+
+            local pkg_tst_list=$pkg_list
+            if [[ "$pkg_list" == "" ]]; then
+                local pkg_base="$(basename "$pkg_sh" )"
+                local pkg_base_name="$(echo "$pkg_base" | sed 's/\.sh$//g' | sed 's/[0-9]*\-//' )"
+                pkg_tst_list="$pkg_base_name"
+            fi
+            
+            local pkg_entry=""
+            local pkg_tst_name=""
+            local pkg_tst_vers=""
+            for pkg_entry in $pkg_tst_list
+            do
+                if [[ $(echo "$pkg_entry" | grep -m1 -c '\/') > 0 ]]
+                then
+                    pkg_tst_name=$(echo "$pkg_entry" | sed 's/\/.*//g')
+                    pkg_tst_vers=$(echo "$pkg_entry" | sed 's/.*\///g')
+                else
+                    pkg_tst_name=$(echo "$pkg_entry" | sed 's/\/.*//g')
+                    pkg_tst_vers="latest"
+                fi
+
+                if [[ $(echo "$pkg_sh" | grep -m1 -c "$pkg_tst_name" ) > 0 ]]; then
+
+                    local use_existing="false"
+                    if [[ $force_rebuild == true ]]; then
+                        use_existing="false"
+                    else
+                        use_existing=$(bldr_has_pkg --category "$ctry_name" --name "$pkg_tst_name" --version "$pkg_tst_vers" --options "$pkg_opts" )
+                    fi
+
+                    has_package=$use_existing
+                    found_pkg=true
+                    break
+                fi
+            done
+        done
+    done
+
+    echo "$has_package"
+}
+
+
+function bldr_build_required_pkg()
+{
+    local use_verbose="false"
+    local pkg_ctry=""
+    local pkg_name="" 
+    local pkg_vers=""
+    local pkg_opts=""
+
+    while true ; do
+        case "$1" in
+           --verbose)       use_verbose="$2"; shift 2;;
+           --name)          pkg_name="$2"; shift 2;;
+           --category)      pkg_ctry="$2"; shift 2;;
+           --version)       pkg_vers="$2"; shift 2;;
+           --options)       pkg_opts="$pkg_opts $2"; shift 2;;
+           * )              break ;;
+        esac
+    done
+
+
+    if [ "$use_verbose" == "true" ]
+    then
+        BLDR_VERBOSE=true
+    fi
+    
+    local force_rebuild=false
+    if [[ $(echo "$pkg_opts" | grep -m1 -c 'force-rebuild' ) > 0 ]]; then
+        force_rebuild=true
+    fi
+    
+    pkg_ctry=$(bldr_trim_str $pkg_ctry)
+    pkg_list=$(bldr_trim_str $pkg_name)
+
+    if [ "$pkg_ctry" == "" ]
+    then
+        pkg_ctry="*"
+    fi
+
+    local pkg_dir="$BLDR_PKGS_PATH"
+    if [[ ! -d $pkg_dir ]]; then
+        bldr_log_split
+        bldr_log_error "Unable to locate package repository!  Please checkout the 'bldr/pkgs' into your local repo!"
+        bldr_log_split
+        return
+    fi
+
+    local bld_cnt
+    let bld_cnt=0
+    local found_pkg=false
+    local pkg_ctry_path=""
+
+    for pkg_ctry_path in $pkg_dir/$pkg_ctry
+    do    
+        local ctry_name=$(basename "$pkg_ctry_path")
+        if [[ ! -d $pkg_dir/$ctry_name ]]; then
+            continue
+        fi
+
+        local pkg_sh=""
+        for pkg_sh in $pkg_dir/$ctry_name/*
+        do
+            if [[ ! -x "$pkg_sh" ]]; then
+                continue
+            fi
+
+            local pkg_tst_list=$pkg_list
+            if [[ "$pkg_list" == "" ]]; then
+                local pkg_base="$(basename "$pkg_sh" )"
+                local pkg_base_name="$(echo "$pkg_base" | sed 's/\.sh$//g' | sed 's/[0-9]*\-//' )"
+                pkg_tst_list="$pkg_base_name"
+            fi
+            
+            local pkg_entry=""
+            local pkg_tst_name=""
+            local pkg_tst_vers=""
+            for pkg_entry in $pkg_tst_list
+            do
+                if [[ $(echo "$pkg_entry" | grep -m1 -c '\/') > 0 ]]
+                then
+                    pkg_tst_name=$(echo "$pkg_entry" | sed 's/\/.*//g')
+                    pkg_tst_vers=$(echo "$pkg_entry" | sed 's/.*\///g')
+                else
+                    pkg_tst_name=$(echo "$pkg_entry" | sed 's/\/.*//g')
+                    pkg_tst_vers="latest"
+                fi
+
+                if [[ $(echo "$pkg_sh" | grep -m1 -c "$pkg_tst_name" ) > 0 ]]; then
+
+                    local use_existing="false"
+                    if [[ $force_rebuild == true ]]; then
+                        use_existing="false"
+                    else
+                        use_existing=$(bldr_has_pkg --category "$ctry_name" --name "$pkg_tst_name" --version "$pkg_tst_vers" --options "$pkg_opts" )
+                    fi
+
+                    if [ "$use_existing" == "false" ]
+                    then
+                        bldr_log_status "Building required '$pkg_tst_name/$pkg_tst_vers' from '$ctry_name' ... "
+                        bldr_log_split
+
+                        eval $pkg_sh || exit -1
+                        return
+                    fi
+                fi
+            done
+        done
+    done
+}
+
 function bldr_load_pkg()
 {
     local pkg_ctry=""
@@ -2154,7 +2380,7 @@ function bldr_autocfg_pkg()
 
     if [[ $(echo "$pkg_opts" | grep -m1 -c "enable-shared" ) > 0 ]]
     then
-        bldr_log_info "Adding shared library configuration ..."
+        bldr_log_info "Adding 'shared' build configuration ..."
         bldr_log_split
         pkg_cfg="$pkg_cfg --enable-shared"
         use_shared=true
@@ -2162,7 +2388,7 @@ function bldr_autocfg_pkg()
     
     if [[ $(echo "$pkg_opts" | grep -m1 -c "enable-static" ) > 0 ]]
     then
-        bldr_log_info "Adding static library configuration ..."
+        bldr_log_info "Adding 'static' build configuration ..."
         bldr_log_split
         pkg_cfg="$pkg_cfg --enable-static"
         use_static=true
@@ -2170,7 +2396,7 @@ function bldr_autocfg_pkg()
 
     if [[ $(echo "$pkg_opts" | grep -m1 -c "force-shared" ) > 0 ]]
     then
-        bldr_log_info "Forcing shared library configuration ..."
+        bldr_log_info "Forcing 'shared' build configuration ..."
         bldr_log_split
         if [ $use_shared != true ]
         then
@@ -2179,7 +2405,7 @@ function bldr_autocfg_pkg()
 
     elif [[ $(echo "$pkg_opts" | grep -m1 -c "force-static" ) > 0 ]]
     then
-        bldr_log_info "Forcing static library configuration ..."
+        bldr_log_info "Forcing 'static' build configuration ..."
         bldr_log_split
         if [ $use_static != true ]
         then
@@ -3378,6 +3604,63 @@ function bldr_build_pkg()
         return
     fi
 
+    local pkg_needs=$(bldr_trim_list_str "$pkg_uses $pkg_reqs")
+    if [ "$pkg_needs" != "" ] && [ "$pkg_needs" != " " ] && [ "$pkg_needs" != ":" ]
+    then
+        pkg_needs=$(echo $pkg_needs | bldr_split_str ":" | bldr_join_str " ")
+    else
+        pkg_needs=""
+    fi
+
+    local pkg_req_build=""
+    local pkg_need_name=""
+
+    if [ "$pkg_needs" != "" ] && [[ $(echo "$pkg_opts" | grep -m1 -c "skip-build-dependencies" ) < 1 ]]
+    then
+        for pkg_need_name in ${pkg_needs}
+        do
+            if [[ $(echo $pkg_need_name | grep -m1 -c '\/') > 0 ]]
+            then
+                local req_name=$(echo "$pkg_need_name" | sed 's/\/.*//g')
+                local req_vers=$(echo "$pkg_need_name" | sed 's/.*\///g')
+            else
+                local req_name=$(echo "$pkg_need_name" | sed 's/\/.*//g')
+                local req_vers="latest"
+            fi
+            local has_existing=$(bldr_has_required_pkg --name "$req_name" --version "$req_vers" )
+            if [ $has_existing == "false" ]
+            then
+                if [[ $(echo $pkg_req_build | grep -m1 -c "$req_name/$req_vers") < 1 ]]
+                then
+                    pkg_req_build="$pkg_req_build $req_name/$req_vers"
+                fi
+            else
+                bldr_log_info "Using required package '$req_name/$req_vers' for '$pkg_name/$pkg_vers' ... "                
+            fi
+        done
+
+        bldr_log_split
+        bldr_log_status "Building required dependencies:"
+        bldr_log_split
+
+        bldr_log_list $pkg_req_build
+        bldr_log_split
+
+        for pkg_need_name in ${pkg_req_build}
+        do
+            if [[ $(echo $pkg_need_name | grep -m1 -c '\/') > 0 ]]
+            then
+                local req_name=$(echo "$pkg_need_name" | sed 's/\/.*//g')
+                local req_vers=$(echo "$pkg_need_name" | sed 's/.*\///g')
+            else
+                local req_name=$(echo "$pkg_need_name" | sed 's/\/.*//g')
+                local req_vers="latest"
+            fi
+            bldr_build_required_pkg --name "$req_name" --version "$req_vers" --verbose "$use_verbose"
+        done
+        bldr_log_split
+    fi
+
     if [ $BLDR_VERBOSE != false ]
     then
         echo "PkgCategory:   '$pkg_ctry'"
@@ -3939,6 +4222,8 @@ function bldr_build_pkgs()
             continue
         fi
 
+        local ctry_cnt
+        let ctry_cnt=0
         local pkg_sh=""
         for pkg_sh in $pkg_dir/$ctry_name/*
         do
@@ -3979,13 +4264,14 @@ function bldr_build_pkgs()
                     if [ "$use_existing" == "false" ]
                     then
                         let bld_cnt++
+                        let ctry_cnt++
                     fi
                 fi
             done
         done
 
         if [[ $BLDR_VERBOSE != false ]]; then
-            local txt_cnt=$(printf "%03d" $bld_cnt)
+            local txt_cnt=$(printf "%03d" $ctry_cnt)
             bldr_log_info "$BLDR_TXT_TITLE[ $txt_cnt ]$BLDR_TXT_RST$BLDR_TXT_HEADER Matching packages in '$BLDR_TXT_TITLE$ctry_name$BLDR_TXT_HEADER' ..."
         fi
     done
