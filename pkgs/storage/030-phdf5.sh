@@ -10,7 +10,7 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_ver_list="1.6.10 1.8.2 1.8.8"
+pkg_ver_list=("1.6.10" "1.8.2" "1.8.8")
 pkg_ctry="storage"
 pkg_name="phdf5"
 
@@ -29,7 +29,7 @@ The Parallel-HDF5 technology suite includes:
 
 pkg_file="hdf5-$pkg_vers.tar.gz"
 pkg_urls="http://www.hdfgroup.org/ftp/HDF5/releases/$pkg_name-$pkg_vers/src/$pkg_file"
-pkg_opts="configure"
+pkg_opts="configure disable-xcode-cflags disable-xcode-ldflags"
 pkg_reqs="szip/latest zlib/latest"
 pkg_uses="$pkg_reqs"
 
@@ -154,7 +154,7 @@ function bldr_pkg_install_method()
 # build and install each pkg version as local module
 ####################################################################################################
 
-for pkg_vers in ${pkg_ver_list}
+for pkg_vers in "${pkg_ver_list[@]}"
 do
     pkg_name="phdf5"
     pkg_file="hdf5-$pkg_vers.tar.gz"

@@ -27,7 +27,7 @@ science researchers."
 
 pkg_file="$pkg_name-$pkg_vers.tar.bz2"
 pkg_urls="http://www.open-mpi.org/software/ompi/v1.6/downloads/$pkg_file"
-pkg_opts="configure"
+pkg_opts="configure disable-xcode-cflags disable-xcode-ldflags"
 pkg_reqs="zlib/latest papi/latest hwloc/latest"
 pkg_uses="$pkg_reqs"
 

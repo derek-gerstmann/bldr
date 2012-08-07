@@ -1282,26 +1282,30 @@ function bldr_has_pkg()
     done
 
     local has_existing="false"
-    if [ "$pkg_version" == "" ] || [ "$pkg_vers" == "latest" ]
+    if [ "$pkg_vers" == "" ]
     then
         pkg_vers="latest"
-        if [ -L "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/latest" ]
-        then
-            has_existing="true"
-        fi
-
-    elif [ -d "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers" ]
-    then
-        has_existing="true"
     fi
 
-    if [ $pkg_name != "modules" ] && [ $has_existing == "true" ]
+    if [ -d "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers" ]
     then
-        if [ ! -f "$BLDR_MODULE_PATH/$pkg_ctry/$pkg_name/$pkg_vers" ]
+        if [ "$pkg_name" == "modules" ]
         then
-            has_existing="false"
+            has_existing="true"
 
-        elif [ -d "$BLDR_PKGS_PATH/$pkg_ctry" ]
+        elif [ -f "$BLDR_MODULE_PATH/$pkg_ctry/$pkg_name/$pkg_vers" ]
+        then
+            has_existing="true"
+        
+        elif [ -L "$BLDR_MODULE_PATH/$pkg_ctry/$pkg_name/$pkg_vers" ]
+        then
+            has_existing="true"
+        fi        
+    fi
+
+    if [ "$pkg_name" != "modules" ] && [ "$has_existing" == "true" ]
+    then
+        if [ -d "$BLDR_PKGS_PATH/$pkg_ctry" ]
         then
             local found=""
             local fnd_list=""
@@ -1311,14 +1315,11 @@ function bldr_has_pkg()
                 if [[ $(echo "$found" | grep -m1 -c "$pkg_name") > 0 ]]                    
                 then
                     has_existing="false"
-                    break
                 fi
             done
         fi
     fi
     echo "$has_existing"
-    
-#    echo "Tested: $pkg_spec -nt $BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
 }
 
 function bldr_has_required_pkg()
@@ -3570,6 +3571,10 @@ function bldr_build_pkg()
         BLDR_VERBOSE=true
     fi
 
+    pkg_vers=$(bldr_trim_list_str "$pkg_vers")
+    pkg_ctry=$(bldr_trim_list_str "$pkg_ctry")
+    pkg_name=$(bldr_trim_list_str "$pkg_name")
+
     if [ "$pkg_name" == "" ] || [ "$pkg_vers" == "" ] || [ "$pkg_file" == "" ]
     then
         bldr_bail "Incomplete package definition!  Need at least 'name', 'version' and 'file' defined!"
@@ -4187,6 +4192,12 @@ function bldr_build_pkgs()
         pkg_opts="$BLDR_USE_PKG_OPTS $pkg_opts"
     fi
 
+    if [ "$pkg_vers" == "" ]
+    then
+        pkg_vers="latest"
+    fi
+
+    local pkg_vers=$(echo "$pkg_vers" | sed 's/\://g' )
     local pkg_ctry=$(echo "$pkg_ctry" | bldr_split_str ":" | bldr_join_str " ")
     local pkg_list=$(echo "$pkg_name" | bldr_split_str ":" | bldr_join_str " ")
     local pkg_dir="$BLDR_PKGS_PATH"
@@ -4209,8 +4220,9 @@ function bldr_build_pkgs()
         fi
     fi
 
-    pkg_ctry=$(bldr_trim_str $pkg_ctry)
-    pkg_list=$(bldr_trim_str $pkg_list)
+    local pkg_vers=$(echo "$pkg_vers" | sed 's/\://g' )
+    local pkg_ctry=$(echo "$pkg_ctry" | bldr_split_str ":" | bldr_join_str " ")
+    local pkg_list=$(echo "$pkg_name" | bldr_split_str ":" | bldr_join_str " ")
 
     if [[ ! -d $pkg_dir ]]; then
         bldr_log_split
@@ -4260,7 +4272,7 @@ function bldr_build_pkgs()
                     pkg_tst_vers=$(echo "$pkg_entry" | sed 's/.*\///g')
                 else
                     pkg_tst_name=$(echo "$pkg_entry" | sed 's/\/.*//g')
-                    pkg_tst_vers="latest"
+                    pkg_tst_vers="$pkg_vers"
                 fi
 
                 if [[ $(echo "$pkg_sh" | grep -m1 -c "$pkg_tst_name" ) > 0 ]]; then
@@ -4336,7 +4348,7 @@ function bldr_build_pkgs()
                     pkg_tst_vers=$(echo "$pkg_entry" | sed 's/.*\///g')
                 else
                     pkg_tst_name=$(echo "$pkg_entry" | sed 's/\/.*//g')
-                    pkg_tst_vers="latest"
+                    pkg_tst_vers="$pkg_vers"
                 fi
 
                 if [[ $(echo "$pkg_sh" | grep -m1 -c "$pkg_tst_name" ) > 0 ]]; then
@@ -4347,7 +4359,7 @@ function bldr_build_pkgs()
                     else
                         use_existing=$(bldr_has_pkg --category "$ctry_name" --name "$pkg_tst_name" --version "$pkg_tst_vers" --options "$pkg_opts" )
                     fi
-
+                    
                     if [ "$use_existing" == "false" ]
                     then
                         let bld_idx++

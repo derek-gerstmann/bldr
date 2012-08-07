@@ -24,7 +24,7 @@ MPI-1 features. It is based on MPICH2 and MVICH. The latest release is MVAPICH2 
 
 pkg_file="$pkg_name-latest.tar.gz"
 pkg_urls="http://mvapich.cse.ohio-state.edu/nightly/$pkg_name/branches/$pkg_vers/$pkg_file"
-pkg_opts="configure"
+pkg_opts="configure disable-xcode-cflags disable-xcode-ldflags"
 pkg_reqs="zlib/latest papi/latest hwloc/latest"
 pkg_uses="$pkg_reqs"
 

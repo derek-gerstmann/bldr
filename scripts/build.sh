@@ -34,6 +34,7 @@ source "bldr.sh"
 ####################################################################################################
 
 usage () {
+  echo "BLDR $BLDR_VERSION_STR                                                  " >&2
   echo "                                                                        " >&2
   echo "NAME                                                                    " >&2
   echo "  bldr build - starts an automated build for a set of BLDR packages     " >&2
@@ -62,6 +63,7 @@ pkg_ctry=""
 pkg_name=""
 pkg_opts=""
 pkg_args=""
+pkg_vers=""
 
 ####################################################################################################
 
@@ -71,8 +73,8 @@ do
     delim=""
     case "$arg" in
        --help) pkg_args="${pkg_args}-h ";;
-       --verbose) pkg_args="${pkg_args}-v ";;
-       --version) pkg_args="${pkg_args}-V ";;
+       --verbose) pkg_args="${pkg_args}-V ";;
+       --version) pkg_args="${pkg_args}-v ";;
        --category) pkg_args="${pkg_args}-c ";;
        --name) pkg_args="${pkg_args}-n ";;
        --options) pkg_args="${pkg_args}-o ";;
@@ -86,14 +88,14 @@ done
 eval set -- $pkg_args
 
 # now we can process with getopt
-while getopts ":hdvVc:n:o:" opt; do
+while getopts ":hdVc:n:v:o:" opt; do
     case $opt in
-        V)  bldr_echo "BLDR $BLDR_VERSION_STR" && exit 1;;
         h)  usage && exit 1;;
         d)  export BLDR_DEBUG=true;;
-        v)  export BLDR_VERBOSE=true;;
+        V)  export BLDR_VERBOSE=true;;
         c)  pkg_ctry="$pkg_ctry:$OPTARG" ;;
         n)  pkg_name="$pkg_name:$OPTARG" ;;
+        v)  pkg_vers="$pkg_vers:$OPTARG" ;;
         o)  pkg_opts="$pkg_opts:$OPTARG" ;;
         \?) usage && exit 1;;
         :)  echo "ERROR: '-$OPTARG' requires an argument!  See --help!" && exit 1 ;;
@@ -103,6 +105,6 @@ done
 
 ####################################################################################################
 
-bldr_build_pkgs --category "$pkg_ctry" --name "$pkg_name" --options "$pkg_opts" ${pkg_args}
+bldr_build_pkgs --category "$pkg_ctry" --name "$pkg_name" --version "$pkg_vers" --options "$pkg_opts" ${pkg_args}
 
 ####################################################################################################
