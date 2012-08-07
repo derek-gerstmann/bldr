@@ -45,8 +45,6 @@ pkg_patch=""
 if [ $BLDR_SYSTEM_IS_OSX -eq 1 ]
 then
      pkg_cfg="$pkg_cfg --with-libiconv-prefix=/usr"
-     pkg_cflags="$pkg_cflags:-I/usr/local/include:-I/usr/include"
-     pkg_ldflags="$pkg_ldflags:-L/usr/local/lib:-L/usr/lib:-lintl"
 else
      pkg_reqs="$pkg_reqs libiconv/latest"
      pkg_cfg="$pkg_cfg --with-libiconv-prefix=$BLDR_LOCAL_PATH/internal/libiconv/latest"

@@ -1245,28 +1245,25 @@ function bldr_has_pkg()
     done
 
     local has_existing="false"
-    if [ $pkg_name == "modules" ]
+    if [ -d "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers" ]
     then
-        if [ -d "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers" ]
+        has_existing="true"
+    fi
+    if [ $pkg_name != "modules" ] && [ $has_existing == "true" ]
+    then
+        if [ -d "$BLDR_PKGS_PATH/$pkg_ctry" ]
         then
-            has_existing="true"
-        fi
-    else
-        if [ -d "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers" ]
-        then
-            has_existing="true"
-            if [ -d "$BLDR_PKGS_PATH/$pkg_ctry" ]
-            then
-                bldr_push_dir "$BLDR_PKGS_PATH/$pkg_ctry"
-                local found=""
-                local fnd_list=""
-                local fnd_list=$(find ./* -newer "$BLDR_MODULE_PATH/$pkg_ctry/$pkg_name/$pkg_vers" -iname "*$pkg_name.sh" -exec echo {} )
-                if [ ${#fnd_list} -gt 0 ]
+            local found=""
+            local fnd_list=""
+            local fnd_list=$(find "$BLDR_PKGS_PATH/$pkg_ctry"/* -newer "$BLDR_MODULE_PATH/$pkg_ctry/$pkg_name/$pkg_vers" -iname "*$pkg_name.sh" -print 2>/dev/null )
+            for found in ${fnd_list}
+            do
+                if [[ $(echo "$found" | grep -m1 -c "$pkg_name") > 0 ]]                    
                 then
                     has_existing="false"
+                    break
                 fi
-                bldr_pop_dir
-            fi
+            done
         fi
     fi
     echo "$has_existing"
