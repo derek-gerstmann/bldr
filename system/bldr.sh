@@ -36,6 +36,7 @@ export BLDR_VERSION_STR="v$BLDR_VERSION_MAJOR.$BLDR_VERSION_MINOR.$BLDR_VERSION_
 BLDR_PARALLEL=${BLDR_PARALLEL:=true}
 BLDR_VERBOSE=${BLDR_VERBOSE:=false}
 BLDR_DEBUG=${BLDR_DEBUG:=false}
+BLDR_LOG_FILE=${BLDR_LOG_FILE:=""}
 BLDR_IS_INTERNAL_LOADED=${BLDR_IS_INTERNAL_LOADED:=false}
 BLDR_LOADED_MODULES=${BLDR_LOADED_MODULES:=""}
 BLDR_DEFAULT_BUILD_LIST=${BLDR_DEFAULT_BUILD_LIST:="internal system languages developer network concurrency numerics protocols cluster storage imaging databases toolkits compilers"}
@@ -79,11 +80,12 @@ fi
 function bldr_get_stdout()
 {
     local output=""    
-    if [ $BLDR_VERBOSE != false ]
+    local log_file="$BLDR_LOG_PATH/$BLDR_LOG_FILE"
+    if [ $BLDR_VERBOSE == true ]
     then
-        output=""
+        output="2>&1 | tee -a $log_file"
     else
-        output="&>/dev/null"
+        output="2>&1 >> $log_file"
     fi
     echo $output
 }
@@ -216,34 +218,46 @@ function bldr_echo()
 
 function bldr_log_info()
 {
+    local log_file="$BLDR_LOG_PATH/$BLDR_LOG_FILE"
+    (echo "-- ${@}" 2>&1) >> $log_file    
     echo -e ${BLDR_TXT_HEADER}"-- ${@} "${BLDR_TXT_RST}
 }
 
 function bldr_log_item()
 {
+    local log_file="$BLDR_LOG_PATH/$BLDR_LOG_FILE"
+    (echo "${@}" 2>&1) >> $log_file    
     echo -e ${BLDR_TXT_HEADER}"${@} "${BLDR_TXT_RST}
 }
 
 function bldr_log_warning()
 {
+    local log_file="$BLDR_LOG_PATH/$BLDR_LOG_FILE"
     local ts=$(date "+%Y-%m-%d-%H:%M:%S")
+    (echo "[ ${ts} ] ${@}" 2>&1) >> $log_file    
     echo -e ${BLDR_TXT_WARN}"[ ${ts} ]"${BLDR_TXT_ERROR}" ${@} "${BLDR_TXT_RST}
 }
 
 function bldr_log_error()
 {
+    local log_file="$BLDR_LOG_PATH/$BLDR_LOG_FILE"
     local ts=$(date "+%Y-%m-%d-%H:%M:%S")
+    (echo "[ ${ts} ] ${@}" 2>&1) >> $log_file    
     echo -e ${BLDR_TXT_ERROR}"[ ${ts} ]"${BLDR_TXT_TITLE}" ${@} "${BLDR_TXT_RST}
 }
 
 function bldr_log_status()
 {
+    local log_file="$BLDR_LOG_PATH/$BLDR_LOG_FILE"
     local ts=$(date "+%Y-%m-%d-%H:%M:%S")
-    echo -e ${BLDR_TXT_HEADER}"[ ${ts} ]"${BLDR_TXT_TITLE}" ${@} "${BLDR_TXT_RST}
+    (echo "[ ${ts} ] ${@}" 2>&1) >> $log_file    
+    echo -e ${BLDR_TXT_TITLE}"["${BLDR_TXT_HEADER}" ${ts} "${BLDR_TXT_TITLE}"]"${BLDR_TXT_TITLE}" ${@} "${BLDR_TXT_RST}
 }
 
 function bldr_log_cmd()
 {
+    local log_file="$BLDR_LOG_PATH/$BLDR_LOG_FILE"
+
     local word=""
     local first_line=true
     local line_string=""
@@ -255,10 +269,12 @@ function bldr_log_cmd()
         then
             if [ $first_line == true ]
             then
+                (echo "> $line_string" 2>&1) >> $log_file
                 echo -e ${BLDR_TXT_TITLE}">"${BLDR_TXT_CMD}" $line_string "${BLDR_TXT_RST}
                 first_line=false
             else
                 line_string=$(bldr_trim_str $line_string)
+                (echo "       $line_string" 2>&1) >> $log_file
                 echo -e ${BLDR_TXT_TITLE}"      "${BLDR_TXT_CMD}" $line_string "${BLDR_TXT_RST}
             fi
         fi
@@ -268,34 +284,76 @@ function bldr_log_cmd()
     if [[ ${#line_string} -ge 1 ]]
     then
         line_string=$(bldr_trim_str $line_string)
+        (echo "       $line_string" 2>&1) >> $log_file
         echo -e ${BLDR_TXT_TITLE}"      "${BLDR_TXT_CMD}" $line_string "${BLDR_TXT_RST}
         line_string=""
     fi
 }
 
+function bldr_log_list_item_suffix()
+{
+    local log_file="$BLDR_LOG_PATH/$BLDR_LOG_FILE"
+
+    local item_idx="${1}"
+    local item_sfx="${2}"
+    local item_msg="${3}"
+
+    local txt_idx=$(printf "%03d" $item_idx)
+
+    (echo "[ $txt_idx ] $item_msg '$item_sfx'" 2>&1) >> $log_file
+    echo -e ${BLDR_TXT_TITLE}"["${BLDR_TXT_HEADER}" $txt_idx "${BLDR_TXT_TITLE}"]"${BLDR_TXT_RST}${BLDR_TXT_HEADER}" $item_msg ""'"${BLDR_TXT_TITLE}"$item_sfx"${BLDR_TXT_HEADER}"'"${BLDR_TXT_RST}
+}
+
+function bldr_log_list_item_progress()
+{
+    local log_file="$BLDR_LOG_PATH/$BLDR_LOG_FILE"
+    local item_idx="${1}"
+    local item_cnt="${2}"
+    local item_msg="${3}"
+
+    local txt_idx=$(printf "%03d" $item_idx)
+    local txt_cnt=$(printf "%03d" $item_cnt)
+
+    (echo "[ $txt_idx / $txt_cnt ] $item_msg" 2>&1) >> $log_file
+    echo -e ${BLDR_TXT_TITLE}"["${BLDR_TXT_HEADER}" $txt_idx "${BLDR_TXT_TITLE}"/"${BLDR_TXT_HEADER}" $txt_cnt "${BLDR_TXT_TITLE}"]"${BLDR_TXT_RST}${BLDR_TXT_TITLE}" $item_msg "${BLDR_TXT_RST}
+}
+
+function bldr_log_list_item()
+{
+    local log_file="$BLDR_LOG_PATH/$BLDR_LOG_FILE"
+    local item_idx="${1}"
+    local item_cnt="${2}"
+    local item_msg="${@}"
+
+    local txt_idx=$(printf "%03d" $item_idx)
+
+    (echo "[ $txt_idx ] $item_msg" 2>&1) >> $log_file
+    echo -e ${BLDR_TXT_TITLE}"["${BLDR_TXT_HEADER}" $txt_idx "${BLDR_TXT_TITLE}"]"${BLDR_TXT_RST}${BLDR_TXT_ERROR}" $item_msg "${BLDR_TXT_RST}
+}
+
 function bldr_log_list()
 {
+    local log_file="$BLDR_LOG_PATH/$BLDR_LOG_FILE"
+
     local word=""
     local first_line=true
     local line_string=""
     local log_lines=$(echo ${@} | bldr_split_str ' \n')
     local list_idx
     let list_idx=0
+
     for word in ${log_lines}
     do
         line_string="$line_string $word"
         if [[ ${#line_string} -ge 1 ]]
         then
             let list_idx++
-            local txt_idx=$(printf "%03d" $list_idx)
             if [ $first_line == true ]
             then
-                echo -e ${BLDR_TXT_TITLE}"[ $txt_idx ]"${BLDR_TXT_WARN}"$line_string"${BLDR_TXT_RST}
+                line_string=" $line_string"
                 first_line=false
-            else
-                line_string=$(bldr_trim_str $line_string)
-                echo -e ${BLDR_TXT_TITLE}"[ $txt_idx ]"${BLDR_TXT_WARN}" $line_string"${BLDR_TXT_RST}
             fi
+            bldr_log_list_item $list_idx $line_string
         fi
         line_string=""
     done
@@ -303,10 +361,27 @@ function bldr_log_list()
     if [[ ${#line_string} -ge 1 ]]
     then
         let list_idx++
-        local txt_idx=$(printf "%03d" $list_idx)
         line_string=$(bldr_trim_str $line_string)
-        echo -e ${BLDR_TXT_TITLE}"[ $txt_idx ]"${BLDR_TXT_WARN}" $line_string"${BLDR_TXT_RST}
+        bldr_log_list_item $list_idx $line_string
         line_string=""
+    fi
+}
+
+function bldr_run_cmd()
+{
+    local cmd="${@}"
+
+    bldr_log_cmd "$cmd"
+    bldr_log_split
+
+    local log_file="$BLDR_LOG_PATH/$BLDR_LOG_FILE"
+
+    if [ $BLDR_VERBOSE == true ]
+    then
+        eval "$cmd" 2>&1 | tee -a $log_file
+        bldr_log_split
+    else
+        (eval "$cmd" 2>&1) >> $log_file
     fi
 }
 
@@ -318,7 +393,9 @@ function bldr_exec()
 
 function bldr_log_split()
 {
-    echo "---------------------------------------------------------------------------------------------------------------"
+    local log_file="$BLDR_LOG_PATH/$BLDR_LOG_FILE"
+    local log_split="---------------------------------------------------------------------------------------------------------------"
+    echo "$log_split" 2>&1 | tee -a $log_file
 }
 
 function bldr_format_version()
@@ -396,6 +473,7 @@ export BLDR_PATCHES_PATH="$BLDR_CONFIG_PATH/patches"
 export BLDR_SYSTEM_PATH="$BLDR_CONFIG_PATH/system"
 export BLDR_CACHE_PATH="$BLDR_CONFIG_PATH/cache"
 export BLDR_BUILD_PATH="$BLDR_CONFIG_PATH/build"
+export BLDR_LOG_PATH="$BLDR_CONFIG_PATH/logs"
 
 # setup install paths
 BLDR_INSTALL_PATH=${BLDR_INSTALL_PATH:=$BLDR_ABS_PWD}
@@ -585,11 +663,27 @@ function bldr_load_pkgconfig()
     fi
 }
 
+# setup the environment to support our own version of PKG_CONFIG
+function bldr_load_logger()
+{
+    if [ ! -d "$BLDR_LOG_PATH" ]
+    then
+        mkdir -p "$BLDR_LOG_PATH"
+    fi
+
+    if [ "$BLDR_LOG_FILE" == "" ]
+    then
+        local tstamp=$(date "+%Y-%m-%d-%Hh%Mm%Ss")
+        export BLDR_LOG_FILE="bldr_$tstamp.log"
+    fi
+}
+
 ####################################################################################################
 
 function bldr_startup() 
 {
     bldr_load_internal
+    bldr_load_logger
     bldr_load_modules
     bldr_load_pkgconfig    
 }
@@ -2710,16 +2804,7 @@ function bldr_compile_pkg()
 
     if [ -f "./Makefile" ] || [ -f "./makefile" ]
     then
-        bldr_log_cmd "make $options"
-        bldr_log_split
-
-        if [ $BLDR_VERBOSE != false ]
-        then
-            eval make $options || bldr_bail "Failed to build package: '$prefix'"
-            bldr_log_split
-        else
-            eval make $options &> /dev/null || bldr_bail "Failed to build package: '$prefix'"
-        fi
+        bldr_run_cmd "make $options" || bldr_bail "Failed to build package: '$prefix'"
     fi
     bldr_pop_dir
 }
@@ -2806,16 +2891,7 @@ function bldr_install_pkg()
             bldr_log_status "Installing package '$pkg_name/$pkg_vers'"
             bldr_log_split
 
-            bldr_log_cmd "make install"
-            bldr_log_split
-
-            if [ $BLDR_VERBOSE != false ]
-            then
-                eval make $options install || bldr_bail "Failed to install package: '$prefix'"
-                bldr_log_split
-            else
-                eval make $options install &> /dev/null || bldr_bail "Failed to install package: '$prefix'"
-            fi
+            bldr_run_cmd "make $options install" || bldr_bail "Failed to install package: '$prefix'"
         fi
     fi
     bldr_pop_dir
@@ -4294,8 +4370,7 @@ function bldr_build_pkgs()
         done
 
         if [[ $BLDR_VERBOSE != false ]]; then
-            local txt_cnt=$(printf "%03d" $ctry_cnt)
-            bldr_log_info "$BLDR_TXT_TITLE[ $txt_cnt ]$BLDR_TXT_RST$BLDR_TXT_HEADER Matching packages in '$BLDR_TXT_TITLE$ctry_name$BLDR_TXT_HEADER' ..."
+            bldr_log_list_item_suffix $ctry_cnt "$ctry_name" "Matching packages in"
         fi
     done
 
@@ -4364,7 +4439,8 @@ function bldr_build_pkgs()
                     then
                         let bld_idx++
                         local txt_idx=$(printf "%03d" $bld_idx)
-                        bldr_log_item "$BLDR_TXT_TITLE[ $txt_idx / $txt_cnt ]$BLDR_TXT_RST$BLDR_TXT_ERROR Building '$pkg_tst_name/$pkg_tst_vers' from '$ctry_name' ... $BLDR_TXT_RST"
+
+                        bldr_log_list_item_progress $bld_idx $bld_cnt "Building '$pkg_tst_name/$pkg_tst_vers' from '$ctry_name' ... "
                         bldr_log_split
 
                         export BLDR_USE_PKG_CTRY="$ctry_name"
