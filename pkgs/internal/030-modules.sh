@@ -10,6 +10,7 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
+pkg_ctry="internal"
 pkg_name="modules"
 pkg_vers="3.2.9c"
 
@@ -41,14 +42,14 @@ pkg_uses="$pkg_uses tcl/latest"
 pkg_reqs="$pkg_uses"
 pkg_cflags=""
 pkg_ldflags=""
-pkg_cfg="--with-tcl-lib=$BLDR_LOCAL_PATH/internal/tcl/latest/lib"
-pkg_cfg="$pkg_cfg --with-tcl-inc=$BLDR_LOCAL_PATH/internal/tcl/latest/include"
+pkg_cfg="--with-tcl-lib=$BLDR_LOCAL_PATH/languages/tcl/latest/lib"
+pkg_cfg="$pkg_cfg --with-tcl-inc=$BLDR_LOCAL_PATH/languages/tcl/latest/include"
 
 ####################################################################################################
 # build and install pkg as local module
 ####################################################################################################
 
-bldr_build_pkg --category    "internal"     \
+bldr_build_pkg --category    "$pkg_ctry"    \
                --name        "$pkg_name"    \
                --version     "$pkg_vers"    \
                --info        "$pkg_info"    \

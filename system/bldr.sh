@@ -33,13 +33,31 @@ export BLDR_VERSION_STR="v$BLDR_VERSION_MAJOR.$BLDR_VERSION_MINOR.$BLDR_VERSION_
 
 ####################################################################################################
 
+BLDR_CATEGORIES=(
+    "internal" 
+    "system" 
+    "languages" 
+    "developer" 
+    "network" 
+    "concurrency" 
+    "numerics" 
+    "protocols" 
+    "typography" 
+    "graphics" 
+    "cluster" 
+    "storage" 
+    "imaging" 
+    "databases" 
+    "toolkits" 
+    "compilers")
+
 BLDR_PARALLEL=${BLDR_PARALLEL:=true}
 BLDR_VERBOSE=${BLDR_VERBOSE:=false}
 BLDR_DEBUG=${BLDR_DEBUG:=false}
 BLDR_LOG_FILE=${BLDR_LOG_FILE:=""}
 BLDR_IS_INTERNAL_LOADED=${BLDR_IS_INTERNAL_LOADED:=false}
 BLDR_LOADED_MODULES=${BLDR_LOADED_MODULES:=""}
-BLDR_DEFAULT_BUILD_LIST=${BLDR_DEFAULT_BUILD_LIST:="internal system languages developer network concurrency numerics protocols cluster storage imaging databases toolkits compilers"}
+BLDR_DEFAULT_BUILD_LIST=${BLDR_DEFAULT_BUILD_LIST:=${BLDR_CATEGORIES[@]}}
 BLDR_DEFAULT_PKG_USES=${BLDR_DEFAULT_PKG_USES:=""}
 
 BLDR_USE_PKG_CTRY=${BLDR_USE_PKG_CTRY:=""}
@@ -322,8 +340,7 @@ function bldr_log_list_item()
 {
     local log_file="$BLDR_LOG_PATH/$BLDR_LOG_FILE"
     local item_idx="${1}"
-    local item_cnt="${2}"
-    local item_msg="${@}"
+    local item_msg="${2}"
 
     local txt_idx=$(printf "%03d" $item_idx)
 
@@ -810,6 +827,7 @@ function bldr_locate_config_script
     local tst_path=""
     local cmake_tst_file=""
     local autocfg_tst_file=""
+
     for tst_path in ${cfg_paths}
     do
         if [ $use_autocfg == true ]
@@ -2117,33 +2135,11 @@ function bldr_boot_pkg()
 
         if [ -x "$boot_cmd" ] && [ "$boot_cmd" != "." ]
         then
-
             if [[ $(echo "$pkg_opts" | grep -m1 -c "no-bootstrap-prefix" ) > 0 ]]
             then
-
-                bldr_log_cmd "$boot_cmd"
-                bldr_log_split
-
-                if [ $BLDR_VERBOSE != false ]
-                then
-                    eval $boot_cmd || bldr_bail "Failed to boot package '$pkg_name/$pkg_vers'!"
-                    bldr_log_split
-                else
-                    eval $boot_cmd &> /dev/null || bldr_bail "Failed to boot package '$pkg_name/$pkg_vers'!"
-                fi
-
+                bldr_run_cmd "$boot_cmd"
             else
-
-                bldr_log_cmd "$boot_cmd --prefix=\"$prefix\""
-                bldr_log_split
-
-                if [ $BLDR_VERBOSE != false ]
-                then
-                    eval $boot_cmd --prefix="$prefix" || bldr_bail "Failed to boot package '$pkg_name/$pkg_vers'!"
-                    bldr_log_split
-                else
-                    eval $boot_cmd --prefix="$prefix" &> /dev/null || bldr_bail "Failed to boot package '$pkg_name/$pkg_vers'!"
-                fi
+                bldr_run_cmd "$boot_cmd --prefix=\"$prefix\""
             fi
         else
             if [ $BLDR_VERBOSE != false ]
@@ -2314,16 +2310,7 @@ function bldr_cmake_pkg()
         fi
     fi
 
-    bldr_log_cmd "$cmake_exec $cmake_pre $env_flags $cmake_src_path"
-    bldr_log_split
-
-    if [ $BLDR_VERBOSE != false ]
-    then
-        eval $cmake_exec $cmake_mod $cmake_pre $env_flags $cmake_src_path || bldr_bail "Failed to configure: '$prefix'"
-        bldr_log_split
-    else
-        eval $cmake_exec $cmake_mod $cmake_pre $env_flags $cmake_src_path &>/dev/null || bldr_bail "Failed to configure: '$prefix'"
-    fi
+    bldr_run_cmd "$cmake_exec $cmake_mod $cmake_pre $env_flags $cmake_src_path"
 
     bldr_log_info "Done configuring package '$pkg_name/$pkg_vers'"
     bldr_log_split
@@ -2604,7 +2591,7 @@ function bldr_config_pkg()
     bldr_pop_dir
 
     bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
-    local cfg_cmd=$(bldr_locate_config_script $pkg_cfg_path $pkg_opts)
+    local cfg_cmd=$(bldr_locate_config_script $cfg_path $pkg_opts)
     local output=$(bldr_get_stdout)  
 
     bldr_log_status "Configuring package '$pkg_name/$pkg_vers' using '$cfg_cmd' ..."
@@ -4369,12 +4356,15 @@ function bldr_build_pkgs()
             done
         done
 
-        if [[ $BLDR_VERBOSE != false ]]; then
+        if [[ $ctry_cnt -gt 0 ]]; then
+            bldr_log_list_item_suffix $ctry_cnt "$ctry_name" "Matching packages in"
+
+        elif [[ $BLDR_VERBOSE == true ]]; then
             bldr_log_list_item_suffix $ctry_cnt "$ctry_name" "Matching packages in"
         fi
     done
 
-    if [ $bld_cnt -gt 0 ] && [ $BLDR_VERBOSE != false ]
+    if [ $BLDR_VERBOSE == true ] || [ $bld_cnt -gt 0 ]
     then
         bldr_log_split
     fi

@@ -24,7 +24,7 @@ and is also incorporated into several commercial products."
 pkg_file="$pkg_name-$pkg_vers.zip"
 pkg_urls="http://nodeload.github.com/OpenImageIO/oiio/zipball/RB-1.0"
 pkg_opts="cmake force-bootstrap"
-pkg_reqs="zlib/latest libpng/latest libjpeg/latest libtiff/latest openjpeg/latest hdf5/latest f3d/latest lcms2/latest"
+pkg_reqs="zlib/latest libpng/latest libjpeg/latest libtiff/latest openjpeg/latest hdf5/latest field3d/latest lcms2/latest"
 pkg_uses=""
 pkg_reqs=""
 pkg_cflags=""
@@ -32,10 +32,12 @@ pkg_ldflags=""
 
 dep_list="internal/zlib internal/bzip2 internal/libxml2"
 dep_list="$dep_list imaging/lcms2 imaging/libpng imaging/libjpeg imaging/libtiff imaging/openjpeg"
-dep_list="$dep_list storage/hdf5 storage/netcdf storage/f3d"
+dep_list="$dep_list storage/hdf5 storage/netcdf imaging/field3d"
+
 for dep_pkg in $dep_list
 do
-     pkg_reqs="$pkg_reqs $dep_pkg/latest"
+     pkg_req_name=$(echo "$dep_pkg" | sed 's/.*\///g' )
+     pkg_reqs="$pkg_reqs $pkg_req_name/latest"
      pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/$dep_pkg/latest/include"
      pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/$dep_pkg/latest/lib"
 done

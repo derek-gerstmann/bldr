@@ -35,7 +35,8 @@ dep_list="$dep_list imaging/lcms2 imaging/ilmbase imaging/openexr"
 dep_list="$dep_list imaging/libpng imaging/libjpeg imaging/libtiff"
 for dep_pkg in $dep_list
 do
-     pkg_reqs="$pkg_reqs $dep_pkg/latest"
+     pkg_req_name=$(echo "$dep_pkg" | sed 's/.*\///g' )
+     pkg_reqs="$pkg_reqs $pkg_req_name/latest"
      pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/$dep_pkg/latest/include"
      pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/$dep_pkg/latest/lib"
 done

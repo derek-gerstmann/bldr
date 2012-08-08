@@ -10,6 +10,7 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
+pkg_ctry="imaging"
 pkg_name="ilmbase"
 pkg_vers="2.0-beta1"
 
@@ -30,7 +31,8 @@ pkg_ldflags=""
 dep_list="internal/zlib imaging/lcms2"
 for dep_pkg in $dep_list
 do
-     pkg_reqs="$pkg_reqs $dep_pkg/latest"
+     pkg_req_name=$(echo "$dep_pkg" | sed 's/.*\///g' )
+     pkg_reqs="$pkg_reqs $pkg_req_name/latest"
      pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/$dep_pkg/latest/include"
      pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/$dep_pkg/latest/lib"
 done
@@ -50,7 +52,7 @@ pkg_cfg="$pkg_cfg Z_LIBS=-lz"
 # build and install pkg as local module
 ####################################################################################################
 
-bldr_build_pkg --category    "imaging"      \
+bldr_build_pkg --category    "$pkg_ctry"    \
                --name        "$pkg_name"    \
                --version     "$pkg_vers"    \
                --info        "$pkg_info"    \

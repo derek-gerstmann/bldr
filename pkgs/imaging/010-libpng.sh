@@ -11,7 +11,7 @@ source "bldr.sh"
 ####################################################################################################
 
 pkg_name="libpng"
-pkg_vers="1.5.10"
+pkg_vers="1.5.12"
 
 pkg_info="PNG is an open, extensible image format with lossless compression."
 

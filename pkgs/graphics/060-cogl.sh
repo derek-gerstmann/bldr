@@ -10,28 +10,36 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_name="openexr"
-pkg_vers="2.0-beta1"
+pkg_ctry="graphics"
+pkg_name="cogl"
+pkg_vers="1.10.2"
 
-pkg_info="OpenEXR is a high dynamic-range (HDR) image file format developed by Industrial Light & Magic for use in computer imaging applications."
+pkg_info="Cogl is a modern 3D graphics API with associated utility APIs designed to expose the features of 3D graphics hardware using a direct state access API design, as opposed to the state-machine style of OpenGL."
 
-pkg_desc="OpenEXR is a high dynamic-range (HDR) image file format developed by 
-Industrial Light & Magic for use in computer imaging applications.
+pkg_desc="Cogl is a modern 3D graphics API with associated utility APIs designed to 
+expose the features of 3D graphics hardware using a direct state access API design, 
+as opposed to the state-machine style of OpenGL. It is implemented in the C programming 
+language but we want to provide bindings for everyone's favorite language too."
 
-OpenEXR is used by ILM on all motion pictures currently in production. 
-The first movies to employ OpenEXR were Harry Potter and the Sorcerers Stone, 
-Men in Black II, Gangs of New York, and Signs. Since then, OpenEXR has become 
-ILM's main image file format."
+pkg_file="$pkg_name-$pkg_vers.tar.bz2"
+pkg_urls="http://source.clutter-project.org/sources/cogl/1.10/$pkg_file"
+pkg_opts="configure"
+pkg_cfg=""
+pkg_cfg_path=""
 
-pkg_file="$pkg_name-$pkg_vers.zip"
-pkg_urls="http://github.com/openexr/openexr/zipball/v2_beta.1"
-pkg_opts="cmake skip-boot force-serial-build"
-pkg_cfg_path="OpenEXR"
+pkg_uses=""
 pkg_reqs=""
 pkg_cflags=""
 pkg_ldflags=""
 
-dep_list="internal/zlib imaging/lcms2 imaging/ilmbase"
+dep_list="internal/zlib internal/libicu internal/libxml2"
+dep_list="$dep_list developer/gettext developer/glib"
+dep_list="$dep_list imaging/libpng typography/pango"
+
+if [[ $BLDR_SYSTEM_IS_OSX -eq 0 ]]; then
+     dep_list="$dep_list internal/libiconv"
+fi
+
 for dep_pkg in $dep_list
 do
      pkg_req_name=$(echo "$dep_pkg" | sed 's/.*\///g' )
@@ -40,20 +48,18 @@ do
      pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/$dep_pkg/latest/lib"
 done
 
-pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/imaging/ilmbase/latest/include/OpenEXR"
-pkg_cflags="$pkg_cflags:-I$BLDR_BUILD_PATH/imaging/$pkg_name/$pkg_vers/openexr/OpenEXR/IlmImf"
+if [[ $BLDR_SYSTEM_IS_OSX -eq 1 ]]; then
+     pkg_cflags="$pkg_cflags:-I/usr/local/include:-I/usr/include"
+     pkg_ldflags="$pkg_ldflags:-L/usr/local/lib:-L/usr/lib:-lintl"
+fi
 
 pkg_uses="$pkg_reqs"
-
-pkg_cfg="--disable-dependency-tracking "
-pkg_cfg="$pkg_cfg Z_CFLAGS=-I$BLDR_LOCAL_PATH/internal/zlib/latest/include"
-pkg_cfg="$pkg_cfg Z_LIBS=-lz"
 
 ####################################################################################################
 # build and install pkg as local module
 ####################################################################################################
 
-bldr_build_pkg --category    "imaging"      \
+bldr_build_pkg --category    "$pkg_ctry"    \
                --name        "$pkg_name"    \
                --version     "$pkg_vers"    \
                --info        "$pkg_info"    \
@@ -65,7 +71,5 @@ bldr_build_pkg --category    "imaging"      \
                --options     "$pkg_opts"    \
                --cflags      "$pkg_cflags"  \
                --ldflags     "$pkg_ldflags" \
-               --config      "$pkg_cfg"     \
-               --config-path "$pkg_cfg_path"
-
+               --config      "$pkg_cfg"
 

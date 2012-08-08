@@ -10,28 +10,31 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_ctry="languages"
-pkg_name="tcl"
+pkg_ctry="toolkits"
+pkg_name="tk"
 pkg_vers="8.5.12"
 
-pkg_info="Tool Command Language (Tcl) is an interpreted language and very portable interpreter for that language. "
+pkg_info="Tk is a graphical user interface toolkit that takes developing desktop applications to a higher level than conventional approaches."
 
-pkg_desc="Tool Command Language (Tcl) is an interpreted language and very portable interpreter for that language. 
+pkg_desc="Tk is a graphical user interface toolkit that takes developing desktop applications to a higher 
+level than conventional approaches. Tk is the standard GUI not only for Tcl, but for many other 
+dynamic languages, and can produce rich, native applications that run unchanged across Windows, 
+Mac OS X, Linux and more."
 
-Tcl (Tool Command Language) is a very powerful but easy to learn dynamic programming language, 
-suitable for a very wide range of uses, including web and desktop applications, networking, 
-administration, testing and many more. Open source and business-friendly, Tcl is a mature yet 
-evolving language that is truly cross platform, easily deployed and highly extensible."
-
-pkg_file="tcl$pkg_vers-src.tar.gz"
+pkg_file="tk$pkg_vers-src.tar.gz"
 pkg_urls="http://prdownloads.sourceforge.net/tcl/$pkg_file"
 pkg_opts="configure force-serial-build"
-pkg_uses="m4/latest autoconf/latest automake/latest"
-pkg_reqs=""
+pkg_uses="tcl/$pkg_vers"
+pkg_reqs="$pkg_uses"
 pkg_cflags=""
 pkg_ldflags=""
-pkg_cfg=""
-pkg_cfg_path="unix"
+pkg_cfg="--with-tcl=$BLDR_LOCAL_PATH/languages/tcl/$pkg_vers"
+
+if [[ $BLDR_SYSTEM_IS_OSX -eq 1 ]]; then
+     pkg_cfg_path="macosx"
+else
+     pkg_cfg_path="unix"
+fi
 
 ####################################################################################################
 # build and install pkg as local module

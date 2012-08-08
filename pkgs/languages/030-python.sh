@@ -10,7 +10,7 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_ver_list="2.7.3 3.2.3"
+pkg_ver_list=("2.7.3" "3.2.3")
 pkg_ctry="languages"
 pkg_name="python"
 

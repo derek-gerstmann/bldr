@@ -10,25 +10,29 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_ctry="toolkits"
-pkg_name="tk"
-pkg_vers="8.5.11"
+pkg_ctry="protocols"
+pkg_name="msgpack"
+pkg_vers="0.5.7"
+pkg_info="MessagePack is an efficient binary serialization format. "
 
-pkg_info="Tk is a graphical user interface toolkit that takes developing desktop applications to a higher level than conventional approaches."
+pkg_desc="MessagePack is an efficient binary serialization format. 
+It lets you exchange data among multiple languages like JSON but it's faster 
+and smaller. For example, small integers (like flags or error code) are encoded 
+into a single byte, and typical short strings only require an extra byte in 
+addition to the strings themselves.
 
-pkg_desc="Tk is a graphical user interface toolkit that takes developing desktop applications to a higher 
-level than conventional approaches. Tk is the standard GUI not only for Tcl, but for many other 
-dynamic languages, and can produce rich, native applications that run unchanged across Windows, 
-Mac OS X, Linux and more."
+If you ever wished to use JSON for convenience (storing an image with metadata) 
+but could not for technical reasons (encoding, size, speed...), MessagePack 
+is a perfect replacement."
 
-pkg_file="tcl$pkg_vers-src.tar.gz"
-pkg_urls="http://prdownloads.sourceforge.net/tcl/$pkg_file"
-pkg_opts="configure force-serial-build"
-pkg_uses="tcl/$pkg_vers"
-pkg_reqs="$pkg_uses"
+pkg_file="$pkg_name-$pkg_vers.tar.gz"
+pkg_urls="http://msgpack.org/releases/cpp/$pkg_file"
+pkg_opts="configure force-static"
+pkg_reqs=""
+pkg_uses="$pkg_reqs"
+
 pkg_cflags=""
 pkg_ldflags=""
-pkg_cfg="--with-tcl=$BLDR_LOCAL_PATH/internal/tcl/$pkg_vers"
 
 ####################################################################################################
 # build and install pkg as local module
@@ -46,7 +50,6 @@ bldr_build_pkg --category    "$pkg_ctry"    \
                --options     "$pkg_opts"    \
                --cflags      "$pkg_cflags"  \
                --ldflags     "$pkg_ldflags" \
-               --config      "$pkg_cfg"     \
-               --config-path "unix"
+               --config      "$pkg_cfg"
 
 

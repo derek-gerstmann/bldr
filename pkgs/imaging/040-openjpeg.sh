@@ -10,6 +10,7 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
+pkg_ctry="imaging"
 pkg_name="openjpeg"
 pkg_vers="1.5.0"
 
@@ -41,12 +42,13 @@ dep_list="internal/zlib internal/bzip2 internal/libxml2"
 dep_list="$dep_list imaging/lcms2 imaging/libpng imaging/libjpeg imaging/libtiff"
 for dep_pkg in $dep_list
 do
-     pkg_reqs="$pkg_reqs $dep_pkg/latest"
+     pkg_req_name=$(echo "$dep_pkg" | sed 's/.*\///g' )
+     pkg_reqs="$pkg_reqs $pkg_req_name/latest"
      pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/$dep_pkg/latest/include"
      pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/$dep_pkg/latest/lib"
 done
 
-pkg_uses="m4/latest autoconf/latest automake/latest libtool/latest $pkg_reqs"
+pkg_uses="$pkg_reqs"
 
 pkg_cfg="--disable-dependency-tracking"
 pkg_cfg="$pkg_cfg --enable-tiff"
@@ -65,7 +67,7 @@ pkg_cfg="$pkg_cfg TIFF_LIBS=-ltiff"
 # build and install pkg as local module
 ####################################################################################################
 
-bldr_build_pkg --category    "imaging"      \
+bldr_build_pkg --category    "$pkg_ctry"    \
                --name        "$pkg_name"    \
                --version     "$pkg_vers"    \
                --info        "$pkg_info"    \
