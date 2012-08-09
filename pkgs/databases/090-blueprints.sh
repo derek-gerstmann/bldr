@@ -11,31 +11,17 @@ source "bldr.sh"
 ####################################################################################################
 
 pkg_ctry="databases"
-pkg_name="rexster"
+pkg_name="blueprints"
 pkg_vers="2.1.0"
 
-pkg_info="Rexster is a multi-faceted graph server that exposes any Blueprints graph through several mechanisms with a general focus on REST. "
+pkg_info="Blueprints is a property graph model interface."
 
-pkg_desc="Rexster is a multi-faceted graph server that exposes any Blueprints graph 
-through several mechanisms with a general focus on REST. 
+pkg_desc="Blueprints is a property graph model interface. It provides implementations, 
+test suites, and supporting extensions. Graph databases and frameworks that implement 
+the Blueprints interfaces automatically support Blueprints-enabled applications. 
 
-Extensions support standard traversal goals such as search, score, rank, and, in 
-concert, recommendation. Rexster makes extensive use of Blueprints, Pipes, and 
-Gremlin. In this way its possible to run Rexster over various graph systems 
-including:
-
-* TinkerGraph in-memory graph
-* Neo4j graph database
-* OrientDB graph database
-* DEX graph database
-* Titan graph database
-* Sesame 2.0 compliant RDF stores
-
-Rexster provides a browser-based user interface known as The Dog House. 
-
-This interface allows for viewing vertices, edges, and their related properties. 
-A web-based console for executing Gremlin scripts is provided along with a Rexster 
-Console which allows remote evaluation of scripts within the Rexster Server context."
+Likewise, Blueprints-enabled applications can plug-and-play different Blueprints-enabled 
+graph backends."
 
 pkg_file="$pkg_name-$pkg_vers.zip"
 pkg_urls="http://github.com/tinkerpop/$pkg_name/zipball/$pkg_vers"
@@ -70,10 +56,10 @@ bldr_build_pkg --category    "$pkg_ctry"    \
 # build and install pkg as local module
 ####################################################################################################
 
-pkg_name="rexster"
+pkg_name="blueprints"
 pkg_vers="trunk"
 pkg_file="$pkg_name-$pkg_vers-$BLDR_TIMESTAMP.tar.bz2"
-pkg_urls="git://github.com/tinkerpop/rexster.git"
+pkg_urls="git://github.com/tinkerpop/blueprints.git"
 pkg_opts="maven skip-compile skip-install migrate-build-tree"
 bldr_build_pkg --category    "$pkg_ctry"    \
                --name        "$pkg_name"    \

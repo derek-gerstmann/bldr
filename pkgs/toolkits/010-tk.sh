@@ -23,15 +23,23 @@ Mac OS X, Linux and more."
 
 pkg_file="tk$pkg_vers-src.tar.gz"
 pkg_urls="http://prdownloads.sourceforge.net/tcl/$pkg_file"
-pkg_opts="configure force-serial-build"
+pkg_opts="configure force-bootstrap force-serial-build"
 pkg_uses="tcl/$pkg_vers"
 pkg_reqs="$pkg_uses"
 pkg_cflags=""
 pkg_ldflags=""
-pkg_cfg="--with-tcl=$BLDR_LOCAL_PATH/languages/tcl/$pkg_vers"
+pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/languages/tcl/$pkg_vers/include"
+pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/languages/tcl/$pkg_vers/generic"
+pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/languages/tcl/$pkg_vers/unix"
+pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/languages/tcl/$pkg_vers/lib"
+
+pkg_cfg="--enable-64bit"
+pkg_cfg="$pkg_cfg --with-tcl=$BLDR_LOCAL_PATH/languages/tcl/$pkg_vers/lib"
 
 if [[ $BLDR_SYSTEM_IS_OSX -eq 1 ]]; then
-     pkg_cfg_path="macosx"
+     pkg_cfg="$pkg_cfg --disable-framework"
+     pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/languages/tcl/$pkg_vers/macosx"
+     pkg_cfg_path="unix"
 else
      pkg_cfg_path="unix"
 fi

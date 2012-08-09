@@ -10,32 +10,32 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_name="pbzip2"
-pkg_vers="1.1.6"
+pkg_ctry="compression"
+pkg_name="lzma"
+pkg_vers="9.20"
 
-pkg_info="PBZIP2 is a parallel implementation of the bzip2 block-sorting file compressor."
+pkg_info="LZMA is the default and general compression method of 7z format in the 7-Zip program."
 
-pkg_desc="PBZIP2 is a parallel implementation of the bzip2 block-sorting file compressor 
-that uses pthreads and achieves near-linear speedup on SMP machines. The output of this 
-version is fully compatible with bzip2 v1.0.2 or newer (ie: anything compressed with pbzip2 
-can be decompressed with bzip2). PBZIP2 should work on any system that has a pthreads 
-compatible C++ compiler (such as gcc). It has been tested on: Linux, Windows 
-(cygwin & MinGW), Solaris, Tru64/OSF1, HP-UX, OS/2, and Irix."
+pkg_desc="LZMA is the default and general compression method of 7z format in the 7-Zip program. 
 
-pkg_file="$pkg_name-$pkg_vers.tar.gz"
-pkg_urls="http://compression.ca/pbzip2/$pkg_file"
-pkg_opts="configure migrate-build-binaries skip-install"
-pkg_uses="m4/latest autoconf/latest automake/latest libtool/latest"
-pkg_reqs="zlib/latest"
+LZMA provides a high compression ratio and very fast decompression, so it is very suitable 
+for embedded applications. For example, it can be used for ROM (firmware) compressing."
+
+pkg_file="lzma920.tar.bz2"
+pkg_urls="http://downloads.sourceforge.net/sevenzip/$pkg_file"
+pkg_opts="configure"
+pkg_uses=""
+pkg_reqs=""
 pkg_cflags=""
 pkg_ldflags=""
 pkg_cfg=""
+pkg_cfg_path="CPP/7zip"
 
 ####################################################################################################
 # build and install pkg as local module
 ####################################################################################################
 
-bldr_build_pkg --category    "internal"     \
+bldr_build_pkg --category    "$pkg_ctry"    \
                --name        "$pkg_name"    \
                --version     "$pkg_vers"    \
                --info        "$pkg_info"    \
@@ -47,5 +47,7 @@ bldr_build_pkg --category    "internal"     \
                --options     "$pkg_opts"    \
                --cflags      "$pkg_cflags"  \
                --ldflags     "$pkg_ldflags" \
-               --config      "$pkg_cfg"
+               --config      "$pkg_cfg"     \
+               --config-path "$pkg_cfg_src"
+
 

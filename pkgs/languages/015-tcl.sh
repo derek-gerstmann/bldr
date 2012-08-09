@@ -25,13 +25,19 @@ evolving language that is truly cross platform, easily deployed and highly exten
 
 pkg_file="tcl$pkg_vers-src.tar.gz"
 pkg_urls="http://prdownloads.sourceforge.net/tcl/$pkg_file"
-pkg_opts="configure force-serial-build"
+pkg_opts="configure migrate-build-tree force-serial-build"
 pkg_uses="m4/latest autoconf/latest automake/latest"
 pkg_reqs=""
 pkg_cflags=""
 pkg_ldflags=""
-pkg_cfg=""
-pkg_cfg_path="unix"
+pkg_cfg="--enable-64bit"
+
+if [[ $BLDR_SYSTEM_IS_OSX -eq 1 ]]; then
+     pkg_cfg="$pkg_cfg --disable-framework"
+     pkg_cfg_path="unix"
+else
+     pkg_cfg_path="unix"
+fi
 
 ####################################################################################################
 # build and install pkg as local module

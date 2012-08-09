@@ -10,7 +10,7 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_ver_list="4.3.6 4.4.7 4.5.4 4.6.3 4.7.1"
+pkg_ver_list="4.6.3 4.7.1"
 
 pkg_ctry="compilers"
 pkg_name="gcc"
@@ -32,7 +32,7 @@ pkg_file="$pkg_name-$pkg_vers.tar.bz2"
 pkg_urls="http://ftp.tsukuba.wide.ad.jp/software/gcc/releases/$pkg_name-$pkg_vers/$pkg_file"
 pkg_opts="configure disable-xcode-cflags disable-xcode-ldflags"
 
-pkg_reqs="gmp/latest mpfr/latest mpc/latest isl/latest osl/latest cloog/latest binutils"
+pkg_reqs="gmp/latest mpfr/latest mpc/latest isl/latest osl/latest cloog/latest"
 pkg_uses="$pkg_reqs"
 
 pkg_cflags="-I$BLDR_LOCAL_PATH/internal/zlib/latest/include"

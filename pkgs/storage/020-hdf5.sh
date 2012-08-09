@@ -35,8 +35,8 @@ pkg_uses="$pkg_reqs"
 pkg_cflags="-I$BLDR_LOCAL_PATH/internal/zlib/latest/include"
 pkg_ldflags="-L$BLDR_LOCAL_PATH/internal/zlib/latest/lib"
 
-pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/storage/szip/latest/include"
-pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/storage/szip/latest/lib"
+pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/compression/szip/latest/include"
+pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/compression/szip/latest/lib"
 
 pkg_cfg=""
 pkg_cfg="$pkg_cfg --enable-hl"
@@ -48,7 +48,7 @@ then
 else
     pkg_cfg="$pkg_cfg --enable-static-exec"
 fi
-pkg_cfg="$pkg_cfg --with-szlib=$BLDR_LOCAL_PATH/system/szip/latest"
+pkg_cfg="$pkg_cfg --with-szlib=$BLDR_LOCAL_PATH/compression/szip/latest"
 pkg_cfg="$pkg_cfg --with-zlib=$BLDR_LOCAL_PATH/internal/zlib/latest"
 
 hdf5_cfg="$pkg_cfg"

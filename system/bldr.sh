@@ -30,11 +30,13 @@ export BLDR_VERSION_MAJOR="1"
 export BLDR_VERSION_MINOR="0"
 export BLDR_VERSION_PATCH="0"
 export BLDR_VERSION_STR="v$BLDR_VERSION_MAJOR.$BLDR_VERSION_MINOR.$BLDR_VERSION_PATCH"
+export BLDR_TIMESTAMP=${BLDR_TIMESTAMP:=$(date "+%Y-%m-%d-%Hh%Mm%Ss")}
 
 ####################################################################################################
 
 BLDR_CATEGORIES=(
     "internal" 
+    "compression" 
     "system" 
     "languages" 
     "developer" 
@@ -389,17 +391,22 @@ function bldr_run_cmd()
     local cmd="${@}"
 
     bldr_log_cmd "$cmd"
-    bldr_log_split
 
+    local ts=$(date "+%Y-%m-%d-%Hh%Mm%Ss")
     local log_file="$BLDR_LOG_PATH/$BLDR_LOG_FILE"
+    local cmd_log_file="$BLDR_LOG_PATH/bldr_cmd_$ts.log"
 
+    set -o pipefail    
+    
     if [ $BLDR_VERBOSE == true ]
     then
-        eval "$cmd" 2>&1 | tee -a $log_file
-        bldr_log_split
+        (eval "$cmd" 2>&1 | tee -a $cmd_log_file $log_file) || bldr_bail "Failed to run command:\n$(bldr_log_split)\n$(cat $cmd_log_file)" 
     else
-        (eval "$cmd" 2>&1) >> $log_file
+        (eval "$cmd" 2>&1 | tee -a $cmd_log_file) >> $log_file || bldr_bail "Failed to run command:\n$(bldr_log_split)\n $(cat $cmd_log_file)"
     fi
+
+    rm $cmd_log_file
+    bldr_log_split
 }
 
 function bldr_exec()
@@ -425,9 +432,10 @@ function bldr_is_newer_version()
     local v1=$(bldr_format_version "$1" )
     local v2=$(bldr_format_version "$2" )
     if [[ ! $(echo -e "$v1\n$v2" | sort -r | head -1) == "$v1" ]]; then
-        return true
+        echo "true"
+        return
     fi
-    return false
+    echo "false"
 }
 
 function bldr_find_latest_version_dir()
@@ -691,7 +699,7 @@ function bldr_load_logger()
     if [ "$BLDR_LOG_FILE" == "" ]
     then
         local tstamp=$(date "+%Y-%m-%d-%Hh%Mm%Ss")
-        export BLDR_LOG_FILE="bldr_$tstamp.log"
+        export BLDR_LOG_FILE="bldr_${tstamp}.log"
     fi
 }
 
@@ -712,12 +720,28 @@ bldr_startup
 
 ####################################################################################################
 
+BLDR_BOOT_SEARCH_PATH=". build source src ../build ../source ../src"
+BLDR_CONFIG_SEARCH_PATH=". source src build .. ../build ../source ../src"
+BLDR_BUILD_SEARCH_PATH=". ./build ../build .. ../src ../source"
+BLDR_MAKE_SEARCH_PATH=". ./build ../build .. ../src ../source"
+
+BLDR_BOOT_FILE_SEARCH_LIST="bootstrap bootstrap.sh autogen.sh"
+BLDR_AUTOCONF_FILE_SEARCH_LIST="configure configure.sh bootstrap bootstrap.sh autogen.sh config"
+BLDR_CMAKE_FILE_SEARCH_LIST="CMakeLists.txt cmakelists.txt"
+BLDR_MAKE_FILE_SEARCH_LIST="Makefile makefile"
+BLDR_MAVEN_FILE_SEARCH_LIST="pom.xml project.xml"
+
+####################################################################################################
+
 function bldr_locate_build_path
 {
     local build_path="."
     local given=$(bldr_trim_str "${@}")
-    local mk_paths=$(bldr_trim_str "$given . ./build ../build .. ../src ../source")
+    local mk_paths=$(bldr_trim_str "$given $BLDR_BUILD_SEARCH_PATH")
+    local mk_files=$BLDR_MAKE_FILE_SEARCH_LIST
+
     local tst_path=""
+    local tst_file=""
 
     if [ -f "CMakeLists.txt" ] && [ -f "build/Makefile" ]
     then
@@ -725,9 +749,16 @@ function bldr_locate_build_path
     else
         for tst_path in ${mk_paths}
         do
-            if [ -f "$tst_path/Makefile" ]
+            for tst_file in ${mk_files}
+            do
+                if [ -f "$tst_path/$tst_file" ]
+                then
+                    build_path="$tst_path"
+                    break
+                fi
+            done
+            if [ "$build_path" != "." ]
             then
-                build_path="$tst_path"
                 break
             fi
         done
@@ -739,7 +770,8 @@ function bldr_locate_make_file
 {
     local make_file="."
     local given=$(bldr_trim_str "${@}")
-    local mk_paths=$(bldr_trim_str "$given . ./build ../build .. ../src ../source")
+    local mk_paths=$(bldr_trim_str "$given $BLDR_MAKE_SEARCH_PATH")
+    local mk_files=$BLDR_MAKE_FILE_SEARCH_LIST
     local tst_path=""
 
     if [ -f "CMakeLists.txt" ] && [ -f "build/Makefile" ]
@@ -748,14 +780,16 @@ function bldr_locate_make_file
     else
         for tst_path in ${mk_paths}
         do
-            if [ -f "$tst_path/Makefile" ]
+            for tst_file in ${mk_files}
+            do
+                if [ -f "$tst_path/$tst_file" ]
+                then
+                    make_file="$tst_path/$tst_file"
+                    break
+                fi
+            done
+            if [ "$make_file" != "." ]
             then
-                make_file="$tst_path/Makefile"
-                break
-
-            elif [ -f "$tst_path/makefile" ]
-            then
-                make_file="$tst_path/makefile"
                 break
             fi
         done
@@ -768,8 +802,8 @@ function bldr_locate_boot_script
 {
     local found_path="."
     local given=$(bldr_trim_str "${@}")
-    local cfg_paths=$(bldr_trim_str "$given . build source src ../build ../source ../src")
-    local cfg_files="bootstrap bootstrap.sh autogen.sh"
+    local cfg_paths=$(bldr_trim_str "$given $BLDR_BOOT_SEARCH_PATH")
+    local cfg_files=$BLDR_BOOT_FILE_SEARCH_LIST
 
     local tst_path=""
     local tst_file=""
@@ -800,53 +834,123 @@ function bldr_locate_boot_path
     echo "$path"
 }
 
+function bldr_is_autoconf_file
+{
+    local cfg_srch=$(bldr_trim_str "$1")
+    local cfg_files=$BLDR_AUTOCONF_FILE_SEARCH_LIST
+    local tst_file=""
+
+    for tst_file in ${cfg_files}
+    do
+        if [[ $(echo "$cfg_srch" | grep -m1 -c "$tst_file") > 0 ]]
+        then
+            echo "true"
+            return
+        fi
+    done
+    echo "false"
+}
+
+function bldr_is_cmake_file
+{
+    local cfg_srch=$(bldr_trim_str "$1")
+    local cfg_files=$BLDR_CMAKE_FILE_SEARCH_LIST
+    local tst_file=""
+
+    for tst_file in ${cfg_files}
+    do
+        if [[ $(echo "$cfg_srch" | grep -m1 -c "$tst_file") > 0 ]]
+        then
+            echo "true"
+            return
+        fi
+    done
+    echo "false"
+}
+
+function bldr_is_maven_file
+{
+    local cfg_srch=$(bldr_trim_str "$1")
+    local cfg_files=$BLDR_MAVEN_FILE_SEARCH_LIST
+    local tst_file=""
+
+    for tst_file in ${cfg_files}
+    do
+        if [[ $(echo "$cfg_srch" | grep -m1 -c "$tst_file") > 0 ]]
+        then
+            echo "true"
+            return
+        fi
+    done
+    echo "false"
+}
+
 function bldr_locate_config_script
 {
     local cfg_srch=$(bldr_trim_str "$1")
     local cfg_opts=$2
-    local cfg_paths=$(bldr_trim_str "$cfg_srch . source src build .. ../build ../source ../src")
+    local cfg_paths=$(bldr_trim_str "$cfg_srch $BLDR_CONFIG_SEARCH_PATH")
     local found_path="."
 
-    local cmake_files="CMakeLists.txt"
-    local autocfg_files="configure configure.sh bootstrap bootstrap.sh autogen.sh config"
+    local cmake_files=$BLDR_CMAKE_FILE_SEARCH_LIST
+    local autocfg_files=$BLDR_AUTOCONF_FILE_SEARCH_LIST
+    local maven_files=$BLDR_MAVEN_FILE_SEARCH_LIST
 
     local use_cmake=true
     local use_autocfg=true
+    local use_maven=true
 
     if [[ $(echo "$cfg_opts" | grep -m1 -c "cmake" ) > 0 ]]
     then
         use_cmake=true
         use_autocfg=false
+        use_maven=false
     
     elif [[ $(echo "$cfg_opts" | grep -m1 -c "config" ) > 0 ]]
     then
         use_cmake=false
         use_autocfg=true
+        use_maven=false
+
+    elif [[ $(echo "$cfg_opts" | grep -m1 -c "maven" ) > 0 ]]
+    then
+        use_cmake=false
+        use_autocfg=false
+        use_maven=true
     fi
 
     local tst_path=""
-    local cmake_tst_file=""
-    local autocfg_tst_file=""
+    local tst_file=""
 
     for tst_path in ${cfg_paths}
     do
         if [ $use_autocfg == true ]
         then
-            for autocfg_tst_file in ${autocfg_files}
+            for tst_file in ${autocfg_files}
             do
-                if [ -f "$tst_path/$autocfg_tst_file" ]
+                if [ -f "$tst_path/$tst_file" ]
                 then
-                    found_path="$tst_path/$autocfg_tst_file"
+                    found_path="$tst_path/$tst_file"
                     break
                 fi
             done
         elif [ $use_cmake == true ]
         then
-            for cmake_tst_file in ${cmake_files}
+            for tst_file in ${cmake_files}
             do
-                if [ -f "$tst_path/$cmake_tst_file" ]
+                if [ -f "$tst_path/$tst_file" ]
                 then
-                    found_path="$tst_path/$cmake_tst_file"
+                    found_path="$tst_path/$tst_file"
+                    break
+                fi
+            done
+        elif [ $use_maven == true ]
+        then
+            for tst_file in ${maven_files}
+            do
+                if [ -f "$tst_path/$tst_file" ]
+                then
+                    found_path="$tst_path/$tst_file"
                     break
                 fi
             done
@@ -912,11 +1016,10 @@ function bldr_clone()
     if [ -e $cmd ];
     then
         cmd="git clone"
-        $cmd $url $dir || bldr_bail "Failed to clone '$url' into '$dir'"
+        bldr_run_cmd "$cmd $url $dir" || bldr_bail "Failed to clone '$url' into '$dir'"
     else
         bldr_bail "Failed to locate 'git' command!  Please install this command line utility!"
     fi
-    bldr_log_split
 }
 
 function bldr_checkout()
@@ -929,11 +1032,10 @@ function bldr_checkout()
     if [ -e $cmd ];
     then
         cmd="svn export"
-        $cmd $url $dir || bldr_bail "Failed to bldr_checkout '$url' into '$dir'"
+        bldr_run_cmd "$cmd $url $dir" || bldr_bail "Failed to checkout '$url' into '$dir'"
     else
         bldr_bail "Failed to locate 'svn' command!  Please install this command line utility!"
     fi
-    bldr_log_split
 }
 
 function bldr_fetch() 
@@ -961,15 +1063,11 @@ function bldr_fetch()
     if [ ! -e $archive ]; then
         bldr_log_status "Fetching '$archive'..."
         bldr_log_split
-        if [ "$usepipe" -eq 1 ]
+        if [ $usepipe -eq 1 ]
         then
-            bldr_log_cmd "$cmd $url > $archive"
-            bldr_log_split
-            $cmd $url > $archive
+            bldr_run_cmd "$cmd $url > $archive"
         else
-            bldr_log_cmd "$cmd $archive $url"
-            bldr_log_split
-            $cmd $archive $url
+            bldr_run_cmd "$cmd $archive $url"
         fi
         bldr_log_split
         bldr_log_info "Downloaded '$url' to '$archive'..."
@@ -980,9 +1078,7 @@ function bldr_get_archive_flag()
 {
     local is="z"
     local archive="$1"
-    if [ -f $archive ] ; 
-    then
-       case $archive in
+    case $archive in
         *.tar.bz2)  is="j";;
         *.tar.gz)   is="z";;
         *.tar.xz)   is="J";;
@@ -992,8 +1088,7 @@ function bldr_get_archive_flag()
         *.tbz2)     is="j";;
         *.tgz)      is="z";;
         *)          is=0;;
-       esac    
-    fi
+    esac    
     echo "$is"
 }
 
@@ -1114,7 +1209,7 @@ function bldr_list_archive()
         listing="error"
 
     else
-        listing=$(echo "$result" | grep -m1 -E -o "(\S+)/" )
+        listing=$(echo "$result" | grep -E -o "(\S+)/" | sed 's/\/.*//g' | sort -u )
         if [ "$listing" == "" ]
         then
             basedir=$(bldr_strip_archive_ext "$archive")
@@ -1196,30 +1291,14 @@ function bldr_apply_patch()
 
         # provide the specific source file for the diff based on the name we reconstructed
         patch_cmd="$patch_cmd $patch_path -N"
-        bldr_log_cmd "patch $patch_path < $patch_file"
-
-        if [ $use_verbose == "true" ]
-        then
-            bldr_log_split
-            eval $patch_cmd < $patch_file || bldr_bail "Failed to apply patch: '$patch_file'"
-        else
-            eval $patch_cmd < $patch_file &> /dev/null || bldr_bail "Failed to apply patch: '$patch_file'"
-        fi
+        bldr_run_cmd "$patch_cmd < $patch_file"
 
     elif [[ $(echo "$patch_file" | grep -m1 -c '.patch$' ) > 0 ]]
     then
 
         # assume a unified top-level patch
         patch_cmd="$patch_cmd -p1 -N"
-        bldr_log_cmd "patch -p1 < $patch_file"
-
-        if [ $use_verbose == "true" ]
-        then
-            bldr_log_split
-            eval $patch_cmd < $patch_file || bldr_bail "Failed to apply patch: '$patch_file'"
-        else
-            eval $patch_cmd < $patch_file &> /dev/null || bldr_bail "Failed to apply patch: '$patch_file'"
-        fi
+        bldr_run_cmd "$patch_cmd < $patch_file"
 
     elif [[ $(echo "$patch_file" | grep -m1 -c '.ed$' ) > 0 ]]
     then
@@ -1229,16 +1308,7 @@ function bldr_apply_patch()
         # use 'ed' to apply the patch
         patch_cmd=$(which ed)
         patch_cmd="$patch_cmd - $patch_path"
-
-        bldr_log_cmd "$patch_cmd < $patch_file"
-
-        if [ $use_verbose == "true" ]
-        then
-            bldr_log_split
-            eval $patch_cmd < $patch_file
-        else
-            eval $patch_cmd < $patch_file &> /dev/null
-        fi
+        bldr_run_cmd "$patch_cmd < $patch_file"
     fi
 }
 
@@ -1262,10 +1332,7 @@ function bldr_make_archive()
     local flags=$(bldr_get_archive_flag "${archive}")
     flags="c${flags}f"
 
-    bldr_log_cmd "tar ${flags} \"${archive}\" \"${dir}\""
-    bldr_log_split   
-
-    eval tar "${flags}" "${archive}" "${dir}" || bldr_bail "Failed to create archive!"
+    bldr_run_cmd "tar ${flags} \"${archive}\" \"${dir}\""
 }
 
 function bldr_cursor_pos()
@@ -1335,9 +1402,11 @@ function bldr_download_pkg()
 
             if [ -d $pkg_name ]
             then
-                bldr_log_split
                 bldr_log_info "Archiving package '$pkg_file' from '$pkg_name/$pkg_vers'"
+                bldr_log_split
                 bldr_make_archive $pkg_file $pkg_name
+                bldr_remove_dir $pkg_name
+                bldr_log_split
             fi
 
         elif [[ $(echo "$url" | grep -m1 -c '^svn://') > 0 ]]
@@ -1348,7 +1417,9 @@ function bldr_download_pkg()
             then
                 bldr_log_split
                 bldr_log_info "Archiving package '$pkg_file' from '$pkg_name/$pkg_vers'"
+                bldr_log_split
                 bldr_make_archive $pkg_file $pkg_name
+                bldr_remove_dir $pkg_name
             fi
         fi
 
@@ -1933,7 +2004,7 @@ function bldr_fetch_pkg()
 
         bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name"
         local archive_listing=$(bldr_list_archive $pkg_file)
-        bldr_log_info "Extracting package '$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_file' as '$archive_listing'"
+        bldr_log_info "Extracting package '$pkg_file' ..."
 
         if [ $BLDR_VERBOSE == false ]
         then
@@ -1947,8 +2018,17 @@ function bldr_fetch_pkg()
             bldr_log_split
         fi
 
-        bldr_move_file "$archive_listing" "$pkg_vers"
+        local move_item=""
+        local move_list=$(echo "$archive_listing" | bldr_split_str " ")
+        for move_item in $move_list
+        do
+            bldr_log_info "Moving '$move_item' ..."
+            bldr_move_file "$move_item" "$pkg_vers"
+        done
+
+        bldr_log_split
         bldr_remove_file "$pkg_file"
+        bldr_pop_dir
     fi
 }
 
@@ -2150,6 +2230,86 @@ function bldr_boot_pkg()
         fi
         bldr_pop_dir
     fi
+}
+
+function bldr_maven_pkg()
+{
+    local use_verbose="false"
+    local pkg_ctry=""
+    local pkg_name="" 
+    local pkg_vers=""
+    local pkg_info=""
+    local pkg_desc=""
+    local pkg_file=""
+    local pkg_urls=""
+    local pkg_uses=""
+    local pkg_reqs=""
+    local pkg_opts=""
+    local pkg_cflags=""
+    local pkg_ldflags=""
+    local pkg_cfg=""
+    local pkg_cfg_path=""
+
+    while true ; do
+        case "$1" in
+           --verbose)       use_verbose="$2"; shift 2;;
+           --name)          pkg_name="$2"; shift 2;;
+           --version)       pkg_vers="$2"; shift 2;;
+           --info)          pkg_info="$2"; shift 2;;
+           --description)   pkg_desc="$2"; shift 2;;
+           --category)      pkg_ctry="$2"; shift 2;;
+           --options)       pkg_opts="$2"; shift 2;;
+           --file)          pkg_file="$2"; shift 2;;
+           --config)        pkg_cfg="$pkg_cfg:$2"; shift 2;;
+           --config-path)   pkg_cfg_path="$2"; shift 2;;
+           --cflags)        pkg_cflags="$pkg_cflags:$2"; shift 2;;
+           --ldflags)       pkg_ldflags="$pkg_ldflags:$2"; shift 2;;
+           --patch)         pkg_patches="$2"; shift 2;;
+           --uses)          pkg_uses="$pkg_uses:$2"; shift 2;;
+           --requires)      pkg_reqs="$pkg_reqs:$2"; shift 2;;
+           --url)           pkg_urls="$pkg_urls;$2"; shift 2;;
+           * )              break ;;
+        esac
+    done
+
+    if [ "$use_verbose" == "true" ]
+    then
+        BLDR_VERBOSE=true
+    fi
+
+    if [[ $(echo "$pkg_opts" | grep -m1 -c "skip-config" ) > 0 ]]
+    then
+        return
+    fi
+
+    bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
+    local cfg_path=$(bldr_locate_config_path $pkg_cfg_path $pkg_opts)
+    bldr_pop_dir
+
+  
+    local prefix="$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
+    local env_mpath=""
+    local env_flags=" "
+
+    pkg_cfg=$(bldr_trim_list_str "$pkg_cfg")
+    if [ "$pkg_cfg" != "" ] && [ "$pkg_cfg" != " " ] && [ "$pkg_cfg" != ":" ]
+    then
+        pkg_cfg=$(echo $pkg_cfg | bldr_split_str ":" | bldr_join_str " ")
+    else
+        pkg_cfg=""
+    fi
+
+    bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$cfg_path"
+
+    bldr_log_status "Launching 'maven' for '$pkg_name/$pkg_vers' from '$cfg_path' ..."
+    bldr_log_split
+
+    bldr_run_cmd "mvn clean install ${pkg_cfg}"
+
+    bldr_log_info "Done configuring package '$pkg_name/$pkg_vers'"
+    bldr_log_split
+
+    bldr_pop_dir
 }
 
 function bldr_cmake_pkg()
@@ -2505,11 +2665,11 @@ function bldr_autocfg_pkg()
     local cfg_cmd=$(bldr_locate_config_script $pkg_cfg_path $pkg_opts)
     local output=$(bldr_get_stdout)  
 
-    bldr_log_cmd "$cfg_cmd --prefix=\"$prefix\" $pkg_cfg $env_flags"
-    bldr_log_split
-
     if [[ $(echo "$pkg_opts" | grep -m1 -c "config-agree-to-prompt" ) > 0 ]]
     then
+        bldr_log_cmd "$cfg_cmd --prefix=\"$prefix\" $pkg_cfg $env_flags"
+        bldr_log_split
+
         if [ $BLDR_VERBOSE != false ]
         then
             echo "yes" | eval $cfg_cmd "--prefix=$prefix ${pkg_cfg} ${env_flags}" || bldr_bail "Failed to configure: '$prefix'"
@@ -2518,13 +2678,7 @@ function bldr_autocfg_pkg()
             echo "yes" | eval $cfg_cmd "--prefix=$prefix ${pkg_cfg} ${env_flags}" &> /dev/null || bldr_bail "Failed to configure: '$prefix'"
         fi
     else    
-        if [ $BLDR_VERBOSE != false ]
-        then
-            eval $cfg_cmd "--prefix=$prefix ${pkg_cfg} ${env_flags}" || bldr_bail "Failed to configure: '$prefix'"
-            bldr_log_split
-        else
-            eval $cfg_cmd "--prefix=$prefix ${pkg_cfg} ${env_flags}" &> /dev/null || bldr_bail "Failed to configure: '$prefix'"
-        fi
+        bldr_run_cmd "$cfg_cmd --prefix=$prefix ${pkg_cfg} ${env_flags}"
     fi
 
     bldr_log_info "Done configuring package '$pkg_name/$pkg_vers'"
@@ -2591,7 +2745,7 @@ function bldr_config_pkg()
     bldr_pop_dir
 
     bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
-    local cfg_cmd=$(bldr_locate_config_script $cfg_path $pkg_opts)
+    local cfg_cmd=$(bldr_locate_config_script $pkg_cfg_path $pkg_opts)
     local output=$(bldr_get_stdout)  
 
     bldr_log_status "Configuring package '$pkg_name/$pkg_vers' using '$cfg_cmd' ..."
@@ -2603,17 +2757,20 @@ function bldr_config_pkg()
     local use_autocfg=false
     local has_autocfg=false
 
-    if [[ $(echo "$cfg_cmd" | grep -m1 -c "CMakeLists.txt" ) > 0 ]]
+    local use_maven=false
+    local has_maven=false
+
+    if [[ $(bldr_is_cmake_file "$cfg_cmd") == "true" ]]
     then
         has_cmake=true
     
-    elif [[ $(echo "$cfg_cmd" | grep -m1 -c "config" ) > 0 ]]
+    elif [[ $(bldr_is_autoconf_file "$cfg_cmd") == "true" ]]
     then
         has_autocfg=true
     
-    elif [[ $(echo "$cfg_cmd" | grep -m1 -c "configure" ) > 0 ]]
+    elif [[ $(bldr_is_maven_file "$cfg_cmd") == "true" ]]
     then
-        has_autocfg=true
+        has_maven=true
     fi
 
     if [[ $(echo "$pkg_opts" | grep -m1 -c "cmake" ) > 0 ]]
@@ -2627,6 +2784,14 @@ function bldr_config_pkg()
         use_cmake=false
         has_cmake=false
         use_autocfg=true
+
+    elif [[ $(echo "$pkg_opts" | grep -m1 -c "maven" ) > 0 ]]
+    then
+        use_maven=true
+        use_cmake=false
+        has_cmake=false
+        use_autocfg=false
+        has_autocfg=false
     fi
 
     if [ $use_cmake == true ] && [ $has_cmake == true ]
@@ -2659,6 +2824,28 @@ function bldr_config_pkg()
         bldr_log_split
 
         bldr_autocfg_pkg                     \
+            --category    "$pkg_ctry"     \
+            --name        "$pkg_name"     \
+            --version     "$pkg_vers"     \
+            --file        "$pkg_file"     \
+            --url         "$pkg_urls"     \
+            --uses        "$pkg_uses"     \
+            --requires    "$pkg_reqs"     \
+            --options     "$pkg_opts"     \
+            --cflags      "$pkg_cflags"   \
+            --ldflags     "$pkg_ldflags"  \
+            --patch       "$pkg_patches"  \
+            --config      "$pkg_cfg"      \
+            --config-path "$pkg_cfg_path" \
+            --verbose     "$use_verbose"
+    fi
+
+    if [ $use_maven == true ] && [ $has_maven == true ]
+    then
+        bldr_log_info "Using maven for '$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$cfg_path' ..."
+        bldr_log_split
+
+        bldr_maven_pkg                    \
             --category    "$pkg_ctry"     \
             --name        "$pkg_name"     \
             --version     "$pkg_vers"     \
@@ -2867,7 +3054,6 @@ function bldr_install_pkg()
     then
         options="--quiet $options"
     fi
-
     # extract the makefile rule names and filter out empty lines and comments
     if [ -f "./Makefile" ] || [ -f "./makefile" ]
     then
@@ -2875,6 +3061,18 @@ function bldr_install_pkg()
         local rules=$(make -pnsk | grep -v ^$ | grep -v ^# | grep -m1 -c '^install:')
         if [[ $(echo "$rules") > 0 ]]
         then
+
+            # append any -M directives as macros to the make command (eg. -MMAKE_EXAMPLES=0 -> MAKE_EXAMPLES=0)
+            if [[ $(echo "$pkg_opts" | grep -m1 -c '\-M') > 0 ]]
+            then
+                local def=""
+                defines=$(echo $pkg_opts | grep -E -o "\-M(\S+)\s*" | sed 's/-M//g' )
+                for def in ${defines}
+                do
+                    options="$options $def"
+                done
+            fi
+
             bldr_log_status "Installing package '$pkg_name/$pkg_vers'"
             bldr_log_split
 

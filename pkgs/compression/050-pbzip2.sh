@@ -10,49 +10,27 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_ctry="typography"
-pkg_name="poppler"
-pkg_vers="0.20.2"
+pkg_ctry="compression"
+pkg_name="pbzip2"
+pkg_vers="1.1.6"
 
-pkg_info="Poppler is a PDF rendering library based on the xpdf-3.0 code base."
+pkg_info="PBZIP2 is a parallel implementation of the bzip2 block-sorting file compressor."
 
-pkg_desc="Poppler is a PDF rendering library based on the xpdf-3.0 code base."
+pkg_desc="PBZIP2 is a parallel implementation of the bzip2 block-sorting file compressor 
+that uses pthreads and achieves near-linear speedup on SMP machines. The output of this 
+version is fully compatible with bzip2 v1.0.2 or newer (ie: anything compressed with pbzip2 
+can be decompressed with bzip2). PBZIP2 should work on any system that has a pthreads 
+compatible C++ compiler (such as gcc). It has been tested on: Linux, Windows 
+(cygwin & MinGW), Solaris, Tru64/OSF1, HP-UX, OS/2, and Irix."
 
 pkg_file="$pkg_name-$pkg_vers.tar.gz"
-pkg_urls="http://poppler.freedesktop.org/$pkg_file"
-pkg_opts="configure force-bootstrap"
-pkg_cfg="--enable-zlib"
-pkg_reqs=""
+pkg_urls="http://compression.ca/pbzip2/$pkg_file"
+pkg_opts="configure migrate-build-binaries skip-install"
+pkg_uses=""
+pkg_reqs="zlib/latest"
 pkg_cflags=""
 pkg_ldflags=""
-
-dep_list=""
-dep_list="$dep_list internal/zlib"
-dep_list="$dep_list internal/libicu"
-dep_list="$dep_list internal/libxml2"
-dep_list="$dep_list imaging/lcms2"
-dep_list="$dep_list imaging/libpng"
-dep_list="$dep_list imaging/libjpeg"
-
-if [[ $BLDR_SYSTEM_IS_OSX -eq 0 ]]; then
-     dep_list="$dep_list internal/libiconv"
-fi
-
-for dep_pkg in $dep_list
-do
-     pkg_req_name=$(echo "$dep_pkg" | sed 's/.*\///g' )
-     pkg_reqs="$pkg_reqs $pkg_req_name/latest"
-     pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/$dep_pkg/latest/include"
-     pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/$dep_pkg/latest/lib"
-done
-
-if [[ $BLDR_SYSTEM_IS_OSX -eq 1 ]]; then
-     pkg_cflags="$pkg_cflags:-I/usr/local/include:-I/usr/include"
-     pkg_ldflags="$pkg_ldflags:-L/usr/local/lib:-L/usr/lib:-lintl"
-fi
-
-pkg_uses="$pkg_reqs"
-
+pkg_cfg=""
 
 ####################################################################################################
 # build and install pkg as local module

@@ -43,20 +43,25 @@ piece of data analysis."
 pkg_file="$pkg_name-$pkg_vers.tar.gz"
 pkg_urls="http://cran.ms.unimelb.edu.au/src/base/R-2/$pkg_file"
 pkg_opts="configure"
-pkg_reqs="zlib/latest bzip2/latest tcl/latest tk/latest cairo/latest libpng/latest libjpeg/latest gsl/latest lapack/latest"
-pkg_uses="$pkg_reqs"
+pkg_reqs="zlib/latest bzip2/latest tcl/latest tk/latest libpng/latest libjpeg/latest gsl/latest cairo/latest"
+
+if [[ $BLDR_SYSTEM_IS_OSX -eq 0 ]]; then
+    pkg_reqs="$pkg_reqs lapack/latest"
+    pkg_cfg="$pkg_cfg --with-lapack"
+fi
 
 pkg_cfg="$pkg_cfg --with-system-zlib"
 pkg_cfg="$pkg_cfg --with-system-bzlib"
 pkg_cfg="$pkg_cfg --with-system-xz"
-pkg_cfg="$pkg_cfg --with-blas"
-pkg_cfg="$pkg_cfg --with-lapac"
 pkg_cfg="$pkg_cfg --with-cairo"
 pkg_cfg="$pkg_cfg --with-jpeglib"
 pkg_cfg="$pkg_cfg --with-libpng"
+pkg_cfg="$pkg_cfg --with-blas"
 pkg_cfg="$pkg_cfg --with-cairo=$BLDR_LOCAL_PATH/graphics/cairo/latest"
 pkg_cfg="$pkg_cfg --with-tcl-config=$BLDR_LOCAL_PATH/languages/tcl/latest/include"
-pkg_cfg="$pkg_cfg --with-tk-config=$BLDR_LOCAL_PATH/languages/tk/latest/include"
+pkg_cfg="$pkg_cfg --with-tk-config=$BLDR_LOCAL_PATH/toolkits/tk/latest/include"
+
+pkg_uses="$pkg_reqs"
 
 ####################################################################################################
 # build and install each pkg version as local module

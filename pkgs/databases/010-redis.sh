@@ -10,7 +10,7 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_vers_list="2.4.16 2.6.0-rc6"
+pkg_vers_list=("2.4.16" "2.6.0-rc6")
 pkg_ctry="databases"
 pkg_name="redis"
 pkg_info="Redis is an open source, advanced key-value store. It is often referred to as a data structure server since keys can contain strings, hashes, lists, sets and sorted sets."
@@ -40,7 +40,6 @@ and more tested, and we recommend using Linux for deploying. Redis may work in S
 systems like SmartOS, but the support is best effort. There is no official support for Windows 
 builds, although you may have some options."
 
-pkg_opts="configure migrate-build-binaries"
 pkg_reqs=""
 pkg_uses="tar/latest"
 pkg_cflags=""
@@ -52,9 +51,10 @@ pkg_cfg_path=""
 # build and install each pkg version as local module
 ####################################################################################################
 
-for pkg_vers in ${pkg_ver_list}
+for pkg_vers in ${pkg_vers_list}
 do
      pkg_file="$pkg_name-$pkg_vers.tar.gz"
+     pkg_opts="configure -MPREFIX=$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
      pkg_urls="http://redis.googlecode.com/files/$pkg_file"
 
      bldr_build_pkg --category    "$pkg_ctry"    \

@@ -34,8 +34,8 @@ pkg_uses="$pkg_reqs"
 pkg_cflags="-I$BLDR_LOCAL_PATH/internal/zlib/latest/include"
 pkg_ldflags="-L$BLDR_LOCAL_PATH/internal/zlib/latest/lib"
 
-pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/storage/szip/latest/include"
-pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/storage/szip/latest/lib"
+pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/compression/szip/latest/include"
+pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/compression/szip/latest/lib"
 
 pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/storage/hdf5/latest/include"
 pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/storage/hdf5/latest/lib"
