@@ -101,59 +101,52 @@ fi
 
 function bldr_load() 
 {
-	if [[ -d "$BLDR_ROOT_PATH/modules/internal" ]]; then
-		module use "$BLDR_ROOT_PATH/modules/internal"
+	local ctgry_dir=""
+	if [[ -d "$BLDR_ROOT_PATH/modules" ]]
+	then
+		for ctgry_dir in $BLDR_ROOT_PATH/modules/*
+		do
+			local ctgry_name=$(basename "$ctgry_dir")
+			module use "$BLDR_ROOT_PATH/modules/$ctgry_name"
+		done
+	fi
+
+	if [[ -d "$BLDR_ROOT_PATH/modules/internal" ]]
+	then
+		local internal_path=""
+		local internal_base=""
 		for internal_path in "$BLDR_ROOT_PATH/modules/internal"/*
 		do
 			internal_base=$(basename $internal_path)
 			module load $internal_base
 		done
 	fi
-
-	if [[ -d "$BLDR_ROOT_PATH/modules/system" ]]; then
-		module use "$BLDR_ROOT_PATH/modules/system"
-	fi
-
-	for ctgry_dir in $BLDR_ROOT_PATH/modules/*
-	do
-		ctgry_name=$(basename "$ctgry_dir")
-
-		if [[ "$ctgry_name" == "internal" ]]; then
-			continue
-		fi
-
-		if [[ "$ctgry_name" == "system" ]]; then
-			continue
-		fi
-
-		module use "$BLDR_ROOT_PATH/modules/$ctgry_name"
-	done
 }
 
 ####################################################################################################
 
 function bldr_unload()
 {
-	for ctgry_dir in $BLDR_ROOT_PATH/modules/*
-	do
-		ctgry_name=$(basename "$ctgry_dir")
+	local ctgry_dir=""
+	local ctgry_name=""
 
-		if [[ "$ctgry_name" == "internal" ]]; then
-			continue
-		fi
+	if [[ -d "$BLDR_ROOT_PATH/modules" ]]
+	then
+		for ctgry_dir in $BLDR_ROOT_PATH/modules/*
+		do
+			ctgry_name=$(basename "$ctgry_dir")
 
-		if [[ "$ctgry_name" == "system" ]]; then
-			continue
-		fi
+			if [[ "$ctgry_name" == "internal" ]]; then
+				continue
+			fi
 
-		module unuse "$BLDR_ROOT_PATH/modules/$ctgry_name"
-	done
-
-	if [[ -d "$BLDR_ROOT_PATH/modules/system" ]]; then
-		module unuse "$BLDR_ROOT_PATH/modules/system"
+			module unuse "$BLDR_ROOT_PATH/modules/$ctgry_name"
+		done
 	fi
 
-	if [[ -d "$BLDR_ROOT_PATH/modules/internal" ]]; then
+	if [[ -d "$BLDR_ROOT_PATH/modules/internal" ]] 
+	then
+		local internal_path=""
 		for internal_path in "$BLDR_ROOT_PATH/modules/internal"/*
 		do
 			internal_base=$(basename $internal_path)
@@ -164,6 +157,8 @@ function bldr_unload()
 }
 
 ####################################################################################################
+# load the local BLDR package repository
+####################################################################################################
+bldr_load
 
-# bldr_load
 

@@ -1135,6 +1135,23 @@ function bldr_is_valid_archive()
     echo "$is"
 }
 
+function bldr_is_library()
+{
+    local is="false"
+    local tst="$1"
+    if [ -f $tst ] ; then
+       case $tst in
+        *.a)        is="true";;
+        *.so)       is="true";;
+        *.la)       is="true";;
+        *.dylib)    is="true";;
+        *.so.*)     is="true";;
+        *)          is="false";;
+       esac    
+    fi
+    echo "$is"
+}
+
 function bldr_extract_archive()
 {
     local archive=$1
@@ -2548,7 +2565,7 @@ function bldr_cmake_pkg()
 
     local cmake_exec="$BLDR_LOCAL_PATH/internal/cmake/latest/bin/cmake"
     local cmake_mod="-DCMAKE_MODULE_PATH=$BLDR_LOCAL_PATH/internal/cmake/latest/share/cmake-2.8/Modules"
-    local cmake_pre="-DCMAKE_INSTALL_PREFIX=$prefix"
+    local cmake_pre="-DCMAKE_INSTALL_PREFIX=\"$prefix\""
 
     if [[ $BLDR_SYSTEM_IS_OSX == true ]]
     then
@@ -2801,13 +2818,13 @@ function bldr_autocfg_pkg()
 
         if [ $BLDR_VERBOSE != false ]
         then
-            echo "yes" | eval $cfg_cmd "--prefix=$prefix ${pkg_cfg} ${env_flags}" || bldr_bail "Failed to configure: '$prefix'"
+            echo "yes" | eval $cfg_cmd "--prefix=\"$prefix\" ${pkg_cfg} ${env_flags}" || bldr_bail "Failed to configure: '$prefix'"
             bldr_log_split
         else
-            echo "yes" | eval $cfg_cmd "--prefix=$prefix ${pkg_cfg} ${env_flags}" &> /dev/null || bldr_bail "Failed to configure: '$prefix'"
+            echo "yes" | eval $cfg_cmd "--prefix=\"$prefix\" ${pkg_cfg} ${env_flags}" &> /dev/null || bldr_bail "Failed to configure: '$prefix'"
         fi
     else    
-        bldr_run_cmd "$cfg_cmd --prefix=$prefix ${pkg_cfg} ${env_flags}"
+        bldr_run_cmd "$cfg_cmd --prefix=\"$prefix\" ${pkg_cfg} ${env_flags}"
     fi
 
     bldr_log_info "Done configuring package '$pkg_name/$pkg_vers'"
@@ -3350,59 +3367,65 @@ function bldr_migrate_pkg()
     if [[ $(echo "$pkg_opts" | grep -m1 -c "migrate-build-bin" ) > 0 ]]
     then
         bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
-        local bin_paths=". lib bin lib32 lib64 src"
+        local bin_paths=". lib bin lib32 lib64 build src"
         local binary=""
         local subdir=""
         local src_path=""
         for src_path in ${bin_paths}
         do
             # move product into external path
-            if [ $src_path == "." ] || [ $src_path = "src" ]
+            if [ $src_path == "." ] || [ $src_path == "src" ] || [ $src_path == "build" ]
             then
                 subdir="bin"
             else
                 subdir="$src_path"
             fi
 
-            if [ -d "$src_path" ]
+            if [ ! -d "$src_path" ]
             then
-                local first_file=1
-                local binary=""
-                for binary in ${src_path}/*
-                do
-                    if [ -x "$binary" ] && [ ! -d "$binary" ]
-                    then
-                        if [ $first_file ]
-                        then
-                            bldr_log_status "Migrating build binaries from '$subdir' for '$pkg_name/$pkg_vers'"
-                            bldr_log_split
-                            bldr_make_dir "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$subdir"
-                            bldr_log_split
-                            first_file=0
-                        fi
-                        eval cp -v "$binary" "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$subdir" || bldr_bail "Failed to copy shared files into directory: $BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$subdir"
-                        bldr_log_split
-                    fi
-                done
+                continue
             fi
+
+            local first_file=1
+            local binary=""
+            for binary in ${src_path}/*
+            do
+                if [ -x "$binary" ] && [ ! -d "$binary" ]
+                then
+                    if [[ $(bldr_is_library "$binary") == "true" ]]
+                    then
+                        subdir="lib"
+                    fi
+                    if [ $first_file ]
+                    then
+                        bldr_log_status "Migrating build binaries from '$subdir' for '$pkg_name/$pkg_vers'"
+                        bldr_log_split
+                        bldr_make_dir "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$subdir"
+                        bldr_log_split
+                        first_file=0
+                    fi
+                    eval cp -v "$binary" "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$subdir" || bldr_bail "Failed to copy shared files into directory: $BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$subdir"
+                    bldr_log_split
+                fi
+            done
         done
         bldr_pop_dir
     fi    
 
-    if [[ $(echo "$pkg_opts" | grep -m1 -c "migrate-build-lib" ) > 0 ]]
+    if [[ $(echo "$pkg_opts" | grep -m1 -c "migrate-build-doc" ) > 0 ]]
     then
         bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
-        local inc_paths="build"
+        local inc_paths="doc man share etc"
         for src_path in ${inc_paths}
         do
             # move product into external path
             if [ -d "$src_path" ]
             then
-                bldr_log_status "Migrating build libraries from '$src_path' for '$pkg_name/$pkg_vers'"
+                bldr_log_status "Migrating build files from '$src_path' for '$pkg_name/$pkg_vers'"
                 bldr_log_split
-                bldr_make_dir "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$path"
+                bldr_make_dir "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$src_path"
+                bldr_copy_dir "$src_path" "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$src_path" || bldr_bail "Failed to copy shared files into directory: $BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$src_path"
                 bldr_log_split
-                eval cp -v "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$path/*.$BLDR_OS_LIB_EXT" "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$src_path" || bldr_bail "Failed to copy shared files into directory: $BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$src_path"
             fi
         done
         bldr_pop_dir

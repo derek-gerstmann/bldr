@@ -26,7 +26,7 @@ scripting, and rapid prototyping."
 
 pkg_file="$pkg_name-$pkg_vers.tar.gz"
 pkg_urls="http://www.lua.org/ftp/$pkg_file"
-pkg_opts="configure skip-install migrate-build-headers migrate-build-binaries migrate-build-libraries"
+pkg_opts="configure skip-install migrate-build-headers migrate-build-binaries migrate-build-docs"
 pkg_reqs="flex/latest bison/latest zlib/latest bzip2/latest"
 pkg_uses="$pkg_reqs"
 
