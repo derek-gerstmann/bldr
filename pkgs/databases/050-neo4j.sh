@@ -12,7 +12,7 @@ source "bldr.sh"
 
 pkg_ctry="databases"
 pkg_name="neo4j"
-pkg_vers="2.1.0"
+pkg_vers="1.8.M06"
 
 pkg_info="Neo4j is a high-performance, NOSQL graph database with all the features of a mature and robust database."
 
