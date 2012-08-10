@@ -37,8 +37,8 @@ This interface allows for viewing vertices, edges, and their related properties.
 A web-based console for executing Gremlin scripts is provided along with a Rexster 
 Console which allows remote evaluation of scripts within the Rexster Server context."
 
-pkg_file="$pkg_name-$pkg_vers.zip"
-pkg_urls="http://github.com/tinkerpop/$pkg_name/zipball/$pkg_vers"
+pkg_file="$pkg_name-$pkg_vers.tar.gz"
+pkg_urls="http://github.com/tinkerpop/$pkg_name/tarball/$pkg_vers"
 pkg_opts="skip-config skip-compile skip-install migrate-build-tree"
 pkg_uses="tar/latest"
 pkg_reqs=""
