@@ -28,7 +28,7 @@ points is available on another page."
 
 pkg_file="$pkg_name-$pkg_vers.tar.gz"
 pkg_urls="http://zlib.net/$pkg_file"
-pkg_opts="configure --enable-shared disable-xcode-cflags disable-xcode-ldflags"
+pkg_opts="configure --enable-shared skip-auto-compile-flags"
 pkg_uses="m4/latest autoconf/latest automake/latest libtool/latest"
 pkg_reqs=""
 pkg_cflags=""

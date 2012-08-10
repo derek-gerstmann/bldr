@@ -1856,6 +1856,7 @@ function bldr_build_required_pkg()
                     if [ "$use_existing" == "false" ]
                     then
                         bldr_log_status "Building required '$pkg_tst_name/$pkg_tst_vers' from '$ctry_name' ... "
+                        bldr_log_split
                         eval $pkg_sh || exit -1
                         return
                     fi
@@ -2675,22 +2676,25 @@ function bldr_autocfg_pkg()
         pkg_cfg=""
     fi
 
-    if [[ $BLDR_SYSTEM_IS_OSX == true ]]
+    if [[ $(echo "$pkg_opts" | grep -m1 -c "skip-auto-compile-flags" ) < 1 ]]
     then
-        if [[ $(echo "$pkg_opts" | grep -m1 -c "disable-xcode-cflags" ) > 0 ]]
+        if [[ $BLDR_SYSTEM_IS_OSX == true ]]
         then
-            bldr_log_info "Disabling XCode Compile FLAGS ..."
-            bldr_log_split
-        else
-            pkg_cflags="$pkg_cflags:$BLDR_XCODE_CFLAGS"
-        fi
+            if [[ $(echo "$pkg_opts" | grep -m1 -c "disable-xcode-cflags" ) > 0 ]]
+            then
+                bldr_log_info "Disabling XCode Compile FLAGS ..."
+                bldr_log_split
+            else
+                pkg_cflags="$pkg_cflags:$BLDR_XCODE_CFLAGS"
+            fi
 
-        if [[ $(echo "$pkg_opts" | grep -m1 -c "disable-xcode-ldflags" ) > 0 ]]
-        then
-            bldr_log_info "Disabling XCode Linker FLAGS ..."
-            bldr_log_split
-        else
-            pkg_ldflags="$pkg_ldflags:$BLDR_XCODE_LDFLAGS"
+            if [[ $(echo "$pkg_opts" | grep -m1 -c "disable-xcode-ldflags" ) > 0 ]]
+            then
+                bldr_log_info "Disabling XCode Linker FLAGS ..."
+                bldr_log_split
+            else
+                pkg_ldflags="$pkg_ldflags:$BLDR_XCODE_LDFLAGS"
+            fi
         fi
     fi
 
