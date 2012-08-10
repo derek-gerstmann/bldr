@@ -1,0 +1,25 @@
+--- ./build/databases/kyoto-tycoon/0.9.56/myscript.cc	2012-05-25 01:44:34.000000000 +0800
++++ 000_myscript.cc	2012-08-10 16:12:02.000000000 +0800
+@@ -12,20 +12,20 @@
+  * If not, see <http://www.gnu.org/licenses/>.
+  *************************************************************************************************/
+ 
+-
+ #include "myscript.h"
+ #include "myconf.h"
+ 
+ 
+ #if _KT_LUA
+ 
+-
+ extern "C" {
+ #include <lua.h>
+ #include <lualib.h>
+ #include <lauxlib.h>
+ }
+ 
++#define lua_strlen(L,i)         lua_rawlen(L, (i))
++#define lua_objlen(L,i)         lua_rawlen(L, (i))
+ 
+ /* precedent type declaration */
+ struct ScriptProcessorCore;

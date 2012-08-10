@@ -2252,7 +2252,6 @@ function bldr_boot_pkg()
                 bldr_log_split
 
                 bldr_apply_patch $patch_file $use_verbose
-                bldr_log_split
             fi
         done
 
@@ -2265,7 +2264,6 @@ function bldr_boot_pkg()
                 bldr_log_split
 
                 bldr_apply_patch $patch_file $use_verbose
-                bldr_log_split
             fi
         done
     fi
@@ -2287,7 +2285,6 @@ function bldr_boot_pkg()
             bldr_log_split
 
             bldr_apply_patch $patch_file $use_verbose
-            bldr_log_split
         fi
     done
     bldr_pop_dir

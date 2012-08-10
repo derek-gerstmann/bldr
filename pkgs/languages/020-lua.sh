@@ -10,7 +10,7 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_ver_list=("5.2.1")
+pkg_vers="5.2.1"
 pkg_ctry="languages"
 pkg_name="lua"
 
@@ -26,38 +26,35 @@ scripting, and rapid prototyping."
 
 pkg_file="$pkg_name-$pkg_vers.tar.gz"
 pkg_urls="http://www.lua.org/ftp/$pkg_file"
-pkg_opts="configure skip-install migrate-build-headers migrate-build-binaries migrate-build-docs"
+pkg_opts="configure -MPREFIX=$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
 pkg_reqs="flex/latest bison/latest zlib/latest bzip2/latest"
 pkg_uses="$pkg_reqs"
-
-pkg_cflags="-I$BLDR_LOCAL_PATH/compression/zlib/latest/include"
-pkg_ldflags="-L$BLDR_LOCAL_PATH/compression/zlib/latest/lib"
-
-pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/internal/bzip2/latest/include"
-pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/internal/bzip2/latest/lib"
-
 pkg_cfg=""
+pkg_cfg_path=""
+
+if [[ $BLDR_SYSTEM_IS_OSX == true ]]
+then
+    pkg_opts="$pkg_opts -Mmacosx"
+elif [[ $BLDR_SYSTEM_IS_LINUX == true ]]
+then
+    pkg_opts="$pkg_opts -Mlinux"
+fi
 
 ####################################################################################################
 # build and install each pkg version as local module
 ####################################################################################################
 
-for pkg_vers in ${pkg_ver_list}
-do
-    pkg_file="$pkg_name-$pkg_vers.tar.gz"
-    pkg_urls="http://www.lua.org/ftp/$pkg_file"
-
-    bldr_build_pkg --category    "$pkg_ctry"    \
-                   --name        "$pkg_name"    \
-                   --version     "$pkg_vers"    \
-                   --info        "$pkg_info"    \
-                   --description "$pkg_desc"    \
-                   --file        "$pkg_file"    \
-                   --url         "$pkg_urls"    \
-                   --uses        "$pkg_uses"    \
-                   --requires    "$pkg_reqs"    \
-                   --options     "$pkg_opts"    \
-                   --cflags      "$pkg_cflags"  \
-                   --ldflags     "$pkg_ldflags" \
-                   --config      "$pkg_cfg"
-done
+bldr_build_pkg --category    "$pkg_ctry"    \
+               --name        "$pkg_name"    \
+               --version     "$pkg_vers"    \
+               --info        "$pkg_info"    \
+               --description "$pkg_desc"    \
+               --file        "$pkg_file"    \
+               --url         "$pkg_urls"    \
+               --uses        "$pkg_uses"    \
+               --requires    "$pkg_reqs"    \
+               --options     "$pkg_opts"    \
+               --cflags      "$pkg_cflags"  \
+               --ldflags     "$pkg_ldflags" \
+               --config      "$pkg_cfg"     \
+               --config-path "$pkg_cfg_path"
