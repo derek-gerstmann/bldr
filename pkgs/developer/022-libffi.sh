@@ -11,25 +11,33 @@ source "bldr.sh"
 ####################################################################################################
 
 pkg_ctry="developer"
-pkg_name="bdw-gc"
-pkg_vers="7.2c"
-pkg_info="The Boehm-Demers-Weiser conservative garbage collector (GC) can be used as a garbage collecting replacement for C malloc or C++ new."
+pkg_name="libffi"
+pkg_vers="3.0.11"
+pkg_info="The libffi library provides a portable, high level programming interface to various calling conventions."
 
-pkg_desc="The Boehm-Demers-Weiser conservative garbage collector can be used as a 
-garbage collecting replacement for C malloc or C++ new. It allows you to allocate 
-memory basically as you normally would, without explicitly deallocating memory that 
-is no longer useful. The collector automatically recycles memory when it determines 
-that it can no longer be otherwise accessed. "
+pkg_desc="The libffi library provides a portable, high level programming interface to various 
+calling conventions. This allows a programmer to call any function specified by a call 
+interface description at run-time.
 
-pkg_file="gc-$pkg_vers.tar.gz"
-pkg_urls="http://www.hpl.hp.com/personal/Hans_Boehm/gc/gc_source/$pkg_file"
+FFI stands for Foreign Function Interface. A foreign function interface is the popular 
+name for the interface that allows code written in one language to call code written in 
+another language. The libffi library really only provides the lowest, machine dependent 
+layer of a fully featured foreign function interface. A layer must exist above libffi 
+that handles type conversions for values passed between the two languages."
+
+pkg_file="$pkg_name-$pkg_vers.tar.gz"
+pkg_urls="http://sourceware.mirrors.tds.net/pub/sourceware.org/libffi/$pkg_file"
 pkg_opts="configure"
-pkg_reqs="pkg-config/latest zlib/latest"
+pkg_reqs="zlib/latest"
 pkg_uses="$pkg_reqs"
+pkg_cfg="--enable-static --enable-shared"
 pkg_cflags=""
 pkg_ldflags=""
-pkg_cfg=""
-pkg_patch=""
+
+if [ $BLDR_SYSTEM_IS_OSX == false ]
+then
+     pkg_reqs="$pkg_reqs libiconv/latest"
+fi
 
 ####################################################################################################
 # build and install pkg as local module
@@ -45,8 +53,8 @@ bldr_build_pkg --category    "$pkg_ctry"    \
                --uses        "$pkg_uses"    \
                --requires    "$pkg_reqs"    \
                --options     "$pkg_opts"    \
-               --patch       "$pkg_patch"   \
                --cflags      "$pkg_cflags"  \
                --ldflags     "$pkg_ldflags" \
                --config      "$pkg_cfg"
+
 

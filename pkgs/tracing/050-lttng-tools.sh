@@ -32,8 +32,8 @@ pkg_opts="configure"
 pkg_reqs="liburcu/latest lttng-ust/latest babeltrace/latest glib/latest"
 pkg_uses=""
 
-pkg_cflags="-I$BLDR_LOCAL_PATH/internal/zlib/latest/include"
-pkg_ldflags="-L$BLDR_LOCAL_PATH/internal/zlib/latest/lib"
+pkg_cflags="-I$BLDR_LOCAL_PATH/compression/zlib/latest/include"
+pkg_ldflags="-L$BLDR_LOCAL_PATH/compression/zlib/latest/lib"
 
 pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/tracing/lttng-ust/latest/include"
 pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/tracing/lttng-ust/latest/lib"
@@ -44,7 +44,7 @@ pkg_cfg="--enable-static --enable-shared --with-babeltrace-bin=$BLDR_LOCAL_PATH/
 # build and install pkg as local module
 ####################################################################################################
 
-if [ $BLDR_SYSTEM_IS_OSX -eq 1 ]
+if [ $BLDR_SYSTEM_IS_OSX == true ]
 then
      bldr_log_warning "$pkg_name isn't supported on MacOSX.  Skipping..."
      bldr_log_split

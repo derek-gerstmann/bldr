@@ -31,8 +31,8 @@ pkg_opts="configure"
 pkg_reqs="szip/latest zlib/latest phdf5/latest"
 pkg_uses="$pkg_reqs"
 
-pkg_cflags="-I$BLDR_LOCAL_PATH/internal/zlib/latest/include"
-pkg_ldflags="-L$BLDR_LOCAL_PATH/internal/zlib/latest/lib"
+pkg_cflags="-I$BLDR_LOCAL_PATH/compression/zlib/latest/include"
+pkg_ldflags="-L$BLDR_LOCAL_PATH/compression/zlib/latest/lib"
 
 pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/compression/szip/latest/include"
 pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/compression/szip/latest/lib"
@@ -40,8 +40,7 @@ pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/compression/szip/latest/lib"
 pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/storage/phdf5/latest/include"
 pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/storage/phdf5/latest/lib"
 
-if [ "$BLDR_SYSTEM_IS_OSX" -eq 1 ]
-then
+if [[ $BLDR_SYSTEM_IS_OSX == true ]]; then
     pkg_reqs="$pkg_reqs openmpi/latest"     
     pkg_cflags="-I$BLDR_LOCAL_PATH/cluster/openmpi/latest/include"
     pkg_ldflags="-L$BLDR_LOCAL_PATH/cluster/openmpi/latest/lib"

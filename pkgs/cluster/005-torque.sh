@@ -38,7 +38,7 @@ tm_cfg=$pkg_cfg
 pkg_cflags=""
 pkg_ldflags=""
 
-dep_list="languages/tcl internal/libxml2 internal/zlib system/hwloc system/papi network/openssl"
+dep_list="languages/tcl developer/libxml2 compression/zlib system/hwloc system/papi network/openssl"
 for dep_pkg in $dep_list
 do
      pkg_req_name=$(echo "$dep_pkg" | sed 's/.*\///g' )
@@ -51,7 +51,7 @@ done
 # build and install each pkg version as local module
 ####################################################################################################
 
-if [ "$BLDR_SYSTEM_IS_OSX" -eq 1 ]
+if [ $BLDR_SYSTEM_IS_OSX == true ]
 then
      bldr_log_status "$pkg_name $pkg_vers is not building on OSX right now.  Skipping ..."
      bldr_log_split

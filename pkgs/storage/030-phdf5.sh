@@ -26,15 +26,14 @@ The Parallel-HDF5 technology suite includes:
 * A rich set of integrated performance features that allow for access time and storage space optimizations.
 * Tools and applications for managing, manipulating, viewing, and analyzing the data in the collection."
 
-
 pkg_file="hdf5-$pkg_vers.tar.gz"
 pkg_urls="http://www.hdfgroup.org/ftp/HDF5/releases/$pkg_name-$pkg_vers/src/$pkg_file"
 pkg_opts="configure disable-xcode-cflags disable-xcode-ldflags"
 pkg_reqs="szip/latest zlib/latest"
 pkg_uses="$pkg_reqs"
 
-pkg_cflags="-I$BLDR_LOCAL_PATH/internal/zlib/latest/include"
-pkg_ldflags="-L$BLDR_LOCAL_PATH/internal/zlib/latest/lib"
+pkg_cflags="-I$BLDR_LOCAL_PATH/compression/zlib/latest/include"
+pkg_ldflags="-L$BLDR_LOCAL_PATH/compression/zlib/latest/lib"
 
 pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/compression/szip/latest/include"
 pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/compression/szip/latest/lib"
@@ -42,19 +41,21 @@ pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/compression/szip/latest/lib"
 pkg_cfg="--enable-parallel"
 pkg_cfg="$pkg_cfg --enable-hl"
 pkg_cfg="$pkg_cfg --enable-filters=all"
-if [ $BLDR_SYSTEM_IS_OSX -eq 0 ]
-then
+
+if [[ -x $(which "mpif90") ]]; then
     pkg_cfg="$pkg_cfg FC=mpif90"
     pkg_cfg="$pkg_cfg --enable-fortran"
+fi
+
+if [[ $BLDR_SYSTEM_IS_LINUX == true ]]; then
     pkg_cfg="$pkg_cfg --enable-linux-lfs"
 else
     pkg_cfg="$pkg_cfg --enable-static-exec"
 fi
 pkg_cfg="$pkg_cfg --with-szlib=$BLDR_LOCAL_PATH/compression/szip/latest"
-pkg_cfg="$pkg_cfg --with-zlib=$BLDR_LOCAL_PATH/internal/zlib/latest"
+pkg_cfg="$pkg_cfg --with-zlib=$BLDR_LOCAL_PATH/compression/zlib/latest"
 
-if [ "$BLDR_SYSTEM_IS_OSX" -eq 1 ]
-then
+if [[ $BLDR_SYSTEM_IS_OSX == true ]]; then
     pkg_reqs="$pkg_reqs openmpi/latest"     
     pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/cluster/openmpi/latest/include"
     pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/cluster/openmpi/latest/lib"

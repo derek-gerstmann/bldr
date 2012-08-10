@@ -34,16 +34,19 @@ pkg_ldflags=""
 
 ####################################################################################################
 
-pkg_cfg="--disable-fortran"
 pkg_cfg="$pkg_cfg --with-mxml=$BLDR_LOCAL_PATH/developer/mxml/latest"
 
-if [ "$BLDR_SYSTEM_IS_OSX" -eq 1 ]
-then
+if [[ $BLDR_SYSTEM_IS_OSX == true ]]; then
      pkg_reqs="$pkg_reqs openmpi/latest"     
      pkg_cflags="-I$BLDR_LOCAL_PATH/cluster/openmpi/latest/include"
      pkg_ldflags="-L$BLDR_LOCAL_PATH/cluster/openmpi/latest/lib"
-#else
-#     pkg_cfg="$pkg_cfg --with-infinband=$BLDR_LOCAL_PATH/network/ofed/latest"
+fi
+
+if [[ -x $(which "mpif90") ]]; then
+     pkg_cfg="$pkg_cfg FC=mpif90"
+     pkg_cfg="$pkg_cfg --enable-fortran"
+else
+     pkg_cfg="--disable-fortran"
 fi
 
 pkg_cflags="$pkg_cflags -I$BLDR_LOCAL_PATH/storage/phdf5/latest/include"

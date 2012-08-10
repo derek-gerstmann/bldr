@@ -10,6 +10,7 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
+pkg_ctry="internal"
 pkg_name="cmake"
 pkg_vers="2.8.8"
 
@@ -24,7 +25,7 @@ pkg_file="$pkg_name-$pkg_vers.tar.gz"
 pkg_urls="http://www.cmake.org/files/v2.8/$pkg_file"
 pkg_opts="configure force-static force-bootstrap skip-config"
 pkg_uses="coreutils/latest findutils/latest diffutils/latest"
-pkg_uses="$pkg_uses patch/latest sed/latest grep/latest"
+pkg_uses="$pkg_uses patch/latest sed/latest grep/latest tar/latest"
 pkg_uses="$pkg_uses m4/latest autoconf/latest automake/latest"
 pkg_uses="$pkg_uses pkg-config/latest libtool/latest make/latest"
 pkg_reqs="$pkg_uses"
@@ -36,7 +37,7 @@ pkg_cfg=""
 # build and install pkg as local module
 ####################################################################################################
 
-bldr_build_pkg --category    "internal"     \
+bldr_build_pkg --category    "$pkg_ctry"    \
                --name        "$pkg_name"    \
                --version     "$pkg_vers"    \
                --info        "$pkg_info"    \

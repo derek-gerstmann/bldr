@@ -129,7 +129,7 @@ function bldr_pkg_compile_method()
 # build and install pkg as local module
 ####################################################################################################
 
-if [ $BLDR_SYSTEM_IS_OSX -eq 1 ]
+if [ $BLDR_SYSTEM_IS_OSX == true ]
 then
     bldr_log_warning "$pkg_name isn't supported on MacOSX.  Skipping..."
     bldr_log_split

@@ -30,9 +30,12 @@ pkg_uses="m4/latest autoconf/latest automake/latest"
 pkg_reqs=""
 pkg_cflags=""
 pkg_ldflags=""
-pkg_cfg="--enable-64bit"
 
-if [[ $BLDR_SYSTEM_IS_OSX -eq 1 ]]; then
+if [[ $BLDR_SYSTEM_IS_64BIT == true ]]; then
+     pkg_cfg="$pkg_cfg --enable-64bit"
+fi
+
+if [[ $BLDR_SYSTEM_IS_OSX == true ]]; then
      pkg_cfg="$pkg_cfg --disable-framework"
      pkg_cfg_path="unix"
 else

@@ -32,19 +32,20 @@ pkg_opts="configure force-serial-build"
 pkg_reqs="zlib/latest libicu/latest libxml2/latest"
 pkg_uses="$pkg_reqs"
 
-pkg_cflags="-I$BLDR_LOCAL_PATH/internal/zlib/latest/include"
-pkg_ldflags="-L$BLDR_LOCAL_PATH/internal/zlib/latest/lib"
+pkg_cflags="-I$BLDR_LOCAL_PATH/compression/zlib/latest/include"
+pkg_ldflags="-L$BLDR_LOCAL_PATH/compression/zlib/latest/lib"
 pkg_cfg=""
 pkg_patch=""
 
-if [ "$BLDR_SYSTEM_IS_OSX" -eq 1 ]
-then
-     pkg_cfg="$pkg_cfg --with-arch=x86_64"
+if [[ $BLDR_SYSTEM_IS_OSX == true ]]; then
+     if [[ $BLDR_SYSTEM_IS_64BIT == true ]]; then
+          pkg_cfg="$pkg_cfg --with-arch=x86_64"
+     fi
      pkg_cfg="$pkg_cfg --with-sysroot=$BLDR_OSX_SYSROOT"
 else
      pkg_reqs="$pkg_reqs libiconv/latest"
-     pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/internal/libiconv/latest/include"
-     pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/internal/libiconv/latest/lib"
+     pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/text/libiconv/latest/include"
+     pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/text/libiconv/latest/lib"
 fi
 
 ####################################################################################################

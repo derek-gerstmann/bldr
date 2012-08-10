@@ -28,7 +28,7 @@ pkg_ldflags=""
 
 pkg_cfg="-opensource -release -continue -silent"
 
-if [ $BLDR_SYSTEM_IS_OSX -eq 1 ]
+if [ $BLDR_SYSTEM_IS_OSX == true ]
 then
      pkg_cfg="$pkg_cfg -arch $BLDR_OSX_ARCHITECTURES" 
      pkg_cfg="$pkg_cfg -no-framework -static"

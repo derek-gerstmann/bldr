@@ -36,7 +36,7 @@ pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/languages/tcl/$pkg_vers/lib"
 pkg_cfg="--enable-64bit"
 pkg_cfg="$pkg_cfg --with-tcl=$BLDR_LOCAL_PATH/languages/tcl/$pkg_vers/lib"
 
-if [[ $BLDR_SYSTEM_IS_OSX -eq 1 ]]; then
+if [[ $BLDR_SYSTEM_IS_OSX == true ]]; then
      pkg_cfg="$pkg_cfg --disable-framework"
      pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/languages/tcl/$pkg_vers/macosx"
      pkg_cfg_path="unix"

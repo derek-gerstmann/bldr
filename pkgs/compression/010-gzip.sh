@@ -10,26 +10,24 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_ctry="developer"
-pkg_name="bdw-gc"
-pkg_vers="7.2c"
-pkg_info="The Boehm-Demers-Weiser conservative garbage collector (GC) can be used as a garbage collecting replacement for C malloc or C++ new."
+pkg_ctry="compression"
+pkg_name="gzip"
+pkg_vers="1.5"
 
-pkg_desc="The Boehm-Demers-Weiser conservative garbage collector can be used as a 
-garbage collecting replacement for C malloc or C++ new. It allows you to allocate 
-memory basically as you normally would, without explicitly deallocating memory that 
-is no longer useful. The collector automatically recycles memory when it determines 
-that it can no longer be otherwise accessed. "
+pkg_info="GNU zip is a compression utility designed to be a replacement for compress."
 
-pkg_file="gc-$pkg_vers.tar.gz"
-pkg_urls="http://www.hpl.hp.com/personal/Hans_Boehm/gc/gc_source/$pkg_file"
+pkg_desc="GNU zip is a compression utility designed to be a replacement for compress.  Its 
+main advantages over compress are much better compression and freedom from patented algorithms. 
+It has been adopted by the GNU project and is now relatively popular on the Internet."
+
+pkg_file="$pkg_name-$pkg_vers.tar.gz"
+pkg_urls="http://ftp.gnu.org/gnu/gzip/$pkg_file"
 pkg_opts="configure"
-pkg_reqs="pkg-config/latest zlib/latest"
-pkg_uses="$pkg_reqs"
+pkg_uses="m4/latest autoconf/latest automake/latest libtool/latest"
+pkg_reqs=""
 pkg_cflags=""
 pkg_ldflags=""
 pkg_cfg=""
-pkg_patch=""
 
 ####################################################################################################
 # build and install pkg as local module
@@ -45,7 +43,6 @@ bldr_build_pkg --category    "$pkg_ctry"    \
                --uses        "$pkg_uses"    \
                --requires    "$pkg_reqs"    \
                --options     "$pkg_opts"    \
-               --patch       "$pkg_patch"   \
                --cflags      "$pkg_cflags"  \
                --ldflags     "$pkg_ldflags" \
                --config      "$pkg_cfg"

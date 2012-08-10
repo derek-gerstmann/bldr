@@ -33,11 +33,11 @@ pkg_file="$pkg_name-$pkg_vers.tar.gz"
 pkg_urls="http://www.lri.fr/~bastoul/development/openscop/docs/$pkg_file"
 pkg_opts="configure force-bootstrap"
 
-pkg_reqs="gmp/latest isl/latest"
+pkg_reqs="gmp/latest isl/latest zlib/latest"
 pkg_uses="$pkg_reqs"
 
-pkg_cflags="-I$BLDR_LOCAL_PATH/internal/zlib/latest/include"
-pkg_ldflags="-L$BLDR_LOCAL_PATH/internal/zlib/latest/lib"
+pkg_cflags="-I$BLDR_LOCAL_PATH/compression/zlib/latest/include"
+pkg_ldflags="-L$BLDR_LOCAL_PATH/compression/zlib/latest/lib"
 
 pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/numerics/gmp/latest/include"
 pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/numerics/gmp/latest/lib"

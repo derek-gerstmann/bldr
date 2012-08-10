@@ -30,11 +30,11 @@ pkg_uses=""
 pkg_reqs=""
 pkg_cflags=""
 pkg_ldflags=""
-pkg_cfg="-L$BLDR_LOCAL_PATH/internal/zlib/latest/lib"
+pkg_cfg="-L$BLDR_LOCAL_PATH/compression/zlib/latest/lib"
 pkg_cfg="$pkg_cfg --openssldir=$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/ssl"
 pkg_cfg="$pkg_cfg zlib"
 
-if [ $BLDR_SYSTEM_IS_OSX -eq 1 ]
+if [ $BLDR_SYSTEM_IS_OSX == true ]
 then
      pkg_cfg="$pkg_cfg no-asm no-krb5 shared"
      pkg_cfg="$pkg_cfg darwin64-x86_64-cc"

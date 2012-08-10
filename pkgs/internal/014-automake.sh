@@ -10,6 +10,7 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
+pkg_ctry="internal"
 pkg_name="automake"
 pkg_vers="1.12.2"
 
@@ -22,8 +23,8 @@ GNU Coding Standards for Makefile variables and targets."
 pkg_file="$pkg_name-$pkg_vers.tar.gz"
 pkg_urls="http://ftp.gnu.org/gnu/automake/$pkg_file"
 pkg_opts="configure force-static"
-pkg_uses="m4/latest"
-pkg_reqs="m4/latest"
+pkg_reqs="coreutils/latest m4/latest"
+pkg_uses="$pkg_reqs"
 pkg_cflags=""
 pkg_ldflags=""
 pkg_cfg=""
@@ -32,7 +33,7 @@ pkg_cfg=""
 # build and install pkg as local module
 ####################################################################################################
 
-bldr_build_pkg --category    "internal"     \
+bldr_build_pkg --category    "$pkg_ctry"    \
                --name        "$pkg_name"    \
                --version     "$pkg_vers"    \
                --info        "$pkg_info"    \

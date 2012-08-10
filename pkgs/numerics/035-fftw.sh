@@ -29,7 +29,7 @@ pkg_uses=""
 pkg_reqs=""
 pkg_cfg="--enable-threads --enable-sse2"
 
-if [ $BLDR_SYSTEM_IS_OSX -eq 0 ]
+if [ $BLDR_SYSTEM_IS_OSX == false ]
 then
   pkg_cfg="$pkg_cfg --enable-openmp --enable-avx"
 fi

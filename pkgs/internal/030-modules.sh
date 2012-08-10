@@ -14,10 +14,10 @@ pkg_ctry="internal"
 pkg_name="modules"
 pkg_vers="3.2.9c"
 
-pkg_info="The modules package provides for the dynamic modification of a user's environment via modulefiles."
+pkg_info="The modules package provides for the dynamic modification of a user's environment via 'module' files."
 
 pkg_desc="The Environment Modules package provides for the dynamic modification of a user's 
-environment via modulefiles. Each modulefile contains the information needed to configure the 
+environment via 'module' files. Each 'module' file contains the information needed to configure the 
 shell for an application. Once the Modules package is initialized, the environment can be 
 modified on a per-module basis using the module command which interprets modulefiles. 
 Typically modulefiles instruct the module command to alter or set shell environment 
@@ -35,7 +35,7 @@ pkg_file="$pkg_name-$pkg_vers.tar.gz"
 pkg_urls="http://aarnet.dl.sourceforge.net/project/modules/Modules/modules-3.2.9/$pkg_file"
 pkg_opts="configure force-static skip-modulate"
 pkg_uses="coreutils/latest findutils/latest diffutils/latest"
-pkg_uses="$pkg_uses patch/latest sed/latest grep/latest"
+pkg_uses="$pkg_uses patch/latest sed/latest grep/latest tar/latest"
 pkg_uses="$pkg_uses m4/latest autoconf/latest automake/latest"
 pkg_uses="$pkg_uses pkg-config/latest libtool/latest make/latest"
 pkg_uses="$pkg_uses tcl/latest"

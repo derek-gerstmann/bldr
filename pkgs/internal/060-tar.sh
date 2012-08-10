@@ -10,6 +10,7 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
+pkg_ctry="internal"
 pkg_name="tar"
 pkg_vers="1.26"
 
@@ -23,18 +24,18 @@ of data. The name “tar” originally came from the phrase 'Tape ARchive', but 
 pkg_file="$pkg_name-$pkg_vers.tar.gz"
 pkg_urls="http://ftp.gnu.org/gnu/tar/$pkg_file"
 pkg_opts="configure"
-pkg_reqs="xz/latest zlib/latest gzip/latest bzip2/latest"
+pkg_reqs="coreutils/latest xz/latest zlib/latest gzip/latest bzip2/latest"
 pkg_uses="$pkg_reqs"
-pkg_cfg="--with-xz=$BLDR_LOCAL_PATH/internal/xz/latest/bin/xz"
-pkg_cfg="$pkg_cfg --with-lzip=$BLDR_LOCAL_PATH/internal/zlib/latest/lib/libz.a"
-pkg_cfg="$pkg_cfg --with-gzip=$BLDR_LOCAL_PATH/internal/gzip/latest/bin/gzip"
-pkg_cfg="$pkg_cfg --with-bzip2=$BLDR_LOCAL_PATH/internal/bzip2/latest/bin/bzip2"
+pkg_cfg="--with-xz=$BLDR_LOCAL_PATH/compression/xz/latest/bin/xz"
+pkg_cfg="$pkg_cfg --with-lzip=$BLDR_LOCAL_PATH/compression/zlib/latest/lib/libz.a"
+pkg_cfg="$pkg_cfg --with-gzip=$BLDR_LOCAL_PATH/compression/gzip/latest/bin/gzip"
+pkg_cfg="$pkg_cfg --with-bzip2=$BLDR_LOCAL_PATH/compression/bzip2/latest/bin/bzip2"
 
 ####################################################################################################
 # build and install pkg as local module
 ####################################################################################################
 
-bldr_build_pkg --category    "internal"     \
+bldr_build_pkg --category    "$pkg_ctry"    \
                --name        "$pkg_name"    \
                --version     "$pkg_vers"    \
                --info        "$pkg_info"    \

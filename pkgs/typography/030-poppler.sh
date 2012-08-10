@@ -27,15 +27,15 @@ pkg_cflags=""
 pkg_ldflags=""
 
 dep_list=""
-dep_list="$dep_list internal/zlib"
-dep_list="$dep_list internal/libicu"
-dep_list="$dep_list internal/libxml2"
+dep_list="$dep_list compression/zlib"
+dep_list="$dep_list text/libicu"
+dep_list="$dep_list developer/libxml2"
 dep_list="$dep_list imaging/lcms2"
 dep_list="$dep_list imaging/libpng"
 dep_list="$dep_list imaging/libjpeg"
 
-if [[ $BLDR_SYSTEM_IS_OSX -eq 0 ]]; then
-     dep_list="$dep_list internal/libiconv"
+if [[ $BLDR_SYSTEM_IS_OSX == false ]]; then
+     dep_list="$dep_list text/libiconv"
 fi
 
 for dep_pkg in $dep_list
@@ -46,7 +46,7 @@ do
      pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/$dep_pkg/latest/lib"
 done
 
-if [[ $BLDR_SYSTEM_IS_OSX -eq 1 ]]; then
+if [[ $BLDR_SYSTEM_IS_OSX == true ]]; then
      pkg_cflags="$pkg_cflags:-I/usr/local/include:-I/usr/include"
      pkg_ldflags="$pkg_ldflags:-L/usr/local/lib:-L/usr/lib:-lintl"
 fi

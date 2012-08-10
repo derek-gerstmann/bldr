@@ -10,32 +10,32 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_name="libxml2"
-pkg_vers="2.8.0"
-pkg_info="Libxml2 is the XML C parser and toolkit developed for the Gnome project"
+pkg_ctry="internal"
+pkg_name="tar"
+pkg_vers="1.26"
 
-pkg_desc="Libxml2 is the XML C parser and toolkit developed for the Gnome project 
-(but usable outside of the Gnome platform), it is free software available under 
-the MIT License. XML itself is a metalanguage to design markup languages, i.e. text 
-language where semantic and structure are added to the content using extra 'markup' 
-information enclosed between angle brackets. HTML is the most well-known markup 
-language. Though the library is written in C a variety of language bindings make 
-it available in other environments."
+pkg_info="GNU tar creates and manipulates archives which are actually collections of many other files."
+
+pkg_desc="GNU tar creates and manipulates archives which are actually collections of many other files; 
+the program provides users with an organized and systematic method for controlling a large amount 
+of data. The name “tar” originally came from the phrase 'Tape ARchive', but archives need not 
+(and these days, typically do not) reside on tapes."
 
 pkg_file="$pkg_name-$pkg_vers.tar.gz"
-pkg_urls="http://xmlsoft.org/sources/$pkg_file"
+pkg_urls="http://ftp.gnu.org/gnu/tar/$pkg_file"
 pkg_opts="configure"
-pkg_reqs="zlib/latest"
+pkg_reqs="coreutils/latest xz/latest zlib/latest gzip/latest bzip2/latest"
 pkg_uses="$pkg_reqs"
-pkg_cfg=""
-pkg_cflags="-I$BLDR_LOCAL_PATH/internal/zlib/latest/include"
-pkg_ldflags="-L$BLDR_LOCAL_PATH/internal/zlib/latest/lib"
+pkg_cfg="--with-xz=$BLDR_LOCAL_PATH/compression/xz/latest/bin/xz"
+pkg_cfg="$pkg_cfg --with-lzip=$BLDR_LOCAL_PATH/compression/zlib/latest/lib/libz.a"
+pkg_cfg="$pkg_cfg --with-gzip=$BLDR_LOCAL_PATH/compression/gzip/latest/bin/gzip"
+pkg_cfg="$pkg_cfg --with-bzip2=$BLDR_LOCAL_PATH/compression/bzip2/latest/bin/bzip2"
 
 ####################################################################################################
 # build and install pkg as local module
 ####################################################################################################
 
-bldr_build_pkg --category    "internal"     \
+bldr_build_pkg --category    "$pkg_ctry"    \
                --name        "$pkg_name"    \
                --version     "$pkg_vers"    \
                --info        "$pkg_info"    \

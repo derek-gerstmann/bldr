@@ -10,35 +10,33 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_name="zlib"
-pkg_vers="1.2.7"
+pkg_ctry="developer"
+pkg_name="libxml2"
+pkg_vers="2.8.0"
+pkg_info="Libxml2 is the XML C parser and toolkit developed for the Gnome project"
 
-pkg_info="ZLIB is a massively spiffy yet delicately unobtrusive compression library"
-
-pkg_desc="ZLIB is designed to be a free, general-purpose, legally unencumbered --  
-that is, not covered by any patents -- lossless data-compression library for use on 
-virtually any computer hardware and operating system. The zlib data format is itself 
-portable across platforms. Unlike the LZW compression method used in Unix compress(1) 
-and in the GIF image format, the compression method currently used in zlib essentially 
-never expands the data. (LZW can double or triple the file size in extreme cases.) 
-zlib's memory footprint is also independent of the input data and can be reduced, if 
-necessary, at some cost in compression. A more precise, technical discussion of both 
-points is available on another page."
+pkg_desc="Libxml2 is the XML C parser and toolkit developed for the Gnome project 
+(but usable outside of the Gnome platform), it is free software available under 
+the MIT License. XML itself is a metalanguage to design markup languages, i.e. text 
+language where semantic and structure are added to the content using extra 'markup' 
+information enclosed between angle brackets. HTML is the most well-known markup 
+language. Though the library is written in C a variety of language bindings make 
+it available in other environments."
 
 pkg_file="$pkg_name-$pkg_vers.tar.gz"
-pkg_urls="http://zlib.net/$pkg_file"
-pkg_opts="configure --enable-shared disable-xcode-cflags disable-xcode-ldflags"
-pkg_uses="m4/latest autoconf/latest automake/latest libtool/latest"
-pkg_reqs=""
+pkg_urls="http://xmlsoft.org/sources/$pkg_file"
+pkg_opts="configure"
+pkg_reqs="zlib/latest"
+pkg_uses="$pkg_reqs"
+pkg_cfg=""
 pkg_cflags=""
 pkg_ldflags=""
-pkg_cfg="-t -64"
 
 ####################################################################################################
 # build and install pkg as local module
 ####################################################################################################
 
-bldr_build_pkg --category    "internal"     \
+bldr_build_pkg --category    "$pkg_ctry"    \
                --name        "$pkg_name"    \
                --version     "$pkg_vers"    \
                --info        "$pkg_info"    \

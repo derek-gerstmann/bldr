@@ -28,8 +28,8 @@ pkg_opts="configure disable-xcode-cflags disable-xcode-ldflags"
 pkg_reqs="zlib/latest papi/latest hwloc/latest"
 pkg_uses="$pkg_reqs"
 
-pkg_cflags="-I$BLDR_LOCAL_PATH/internal/zlib/latest/include"
-pkg_ldflags="-L$BLDR_LOCAL_PATH/internal/zlib/latest/lib"
+pkg_cflags="-I$BLDR_LOCAL_PATH/compression/zlib/latest/include"
+pkg_ldflags="-L$BLDR_LOCAL_PATH/compression/zlib/latest/lib"
 
 pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/system/hwloc/latest/include"
 pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/system/hwloc/latest/lib"
@@ -38,7 +38,7 @@ pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/system/papi/latest/include"
 pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/system/papi/latest/lib"
 
 pkg_cfg=""
-if [ -d /usr/local/cuda ]
+if [ -d "/usr/local/cuda" ]
 then
      pkg_cfg="$pkg_cfg --with-cuda=/usr/local/cuda"
      pkg_cfg="$pkg_cfg --with-cuda-include=/usr/local/cuda/include"
@@ -46,7 +46,7 @@ then
 fi
 
 has_fortran=$(which "f77")
-if [ "$has_fortran" != "" ]
+if [ -x $has_fortran ]
 then
      pkg_cfg="$pkg_cfg --enable-f77 --enable-fc"
 else
@@ -58,9 +58,14 @@ pkg_cfg="$pkg_cfg --with-thread-package=posix"
 pkg_cfg="$pkg_cfg --enable-romio"
 pkg_cfg="$pkg_cfg --enable-cxx"
 
-if [ "$BLDR_SYSTEM_IS_OSX" -eq 1 ]
+#
+# Disable vampire trace avoids build errors on OSX:
+#
+# - Building MVAPICH2 > v1.5.4 on OSX causes error due to missing GCC internal
+#   '__builtin_expect' directives when compiling with LLVM-GCC
+#
+if [[ $BLDR_SYSTEM_IS_OSX == true ]] 
 then
-     # Building > v1.5.4 on OSX causes error due to missing '__builtin_expect' -- disable vampire trace avoids this
     pkg_cfg="$pkg_cfg --disable-vt "
 fi
 
@@ -68,7 +73,7 @@ fi
 # build and install pkg as local module
 ####################################################################################################
 
-if [ "$BLDR_SYSTEM_IS_OSX" -eq 1 ]
+if [[ $BLDR_SYSTEM_IS_OSX == true ]]
 then
      bldr_log_status "$pkg_name $pkg_vers is not building on OSX right now.  Skipping ..."
      bldr_log_split

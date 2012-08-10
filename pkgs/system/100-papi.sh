@@ -38,7 +38,7 @@ pkg_ldflags=""
 pkg_cfg=""
 pkg_cfg_path="src"
 
-if [ $BLDR_SYSTEM_IS_OSX -eq 1 ]
+if [ $BLDR_SYSTEM_IS_OSX == true ]
 then
      pkg_cfg="$pkg_cfg --with-OS=darwin"
 fi

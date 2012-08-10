@@ -32,18 +32,18 @@ proposed for TR2."
 
 pkg_file="boost_1_50_0.tar.bz2"
 pkg_urls="http://sourceforge.net/projects/boost/files/$pkg_name/$pkg_vers/$pkg_file/download"
-pkg_opts="configure force-static"
+pkg_opts="configure force-static skip-auto-compile-flags"
 pkg_reqs="zlib/latest bzip2/latest libicu/latest"
 pkg_uses="$pkg_reqs"
 pkg_cflags=""
 pkg_ldflags=""
 
 pkg_cfg="variant=release link=static threading=multi runtime-link=static"
-pkg_cfg="$pkg_cfg -s ICU_PATH=$BLDR_LOCAL_PATH/internal/libicu/latest"
+pkg_cfg="$pkg_cfg -s ICU_PATH=$BLDR_LOCAL_PATH/text/libicu/latest"
 pkg_cfg="$pkg_cfg -s BZIP2_INCLUDE=$BLDR_LOCAL_PATH/internal/bzip2/latest/include"
 pkg_cfg="$pkg_cfg -s BZIP2_LIBPATH=$BLDR_LOCAL_PATH/internal/bzip2/latest/lib"
-pkg_cfg="$pkg_cfg -s ZLIB_INCLUDE=$BLDR_LOCAL_PATH/internal/zlib/latest/include"
-pkg_cfg="$pkg_cfg -s ZLIB_LIBPATH=$BLDR_LOCAL_PATH/internal/zlib/latest/lib"
+pkg_cfg="$pkg_cfg -s ZLIB_INCLUDE=$BLDR_LOCAL_PATH/compression/zlib/latest/include"
+pkg_cfg="$pkg_cfg -s ZLIB_LIBPATH=$BLDR_LOCAL_PATH/compression/zlib/latest/lib"
 
 ####################################################################################################
 

@@ -39,7 +39,7 @@ pkg_cfg_path="src"
 # build and install pkg as local module
 ####################################################################################################
 
-if [ $BLDR_SYSTEM_IS_OSX -eq 1 ]
+if [ $BLDR_SYSTEM_IS_OSX == true ]
 then
   bldr_fetch_pkg --category    "$pkg_ctry"    \
                  --name        "$pkg_name"    \

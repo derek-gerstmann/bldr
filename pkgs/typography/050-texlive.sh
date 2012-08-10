@@ -95,7 +95,7 @@ function bldr_pkg_compile_method()
     echo "#"                                                      >> $profile
     echo "selected_scheme scheme-small"                           >> $profile
     echo "TEXDIR $base/$pkg_vers"                                 >> $profile
-    if [ $BLDR_SYSTEM_IS_OSX -eq 1 ]
+    if [ $BLDR_SYSTEM_IS_OSX == true ]
     then
       echo "binary_universal-darwin 1"                            >> $profile
     fi

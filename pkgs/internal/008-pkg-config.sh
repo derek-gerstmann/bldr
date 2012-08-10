@@ -10,6 +10,7 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
+pkg_ctry="internal"
 pkg_name="pkg-config"
 pkg_vers="0.23"
 
@@ -25,8 +26,8 @@ tools, for instance."
 pkg_file="$pkg_name-$pkg_vers.tar.gz"
 pkg_urls="http://pkgconfig.freedesktop.org/releases/$pkg_file"
 pkg_opts="configure force-static"
-pkg_reqs=""
-pkg_uses=""
+pkg_reqs="coreutils/latest"
+pkg_uses="coreutils/latest"
 pkg_cflags=""
 pkg_ldflags=""
 pkg_cfg="--disable-maintainer-mode --disable-dependency-tracking --disable-dtrace" 
@@ -35,7 +36,7 @@ pkg_cfg="--disable-maintainer-mode --disable-dependency-tracking --disable-dtrac
 # build and install pkg as local module
 ####################################################################################################
 
-bldr_build_pkg --category    "internal"     \
+bldr_build_pkg --category    "$pkg_ctry"    \
                --name        "$pkg_name"    \
                --version     "$pkg_vers"    \
                --info        "$pkg_info"    \

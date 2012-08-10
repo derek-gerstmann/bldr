@@ -45,7 +45,7 @@ pkg_urls="http://cran.ms.unimelb.edu.au/src/base/R-2/$pkg_file"
 pkg_opts="configure"
 pkg_reqs="zlib/latest bzip2/latest tcl/latest tk/latest libpng/latest libjpeg/latest gsl/latest cairo/latest"
 
-if [[ $BLDR_SYSTEM_IS_OSX -eq 0 ]]; then
+if [[ $BLDR_SYSTEM_IS_OSX == false ]]; then
     pkg_reqs="$pkg_reqs lapack/latest"
     pkg_cfg="$pkg_cfg --with-lapack"
 fi

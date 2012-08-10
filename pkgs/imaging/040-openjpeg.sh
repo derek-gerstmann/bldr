@@ -38,7 +38,7 @@ pkg_reqs=""
 pkg_cflags=""
 pkg_ldflags=""
 
-dep_list="internal/zlib internal/bzip2 internal/libxml2"
+dep_list="compression/zlib internal/bzip2 developer/libxml2"
 dep_list="$dep_list imaging/lcms2 imaging/libpng imaging/libjpeg imaging/libtiff"
 for dep_pkg in $dep_list
 do
@@ -56,7 +56,7 @@ pkg_cfg="$pkg_cfg --enable-mj2"
 pkg_cfg="$pkg_cfg --enable-jpwl"
 pkg_cfg="$pkg_cfg --enable-jpip"
 pkg_cfg="$pkg_cfg --enable-jpip-server"
-pkg_cfg="$pkg_cfg Z_CFLAGS=-I$BLDR_LOCAL_PATH/internal/zlib/latest/include"
+pkg_cfg="$pkg_cfg Z_CFLAGS=-I$BLDR_LOCAL_PATH/compression/zlib/latest/include"
 pkg_cfg="$pkg_cfg Z_LIBS=-lz"
 pkg_cfg="$pkg_cfg PNG_CFLAGS=-I$BLDR_LOCAL_PATH/imaging/libpng/latest/include"
 pkg_cfg="$pkg_cfg PNG_LIBS=-lpng"

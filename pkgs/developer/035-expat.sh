@@ -24,10 +24,8 @@ pkg_urls="http://prdownloads.sourceforge.net/$pkg_name/$pkg_vers/$pkg_file?downl
 pkg_opts="configure"
 pkg_reqs="pkg-config/latest zlib/latest"
 pkg_uses="$pkg_reqs"
-
-pkg_cflags="-I$BLDR_LOCAL_PATH/internal/zlib/latest/include"
-pkg_ldflags="-L$BLDR_LOCAL_PATH/internal/zlib/latest/lib:-lz"
-
+pkg_cflags=""
+pkg_ldflags=""
 pkg_cfg=""
 pkg_patch=""
 

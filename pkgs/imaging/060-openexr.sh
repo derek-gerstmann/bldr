@@ -31,7 +31,7 @@ pkg_reqs=""
 pkg_cflags=""
 pkg_ldflags=""
 
-dep_list="internal/zlib imaging/lcms2 imaging/ilmbase"
+dep_list="compression/zlib imaging/lcms2 imaging/ilmbase"
 for dep_pkg in $dep_list
 do
      pkg_req_name=$(echo "$dep_pkg" | sed 's/.*\///g' )
@@ -46,7 +46,7 @@ pkg_cflags="$pkg_cflags:-I$BLDR_BUILD_PATH/imaging/$pkg_name/$pkg_vers/openexr/O
 pkg_uses="$pkg_reqs"
 
 pkg_cfg="--disable-dependency-tracking "
-pkg_cfg="$pkg_cfg Z_CFLAGS=-I$BLDR_LOCAL_PATH/internal/zlib/latest/include"
+pkg_cfg="$pkg_cfg Z_CFLAGS=-I$BLDR_LOCAL_PATH/compression/zlib/latest/include"
 pkg_cfg="$pkg_cfg Z_LIBS=-lz"
 
 ####################################################################################################

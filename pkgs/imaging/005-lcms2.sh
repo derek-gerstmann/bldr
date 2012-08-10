@@ -33,8 +33,8 @@ pkg_urls="http://sourceforge.net/projects/lcms/files/lcms/2.3/$pkg_file?download
 pkg_opts="configure"
 pkg_reqs="zlib/latest"
 pkg_uses="$pkg_reqs"
-pkg_cflags="-I$BLDR_LOCAL_PATH/internal/zlib/latest/include"
-pkg_ldflags="-L$BLDR_LOCAL_PATH/internal/zlib/latest/lib"
+pkg_cflags="-I$BLDR_LOCAL_PATH/compression/zlib/latest/include"
+pkg_ldflags="-L$BLDR_LOCAL_PATH/compression/zlib/latest/lib"
 pkg_cfg=""
 
 ####################################################################################################

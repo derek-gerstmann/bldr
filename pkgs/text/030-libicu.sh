@@ -10,40 +10,34 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_name="xz"
-pkg_vers="5.0.3"
+pkg_ctry="text"
+pkg_name="libicu"
+pkg_vers="49.1.2"
+pkg_info="ICU is the premier library for software internationalization."
 
-pkg_info="XZ utils is free general-purpose data compression software with high compression ratio."
+pkg_desc="ICU is the premier library for software internationalization.
 
-pkg_desc="XZ utils is free general-purpose data compression software with high compression ratio. 
-XZ Utils were written for POSIX-like systems, but also work on some not-so-POSIX systems. 
-XZ Utils are the successor to LZMA Utils.
+ICU is a mature, widely used set of C/C++ and Java libraries providing Unicode and 
+Globalization support for software applications. ICU is widely portable and gives 
+applications the same results on all platforms and between C/C++ and Java software.
+ICU is released under a nonrestrictive open source license that is suitable for use 
+with both commercial software and with other open source or free software."
 
-The core of the XZ Utils compression code is based on LZMA SDK, but it has been modified 
-quite a lot to be suitable for XZ Utils. The primary compression algorithm is currently LZMA2, 
-which is used inside the .xz container format. With typical files, XZ Utils create 30 % smaller 
-output than gzip and 15 % smaller output than bzip2. "
-
-pkg_file="$pkg_name-$pkg_vers.tar.gz"
-pkg_urls="http://tukaani.org/xz/$pkg_file"
-pkg_opts="configure force-static"
-pkg_uses="m4/latest autoconf/latest automake/latest libtool/latest"
-pkg_reqs=""
-pkg_cflags=""
-pkg_ldflags=""
+pkg_file="icu4c-49_1_2-src.tgz"
+pkg_urls="http://download.icu-project.org/files/icu4c/49.1.2/$pkg_file"
+pkg_opts="configure force-serial-build"
+pkg_reqs="zlib/latest"
+pkg_uses="$pkg_reqs"
+pkg_cflags="-I$BLDR_LOCAL_PATH/compression/zlib/latest/include"
+pkg_ldflags="-L$BLDR_LOCAL_PATH/compression/zlib/latest/lib"
 pkg_cfg=""
-
-if [ "$BLDR_SYSTEM_IS_OSX" -eq 0 ]
-then
-     pkg_cflags="$pkg_cflags -fPIC"
-     pkg_ldflags="$pkg_ldflags -fPIC"
-fi
+pkg_cfg_path="source"
 
 ####################################################################################################
 # build and install pkg as local module
 ####################################################################################################
 
-bldr_build_pkg --category    "internal"     \
+bldr_build_pkg --category    "$pkg_ctry"    \
                --name        "$pkg_name"    \
                --version     "$pkg_vers"    \
                --info        "$pkg_info"    \
@@ -55,5 +49,7 @@ bldr_build_pkg --category    "internal"     \
                --options     "$pkg_opts"    \
                --cflags      "$pkg_cflags"  \
                --ldflags     "$pkg_ldflags" \
-               --config      "$pkg_cfg"
+               --config      "$pkg_cfg"     \
+               --config-path "$pkg_cfg_path"
+
 

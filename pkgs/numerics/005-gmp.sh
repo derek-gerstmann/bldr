@@ -41,8 +41,8 @@ pkg_opts="configure"
 pkg_reqs="pkg-config/latest zlib/latest"
 pkg_uses="$pkg_reqs"
 
-pkg_cflags="-I$BLDR_LOCAL_PATH/internal/zlib/latest/include"
-pkg_ldflags="-L$BLDR_LOCAL_PATH/internal/zlib/latest/lib:-lz"
+pkg_cflags="-I$BLDR_LOCAL_PATH/compression/zlib/latest/include"
+pkg_ldflags="-L$BLDR_LOCAL_PATH/compression/zlib/latest/lib:-lz"
 
 pkg_cfg="--enable-cxx"
 pkg_patch=""

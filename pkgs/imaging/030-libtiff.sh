@@ -34,19 +34,19 @@ pkg_urls="http://download.osgeo.org/libtiff/$pkg_file"
 pkg_opts="configure"
 pkg_reqs="zlib/latest libpng/latest libjpeg/latest"
 pkg_uses="$pkg_reqs"
-pkg_cflags="-I$BLDR_LOCAL_PATH/internal/zlib/latest/include"
+pkg_cflags="-I$BLDR_LOCAL_PATH/compression/zlib/latest/include"
 pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/imaging/libpng/latest/include"
 pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/imaging/libjpeg/latest/include"
 
-pkg_ldflags="-L$BLDR_LOCAL_PATH/internal/zlib/latest/lib"
+pkg_ldflags="-L$BLDR_LOCAL_PATH/compression/zlib/latest/lib"
 pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/imaging/libpng/latest/lib"
 pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/imaging/libjpeg/latest/lib"
 
 pkg_cfg="--with-gnu-ld"
 pkg_cfg="$pkg_cfg --with-jpeg-lib-dir=$BLDR_LOCAL_PATH/imaging/libjpeg/latest/lib"
 pkg_cfg="$pkg_cfg --with-jpeg-include-dir=$BLDR_LOCAL_PATH/imaging/libjpeg/latest/include"
-pkg_cfg="$pkg_cfg --with-zlib-lib-dir=$BLDR_LOCAL_PATH/internal/zlib/latest/lib"
-pkg_cfg="$pkg_cfg --with-zlib-include-dir=$BLDR_LOCAL_PATH/internal/zlib/latest/include"
+pkg_cfg="$pkg_cfg --with-zlib-lib-dir=$BLDR_LOCAL_PATH/compression/zlib/latest/lib"
+pkg_cfg="$pkg_cfg --with-zlib-include-dir=$BLDR_LOCAL_PATH/compression/zlib/latest/include"
 
 ####################################################################################################
 

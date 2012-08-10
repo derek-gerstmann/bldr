@@ -32,12 +32,12 @@ pkg_ldflags=""
 pkg_cfg=""
 pkg_cfg="$pkg_cfg:-DBUILD_TESTS=1"
 pkg_cfg="$pkg_cfg:-DBUILD_EXAMPLES=0"
-pkg_cfg="$pkg_cfg:-DZLIB_INCLUDE_DIR=$BLDR_LOCAL_PATH/internal/zlib/latest/include"
-pkg_cfg="$pkg_cfg:-DZLIB_LIBRARY=$BLDR_LOCAL_PATH/internal/zlib/latest/lib/libz.a"
+pkg_cfg="$pkg_cfg:-DZLIB_INCLUDE_DIR=$BLDR_LOCAL_PATH/compression/zlib/latest/include"
+pkg_cfg="$pkg_cfg:-DZLIB_LIBRARY=$BLDR_LOCAL_PATH/compression/zlib/latest/lib/libz.a"
 pkg_cfg="$pkg_cfg:-DBOOST_INCLUDEDIR=$BLDR_LOCAL_PATH/developer/boost/latest/include"
 pkg_cfg="$pkg_cfg:-DBOOST_ROOT=$BLDR_LOCAL_PATH/developer/boost/latest"
 pkg_cfg="$pkg_cfg:-DBoost_DIR=$BLDR_LOCAL_PATH/developer/boost/latest"
-pkg_cfg="$pkg_cfg:-DGSL_CONFIG_EXECUTABLE=$BLDR_LOCAL_PATH/science/gsl/latest/bin/gsl-config"
+pkg_cfg="$pkg_cfg:-DGSL_CONFIG_EXECUTABLE=$BLDR_LOCAL_PATH/numerics/gsl/latest/bin/gsl-config"
 
 ####################################################################################################
 # build and install pkg as local module

@@ -32,8 +32,8 @@ pkg_opts="configure disable-xcode-cflags disable-xcode-ldflags"
 pkg_reqs="szip/latest zlib/latest"
 pkg_uses="$pkg_reqs"
 
-pkg_cflags="-I$BLDR_LOCAL_PATH/internal/zlib/latest/include"
-pkg_ldflags="-L$BLDR_LOCAL_PATH/internal/zlib/latest/lib"
+pkg_cflags="-I$BLDR_LOCAL_PATH/compression/zlib/latest/include"
+pkg_ldflags="-L$BLDR_LOCAL_PATH/compression/zlib/latest/lib"
 
 pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/compression/szip/latest/include"
 pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/compression/szip/latest/lib"
@@ -41,7 +41,7 @@ pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/compression/szip/latest/lib"
 pkg_cfg=""
 pkg_cfg="$pkg_cfg --enable-hl"
 pkg_cfg="$pkg_cfg --enable-filters=all"
-if [ $BLDR_SYSTEM_IS_OSX -eq 0 ]
+if [ $BLDR_SYSTEM_IS_OSX == false ]
 then
     pkg_cfg="$pkg_cfg --enable-linux-lfs"
     pkg_cfg="$pkg_cfg --with-pthread=/usr"
@@ -49,7 +49,7 @@ else
     pkg_cfg="$pkg_cfg --enable-static-exec"
 fi
 pkg_cfg="$pkg_cfg --with-szlib=$BLDR_LOCAL_PATH/compression/szip/latest"
-pkg_cfg="$pkg_cfg --with-zlib=$BLDR_LOCAL_PATH/internal/zlib/latest"
+pkg_cfg="$pkg_cfg --with-zlib=$BLDR_LOCAL_PATH/compression/zlib/latest"
 
 hdf5_cfg="$pkg_cfg"
 
@@ -152,7 +152,7 @@ do
     #
     pkg_name="hdf5"
     pkg_cfg="$hdf5_cfg --enable-cxx"
-    if [ $BLDR_SYSTEM_IS_OSX -eq 0 ]
+    if [ $BLDR_SYSTEM_IS_OSX == false ]
     then
         pkg_cfg="$pkg_cfg FC=gfortran"
         pkg_cfg="$pkg_cfg --enable-fortran"
@@ -180,7 +180,7 @@ do
         pkg_name="hdf5-16"
         pkg_cfg="$hdf5_cfg --enable-cxx"
         pkg_cfg="$hdf5_cfg --with-default-api-version=v16"
-        if [ $BLDR_SYSTEM_IS_OSX -eq 0 ]
+        if [ $BLDR_SYSTEM_IS_OSX == false ]
         then
             pkg_cfg="$pkg_cfg FC=gfortran"
             pkg_cfg="$pkg_cfg --enable-fortran"

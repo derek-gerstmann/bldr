@@ -10,26 +10,24 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_ver_list=("2.7.3" "3.2.3")
+pkg_ver_list=("5.2.1")
 pkg_ctry="languages"
-pkg_name="python"
+pkg_name="lua"
 
-pkg_info="Python is a programming language that lets you work more quickly and integrate your systems more effectively."
+pkg_info="Lua is a powerful, fast, lightweight, embeddable scripting language."
 
-pkg_desc="Python is a programming language that lets you work more quickly and 
-integrate your systems more effectively. You can learn to use Python and see 
-almost immediate gains in productivity and lower maintenance costs.
+pkg_desc="Lua is a powerful, fast, lightweight, embeddable scripting language.
 
-Python runs on Windows, Linux/Unix, Mac OS X, and has been ported to the 
-Java and .NET virtual machines.
+Lua combines simple procedural syntax with powerful data description constructs based 
+on associative arrays and extensible semantics. Lua is dynamically typed, runs by 
+interpreting bytecode for a register-based virtual machine, and has automatic memory 
+management with incremental garbage collection, making it ideal for configuration, 
+scripting, and rapid prototyping."
 
-Python is free to use, even for commercial products, because of its 
-OSI-approved open source license."
-
-pkg_file="Python-$pkg_vers.tar.bz2"
-pkg_urls="http://www.python.org/ftp/python/$pkg_vers/$pkg_file"
-pkg_opts="configure"
-pkg_reqs="zlib/latest bzip2/latest"
+pkg_file="$pkg_name-$pkg_vers.tar.gz"
+pkg_urls="http://www.lua.org/ftp/$pkg_file"
+pkg_opts="configure skip-install migrate-build-headers migrate-build-binaries migrate-build-libraries"
+pkg_reqs="flex/latest bison/latest zlib/latest bzip2/latest"
 pkg_uses="$pkg_reqs"
 
 pkg_cflags="-I$BLDR_LOCAL_PATH/compression/zlib/latest/include"
@@ -46,8 +44,8 @@ pkg_cfg=""
 
 for pkg_vers in ${pkg_ver_list}
 do
-    pkg_file="Python-$pkg_vers.tar.bz2"
-    pkg_urls="http://www.python.org/ftp/python/$pkg_vers/$pkg_file"
+    pkg_file="$pkg_name-$pkg_vers.tar.gz"
+    pkg_urls="http://www.lua.org/ftp/$pkg_file"
 
     bldr_build_pkg --category    "$pkg_ctry"    \
                    --name        "$pkg_name"    \

@@ -10,39 +10,48 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_ctry="system"
-pkg_name="liburcu"
-pkg_vers="0.7.3"
+pkg_vers="trunk"
+pkg_ctry="databases"
+pkg_name="wrpme-capi"
+pkg_info="WRPME CAPI provides a ANSI-C99 API to the WRPME server."
 
-pkg_info="Userspace RCU (liburcu) is a LGPLv2.1 userspace RCU (read-copy-update) library."
+pkg_desc="WRPME CAPI provides a ANSI-C99 API to the WRPME server.
 
-pkg_desc="Userspace RCU (liburcu) is a LGPLv2.1 userspace RCU (read-copy-update) library. 
-This data synchronization library provides read-side access which scales linearly with 
-the number of cores. It does so by allowing multiples copies of a given data structure 
-to live at the same time, and by monitoring the data structure accesses to detect grace 
-periods after which memory reclamation is possible.
+WRPME is a key / value store. It is fast and scalable. 
 
-liburcu-cds provides efficient data structures based on RCU and lock-free algorithms. 
-Those structures include hash tables, queues, stacks, and doubly-linked lists.
+It handles concurrent accesses very well and is designed to manage large amounts of data at high-frequency.
 
-The liburcu project has been started by Mathieu Desnoyers."
+WRPME is limitless. In other words, we didn't put any limit in WRPME. 
 
-pkg_file="userspace-rcu-$pkg_vers.tar.bz2"
-pkg_urls="http://lttng.org/files/urcu/$pkg_file"
-pkg_opts="configure"
-pkg_uses=""
-pkg_reqs=""
+If your computer has got enough memory and enough disk space, WRPME can handle it.
+
+One can label WRPME as a NoSQL database but we prefer the term post-modern database.
+
+Where would you want to use WRPME? Here are few use cases:
+
+* High-frequency trading market data store
+* Heavy traffic web cache
+* Multiplayer game dynamic elements depot
+* Distributed computing common data store
+* Relational database cache"
+
+pkg_opts="skip-compile skip-install migrate-build-tree"
+pkg_reqs="wrpme-server/latest"
+pkg_uses="tar/latest"
 pkg_cflags=""
 pkg_ldflags=""
-pkg_cfg="--enable-static --enable-shared"
+pkg_cfg=""
+pkg_cfg_path=""
+pkg_file="$pkg_name-master-linux-64bit.tgz"
+pkg_urls="http://www.wrpme.com/builds/$pkg_file"
 
 ####################################################################################################
-# build and install pkg as local module
+# build and install each pkg version as local module
 ####################################################################################################
 
-if [ $BLDR_SYSTEM_IS_OSX == true ]
+if [[ $BLDR_SYSTEM_IS_OSX == true ]]
 then
-     bldr_log_warning "$pkg_name isn't supported on MacOSX.  Skipping..."
+     bldr_log_status "$pkg_name $pkg_vers is not available on OSX right now.  Skipping ..."
      bldr_log_split
 else
      bldr_build_pkg --category    "$pkg_ctry"    \
@@ -57,6 +66,6 @@ else
                     --options     "$pkg_opts"    \
                     --cflags      "$pkg_cflags"  \
                     --ldflags     "$pkg_ldflags" \
-                    --config      "$pkg_cfg"
+                    --config      "$pkg_cfg"     
 fi
 

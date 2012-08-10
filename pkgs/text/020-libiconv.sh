@@ -10,6 +10,7 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
+pkg_ctry="text"
 pkg_name="libiconv"
 pkg_vers="1.14"
 
@@ -38,19 +39,19 @@ pkg_opts="configure"
 pkg_reqs="zlib/latest"
 pkg_uses="$pkg_reqs"
 pkg_cfg="--enable-static --enable-shared"
-pkg_cflags="-I$BLDR_LOCAL_PATH/internal/zlib/latest/include"
-pkg_ldflags="-L$BLDR_LOCAL_PATH/internal/zlib/latest/lib"
+pkg_cflags="-I$BLDR_LOCAL_PATH/compression/zlib/latest/include"
+pkg_ldflags="-L$BLDR_LOCAL_PATH/compression/zlib/latest/lib"
 
 ####################################################################################################
 # build and install pkg as local module
 ####################################################################################################
 
-if [ $BLDR_SYSTEM_IS_OSX -eq 1 ]
+if [ $BLDR_SYSTEM_IS_OSX == true ]
 then
      bldr_log_warning "$pkg_name uses the native OSX version bundled with MacOSX.  Skipping..."
      bldr_log_split
 else
-     bldr_build_pkg --category    "internal"     \
+     bldr_build_pkg --category    "$pkg_ctry"    \
                     --name        "$pkg_name"    \
                     --version     "$pkg_vers"    \
                     --info        "$pkg_info"    \

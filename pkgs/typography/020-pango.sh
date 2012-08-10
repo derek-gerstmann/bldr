@@ -55,12 +55,12 @@ pkg_reqs=""
 pkg_cflags=""
 pkg_ldflags=""
 
-dep_list="internal/zlib internal/libicu internal/libxml2"
+dep_list="compression/zlib text/libicu developer/libxml2"
 dep_list="$dep_list typography/freetype typography/fontconfig"
-dep_list="$dep_list developer/gettext developer/glib"
+dep_list="$dep_list text/gettext developer/glib"
 
-if [[ $BLDR_SYSTEM_IS_OSX -eq 0 ]]; then
-     dep_list="$dep_list internal/libiconv"
+if [[ $BLDR_SYSTEM_IS_OSX == false ]]; then
+     dep_list="$dep_list text/libiconv"
 fi
 
 for dep_pkg in $dep_list
@@ -71,7 +71,7 @@ do
      pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/$dep_pkg/latest/lib"
 done
 
-if [[ $BLDR_SYSTEM_IS_OSX -eq 1 ]]; then
+if [[ $BLDR_SYSTEM_IS_OSX == true ]]; then
      pkg_cflags="$pkg_cflags:-I/usr/local/include:-I/usr/include"
      pkg_ldflags="$pkg_ldflags:-L/usr/local/lib:-L/usr/lib:-lintl"
 fi

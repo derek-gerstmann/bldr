@@ -24,9 +24,9 @@ pkg_urls="http://prdownloads.sourceforge.net/libpng/$pkg_file?download"
 pkg_opts="configure"
 pkg_reqs="zlib/latest"
 pkg_uses="$pkg_reqs"
-pkg_cflags="-I$BLDR_LOCAL_PATH/internal/zlib/latest/include"
-pkg_ldflags="-L$BLDR_LOCAL_PATH/internal/zlib/latest/lib"
-pkg_cfg="--with-zlib-prefix=$BLDR_LOCAL_PATH/internal/zlib/latest --with-pkgconfigdir=$PKG_CONFIG_PATH"
+pkg_cflags="-I$BLDR_LOCAL_PATH/compression/zlib/latest/include"
+pkg_ldflags="-L$BLDR_LOCAL_PATH/compression/zlib/latest/lib"
+pkg_cfg="--with-zlib-prefix=$BLDR_LOCAL_PATH/compression/zlib/latest --with-pkgconfigdir=$PKG_CONFIG_PATH"
 
 ####################################################################################################
 # build and install pkg as local module
