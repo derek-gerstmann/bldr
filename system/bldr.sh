@@ -1305,7 +1305,7 @@ function bldr_list_archive()
     then
         listing="error"
     
-    elif [[ $(echo "$result" | grep -m1 -c "$base_dir") > 0 ]]
+    elif [[ $(echo "$result" | grep -m1 -c "$base_dir/") > 0 ]]
     then
         listing="$base_dir"
     
