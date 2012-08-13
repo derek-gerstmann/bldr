@@ -49,7 +49,7 @@ pkg_reqs=""
 pkg_cflags=""
 pkg_ldflags=""
 
-dep_list="compression/zlib text/libicu developer/libxml2"
+dep_list="compression/zlib text/libicu formats/libxml2"
 dep_list="$dep_list typography/freetype typography/fontconfig"
 dep_list="$dep_list graphics/pixman imaging/libpng"
 dep_list="$dep_list text/gettext developer/glib"

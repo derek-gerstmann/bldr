@@ -10,41 +10,23 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_ctry="toolkits"
-pkg_name="qt4"
-pkg_vers="4.8.2"
-pkg_info="Qt is a cross-platform application and UI framework for developers using C++ or QML, a CSS & JavaScript like language."
+pkg_ctry="cryptography"
+pkg_name="libgpg-error"
+pkg_vers="1.10"
+pkg_info="The libgpg-error package contains a library that defines common error values for all GnuPG components."
 
-pkg_desc="Qt is a cross-platform application and UI framework for developers using C++ or QML, a CSS & JavaScript like language"
+pkg_desc="The libgpg-error package contains a library that defines common error values for all GnuPG 
+components. Among these are GPG, GPGSM, GPGME, GPG-Agent, libgcrypt, Libksba, DirMngr, Pinentry, 
+SmartCard Daemon and more. "
 
-pkg_file="$pkg_name-everywhere-opensource-src-$pkg_vers.tar.gz"
-pkg_urls="http://releases.qt-project.org/qt4/source/$pkg_file"
-pkg_opts="configure disable-xcode-cflags disable-xcode-ldflags"
-pkg_reqs=""
+pkg_file="$pkg_name-$pkg_vers.tar.bz2"
+pkg_urls="ftp://ftp.gnupg.org/gcrypt/$pkg_name/$pkg_file"
+pkg_opts="configure"
+pkg_reqs="coreutils/latest"
 pkg_uses=""
-
 pkg_cflags=""
 pkg_ldflags=""
-
-pkg_cfg="-opensource -release -continue -silent -confirm-license"
-
-if [ $BLDR_SYSTEM_IS_OSX == true ]
-then
-     pkg_cfg="$pkg_cfg -arch $BLDR_OSX_ARCHITECTURES" 
-     pkg_cfg="$pkg_cfg -no-framework -static"
-fi
-
-pkg_cfg="$pkg_cfg -no-cups"
-pkg_cfg="$pkg_cfg -no-javascript-jit"
-pkg_cfg="$pkg_cfg -no-audio-backend"
-pkg_cfg="$pkg_cfg -no-svg"
-pkg_cfg="$pkg_cfg -no-openssl"
-pkg_cfg="$pkg_cfg -no-qt3support"
-pkg_cfg="$pkg_cfg -no-webkit"
-pkg_cfg="$pkg_cfg -no-sql-sqlite"
-pkg_cfg="$pkg_cfg -qt-libjpeg"
-pkg_cfg="$pkg_cfg -make libs"
-pkg_cfg="$pkg_cfg -make tools"
+pkg_cfg="" 
 
 ####################################################################################################
 # build and install pkg as local module

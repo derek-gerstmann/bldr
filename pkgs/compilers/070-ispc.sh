@@ -20,7 +20,7 @@ for single program, multiple data programming. Under the SPMD model, the program
 a program that generally appears to be a regular serial program, though the execution model 
 is actually that a number of program instances execute in parallel on the hardware."
 
-if [ $BLDR_SYSTEM_IS_OSX == true ]
+if [[ $BLDR_SYSTEM_IS_OSX == true ]]
 then
      pkg_file="$pkg_name-v$pkg_vers-osx.tar.gz"
 else

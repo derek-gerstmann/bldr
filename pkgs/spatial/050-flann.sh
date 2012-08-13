@@ -10,41 +10,26 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_ctry="toolkits"
-pkg_name="qt4"
-pkg_vers="4.8.2"
-pkg_info="Qt is a cross-platform application and UI framework for developers using C++ or QML, a CSS & JavaScript like language."
+pkg_ctry="spatial"
+pkg_name="flann"
+pkg_vers="1.7.x"
 
-pkg_desc="Qt is a cross-platform application and UI framework for developers using C++ or QML, a CSS & JavaScript like language"
+pkg_info="FLANN is a library for performing fast approximate nearest neighbor searches in high dimensional spaces."
 
-pkg_file="$pkg_name-everywhere-opensource-src-$pkg_vers.tar.gz"
-pkg_urls="http://releases.qt-project.org/qt4/source/$pkg_file"
-pkg_opts="configure disable-xcode-cflags disable-xcode-ldflags"
-pkg_reqs=""
-pkg_uses=""
+pkg_desc="FLANN is a library for performing fast approximate nearest neighbor searches in 
+high dimensional spaces. It contains a collection of algorithms we found to work best for 
+nearest neighbor search and a system for automatically choosing the best algorithm and 
+optimum parameters depending on the dataset. FLANN is written in C++ and contains bindings 
+for the following languages: C, MATLAB and Python."
 
+pkg_file="$pkg_name-$pkg_vers.tar.bz2"
+pkg_urls="git://github.com/mariusmuja/flann.git"
+pkg_opts="cmake"
+pkg_uses="python/2.7.3"
+pkg_reqs="$pkg_reqs"
+pkg_cfg="-DBUILD_MATLAB_BINDINGS=OFF"
 pkg_cflags=""
 pkg_ldflags=""
-
-pkg_cfg="-opensource -release -continue -silent -confirm-license"
-
-if [ $BLDR_SYSTEM_IS_OSX == true ]
-then
-     pkg_cfg="$pkg_cfg -arch $BLDR_OSX_ARCHITECTURES" 
-     pkg_cfg="$pkg_cfg -no-framework -static"
-fi
-
-pkg_cfg="$pkg_cfg -no-cups"
-pkg_cfg="$pkg_cfg -no-javascript-jit"
-pkg_cfg="$pkg_cfg -no-audio-backend"
-pkg_cfg="$pkg_cfg -no-svg"
-pkg_cfg="$pkg_cfg -no-openssl"
-pkg_cfg="$pkg_cfg -no-qt3support"
-pkg_cfg="$pkg_cfg -no-webkit"
-pkg_cfg="$pkg_cfg -no-sql-sqlite"
-pkg_cfg="$pkg_cfg -qt-libjpeg"
-pkg_cfg="$pkg_cfg -make libs"
-pkg_cfg="$pkg_cfg -make tools"
 
 ####################################################################################################
 # build and install pkg as local module

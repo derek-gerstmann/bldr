@@ -40,12 +40,24 @@ Kyoto Tycoon is a free software licensed under the GNU General Public License."
 
 pkg_reqs="kyoto-cabinet/latest lua/latest"
 pkg_uses="$pkg_reqs"
-pkg_cflags="-I$BLDR_LOCAL_PATH/languages/lua/latest/include"
-pkg_ldflags="-L$BLDR_LOCAL_PATH/languages/lua/latest/lib"
+
+####################################################################################################
+# satisfy pkg dependencies and load their environment settings
+####################################################################################################
+
+bldr_satisfy_pkg --category    "$pkg_ctry"    \
+                 --name        "$pkg_name"    \
+                 --version     "$pkg_vers"    \
+                 --requires    "$pkg_reqs"    \
+                 --uses        "$pkg_uses"    \
+                 --options     "$pkg_opts"
+
+####################################################################################################
+
 pkg_cfg=""
 pkg_cfg="$pkg_cfg --enable-lua"
-pkg_cfg="$pkg_cfg --with-lua=$BLDR_LOCAL_PATH/languages/lua/latest"
-pkg_cfg="$pkg_cfg --with-kc=$BLDR_LOCAL_PATH/databases/kyoto-cabinet/latest"
+pkg_cfg="$pkg_cfg --with-lua=\"$BLDR_LUA_BASE_PATH\""
+pkg_cfg="$pkg_cfg --with-kc=\"$BLDR_KYOTO_CABINET_BASE_PATH\""
 pkg_cfg_path=""
 
 ####################################################################################################

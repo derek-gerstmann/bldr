@@ -34,26 +34,20 @@ pkg_file="$pkg_name-$pkg_vers.tar.gz"
 pkg_urls="http://www.bastoul.net/cloog/pages/download/count.php3?url=./$pkg_file"
 pkg_opts="configure force-bootstrap"
 
-pkg_reqs="gmp/latest isl/latest osl/latest zlib/latest"
+pkg_reqs=""
+pkg_reqs="$pkg_reqs gmp/latest"
+pkg_reqs="$pkg_reqs isl/latest"
+pkg_reqs="$pkg_reqs osl/latest"
+pkg_reqs="$pkg_reqs zlib/latest"
 pkg_uses="$pkg_reqs"
+pkg_cflags=""
+pkg_ldflags=""
 
-pkg_cflags="-I$BLDR_LOCAL_PATH/compression/zlib/latest/include"
-pkg_ldflags="-L$BLDR_LOCAL_PATH/compression/zlib/latest/lib"
-
-pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/numerics/gmp/latest/include"
-pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/numerics/gmp/latest/lib"
-
-pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/numerics/isl/latest/include"
-pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/numerics/isl/latest/lib"
-
-pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/compilers/osl/latest/include"
-pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/compilers/osl/latest/lib"
-
-pkg_cfg="--with-gmp=$BLDR_LOCAL_PATH/numerics/gmp/latest"
+pkg_cfg=""
+pkg_cfg="$pkg_cfg --with-gmp=$BLDR_LOCAL_PATH/numerics/gmp/latest"
 pkg_cfg="$pkg_cfg --with-isl=$BLDR_LOCAL_PATH/numerics/isl/latest"
 pkg_cfg="$pkg_cfg --with-osl=$BLDR_LOCAL_PATH/compilers/osl/latest"
 pkg_patch=""
-
 
 ####################################################################################################
 # build and install pkg as local module

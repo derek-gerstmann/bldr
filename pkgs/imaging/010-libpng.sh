@@ -10,6 +10,7 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
+pkg_ctry="imaging"
 pkg_name="libpng"
 pkg_vers="1.5.12"
 
@@ -24,15 +25,31 @@ pkg_urls="http://prdownloads.sourceforge.net/libpng/$pkg_file?download"
 pkg_opts="configure"
 pkg_reqs="zlib/latest"
 pkg_uses="$pkg_reqs"
-pkg_cflags="-I$BLDR_LOCAL_PATH/compression/zlib/latest/include"
-pkg_ldflags="-L$BLDR_LOCAL_PATH/compression/zlib/latest/lib"
-pkg_cfg="--with-zlib-prefix=$BLDR_LOCAL_PATH/compression/zlib/latest --with-pkgconfigdir=$PKG_CONFIG_PATH"
+
+####################################################################################################
+# satisfy pkg dependencies and load their environment settings
+####################################################################################################
+
+bldr_satisfy_pkg --category    "$pkg_ctry"    \
+                 --name        "$pkg_name"    \
+                 --version     "$pkg_vers"    \
+                 --requires    "$pkg_reqs"    \
+                 --uses        "$pkg_uses"    \
+                 --options     "$pkg_opts"
+
+####################################################################################################
+
+pkg_cfg=""
+pkg_cfg="$pkg_cfg --with-zlib-prefix=\"$BLDR_ZLIB_BASE_PATH\""
+pkg_cfg="$pkg_cfg --with-pkgconfigdir=$PKG_CONFIG_PATH"
+pkg_cflags=""
+pkg_ldflags=""
 
 ####################################################################################################
 # build and install pkg as local module
 ####################################################################################################
 
-bldr_build_pkg --category    "imaging"      \
+bldr_build_pkg --category    "$pkg_ctry"    \
                --name        "$pkg_name"    \
                --version     "$pkg_vers"    \
                --info        "$pkg_info"    \

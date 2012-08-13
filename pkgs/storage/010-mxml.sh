@@ -10,41 +10,29 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_ctry="toolkits"
-pkg_name="qt4"
-pkg_vers="4.8.2"
-pkg_info="Qt is a cross-platform application and UI framework for developers using C++ or QML, a CSS & JavaScript like language."
+pkg_ctry="storage"
+pkg_name="mxml"
+pkg_vers="2.7"
+pkg_info="Mini-XML is a small XML library that you can use to read and write XML and XML-like data files in your application without requiring large non-standard libraries."
 
-pkg_desc="Qt is a cross-platform application and UI framework for developers using C++ or QML, a CSS & JavaScript like language"
+pkg_desc="Mini-XML is a small XML library that you can use to read and write XML and XML-like 
+data files in your application without requiring large non-standard libraries. Mini-XML only 
+requires an ANSI C compatible compiler (GCC works, as do most vendors' ANSI C compilers) and 
+a 'make' program.
 
-pkg_file="$pkg_name-everywhere-opensource-src-$pkg_vers.tar.gz"
-pkg_urls="http://releases.qt-project.org/qt4/source/$pkg_file"
-pkg_opts="configure disable-xcode-cflags disable-xcode-ldflags"
+Mini-XML supports reading of UTF-8 and UTF-16 and writing of UTF-8 encoded XML files and 
+strings. Data is stored in a linked-list tree structure, preserving the XML data hierarchy, 
+and arbitrary element names, attributes, and attribute values are supported with no preset 
+limits, just available memory."
+
+pkg_file="$pkg_name-$pkg_vers.tar.gz"
+pkg_urls="http://ftp.easysw.com/pub/$pkg_name/$pkg_vers/$pkg_file"
+pkg_opts="configure"
 pkg_reqs=""
 pkg_uses=""
-
 pkg_cflags=""
 pkg_ldflags=""
-
-pkg_cfg="-opensource -release -continue -silent -confirm-license"
-
-if [ $BLDR_SYSTEM_IS_OSX == true ]
-then
-     pkg_cfg="$pkg_cfg -arch $BLDR_OSX_ARCHITECTURES" 
-     pkg_cfg="$pkg_cfg -no-framework -static"
-fi
-
-pkg_cfg="$pkg_cfg -no-cups"
-pkg_cfg="$pkg_cfg -no-javascript-jit"
-pkg_cfg="$pkg_cfg -no-audio-backend"
-pkg_cfg="$pkg_cfg -no-svg"
-pkg_cfg="$pkg_cfg -no-openssl"
-pkg_cfg="$pkg_cfg -no-qt3support"
-pkg_cfg="$pkg_cfg -no-webkit"
-pkg_cfg="$pkg_cfg -no-sql-sqlite"
-pkg_cfg="$pkg_cfg -qt-libjpeg"
-pkg_cfg="$pkg_cfg -make libs"
-pkg_cfg="$pkg_cfg -make tools"
+pkg_cfg="" 
 
 ####################################################################################################
 # build and install pkg as local module

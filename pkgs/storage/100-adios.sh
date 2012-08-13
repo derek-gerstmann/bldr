@@ -10,7 +10,7 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_ctry="cluster"
+pkg_ctry="storage"
 pkg_name="adios"
 pkg_vers="1.4.0"
 
@@ -34,12 +34,10 @@ pkg_ldflags=""
 
 ####################################################################################################
 
-pkg_cfg="$pkg_cfg --with-mxml=$BLDR_LOCAL_PATH/developer/mxml/latest"
+pkg_cfg="$pkg_cfg --with-mxml=$BLDR_LOCAL_PATH/storage/mxml/latest"
 
 if [[ $BLDR_SYSTEM_IS_OSX == true ]]; then
      pkg_reqs="$pkg_reqs openmpi/latest"     
-     pkg_cflags="-I$BLDR_LOCAL_PATH/cluster/openmpi/latest/include"
-     pkg_ldflags="-L$BLDR_LOCAL_PATH/cluster/openmpi/latest/lib"
 fi
 
 if [[ -x $(which "mpif90") ]]; then
@@ -48,12 +46,6 @@ if [[ -x $(which "mpif90") ]]; then
 else
      pkg_cfg="--disable-fortran"
 fi
-
-pkg_cflags="$pkg_cflags -I$BLDR_LOCAL_PATH/storage/phdf5/latest/include"
-pkg_ldflags="$pkg_ldflags -L$BLDR_LOCAL_PATH/storage/phdf5/latest/lib"
-
-pkg_cflags="$pkg_cflags -I$BLDR_LOCAL_PATH/storage/pnetcdf/latest/include"
-pkg_ldflags="$pkg_ldflags -L$BLDR_LOCAL_PATH/storage/pnetcdf/latest/lib"
 
 pkg_cfg="$pkg_cfg --with-phdf5=$BLDR_LOCAL_PATH/storage/phdf5/latest"
 pkg_cfg="$pkg_cfg --with-phdf5-incdir=$BLDR_LOCAL_PATH/storage/phdf5/latest/include"

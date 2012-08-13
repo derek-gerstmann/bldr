@@ -32,18 +32,33 @@ proposed for TR2."
 
 pkg_file="boost_1_50_0.tar.bz2"
 pkg_urls="http://sourceforge.net/projects/boost/files/$pkg_name/$pkg_vers/$pkg_file/download"
-pkg_opts="configure force-static skip-auto-compile-flags"
+pkg_opts="configure skip-config force-static skip-auto-compile-flags"
 pkg_reqs="zlib/latest bzip2/latest libicu/latest"
 pkg_uses="$pkg_reqs"
+
+####################################################################################################
+# satisfy pkg dependencies and load their environment settings
+####################################################################################################
+
+bldr_satisfy_pkg --category    "$pkg_ctry"    \
+                 --name        "$pkg_name"    \
+                 --version     "$pkg_vers"    \
+                 --requires    "$pkg_reqs"    \
+                 --uses        "$pkg_uses"    \
+                 --options     "$pkg_opts"
+
+####################################################################################################
+
+pkg_cfg=""
+pkg_cfg="variant=release link=static threading=multi runtime-link=static"
+pkg_cfg="$pkg_cfg -s ICU_PATH=\"$BLDR_LIBICU_BASE_PATH\""
+pkg_cfg="$pkg_cfg -s BZIP2_INCLUDE=\"$BLDR_BZIP2_INCLUDE_PATH\""
+pkg_cfg="$pkg_cfg -s BZIP2_LIBPATH=\"$BLDR_BZIP2_LIB_PATH\""
+pkg_cfg="$pkg_cfg -s ZLIB_INCLUDE=\"$BLDR_ZLIB_INCLUDE_PATH\""
+pkg_cfg="$pkg_cfg -s ZLIB_LIBPATH=\"$BLDR_ZLIB_LIB_PATH\""
+
 pkg_cflags=""
 pkg_ldflags=""
-
-pkg_cfg="variant=release link=static threading=multi runtime-link=static"
-pkg_cfg="$pkg_cfg -s ICU_PATH=$BLDR_LOCAL_PATH/text/libicu/latest"
-pkg_cfg="$pkg_cfg -s BZIP2_INCLUDE=$BLDR_LOCAL_PATH/internal/bzip2/latest/include"
-pkg_cfg="$pkg_cfg -s BZIP2_LIBPATH=$BLDR_LOCAL_PATH/internal/bzip2/latest/lib"
-pkg_cfg="$pkg_cfg -s ZLIB_INCLUDE=$BLDR_LOCAL_PATH/compression/zlib/latest/include"
-pkg_cfg="$pkg_cfg -s ZLIB_LIBPATH=$BLDR_LOCAL_PATH/compression/zlib/latest/lib"
 
 ####################################################################################################
 

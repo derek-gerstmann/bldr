@@ -10,41 +10,29 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_ctry="toolkits"
-pkg_name="qt4"
-pkg_vers="4.8.2"
-pkg_info="Qt is a cross-platform application and UI framework for developers using C++ or QML, a CSS & JavaScript like language."
+pkg_ctry="compilers"
+pkg_name="swig"
+pkg_vers="1.9"
+pkg_info="SWIG is an interface compiler that connects programs written in C and C++ with scripting languages such as Perl, Python, Ruby, and Tcl."
 
-pkg_desc="Qt is a cross-platform application and UI framework for developers using C++ or QML, a CSS & JavaScript like language"
+pkg_desc="SWIG is an interface compiler that connects programs written in C and C++ with 
+scripting languages such as Perl, Python, Ruby, and Tcl. It works by taking the declarations 
+found in C/C++ header files and using them to generate the wrapper code that scripting 
+languages need to access the underlying C/C++ code. In addition, SWIG provides a variety 
+of customization features that let you tailor the wrapping process to suit your application.
 
-pkg_file="$pkg_name-everywhere-opensource-src-$pkg_vers.tar.gz"
-pkg_urls="http://releases.qt-project.org/qt4/source/$pkg_file"
-pkg_opts="configure disable-xcode-cflags disable-xcode-ldflags"
+John Ousterhout (creator of Tcl) has written a paper that describes the benefits of 
+scripting languages. SWIG makes it fairly easy to connect scripting languages with 
+C/C++ code."
+
+pkg_file="$pkg_name-$pkg_vers.tar.gz"
+pkg_urls="http://prdownloads.sourceforge.net/$pkg_name/$pkg_file"
+pkg_opts="configure"
 pkg_reqs=""
 pkg_uses=""
-
 pkg_cflags=""
 pkg_ldflags=""
-
-pkg_cfg="-opensource -release -continue -silent -confirm-license"
-
-if [ $BLDR_SYSTEM_IS_OSX == true ]
-then
-     pkg_cfg="$pkg_cfg -arch $BLDR_OSX_ARCHITECTURES" 
-     pkg_cfg="$pkg_cfg -no-framework -static"
-fi
-
-pkg_cfg="$pkg_cfg -no-cups"
-pkg_cfg="$pkg_cfg -no-javascript-jit"
-pkg_cfg="$pkg_cfg -no-audio-backend"
-pkg_cfg="$pkg_cfg -no-svg"
-pkg_cfg="$pkg_cfg -no-openssl"
-pkg_cfg="$pkg_cfg -no-qt3support"
-pkg_cfg="$pkg_cfg -no-webkit"
-pkg_cfg="$pkg_cfg -no-sql-sqlite"
-pkg_cfg="$pkg_cfg -qt-libjpeg"
-pkg_cfg="$pkg_cfg -make libs"
-pkg_cfg="$pkg_cfg -make tools"
+pkg_cfg="" 
 
 ####################################################################################################
 # build and install pkg as local module

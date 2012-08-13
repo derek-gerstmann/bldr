@@ -10,26 +10,29 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_ctry="internal"
-pkg_name="tar"
-pkg_vers="1.26"
+pkg_ctry="text"
+pkg_name="pcre"
+pkg_vers="8.31"
+pkg_info="The PCRE package contains Perl Compatible Regular Expression libraries."
 
-pkg_info="GNU tar creates and manipulates archives which are actually collections of many other files."
+pkg_desc="The PCRE package contains Perl Compatible Regular Expression libraries. 
 
-pkg_desc="GNU tar creates and manipulates archives which are actually collections of many other files; 
-the program provides users with an organized and systematic method for controlling a large amount 
-of data. The name “tar” originally came from the phrase 'Tape ARchive', but archives need not 
-(and these days, typically do not) reside on tapes."
+These are useful for implementing regular expression pattern matching using the same 
+syntax and semantics as Perl 5. "
 
-pkg_file="$pkg_name-$pkg_vers.tar.gz"
-pkg_urls="http://ftp.gnu.org/gnu/tar/$pkg_file"
+pkg_file="$pkg_name-$pkg_vers.tar.bz2"
+pkg_urls="ftp://ftp.csx.cam.ac.uk/pub/software/programming/$pkg_name/$pkg_file"
 pkg_opts="configure"
-pkg_reqs="coreutils/latest xz/latest zlib/latest gzip/latest bzip2/latest"
+pkg_reqs="zlib/latest bzip2/latest"
 pkg_uses="$pkg_reqs"
-pkg_cfg="--with-xz=$BLDR_LOCAL_PATH/compression/xz/latest/bin/xz"
-pkg_cfg="$pkg_cfg --with-lzip=$BLDR_LOCAL_PATH/compression/zlib/latest/lib/libz.a"
-pkg_cfg="$pkg_cfg --with-gzip=$BLDR_LOCAL_PATH/compression/gzip/latest/bin/gzip"
-pkg_cfg="$pkg_cfg --with-bzip2=$BLDR_LOCAL_PATH/compression/bzip2/latest/bin/bzip2"
+pkg_cfg="$pkg_cfg --enable-static"
+pkg_cfg="$pkg_cfg --enable-shared"
+pkg_cfg="$pkg_cfg --enable-pcregrep-libz"
+pkg_cfg="$pkg_cfg --enable-pcregrep-libbz2"
+pkg_cfg="$pkg_cfg --enable-utf"
+pkg_cfg="$pkg_cfg --enable-unicode-properties"
+pkg_cflags=""
+pkg_ldflags=""
 
 ####################################################################################################
 # build and install pkg as local module

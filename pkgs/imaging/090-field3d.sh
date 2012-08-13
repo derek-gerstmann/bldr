@@ -28,7 +28,7 @@ pkg_reqs=""
 pkg_cflags=""
 pkg_ldflags=""
 
-dep_list="compression/zlib internal/bzip2 developer/libxml2"
+dep_list="compression/zlib internal/bzip2 formats/libxml2"
 dep_list="$dep_list compression/szip storage/hdf5"
 dep_list="$dep_list developer/boost graphics/glew"
 dep_list="$dep_list imaging/lcms2 imaging/ilmbase imaging/openexr"

@@ -10,26 +10,43 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_ctry="graphics"
-pkg_name="glew"
-pkg_vers="1.8.0"
+pkg_ctry="toolkits"
+pkg_name="qt5"
+pkg_vers="trunk"
+pkg_info="Qt is a cross-platform application and UI framework for developers using C++ or QML, 
+a CSS & JavaScript like language."
 
-pkg_info="The OpenGL Extension Wrangler Library (GLEW) is a cross-platform open-source C/C++ extension loading library."
+pkg_desc="Qt is a cross-platform application and UI framework for developers using C++ or QML, 
+a CSS & JavaScript like language"
 
-pkg_desc="The OpenGL Extension Wrangler Library (GLEW) is a cross-platform open-source C/C++ 
-extension loading library. GLEW provides efficient run-time mechanisms for determining which 
-OpenGL extensions are supported on the target platform. OpenGL core and extension functionality 
-is exposed in a single header file. GLEW has been tested on a variety of operating systems, 
-including Windows, Linux, Mac OS X, FreeBSD, Irix, and Solaris. "
+# pkg_file="$pkg_name-$pkg_vers-$BLDR_TIMESTAMP.tar.bz2"
+pkg_file="$pkg_name-$pkg_vers.tar.bz2"
+pkg_urls="git://gitorious.org/qt/qt5.git"
+pkg_opts="configure disable-xcode-cflags disable-xcode-ldflags"
 
-pkg_file="$pkg_name-$pkg_vers.tgz"
-pkg_urls="http://sourceforge.net/projects/glew/files/$pkg_name/$pkg_vers/$pkg_file/download"
-pkg_opts="configure skip-install skip-config"
-pkg_uses=""
-pkg_reqs=""
-pkg_cfg=""
+pkg_reqs="bison/latest"
+pkg_reqs="$pkg_reqs flex/latest"
+pkg_reqs="$pkg_reqs gperf/latest"
+pkg_reqs="$pkg_reqs openssl/latest"
+pkg_reqs="$pkg_reqs libicu/latest"
+pkg_reqs="$pkg_reqs libedit/latest"
+pkg_reqs="$pkg_reqs perl/latest"
+pkg_reqs="$pkg_reqs python/2.7.3"
+pkg_uses="$pkg_reqs"
+
 pkg_cflags=""
 pkg_ldflags=""
+
+pkg_cfg="-opensource -release -continue -silent -confirm-license"
+
+if [ $BLDR_SYSTEM_IS_OSX == true ]
+then
+     pkg_cfg="$pkg_cfg -arch $BLDR_OSX_ARCHITECTURES" 
+     pkg_cfg="$pkg_cfg -no-framework -static"
+fi
+
+pkg_cfg="$pkg_cfg -make libs"
+pkg_cfg="$pkg_cfg -make tools"
 
 ####################################################################################################
 
@@ -48,6 +65,7 @@ function bldr_pkg_boot_method()
     local pkg_opts=""
     local pkg_cflags=""
     local pkg_ldflags=""
+    local pkg_patches=""
     local pkg_cfg=""
     local pkg_cfg_path=""
 
@@ -65,7 +83,7 @@ function bldr_pkg_boot_method()
            --config-path)   pkg_cfg_path="$2"; shift 2;;
            --cflags)        pkg_cflags="$pkg_cflags:$2"; shift 2;;
            --ldflags)       pkg_ldflags="$pkg_ldflags:$2"; shift 2;;
-           --patch)         pkg_patches="$pkg_patches:$2"; shift 2;;
+           --patch)         pkg_patches="$2"; shift 2;;
            --uses)          pkg_uses="$pkg_uses:$2"; shift 2;;
            --requires)      pkg_reqs="$pkg_reqs:$2"; shift 2;;
            --url)           pkg_urls="$pkg_urls;$2"; shift 2;;
@@ -78,39 +96,35 @@ function bldr_pkg_boot_method()
         BLDR_VERBOSE=true
     fi
 
-    local prefix="$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
-    local base="$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name"
+     bldr_boot_pkg                      \
+          --category    "$pkg_ctry"     \
+          --name        "$pkg_name"     \
+          --version     "$pkg_vers"     \
+          --file        "$pkg_file"     \
+          --url         "$pkg_urls"     \
+          --uses        "$pkg_uses"     \
+          --requires    "$pkg_reqs"     \
+          --options     "$pkg_opts"     \
+          --cflags      "$pkg_cflags"   \
+          --ldflags     "$pkg_ldflags"  \
+          --patch       "$pkg_patches"  \
+          --config      "$pkg_cfg"      \
+          --config-path "$pkg_cfg_path" \
+          --verbose     "$use_verbose"
 
-    bldr_log_status "Booting package '$pkg_name/$pkg_vers'"
-    bldr_log_split
-    
-    bldr_log_info "Moving to boot path: '$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/auto' ..."
-    bldr_log_split
-    bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/auto"
+     bldr_log_status "Initialising repository '$pkg_name/$pkg_vers'"
+     bldr_log_split
 
-    local output=$(bldr_get_stdout)
-    local options="--stop"
-    if [ $BLDR_VERBOSE != true ]
-    then
-        options="--quiet $options"
-    fi
+     bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
+     local boot_cmd="perl init-repository"
+     bldr_run_cmd "$boot_cmd"
 
-    if [ -f "./Makefile" ]
-    then
-        bldr_log_cmd "make $options"
-        bldr_log_split
+     unset QTDIR
+     export PATH="$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/qtbase/bin:$PATH"
+     export PATH="$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/qtrepotools/bin:$PATH"
 
-        if [ $BLDR_VERBOSE != false ]
-        then
-            eval make $options || bldr_bail "Failed to boot package: '$prefix'"
-            bldr_log_split
-        else
-            eval make $options &> /dev/null || bldr_bail "Failed to boot package: '$prefix'"
-        fi
-    fi
-    bldr_pop_dir
+     bldr_pop_dir
 }
-
 
 ####################################################################################################
 
@@ -129,6 +143,7 @@ function bldr_pkg_compile_method()
     local pkg_opts=""
     local pkg_cflags=""
     local pkg_ldflags=""
+    local pkg_patches=""
     local pkg_cfg=""
     local pkg_cfg_path=""
 
@@ -146,7 +161,7 @@ function bldr_pkg_compile_method()
            --config-path)   pkg_cfg_path="$2"; shift 2;;
            --cflags)        pkg_cflags="$pkg_cflags:$2"; shift 2;;
            --ldflags)       pkg_ldflags="$pkg_ldflags:$2"; shift 2;;
-           --patch)         pkg_patches="$pkg_patches:$2"; shift 2;;
+           --patch)         pkg_patches="$2"; shift 2;;
            --uses)          pkg_uses="$pkg_uses:$2"; shift 2;;
            --requires)      pkg_reqs="$pkg_reqs:$2"; shift 2;;
            --url)           pkg_urls="$pkg_urls;$2"; shift 2;;
@@ -159,68 +174,35 @@ function bldr_pkg_compile_method()
         BLDR_VERBOSE=true
     fi
 
-    local prefix="$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
-    local base="$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name"
+    bldr_compile_pkg                  \
+        --category    "$pkg_ctry"     \
+        --name        "$pkg_name"     \
+        --version     "$pkg_vers"     \
+        --file        "$pkg_file"     \
+        --url         "$pkg_urls"     \
+        --uses        "$pkg_uses"     \
+        --requires    "$pkg_reqs"     \
+        --options     "$pkg_opts"     \
+        --cflags      "$pkg_cflags"   \
+        --ldflags     "$pkg_ldflags"  \
+        --patch       "$pkg_patches"  \
+        --config      "$pkg_cfg"      \
+        --config-path "$pkg_cfg_path" \
+        --verbose     "$use_verbose"
 
-    bldr_log_status "Building package '$pkg_name/$pkg_vers'"
+    bldr_log_status "Building Webkit for '$pkg_name/$pkg_vers'"
     bldr_log_split
-    
-    bldr_log_info "Moving to build path: '$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers' ..."
-    bldr_log_split
-    bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
 
-    local output=$(bldr_get_stdout)
-    local options="--stop"
-    if [ $BLDR_VERBOSE != true ]
-    then
-        options="--quiet $options"
-    fi
+    local build_path="$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
+    local install_path="$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
 
-    local glew_prefix=$prefix
-    if [ -f "./Makefile" ]
-    then
-        if [ "$BLDR_OS_IS_CENTOS" -eq 1 ]
-        then
-            local glew_sys="centos"
-            bldr_copy_file "$BLDR_PATCHES_PATH/$pkg_name/$pkg_vers/$glew_sys/Makefile.$glew_sys" "./config/Makefile.$glew_sys"
+    export WEBKITOUTPUTDIR="$prefix/qtwebkit/WebKitBuild"
 
-            bldr_log_cmd "make GLEW_PREFIX=\"$glew_prefix\" SYSTEM=\"$glew_sys\" $options"
-            bldr_log_split
-
-            if [ $BLDR_VERBOSE != false ]
-            then
-                eval make GLEW_DEST="$glew_prefix" SYSTEM="$glew_sys" $options || bail "Failed to build package: '$prefix'"
-                bldr_log_split
-                eval make GLEW_DEST="$glew_prefix" SYSTEM="$glew_sys" $options install || bail "Failed to build package: '$prefix'"
-                bldr_log_split
-            else
-                eval make GLEW_DEST="$glew_prefix" SYSTEM="$glew_sys" $options  &> /dev/null || bail "Failed to build package: '$prefix'"
-                bldr_log_split
-                eval make GLEW_DEST="$glew_prefix" SYSTEM="$glew_sys" $options install  &> /dev/null || bail "Failed to build package: '$prefix'"
-                bldr_log_split
-            fi
-            
-        else
-            bldr_log_cmd "make GLEW_PREFIX=\"$glew_prefix\" $options"
-            bldr_log_split
-
-            if [ $BLDR_VERBOSE != false ]
-            then
-                eval make GLEW_DEST="$glew_prefix" $options || bail "Failed to build package: '$prefix'"
-                bldr_log_split
-                eval make GLEW_DEST="$glew_prefix" $options install || bail "Failed to build package: '$prefix'"
-                bldr_log_split
-            else
-                eval make GLEW_DEST="$glew_prefix" $options  &> /dev/null || bail "Failed to build package: '$prefix'"
-                bldr_log_split
-                eval make GLEW_DEST="$glew_prefix" $options install  &> /dev/null || bail "Failed to build package: '$prefix'"
-                bldr_log_split
-            fi
-        fi
-    fi
+    bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/qtwebkit"
+    local build_cmd="perl Tools/Scripts/build-webkit --qt --qmake=\"$build_path/qtbase/bin/qmake\" --install-libs=\"$install_path/lib\" --makeargs=\"$MAKEFLAGS\""
+    bldr_run_cmd "$build_cmd"
     bldr_pop_dir
 }
-
 
 ####################################################################################################
 # build and install pkg as local module

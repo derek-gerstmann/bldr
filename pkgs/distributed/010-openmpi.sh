@@ -10,7 +10,7 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_ctry="cluster"
+pkg_ctry="distributed"
 pkg_name="openmpi"
 pkg_vers="1.6"
 
@@ -27,23 +27,20 @@ science researchers."
 
 pkg_file="$pkg_name-$pkg_vers.tar.bz2"
 pkg_urls="http://www.open-mpi.org/software/ompi/v1.6/downloads/$pkg_file"
-pkg_opts="configure disable-xcode-cflags disable-xcode-ldflags"
+pkg_opts="configure skip-xcode-config"
 pkg_reqs="zlib/latest papi/latest"
 pkg_uses="$pkg_reqs"
 
-pkg_cflags="-I$BLDR_LOCAL_PATH/compression/zlib/latest/include"
-pkg_ldflags="-L$BLDR_LOCAL_PATH/compression/zlib/latest/lib"
-
-pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/system/papi/latest/include"
-pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/system/papi/latest/lib"
+pkg_cflags=""
+pkg_ldflags=""
 
 pkg_cfg="--enable-btl-openib-failover"
 pkg_cfg="$pkg_cfg --enable-heterogeneous"
 pkg_cfg="$pkg_cfg --enable-mpi-thread-multiple"
 
-if [ -d "$BLDR_LOCAL_PATH/cluster/torque/latest" ]
+if [[ -d "$BLDR_LOCAL_PATH/distributed/torque/latest" ]]
 then 
-     pkg_cfg="$pkg_cfg --with-tm=\"$BLDR_LOCAL_PATH/cluster/torque/latest\""
+     pkg_cfg="$pkg_cfg --with-tm=\"$BLDR_LOCAL_PATH/distributed/torque/latest\""
 fi
 
 #

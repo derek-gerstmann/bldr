@@ -10,41 +10,27 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_ctry="toolkits"
-pkg_name="qt4"
-pkg_vers="4.8.2"
-pkg_info="Qt is a cross-platform application and UI framework for developers using C++ or QML, a CSS & JavaScript like language."
+pkg_ctry="internal"
+pkg_name="libtool"
+pkg_vers="2.4.2"
 
-pkg_desc="Qt is a cross-platform application and UI framework for developers using C++ or QML, a CSS & JavaScript like language"
+pkg_info="GNU libtool is a generic library support script."
 
-pkg_file="$pkg_name-everywhere-opensource-src-$pkg_vers.tar.gz"
-pkg_urls="http://releases.qt-project.org/qt4/source/$pkg_file"
-pkg_opts="configure disable-xcode-cflags disable-xcode-ldflags"
-pkg_reqs=""
-pkg_uses=""
+pkg_desc="GNU libtool is a generic library support script. 
 
+Libtool hides the complexity of using shared libraries behind a consistent, portable interface. 
+
+To use libtool, add the new generic library building commands to your Makefile, Makefile.in, 
+or Makefile.am. See the documentation for details."
+
+pkg_file="$pkg_name-$pkg_vers.tar.gz"
+pkg_urls="http://ftpmirror.gnu.org/libtool/$pkg_file"
+pkg_opts="configure force-static"
+pkg_uses="m4/latest autoconf/latest automake/latest"
+pkg_reqs="$pkg_uses"
 pkg_cflags=""
 pkg_ldflags=""
-
-pkg_cfg="-opensource -release -continue -silent -confirm-license"
-
-if [ $BLDR_SYSTEM_IS_OSX == true ]
-then
-     pkg_cfg="$pkg_cfg -arch $BLDR_OSX_ARCHITECTURES" 
-     pkg_cfg="$pkg_cfg -no-framework -static"
-fi
-
-pkg_cfg="$pkg_cfg -no-cups"
-pkg_cfg="$pkg_cfg -no-javascript-jit"
-pkg_cfg="$pkg_cfg -no-audio-backend"
-pkg_cfg="$pkg_cfg -no-svg"
-pkg_cfg="$pkg_cfg -no-openssl"
-pkg_cfg="$pkg_cfg -no-qt3support"
-pkg_cfg="$pkg_cfg -no-webkit"
-pkg_cfg="$pkg_cfg -no-sql-sqlite"
-pkg_cfg="$pkg_cfg -qt-libjpeg"
-pkg_cfg="$pkg_cfg -make libs"
-pkg_cfg="$pkg_cfg -make tools"
+pkg_cfg=""
 
 ####################################################################################################
 # build and install pkg as local module
@@ -63,5 +49,3 @@ bldr_build_pkg --category    "$pkg_ctry"    \
                --cflags      "$pkg_cflags"  \
                --ldflags     "$pkg_ldflags" \
                --config      "$pkg_cfg"
-
-

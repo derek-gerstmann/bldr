@@ -10,24 +10,22 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_ctry="developer"
-pkg_name="mxml"
-pkg_vers="2.7"
-pkg_info="Mini-XML is a small XML library that you can use to read and write XML and XML-like data files in your application without requiring large non-standard libraries."
+pkg_ctry="concurrent"
+pkg_name="tbb"
+pkg_vers="4.0u5"
+pkg_info="Intel® Threading Building Blocks (Intel® TBB) offers a rich and complete approach to expressing parallelism in a C++ program."
 
-pkg_desc="Mini-XML is a small XML library that you can use to read and write XML and XML-like 
-data files in your application without requiring large non-standard libraries. Mini-XML only 
-requires an ANSI C compatible compiler (GCC works, as do most vendors' ANSI C compilers) and 
-a 'make' program.
+pkg_desc="Intel® Threading Building Blocks (Intel® TBB) offers a rich and 
+complete approach to expressing parallelism in a C++ program.
 
-Mini-XML supports reading of UTF-8 and UTF-16 and writing of UTF-8 encoded XML files and 
-strings. Data is stored in a linked-list tree structure, preserving the XML data hierarchy, 
-and arbitrary element names, attributes, and attribute values are supported with no preset 
-limits, just available memory."
+It is a library that helps you take advantage of multi-core processor performance without 
+having to be a threading expert. Intel TBB is not just a threads-replacement library. 
+It represents a higher-level, task-based parallelism that abstracts platform details 
+and threading mechanisms for scalability and performance. "
 
-pkg_file="$pkg_name-$pkg_vers.tar.gz"
-pkg_urls="http://ftp.easysw.com/pub/$pkg_name/$pkg_vers/$pkg_file"
-pkg_opts="configure"
+pkg_file="tbb40_20120613oss_src.tgz"
+pkg_urls="http://threadingbuildingblocks.org/uploads/77/187/4.0%20update%205/$pkg_file"
+pkg_opts="configure -ETBBROOT=$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
 pkg_reqs=""
 pkg_uses=""
 pkg_cflags=""

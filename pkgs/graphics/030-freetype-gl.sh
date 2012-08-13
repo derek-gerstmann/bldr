@@ -10,32 +10,28 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_name="libtool"
-pkg_vers="2.4.2"
+pkg_ctry="graphics"
+pkg_name="freetype-gl"
+pkg_vers="trunk"
 
-pkg_info="GNU libtool is a generic library support script."
+pkg_info="FreeTypeGL provides a basic typography interface to use Freetype fonts in OpenGL."
 
-pkg_desc="GNU libtool is a generic library support script. 
-
-Libtool hides the complexity of using shared libraries behind a consistent, portable interface. 
-
-To use libtool, add the new generic library building commands to your Makefile, Makefile.in, 
-or Makefile.am. See the documentation for details."
+pkg_desc="FreeTypeGL provides a basic typography interface to use Freetype fonts in OpenGL."
 
 pkg_file="$pkg_name-$pkg_vers.tar.gz"
-pkg_urls="http://ftpmirror.gnu.org/libtool/$pkg_file"
-pkg_opts="configure force-static"
-pkg_uses="m4/latest autoconf/latest automake/latest"
-pkg_reqs="$pkg_uses"
+pkg_urls="svn://freetype-gl.googlecode.com/svn/trunk"
+pkg_opts="configure skip-install migrate-build-tree"
+pkg_uses=""
+pkg_reqs=""
+pkg_cfg="--enable-shared --enable-static"
 pkg_cflags=""
 pkg_ldflags=""
-pkg_cfg=""
 
 ####################################################################################################
 # build and install pkg as local module
 ####################################################################################################
 
-bldr_build_pkg --category    "internal"     \
+bldr_build_pkg --category    "$pkg_ctry"    \
                --name        "$pkg_name"    \
                --version     "$pkg_vers"    \
                --info        "$pkg_info"    \
@@ -48,3 +44,4 @@ bldr_build_pkg --category    "internal"     \
                --cflags      "$pkg_cflags"  \
                --ldflags     "$pkg_ldflags" \
                --config      "$pkg_cfg"
+

@@ -10,41 +10,27 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_ctry="toolkits"
-pkg_name="qt4"
-pkg_vers="4.8.2"
-pkg_info="Qt is a cross-platform application and UI framework for developers using C++ or QML, a CSS & JavaScript like language."
+pkg_ctry="internal"
+pkg_name="tar"
+pkg_vers="1.26"
 
-pkg_desc="Qt is a cross-platform application and UI framework for developers using C++ or QML, a CSS & JavaScript like language"
+pkg_info="GNU tar creates and manipulates archives which are actually collections of many other files."
 
-pkg_file="$pkg_name-everywhere-opensource-src-$pkg_vers.tar.gz"
-pkg_urls="http://releases.qt-project.org/qt4/source/$pkg_file"
-pkg_opts="configure disable-xcode-cflags disable-xcode-ldflags"
-pkg_reqs=""
-pkg_uses=""
+pkg_desc="GNU tar creates and manipulates archives which are actually collections of many other files; 
+the program provides users with an organized and systematic method for controlling a large amount 
+of data. The name “tar” originally came from the phrase 'Tape ARchive', but archives need not 
+(and these days, typically do not) reside on tapes."
 
-pkg_cflags=""
-pkg_ldflags=""
-
-pkg_cfg="-opensource -release -continue -silent -confirm-license"
-
-if [ $BLDR_SYSTEM_IS_OSX == true ]
-then
-     pkg_cfg="$pkg_cfg -arch $BLDR_OSX_ARCHITECTURES" 
-     pkg_cfg="$pkg_cfg -no-framework -static"
-fi
-
-pkg_cfg="$pkg_cfg -no-cups"
-pkg_cfg="$pkg_cfg -no-javascript-jit"
-pkg_cfg="$pkg_cfg -no-audio-backend"
-pkg_cfg="$pkg_cfg -no-svg"
-pkg_cfg="$pkg_cfg -no-openssl"
-pkg_cfg="$pkg_cfg -no-qt3support"
-pkg_cfg="$pkg_cfg -no-webkit"
-pkg_cfg="$pkg_cfg -no-sql-sqlite"
-pkg_cfg="$pkg_cfg -qt-libjpeg"
-pkg_cfg="$pkg_cfg -make libs"
-pkg_cfg="$pkg_cfg -make tools"
+pkg_file="$pkg_name-$pkg_vers.tar.gz"
+pkg_urls="http://ftp.gnu.org/gnu/tar/$pkg_file"
+pkg_opts="configure"
+pkg_reqs="coreutils/latest xz/latest zlib/latest gzip/latest bzip2/latest"
+pkg_uses="$pkg_reqs"
+pkg_cfg=""
+pkg_cfg="$pkg_cfg --with-xz=$BLDR_LOCAL_PATH/compression/xz/latest/bin/xz"
+pkg_cfg="$pkg_cfg --with-lzip=$BLDR_LOCAL_PATH/compression/zlib/latest/lib/libz.a"
+pkg_cfg="$pkg_cfg --with-gzip=$BLDR_LOCAL_PATH/compression/gzip/latest/bin/gzip"
+pkg_cfg="$pkg_cfg --with-bzip2=$BLDR_LOCAL_PATH/compression/bzip2/latest/bin/bzip2"
 
 ####################################################################################################
 # build and install pkg as local module

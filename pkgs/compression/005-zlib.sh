@@ -33,7 +33,11 @@ pkg_uses="m4/latest autoconf/latest automake/latest libtool/latest"
 pkg_reqs=""
 pkg_cflags=""
 pkg_ldflags=""
-pkg_cfg="-t -64"
+pkg_cfg="-t"
+if [[ $BLDR_SYSTEM_IS_64BIT == true ]]
+then
+     pkg_cfg="$pkg_cfg -64"
+fi
 
 ####################################################################################################
 # build and install pkg as local module

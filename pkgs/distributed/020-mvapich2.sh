@@ -10,7 +10,7 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_ctry="cluster"
+pkg_ctry="distributed"
 pkg_name="mvapich2"
 pkg_vers="1.8"
 
@@ -24,18 +24,12 @@ MPI-1 features. It is based on MPICH2 and MVICH. The latest release is MVAPICH2 
 
 pkg_file="$pkg_name-latest.tar.gz"
 pkg_urls="http://mvapich.cse.ohio-state.edu/nightly/$pkg_name/branches/$pkg_vers/$pkg_file"
-pkg_opts="configure disable-xcode-cflags disable-xcode-ldflags"
-pkg_reqs="zlib/latest papi/latest hwloc/latest"
+pkg_opts="configure skip-xcode-config"
+pkg_reqs="zlib/latest papi/latest"
 pkg_uses="$pkg_reqs"
 
-pkg_cflags="-I$BLDR_LOCAL_PATH/compression/zlib/latest/include"
-pkg_ldflags="-L$BLDR_LOCAL_PATH/compression/zlib/latest/lib"
-
-pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/system/hwloc/latest/include"
-pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/system/hwloc/latest/lib"
-
-pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/system/papi/latest/include"
-pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/system/papi/latest/lib"
+pkg_cflags=""
+pkg_ldflags=""
 
 pkg_cfg=""
 if [ -d "/usr/local/cuda" ]

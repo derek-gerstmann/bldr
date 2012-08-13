@@ -11,7 +11,7 @@ source "bldr.sh"
 ####################################################################################################
 
 pkg_vers_list=("2.5.12" "4.1.0")
-pkg_ctry="cluster"
+pkg_ctry="distributed"
 pkg_name="torque"
 
 pkg_info="The TORQUE Resource Manager provides control over batch jobs and distributed computing resources."
@@ -26,26 +26,30 @@ leading government, academic, and commercial sites throughout the world.
 TORQUE may be freely used, modified, and distributed under the constraints of the included license."
 
 pkg_opts="configure disable-xcode-cflags disable-xcode-ldflags"
-pkg_reqs=""
-pkg_uses=""
+pkg_reqs="tcl/latest libxml2/latest zlib/latest hwloc/latest papi/latest openssl/latest"
+pkg_uses="$pkg_uses"
+
+####################################################################################################
+# satisfy pkg dependencies and load their environment settings
+####################################################################################################
+
+bldr_satisfy_pkg --category    "$pkg_ctry"    \
+                 --name        "$pkg_name"    \
+                 --version     "$pkg_vers"    \
+                 --requires    "$pkg_reqs"    \
+                 --uses        "$pkg_uses"    \
+                 --options     "$pkg_opts"
+
+####################################################################################################
 
 pkg_cfg=""
 pkg_cfg="$pkg_cfg --with-rcp=scp"
-pkg_cfg="$pkg_cfg --with-hwloc-path=$BLDR_LOCAL_PATH/system/hwloc/latest"
-pkg_cfg="$pkg_cfg --with-tcl=$BLDR_LOCAL_PATH/languages/tcl/latest/lib"
+pkg_cfg="$pkg_cfg --with-hwloc-path=\"$BLDR_HWLOC_BASE_PATH\""
+pkg_cfg="$pkg_cfg --with-tcl=\"$BLDR_TCL_LIB_PATH\""
 tm_cfg=$pkg_cfg
 
 pkg_cflags=""
 pkg_ldflags=""
-
-dep_list="languages/tcl developer/libxml2 compression/zlib system/hwloc system/papi network/openssl"
-for dep_pkg in $dep_list
-do
-     pkg_req_name=$(echo "$dep_pkg" | sed 's/.*\///g' )
-     pkg_reqs="$pkg_reqs $pkg_req_name/latest"
-     pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/$dep_pkg/latest/include"
-     pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/$dep_pkg/latest/lib"
-done
 
 ####################################################################################################
 # build and install each pkg version as local module

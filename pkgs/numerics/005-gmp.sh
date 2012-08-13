@@ -40,12 +40,10 @@ pkg_urls="ftp://ftp.gmplib.org/pub/$pkg_name-$pkg_vers/$pkg_file"
 pkg_opts="configure"
 pkg_reqs="pkg-config/latest zlib/latest"
 pkg_uses="$pkg_reqs"
-
-pkg_cflags="-I$BLDR_LOCAL_PATH/compression/zlib/latest/include"
-pkg_ldflags="-L$BLDR_LOCAL_PATH/compression/zlib/latest/lib:-lz"
-
 pkg_cfg="--enable-cxx"
 pkg_patch=""
+pkg_cflags=""
+pkg_ldflags=""
 
 ####################################################################################################
 # build and install pkg as local module

@@ -10,27 +10,29 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_ctry="developer"
-pkg_name="libxml2"
-pkg_vers="2.8.0"
-pkg_info="Libxml2 is the XML C parser and toolkit developed for the Gnome project"
+pkg_ctry="compilers"
+pkg_name="libelf"
+pkg_vers="0.8.13"
+pkg_info="LibELF lets you read, modify or create ELF files in an architecture-independent way."
 
-pkg_desc="Libxml2 is the XML C parser and toolkit developed for the Gnome project 
-(but usable outside of the Gnome platform), it is free software available under 
-the MIT License. XML itself is a metalanguage to design markup languages, i.e. text 
-language where semantic and structure are added to the content using extra 'markup' 
-information enclosed between angle brackets. HTML is the most well-known markup 
-language. Though the library is written in C a variety of language bindings make 
-it available in other environments."
+pkg_desc="LibELF lets you read, modify or create ELF files in an architecture-independent way. 
+
+The library takes care of size and endian issues, e.g. you can process a file for SPARC 
+processors on an Intel-based system. This library is a clean-room rewrite of the 
+System V Release 4 library and is supposed to be source code compatible with it. 
+
+It was meant primarily for porting SVR4 applications to other operating systems but 
+can also be used as the basis for new applications (and as a light-weight alternative 
+to libbfd). "
 
 pkg_file="$pkg_name-$pkg_vers.tar.gz"
-pkg_urls="http://xmlsoft.org/sources/$pkg_file"
-pkg_opts="configure"
-pkg_reqs="zlib/latest"
-pkg_uses="$pkg_reqs"
-pkg_cfg=""
+pkg_urls="http://www.mr511.de/software/$pkg_file"
+pkg_opts="configure skip-xcode-config"
+pkg_reqs=""
+pkg_uses=""
 pkg_cflags=""
 pkg_ldflags=""
+pkg_cfg="" 
 
 ####################################################################################################
 # build and install pkg as local module

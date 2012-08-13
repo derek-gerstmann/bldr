@@ -10,7 +10,7 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_ctry="developer"
+pkg_ctry="text"
 pkg_name="gettext"
 pkg_vers="0.18.1.1"
 pkg_info="GNU gettext is designed to minimize the impact of internationalization on program sources."
@@ -31,27 +31,42 @@ pkg_file="$pkg_name-$pkg_vers.tar.gz"
 pkg_urls="http://ftp.gnu.org/pub/gnu/gettext/$pkg_file"
 pkg_opts="configure"
 pkg_reqs="zlib/latest libicu/latest libxml2/latest"
+
+if [[ $BLDR_SYSTEM_IS_OSX == false ]]
+then
+     pkg_reqs="$pkg_reqs libiconv/latest"
+fi
+
 pkg_uses="$pkg_reqs"
 
-pkg_cflags="-I$BLDR_LOCAL_PATH/internal/zlib/latest/include"
-pkg_ldflags="-L$BLDR_LOCAL_PATH/internal/zlib/latest/lib"
+####################################################################################################
+# satisfy pkg dependencies and load their environment settings
+####################################################################################################
+
+bldr_satisfy_pkg --category    "$pkg_ctry"    \
+                 --name        "$pkg_name"    \
+                 --version     "$pkg_vers"    \
+                 --requires    "$pkg_reqs"    \
+                 --uses        "$pkg_uses"    \
+                 --options     "$pkg_opts"
+
+####################################################################################################
 
 pkg_cfg="--with-gnu-ld --without-emacs"
 pkg_cfg="$pkg_cfg --with-included-libunistring"
 pkg_cfg="$pkg_cfg --with-included-libcroco"
-pkg_cfg="$pkg_cfg --with-libxml2-prefix=$BLDR_LOCAL_PATH/internal/libxml2/latest"
-
-pkg_patch=""
+pkg_cfg="$pkg_cfg --with-libxml2-prefix=\"$BLDR_LIBXML2_BASE_PATH\""
 
 if [ $BLDR_SYSTEM_IS_OSX == true ]
 then
      pkg_cfg="$pkg_cfg --with-libiconv-prefix=/usr"
 else
-     pkg_reqs="$pkg_reqs libiconv/latest"
-     pkg_cfg="$pkg_cfg --with-libiconv-prefix=$BLDR_LOCAL_PATH/internal/libiconv/latest"
-     pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/internal/libiconv/latest/include"
-     pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/internal/libiconv/latest/lib"
+     pkg_cfg="$pkg_cfg --with-libiconv-prefix=\"$BLDR_LIBICONV_BASE_PATH\""
 fi
+
+pkg_patch=""
+pkg_cflags=""
+pkg_ldflags=""
 
 ####################################################################################################
 # build and install pkg as local module

@@ -39,8 +39,8 @@ pkg_opts="configure"
 pkg_reqs="zlib/latest"
 pkg_uses="$pkg_reqs"
 pkg_cfg="--enable-static --enable-shared"
-pkg_cflags="-I$BLDR_LOCAL_PATH/compression/zlib/latest/include"
-pkg_ldflags="-L$BLDR_LOCAL_PATH/compression/zlib/latest/lib"
+pkg_cflags=""
+pkg_ldflags=""
 
 ####################################################################################################
 # build and install pkg as local module

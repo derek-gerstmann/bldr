@@ -44,10 +44,10 @@ usage () {
   echo "                                                                        " >&2
   echo "OPTIONS                                                                 " >&2
   echo "  -h show help (this).                                                  " >&2
-  echo "  -v use maximum verbosity for log output.                              " >&2
-  echo "  -V report BLDR version.                                               " >&2
+  echo "  -V use maximum verbosity for log output.                              " >&2
   echo "  -c category of packages to build (use more than once to provide a list of categories)." >&2
   echo "  -n name of package to build (use more than once to provide a list of names)." >&2
+  echo "  -v specific version of package to build (default: all).               " >&2
   echo "  -o options to use for build (use more than once to provide a list of options)." >&2
   echo "                                                                        " >&2
   echo "EXAMPLES                                                                " >&2
@@ -64,6 +64,8 @@ pkg_name=""
 pkg_opts=""
 pkg_args=""
 pkg_vers=""
+use_verbose="false"
+use_debug="false"
 
 ####################################################################################################
 
@@ -91,8 +93,8 @@ eval set -- $pkg_args
 while getopts ":hdVc:n:v:o:" opt; do
     case $opt in
         h)  usage && exit 1;;
-        d)  export BLDR_DEBUG=true;;
-        V)  export BLDR_VERBOSE=true;;
+        d)  use_debug=true;;
+        V)  use_verbose=true;;
         c)  pkg_ctry="$pkg_ctry:$OPTARG" ;;
         n)  pkg_name="$pkg_name:$OPTARG" ;;
         v)  pkg_vers="$pkg_vers:$OPTARG" ;;
@@ -105,6 +107,12 @@ done
 
 ####################################################################################################
 
-bldr_build_pkgs --category "$pkg_ctry" --name "$pkg_name" --version "$pkg_vers" --options "$pkg_opts" ${pkg_args}
+bldr_build_pkgs --category "$pkg_ctry" \
+                --name     "$pkg_name" \
+                --version  "$pkg_vers" \
+                --options  "$pkg_opts" \
+                --verbose  "$use_verbose" \
+                --debug    "$use_debug" \
+                ${pkg_args}
 
 ####################################################################################################

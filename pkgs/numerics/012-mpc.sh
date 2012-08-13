@@ -35,18 +35,25 @@ pkg_opts="configure"
 pkg_reqs="gmp/latest mpfr/latest"
 pkg_uses="$pkg_reqs"
 
-pkg_cflags="-I$BLDR_LOCAL_PATH/compression/zlib/latest/include"
-pkg_ldflags="-L$BLDR_LOCAL_PATH/compression/zlib/latest/lib"
+####################################################################################################
+# satisfy pkg dependencies and load their environment settings
+####################################################################################################
 
-pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/numerics/gmp/latest/include"
-pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/numerics/gmp/latest/lib"
+bldr_satisfy_pkg --category    "$pkg_ctry"    \
+                 --name        "$pkg_name"    \
+                 --version     "$pkg_vers"    \
+                 --requires    "$pkg_reqs"    \
+                 --uses        "$pkg_uses"    \
+                 --options     "$pkg_opts"
 
-pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/numerics/mpfr/latest/include"
-pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/numerics/mpfr/latest/lib"
+####################################################################################################
 
-pkg_cfg="--with-gmp=$BLDR_LOCAL_PATH/numerics/gmp/latest"
-pkg_cfg="$pkg_cfg --with-mpfr=$BLDR_LOCAL_PATH/numerics/mpfr/latest"
+pkg_cfg="--with-gmp=\"$BLDR_GMP_BASE_PATH\""
+pkg_cfg="$pkg_cfg --with-mpfr=\"$BLDR_MPFR_BASE_PATH\""
+
 pkg_patch=""
+pkg_cflags=""
+pkg_ldflags=""
 
 ####################################################################################################
 # build and install pkg as local module

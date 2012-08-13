@@ -10,6 +10,7 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
+pkg_ctry="imaging"
 pkg_name="lcms2"
 pkg_vers="2.3"
 
@@ -33,15 +34,15 @@ pkg_urls="http://sourceforge.net/projects/lcms/files/lcms/2.3/$pkg_file?download
 pkg_opts="configure"
 pkg_reqs="zlib/latest"
 pkg_uses="$pkg_reqs"
-pkg_cflags="-I$BLDR_LOCAL_PATH/compression/zlib/latest/include"
-pkg_ldflags="-L$BLDR_LOCAL_PATH/compression/zlib/latest/lib"
+pkg_cflags=""
+pkg_ldflags=""
 pkg_cfg=""
 
 ####################################################################################################
 # build and install pkg as local module
 ####################################################################################################
 
-bldr_build_pkg --category    "imaging"      \
+bldr_build_pkg --category    "$pkg_ctry"    \
                --name        "$pkg_name"    \
                --version     "$pkg_vers"    \
                --info        "$pkg_info"    \

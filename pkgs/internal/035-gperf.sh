@@ -11,24 +11,28 @@ source "bldr.sh"
 ####################################################################################################
 
 pkg_ctry="internal"
-pkg_name="cmake"
-pkg_vers="2.8.8"
+pkg_name="gperf"
+pkg_vers="3.0.4"
 
-pkg_info="CMake is a family of tools designed to build, test and package software."
+pkg_info="GNU gperf is a perfect hash function generator."
 
-pkg_desc="CMake is a family of tools designed to build, test and package software. 
-CMake is used to control the software compilation process using simple platform 
-and compiler independent configuration files. CMake generates native makefiles 
-and workspaces that can be used in the compiler environment of your choice. "
+pkg_desc="GNU gperf is a perfect hash function generator. For a given list of strings, 
+it produces a hash function and hash table, in form of C or C++ code, for looking up a 
+value depending on the input string. The hash function is perfect, which means that 
+the hash table has no collisions, and the hash table lookup needs a single string 
+comparison only.
+
+GNU gperf is highly customizable. There are options for generating C or C++ code, 
+for emitting switch statements or nested ifs instead of a hash table, and for 
+tuning the algorithm employed by gperf.
+
+Online Manual is available at www.gnu.org/software/gperf/manual/gperf.html"
 
 pkg_file="$pkg_name-$pkg_vers.tar.gz"
-pkg_urls="http://www.cmake.org/files/v2.8/$pkg_file"
-pkg_opts="configure force-static force-bootstrap skip-config"
-pkg_uses="coreutils/latest findutils/latest diffutils/latest"
-pkg_uses="$pkg_uses patch/latest sed/latest grep/latest tar/latest"
-pkg_uses="$pkg_uses m4/latest autoconf/latest automake/latest"
-pkg_uses="$pkg_uses pkg-config/latest libtool/latest make/latest"
-pkg_reqs="$pkg_uses"
+pkg_urls="http://ftp.gnu.org/pub/gnu/$pkg_name/$pkg_file"
+pkg_opts="configure force-static"
+pkg_uses="coreutils/latest"
+pkg_reqs="coreutils/latest"
 pkg_cflags=""
 pkg_ldflags=""
 pkg_cfg=""
@@ -49,6 +53,6 @@ bldr_build_pkg --category    "$pkg_ctry"    \
                --options     "$pkg_opts"    \
                --cflags      "$pkg_cflags"  \
                --ldflags     "$pkg_ldflags" \
-               --config      "$pkg_cfg"     
+               --config      "$pkg_cfg"
 
 

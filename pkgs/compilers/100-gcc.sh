@@ -30,32 +30,20 @@ Major decisions about GCC are made by the steering committee, guided by the miss
 
 pkg_file="$pkg_name-$pkg_vers.tar.bz2"
 pkg_urls="http://ftp.tsukuba.wide.ad.jp/software/gcc/releases/$pkg_name-$pkg_vers/$pkg_file"
-pkg_opts="configure disable-xcode-cflags disable-xcode-ldflags"
+pkg_opts="configure skip-xcode-config"
 
-pkg_reqs="gmp/latest mpfr/latest mpc/latest isl/latest osl/latest cloog/latest"
+pkg_reqs="$pkg_reqs gmp/latest"
+pkg_reqs="$pkg_reqs ppl/latest"
+pkg_reqs="$pkg_reqs mpfr/latest"
+pkg_reqs="$pkg_reqs mpc/latest"
+pkg_reqs="$pkg_reqs isl/latest"
+pkg_reqs="$pkg_reqs osl/latest"
+pkg_reqs="$pkg_reqs cloog/latest"
+pkg_reqs="$pkg_reqs perl/latest"
 pkg_uses="$pkg_reqs"
 
-pkg_cflags="-I$BLDR_LOCAL_PATH/compression/zlib/latest/include"
-pkg_ldflags="-L$BLDR_LOCAL_PATH/compression/zlib/latest/lib"
-
-pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/numerics/gmp/latest/include"
-pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/numerics/gmp/latest/lib"
-
-pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/numerics/ppl/latest/include"
-pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/numerics/ppl/latest/lib"
-
-pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/numerics/mpfr/latest/include"
-pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/numerics/mpfr/latest/lib"
-
-pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/numerics/mpc/latest/include"
-pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/numerics/mpc/latest/lib"
-
-pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/numerics/isl/latest/include"
-pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/numerics/isl/latest/lib"
-
-pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/compilers/cloog/latest/include"
-pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/compilers/cloog/latest/lib"
-
+pkg_cflags=""
+pkg_ldflags=""
 pkg_cfg="--enable-checking=release"
 pkg_cfg="$pkg_cfg --enable-languages=c,c++,fortran"
 pkg_cfg="$pkg_cfg --with-gmp=$BLDR_LOCAL_PATH/numerics/gmp/latest"

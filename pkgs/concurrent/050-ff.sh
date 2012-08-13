@@ -10,29 +10,21 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_ctry="compilers"
-pkg_name="osl"
-pkg_vers="0.8.4"
-pkg_info="The OpenScop Library (OSL) is a BSD-Licensed implementation of the OpenScop specification data format."
+pkg_ctry="concurrent"
+pkg_name="ff"
+pkg_vers="2.0.0"
 
-pkg_desc="OpenScop is an open specification defining a file format and a set of data 
-structures to represent a static control part (SCoP for short), i.e., a program part 
-that can be represented in the polyhedral model. The goal of OpenScop is to provide a 
-common interface to various polyhedral compilation tools in order to simplify their 
-interaction. The OpenScop aim is to provide a stable, unified format that offers a 
-durable guarantee that a tool can use an output or provide an input to another tool 
-without breaking a tool chain because of some internal changes in one element of the 
-chain. The other promise of OpenScop is the ability to assemble or replace the basic 
-blocks of a polyhedral compilation framework at no, or at least low engineering cost. 
-The OpenScop Library, a.k.a. osl, is an example implementation of the specification 
-licensed under the 3-clause BSD licence so developers may feel free to use it in 
-their code (either by linking it or copy-pasting its code)."
+pkg_info="FastFlow is a multi-core parallel programming framework."
 
-osl-0.8.4.tar.gz
-pkg_file="$pkg_name-$pkg_vers.tar.gz"
-pkg_urls="http://www.lri.fr/~bastoul/development/openscop/docs/$pkg_file"
-pkg_opts="configure force-bootstrap"
-pkg_reqs="gmp/latest isl/latest zlib/latest"
+pkg_desc="FastFlow is a multi-core parallel programming framework 
+implemented as a C++ template library that offers a set of mechanisms 
+to support low-latency and high-bandwidth data flows in a network of 
+threads running on cache-coherent multi-core architectures."
+
+pkg_file="$pkg_name-cpp-$pkg_vers.tar.gz"
+pkg_urls="http://mc-fastflow.svn.sourceforge.net/viewvc/mc-fastflow/?view=tar"
+pkg_opts="cmake force-serial-build"
+pkg_reqs="zlib/latest bzip2/latest boost/latest gsl/latest"
 pkg_uses="$pkg_reqs"
 
 ####################################################################################################
@@ -49,12 +41,17 @@ bldr_satisfy_pkg --category    "$pkg_ctry"    \
 ####################################################################################################
 
 pkg_cfg=""
-pkg_cfg="$pkg_cfg --with-gmp=\"$BLDR_GMP_PATH\""
-pkg_cfg="$pkg_cfg --with-isl=\"$BLDR_ISL_PATH\""
+pkg_cfg="$pkg_cfg:-DBUILD_TESTS=1"
+pkg_cfg="$pkg_cfg:-DBUILD_EXAMPLES=0"
+pkg_cfg="$pkg_cfg:-DZLIB_INCLUDE_DIR=\"$BLDR_ZLIB_INCLUDE_PATH\""
+pkg_cfg="$pkg_cfg:-DZLIB_LIBRARY=\"$BLDR_ZLIB_LIB_PATH/libz.a\""
+pkg_cfg="$pkg_cfg:-DBOOST_INCLUDEDIR=\"$BLDR_BOOST_INCLUDE_PATH\""
+pkg_cfg="$pkg_cfg:-DBOOST_ROOT=\"$BLDR_BOOST_BASE_PATH\""
+pkg_cfg="$pkg_cfg:-DBoost_DIR=\"$BLDR_BOOST_BASE_PATH\""
+pkg_cfg="$pkg_cfg:-DGSL_CONFIG_EXECUTABLE=\"$BLDR_GSL_BIN_PATH/gsl-config\""
 
 pkg_cflags=""
 pkg_ldflags=""
-pkg_patch=""
 
 ####################################################################################################
 # build and install pkg as local module
@@ -70,8 +67,8 @@ bldr_build_pkg --category    "$pkg_ctry"    \
                --uses        "$pkg_uses"    \
                --requires    "$pkg_reqs"    \
                --options     "$pkg_opts"    \
-               --patch       "$pkg_patch"   \
                --cflags      "$pkg_cflags"  \
                --ldflags     "$pkg_ldflags" \
                --config      "$pkg_cfg"
 
+####################################################################################################

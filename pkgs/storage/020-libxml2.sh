@@ -10,41 +10,27 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_ctry="toolkits"
-pkg_name="qt4"
-pkg_vers="4.8.2"
-pkg_info="Qt is a cross-platform application and UI framework for developers using C++ or QML, a CSS & JavaScript like language."
+pkg_ctry="storage"
+pkg_name="libxml2"
+pkg_vers="2.8.0"
+pkg_info="Libxml2 is the XML C parser and toolkit developed for the Gnome project"
 
-pkg_desc="Qt is a cross-platform application and UI framework for developers using C++ or QML, a CSS & JavaScript like language"
+pkg_desc="Libxml2 is the XML C parser and toolkit developed for the Gnome project 
+(but usable outside of the Gnome platform), it is free software available under 
+the MIT License. XML itself is a metalanguage to design markup languages, i.e. text 
+language where semantic and structure are added to the content using extra 'markup' 
+information enclosed between angle brackets. HTML is the most well-known markup 
+language. Though the library is written in C a variety of language bindings make 
+it available in other environments."
 
-pkg_file="$pkg_name-everywhere-opensource-src-$pkg_vers.tar.gz"
-pkg_urls="http://releases.qt-project.org/qt4/source/$pkg_file"
-pkg_opts="configure disable-xcode-cflags disable-xcode-ldflags"
-pkg_reqs=""
-pkg_uses=""
-
+pkg_file="$pkg_name-$pkg_vers.tar.gz"
+pkg_urls="http://xmlsoft.org/sources/$pkg_file"
+pkg_opts="configure"
+pkg_reqs="zlib/latest"
+pkg_uses="$pkg_reqs"
+pkg_cfg=""
 pkg_cflags=""
 pkg_ldflags=""
-
-pkg_cfg="-opensource -release -continue -silent -confirm-license"
-
-if [ $BLDR_SYSTEM_IS_OSX == true ]
-then
-     pkg_cfg="$pkg_cfg -arch $BLDR_OSX_ARCHITECTURES" 
-     pkg_cfg="$pkg_cfg -no-framework -static"
-fi
-
-pkg_cfg="$pkg_cfg -no-cups"
-pkg_cfg="$pkg_cfg -no-javascript-jit"
-pkg_cfg="$pkg_cfg -no-audio-backend"
-pkg_cfg="$pkg_cfg -no-svg"
-pkg_cfg="$pkg_cfg -no-openssl"
-pkg_cfg="$pkg_cfg -no-qt3support"
-pkg_cfg="$pkg_cfg -no-webkit"
-pkg_cfg="$pkg_cfg -no-sql-sqlite"
-pkg_cfg="$pkg_cfg -qt-libjpeg"
-pkg_cfg="$pkg_cfg -make libs"
-pkg_cfg="$pkg_cfg -make tools"
 
 ####################################################################################################
 # build and install pkg as local module

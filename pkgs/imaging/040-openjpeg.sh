@@ -38,7 +38,7 @@ pkg_reqs=""
 pkg_cflags=""
 pkg_ldflags=""
 
-dep_list="compression/zlib internal/bzip2 developer/libxml2"
+dep_list="compression/zlib internal/bzip2 formats/libxml2"
 dep_list="$dep_list imaging/lcms2 imaging/libpng imaging/libjpeg imaging/libtiff"
 for dep_pkg in $dep_list
 do
