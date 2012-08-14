@@ -10,25 +10,35 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_ctry="storage"
-pkg_name="pnetcdf"
-pkg_vers="4.2.1"
+pkg_ctry="imaging"
+pkg_name="vips"
+pkg_vers="7.30.0"
 
-pkg_info="NetCDF is a set of software libraries and self-describing, machine-independent data formats that support the creation, access, and sharing of array-oriented scientific data."
+pkg_info="VIPS is an image processing library for large images."
 
-pkg_desc="NetCDF is a set of software libraries and self-describing, machine-independent data 
-formats that support the creation, access, and sharing of array-oriented scientific data.
-
-NetCDF (network Common Data Form) is a set of interfaces for array-oriented data access and 
-a freely-distributed collection of data access libraries for C, Fortran, C++, Java, 
-and other languages. The netCDF libraries support a machine-independent format for 
-representing scientific data. Together, the interfaces, libraries, and format support 
-the creation, access, and sharing of scientific data."
+pkg_desc="VIPS is a free image processing system. It is good with large images 
+(images larger than the amount of RAM you have available), with many CPUs 
+(see Benchmarks for examples of SMP scaling, VIPS is also part of the PARSEC suite), 
+for working with colour, for scientific analysis and for general research & 
+development. As well as JPEG, TIFF and PNG images, it also supports scientific 
+formats like FITS, Matlab, Analyze, PFM, Radiance and OpenSlide."
 
 pkg_file="$pkg_name-$pkg_vers.tar.gz"
-pkg_urls="http://www.unidata.ucar.edu/downloads/netcdf/ftp/$pkg_file"
+pkg_urls="http://www.vips.ecs.soton.ac.uk/supported/current/$pkg_file"
 pkg_opts="configure"
-pkg_reqs="szip/latest zlib/latest phdf5/latest openmpi/1.6"
+pkg_reqs=""
+pkg_reqs="$pkg_reqs zlib/latest"
+pkg_reqs="$pkg_reqs libtiff/latest"
+pkg_reqs="$pkg_reqs libpng/latest"
+pkg_reqs="$pkg_reqs libjpeg/latest"
+pkg_reqs="$pkg_reqs openexr/latest"
+pkg_reqs="$pkg_reqs lcms2/latest"
+pkg_reqs="$pkg_reqs cfitsio/latest"
+pkg_reqs="$pkg_reqs swig/latest"
+pkg_reqs="$pkg_reqs fftw/latest"
+pkg_reqs="$pkg_reqs orc/latest"
+pkg_reqs="$pkg_reqs gettext/latest"
+pkg_reqs="$pkg_reqs glib/latest"
 pkg_uses="$pkg_reqs"
 
 ####################################################################################################
@@ -47,18 +57,15 @@ bldr_satisfy_pkg --category    "$pkg_ctry"    \
 pkg_cflags=""
 pkg_ldflags=""
 
-if [[ $BLDR_SYSTEM_IS_OSX == true ]]; then
-    pkg_cfg="$pkg_cfg:-DMPI_INCLUDE_PATH=\"$BLDR_OPENMPI_INCLUDE_PATH\""
-else
-    pkg_cflags="$pkg_cflags:-I/opt/openmpi/1.6/include"
-    pkg_ldflags="$pkg_ldflags:-L/opt/openmpi/1.6/lib"
-    pkg_cfg="$pkg_cfg:-DMPI_INCLUDE_PATH=/opt/openmpi/1.6/include"
-fi
-
 ####################################################################################################
 
-pkg_name="pnetcdf"
-pkg_cfg="--enable-parallel --enable-netcdf4 --enable-mmap"
+pkg_cfg=""
+
+pkg_cfg="$pkg_cfg --with-tiff-includes=\"$BLDR_LIBTIFF_INCLUDE_PATH\""
+pkg_cfg="$pkg_cfg --with-tiff-libraries=\"$BLDR_LIBTIFF_LIB_PATH\""
+
+pkg_cfg="$pkg_cfg --with-jpeg-includes=\"$BLDR_LIBJPEG_INCLUDE_PATH\""
+pkg_cfg="$pkg_cfg --with-jpeg-libraries=\"$BLDR_LIBJPEG_LIB_PATH\""
 
 ####################################################################################################
 # build and install pkg as local module

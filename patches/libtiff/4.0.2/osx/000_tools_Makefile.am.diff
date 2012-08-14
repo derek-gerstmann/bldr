@@ -1,0 +1,12 @@
+--- ./cache/tiff-4.0.2/tools/Makefile.am	2007-02-25 00:03:51.000000000 +0900
++++ ./Makefile.am	2012-08-14 10:28:40.000000000 +0800
+@@ -52,9 +52,6 @@
+ 	tiffmedian \
+ 	tiffset \
+ 	tiffsplit
+-if HAVE_OPENGL
+-bin_PROGRAMS += tiffgt
+-endif
+ 
+ EXTRA_PROGRAMS = sgi2tiff sgisv ycbcr
+ 

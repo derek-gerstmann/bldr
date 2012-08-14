@@ -80,6 +80,7 @@ do
        --category) pkg_args="${pkg_args}-c ";;
        --name) pkg_args="${pkg_args}-n ";;
        --options) pkg_args="${pkg_args}-o ";;
+       --option) pkg_args="${pkg_args}-o ";;
        # pass through anything else
        *) [[ "${arg:0:1}" == "-" ]] || delim="\""
            pkg_args="${pkg_args}${delim}${arg}${delim} ";;

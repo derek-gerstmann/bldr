@@ -28,9 +28,22 @@ The Parallel-HDF5 technology suite includes:
 
 pkg_file="hdf5-$pkg_vers.tar.gz"
 pkg_urls="http://www.hdfgroup.org/ftp/HDF5/releases/$pkg_name-$pkg_vers/src/$pkg_file"
-pkg_opts="configure disable-xcode-cflags disable-xcode-ldflags"
-pkg_reqs="szip/latest zlib/latest"
+pkg_opts="configure keep-build-ctry disable-xcode-cflags disable-xcode-ldflags"
+pkg_reqs="szip/latest zlib/latest openmpi/1.6"
 pkg_uses="$pkg_reqs"
+
+####################################################################################################
+# satisfy pkg dependencies and load their environment settings
+####################################################################################################
+
+bldr_satisfy_pkg --category    "$pkg_ctry"    \
+                 --name        "$pkg_name"    \
+                 --version     "$pkg_vers"    \
+                 --requires    "$pkg_reqs"    \
+                 --uses        "$pkg_uses"    \
+                 --options     "$pkg_opts"
+
+####################################################################################################
 
 pkg_cflags=""
 pkg_ldflags=""
@@ -46,19 +59,16 @@ fi
 
 if [[ $BLDR_SYSTEM_IS_LINUX == true ]]; then
     pkg_cfg="$pkg_cfg --enable-linux-lfs"
-else
-    pkg_cfg="$pkg_cfg --enable-static-exec"
-fi
-pkg_cfg="$pkg_cfg --with-szlib=$BLDR_LOCAL_PATH/compression/szip/latest"
-pkg_cfg="$pkg_cfg --with-zlib=$BLDR_LOCAL_PATH/compression/zlib/latest"
-
-if [[ $BLDR_SYSTEM_IS_OSX == true ]]; then
-    pkg_reqs="$pkg_reqs openmpi/latest"     
-else
-    pkg_reqs="$pkg_reqs openmpi/1.6"     
+    pkg_cfg="$pkg_cfg --with-pthread=\"/usr\""
     pkg_cflags="$pkg_cflags:-I/opt/openmpi/1.6/include"
     pkg_ldflags="$pkg_ldflags:-L/opt/openmpi/1.6/lib"
+else
+    pkg_cfg="$pkg_cfg --enable-static-exec"
+    pkg_cfg="$pkg_cfg --with-pthread=\"/usr\""
 fi
+
+pkg_cfg="$pkg_cfg --with-szlib=\"$BLDR_SZIP_BASE_PATH\""
+pkg_cfg="$pkg_cfg --with-zlib=\"$BLDR_ZLIB_BASE_PATH\""
 
 hdf5_cfg="$pkg_cfg"
 

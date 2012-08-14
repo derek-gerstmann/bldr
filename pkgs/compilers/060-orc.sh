@@ -10,41 +10,29 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_ctry="toolkits"
-pkg_name="qt"
-pkg_vers="4.8.2"
-pkg_info="Qt is a cross-platform application and UI framework for developers using C++ or QML, a CSS & JavaScript like language."
+pkg_ctry="compilers"
+pkg_name="orc"
+pkg_vers="0.4.16"
+pkg_info="Orc is a just-in-time compiler implemented as a library and set of associated tools for compiling and executing simple programs that operate on arrays of data."
 
-pkg_desc="Qt is a cross-platform application and UI framework for developers using C++ or QML, a CSS & JavaScript like language"
+pkg_desc="Orc is a just-in-time compiler implemented as a library and set of 
+associated tools for compiling and executing simple programs that operate on 
+arrays of data.  Orc is unlike other general-purpose JIT engines: the Orc 
+bytecode and language is designed so that it can be readily converted into 
+SIMD instructions.  This translates to interesting language features and 
+limitations: Orc has built-in capability for SIMD-friendly operations such 
+as shuffling, saturated addition and subtraction, but only works on arrays 
+of data.  This makes Orc good for applications such as image processing, 
+audio processing, array math, and signal analysis."
 
-pkg_file="$pkg_name-everywhere-opensource-src-$pkg_vers.tar.gz"
-pkg_urls="http://releases.qt-project.org/qt4/source/$pkg_file"
-pkg_opts="configure disable-xcode-cflags disable-xcode-ldflags"
+pkg_file="$pkg_name-$pkg_vers.tar.gz"
+pkg_urls="http://code.entropywave.com/download/$pkg_name/$pkg_file"
+pkg_opts="configure"
 pkg_reqs=""
 pkg_uses=""
-
 pkg_cflags=""
 pkg_ldflags=""
-
-pkg_cfg="-opensource -release -continue -silent -confirm-license"
-
-if [ $BLDR_SYSTEM_IS_OSX == true ]
-then
-     pkg_cfg="$pkg_cfg -arch $BLDR_OSX_ARCHITECTURES" 
-     pkg_cfg="$pkg_cfg -no-framework -static"
-fi
-
-pkg_cfg="$pkg_cfg -no-cups"
-pkg_cfg="$pkg_cfg -no-javascript-jit"
-pkg_cfg="$pkg_cfg -no-audio-backend"
-pkg_cfg="$pkg_cfg -no-svg"
-pkg_cfg="$pkg_cfg -no-openssl"
-pkg_cfg="$pkg_cfg -no-qt3support"
-pkg_cfg="$pkg_cfg -no-webkit"
-pkg_cfg="$pkg_cfg -no-sql-sqlite"
-pkg_cfg="$pkg_cfg -qt-libjpeg"
-pkg_cfg="$pkg_cfg -make libs"
-pkg_cfg="$pkg_cfg -make tools"
+pkg_cfg="" 
 
 ####################################################################################################
 # build and install pkg as local module

@@ -24,18 +24,24 @@ pkg_file="$pkg_name-$pkg_vers.zip"
 pkg_urls="http://github.com/openexr/openexr/zipball/v2_beta.1"
 pkg_opts="cmake skip-boot force-serial-build"
 pkg_cfg_path="IlmBase"
-pkg_reqs=""
+pkg_reqs="zlib/latest lcms2/latest"
+pkg_uses="$pkg_reqs"
+
+####################################################################################################
+# satisfy pkg dependencies and load their environment settings
+####################################################################################################
+
+bldr_satisfy_pkg --category    "$pkg_ctry"    \
+                 --name        "$pkg_name"    \
+                 --version     "$pkg_vers"    \
+                 --requires    "$pkg_reqs"    \
+                 --uses        "$pkg_uses"    \
+                 --options     "$pkg_opts"
+
+####################################################################################################
+
 pkg_cflags=""
 pkg_ldflags=""
-
-dep_list="compression/zlib imaging/lcms2"
-for dep_pkg in $dep_list
-do
-     pkg_req_name=$(echo "$dep_pkg" | sed 's/.*\///g' )
-     pkg_reqs="$pkg_reqs $pkg_req_name/latest"
-     pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/$dep_pkg/latest/include"
-     pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/$dep_pkg/latest/lib"
-done
 
 sub_list="Half IlmThread Imath ImathTest Iex IexMath IexTest"
 for sub_inc in $sub_list
@@ -43,9 +49,8 @@ do
      pkg_cflags="$pkg_cflags:-I$BLDR_BUILD_PATH/imaging/$pkg_name/$pkg_vers/openexr/IlmBase/$sub_inc"
 done
 
-pkg_uses="$pkg_reqs"
 pkg_cfg="--disable-dependency-tracking "
-pkg_cfg="$pkg_cfg Z_CFLAGS=-I$BLDR_LOCAL_PATH/compression/zlib/latest/include"
+pkg_cfg="$pkg_cfg Z_CFLAGS=-I\"$BLDR_ZLIB_INCLUDE_PATH\""
 pkg_cfg="$pkg_cfg Z_LIBS=-lz"
 
 ####################################################################################################

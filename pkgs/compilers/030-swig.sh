@@ -12,7 +12,7 @@ source "bldr.sh"
 
 pkg_ctry="compilers"
 pkg_name="swig"
-pkg_vers="1.9"
+pkg_vers="2.0.7"
 pkg_info="SWIG is an interface compiler that connects programs written in C and C++ with scripting languages such as Perl, Python, Ruby, and Tcl."
 
 pkg_desc="SWIG is an interface compiler that connects programs written in C and C++ with 
@@ -28,7 +28,7 @@ C/C++ code."
 pkg_file="$pkg_name-$pkg_vers.tar.gz"
 pkg_urls="http://prdownloads.sourceforge.net/$pkg_name/$pkg_file"
 pkg_opts="configure"
-pkg_reqs=""
+pkg_reqs="pcre/latest"
 pkg_uses=""
 pkg_cflags=""
 pkg_ldflags=""

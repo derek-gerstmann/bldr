@@ -32,7 +32,7 @@ possible to port libtiff and additional tools on other OSes.
 The library, along with associated tool programs, should handle most of your needs for 
 reading and writing TIFF images on 32- and 64-bit machines."
 
-pkg_opts="configure"
+pkg_opts="configure keep-build-ctry"
 pkg_reqs="zlib/latest libpng/latest libjpeg/latest"
 pkg_uses="$pkg_reqs"
 

@@ -33,6 +33,7 @@ pkg_reqs="$pkg_reqs libxml2/latest"
 pkg_reqs="$pkg_reqs libffi/latest"
 pkg_reqs="$pkg_reqs gettext/latest"
 pkg_reqs="$pkg_reqs python/2.7.3"
+pkg_reqs="$pkg_reqs perl/latest"
 
 if [[ $BLDR_SYSTEM_IS_OSX == false ]]
 then
@@ -41,10 +42,27 @@ fi
 
 pkg_uses="$pkg_reqs"
 
+####################################################################################################
+# satisfy pkg dependencies and load their environment settings
+####################################################################################################
+
+bldr_satisfy_pkg --category    "$pkg_ctry"    \
+                 --name        "$pkg_name"    \
+                 --version     "$pkg_vers"    \
+                 --requires    "$pkg_reqs"    \
+                 --uses        "$pkg_uses"    \
+                 --options     "$pkg_opts"
+
+####################################################################################################
+
+pkg_cflags=""
+
 if [[ $BLDR_SYSTEM_IS_64BIT == true ]]
 then
      pkg_cflags="-m64"
 fi
+pkg_cflags="$pkg_cflags:-I\"$BLDR_GETTEXT_INCLUDE_PATH\""
+pkg_cflags="$pkg_cflags:-L\"$BLDR_GETTEXT_LIB_PATH\""
 
 pkg_cfg="--sysconfdir=$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/etc"
 pkg_cfg="$pkg_cfg --disable-maintainer-mode"
@@ -56,7 +74,6 @@ if [[ $BLDR_SYSTEM_IS_OSX == true ]]
 then
      pkg_cfg="$pkg_cfg --with-libiconv=native"
 else
-     pkg_reqs="$pkg_reqs libiconv/latest"
      pkg_cfg="$pkg_cfg --with-libiconv=gnu"
      pkg_cfg="$pkg_cfg --with-libiconv-prefix=\"$BLDR_LIBICONV_BASE_PATH\""
 fi

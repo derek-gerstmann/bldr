@@ -13,6 +13,7 @@ source "bldr.sh"
 pkg_ver_list=("1.6.10" "1.8.2" "1.8.8")
 pkg_ctry="storage"
 pkg_name="hdf5"
+pkg_vers="1.6.10"
 
 pkg_info="HDF5 is a unique technology suite that makes possible the management of extremely large and complex data collections."
 
@@ -28,9 +29,22 @@ The HDF5 technology suite includes:
 
 pkg_file="hdf5-$pkg_vers.tar.gz"
 pkg_urls="http://www.hdfgroup.org/ftp/HDF5/releases/$pkg_name-$pkg_vers/src/$pkg_file"
-pkg_opts="configure disable-xcode-cflags disable-xcode-ldflags"
+pkg_opts="configure keep-build-ctry disable-xcode-cflags disable-xcode-ldflags"
 pkg_reqs="szip/latest zlib/latest"
 pkg_uses="$pkg_reqs"
+
+####################################################################################################
+# satisfy pkg dependencies and load their environment settings
+####################################################################################################
+
+bldr_satisfy_pkg --category    "$pkg_ctry"    \
+                 --name        "$pkg_name"    \
+                 --version     "$pkg_vers"    \
+                 --requires    "$pkg_reqs"    \
+                 --uses        "$pkg_uses"    \
+                 --options     "$pkg_opts"
+
+####################################################################################################
 
 pkg_cflags=""
 pkg_ldflags=""
@@ -44,9 +58,10 @@ then
     pkg_cfg="$pkg_cfg --with-pthread=/usr"
 else
     pkg_cfg="$pkg_cfg --enable-static-exec"
+    pkg_cfg="$pkg_cfg --with-pthread=/usr"
 fi
-pkg_cfg="$pkg_cfg --with-szlib=$BLDR_LOCAL_PATH/compression/szip/latest"
-pkg_cfg="$pkg_cfg --with-zlib=$BLDR_LOCAL_PATH/compression/zlib/latest"
+pkg_cfg="$pkg_cfg --with-szlib=\"$BLDR_SZIP_BASE_PATH\""
+pkg_cfg="$pkg_cfg --with-zlib=\"$BLDR_ZLIB_BASE_PATH\""
 
 hdf5_cfg="$pkg_cfg"
 

@@ -1,0 +1,108 @@
+--- ./build/imaging/libtiff/4.0.2/tools/Makefile.in	2012-06-16 07:31:32.000000000 +0800
++++ ./Makefile.in	2012-08-14 10:40:55.000000000 +0800
+@@ -67,7 +67,6 @@
+ 	tiffcp$(EXEEXT) tiffcrop$(EXEEXT) tiffdither$(EXEEXT) \
+ 	tiffdump$(EXEEXT) tiffinfo$(EXEEXT) tiffmedian$(EXEEXT) \
+ 	tiffset$(EXEEXT) tiffsplit$(EXEEXT) $(am__EXEEXT_1)
+-@HAVE_OPENGL_TRUE@am__append_1 = tiffgt
+ EXTRA_PROGRAMS = sgi2tiff$(EXEEXT) sgisv$(EXEEXT) ycbcr$(EXEEXT)
+ subdir = tools
+ DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
+@@ -83,7 +82,6 @@
+ 	$(top_builddir)/libtiff/tiffconf.h
+ CONFIG_CLEAN_FILES =
+ CONFIG_CLEAN_VPATH_FILES =
+-@HAVE_OPENGL_TRUE@am__EXEEXT_1 = tiffgt$(EXEEXT)
+ am__installdirs = "$(DESTDIR)$(bindir)"
+ PROGRAMS = $(bin_PROGRAMS)
+ am_bmp2tiff_OBJECTS = bmp2tiff.$(OBJEXT)
+@@ -152,14 +150,7 @@
+ am_tiffdump_OBJECTS = tiffdump.$(OBJEXT)
+ tiffdump_OBJECTS = $(am_tiffdump_OBJECTS)
+ tiffdump_DEPENDENCIES = $(LIBTIFF) $(LIBPORT)
+-am_tiffgt_OBJECTS = tiffgt-tiffgt.$(OBJEXT)
+-tiffgt_OBJECTS = $(am_tiffgt_OBJECTS)
+ am__DEPENDENCIES_1 =
+-tiffgt_DEPENDENCIES = $(LIBTIFF) $(LIBPORT) $(am__DEPENDENCIES_1) \
+-	$(am__DEPENDENCIES_1)
+-tiffgt_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
+-	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(tiffgt_CFLAGS) $(CFLAGS) \
+-	$(AM_LDFLAGS) $(LDFLAGS) -o $@
+ am_tiffinfo_OBJECTS = tiffinfo.$(OBJEXT)
+ tiffinfo_OBJECTS = $(am_tiffinfo_OBJECTS)
+ tiffinfo_DEPENDENCIES = $(LIBTIFF) $(LIBPORT)
+@@ -207,7 +198,7 @@
+ 	sgi2tiff.c sgisv.c $(thumbnail_SOURCES) $(tiff2bw_SOURCES) \
+ 	$(tiff2pdf_SOURCES) $(tiff2ps_SOURCES) $(tiff2rgba_SOURCES) \
+ 	$(tiffcmp_SOURCES) $(tiffcp_SOURCES) $(tiffcrop_SOURCES) \
+-	$(tiffdither_SOURCES) $(tiffdump_SOURCES) $(tiffgt_SOURCES) \
++	$(tiffdither_SOURCES) $(tiffdump_SOURCES) \
+ 	$(tiffinfo_SOURCES) $(tiffmedian_SOURCES) $(tiffset_SOURCES) \
+ 	$(tiffsplit_SOURCES) ycbcr.c
+ DIST_SOURCES = $(bmp2tiff_SOURCES) $(fax2ps_SOURCES) \
+@@ -217,7 +208,7 @@
+ 	$(tiff2bw_SOURCES) $(tiff2pdf_SOURCES) $(tiff2ps_SOURCES) \
+ 	$(tiff2rgba_SOURCES) $(tiffcmp_SOURCES) $(tiffcp_SOURCES) \
+ 	$(tiffcrop_SOURCES) $(tiffdither_SOURCES) $(tiffdump_SOURCES) \
+-	$(tiffgt_SOURCES) $(tiffinfo_SOURCES) $(tiffmedian_SOURCES) \
++	$(tiffinfo_SOURCES) $(tiffmedian_SOURCES) \
+ 	$(tiffset_SOURCES) $(tiffsplit_SOURCES) ycbcr.c
+ ETAGS = etags
+ CTAGS = ctags
+@@ -418,9 +409,6 @@
+ tiffset_LDADD = $(LIBTIFF) $(LIBPORT)
+ tiffsplit_SOURCES = tiffsplit.c
+ tiffsplit_LDADD = $(LIBTIFF) $(LIBPORT)
+-tiffgt_SOURCES = tiffgt.c
+-tiffgt_CFLAGS = $(CFLAGS) $(GLUT_CFLAGS) $(AM_CFLAGS)
+-tiffgt_LDADD = $(LIBTIFF) $(LIBPORT) $(X_LIBS) $(GLUT_LIBS)
+ INCLUDES = -I$(top_srcdir)/libtiff
+ all: all-am
+ 
+@@ -562,9 +550,6 @@
+ tiffdump$(EXEEXT): $(tiffdump_OBJECTS) $(tiffdump_DEPENDENCIES) $(EXTRA_tiffdump_DEPENDENCIES) 
+ 	@rm -f tiffdump$(EXEEXT)
+ 	$(AM_V_CCLD)$(LINK) $(tiffdump_OBJECTS) $(tiffdump_LDADD) $(LIBS)
+-tiffgt$(EXEEXT): $(tiffgt_OBJECTS) $(tiffgt_DEPENDENCIES) $(EXTRA_tiffgt_DEPENDENCIES) 
+-	@rm -f tiffgt$(EXEEXT)
+-	$(AM_V_CCLD)$(tiffgt_LINK) $(tiffgt_OBJECTS) $(tiffgt_LDADD) $(LIBS)
+ tiffinfo$(EXEEXT): $(tiffinfo_OBJECTS) $(tiffinfo_DEPENDENCIES) $(EXTRA_tiffinfo_DEPENDENCIES) 
+ 	@rm -f tiffinfo$(EXEEXT)
+ 	$(AM_V_CCLD)$(LINK) $(tiffinfo_OBJECTS) $(tiffinfo_LDADD) $(LIBS)
+@@ -608,7 +593,6 @@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tiffcrop.Po@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tiffdither.Po@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tiffdump.Po@am__quote@
+-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tiffgt-tiffgt.Po@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tiffinfo.Po@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tiffmedian.Po@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tiffset.Po@am__quote@
+@@ -636,20 +620,6 @@
+ @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+ @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LTCOMPILE) -c -o $@ $<
+ 
+-tiffgt-tiffgt.o: tiffgt.c
+-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tiffgt_CFLAGS) $(CFLAGS) -MT tiffgt-tiffgt.o -MD -MP -MF $(DEPDIR)/tiffgt-tiffgt.Tpo -c -o tiffgt-tiffgt.o `test -f 'tiffgt.c' || echo '$(srcdir)/'`tiffgt.c
+-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/tiffgt-tiffgt.Tpo $(DEPDIR)/tiffgt-tiffgt.Po
+-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='tiffgt.c' object='tiffgt-tiffgt.o' libtool=no @AMDEPBACKSLASH@
+-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tiffgt_CFLAGS) $(CFLAGS) -c -o tiffgt-tiffgt.o `test -f 'tiffgt.c' || echo '$(srcdir)/'`tiffgt.c
+-
+-tiffgt-tiffgt.obj: tiffgt.c
+-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tiffgt_CFLAGS) $(CFLAGS) -MT tiffgt-tiffgt.obj -MD -MP -MF $(DEPDIR)/tiffgt-tiffgt.Tpo -c -o tiffgt-tiffgt.obj `if test -f 'tiffgt.c'; then $(CYGPATH_W) 'tiffgt.c'; else $(CYGPATH_W) '$(srcdir)/tiffgt.c'; fi`
+-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/tiffgt-tiffgt.Tpo $(DEPDIR)/tiffgt-tiffgt.Po
+-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='tiffgt.c' object='tiffgt-tiffgt.obj' libtool=no @AMDEPBACKSLASH@
+-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tiffgt_CFLAGS) $(CFLAGS) -c -o tiffgt-tiffgt.obj `if test -f 'tiffgt.c'; then $(CYGPATH_W) 'tiffgt.c'; else $(CYGPATH_W) '$(srcdir)/tiffgt.c'; fi`
+-
+ mostlyclean-libtool:
+ 	-rm -f *.lo
+ 
+@@ -864,7 +834,6 @@
+ 
+ echo:
+ 	(echo $(CFLAGS))
+-	(echo $(tiffgt_CFLAGS))
+ 	(echo $(GL_CFLAGS))
+ 	(echo $(GLU_CFLAGS))
+ 	(echo $(GLUT_CFLAGS))
