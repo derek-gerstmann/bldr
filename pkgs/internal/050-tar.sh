@@ -24,7 +24,7 @@ of data. The name “tar” originally came from the phrase 'Tape ARchive', but 
 pkg_file="$pkg_name-$pkg_vers.tar.gz"
 pkg_urls="http://ftp.gnu.org/gnu/tar/$pkg_file"
 pkg_opts="configure"
-pkg_reqs="coreutils/latest xz/latest zlib/latest gzip/latest bzip2/latest"
+pkg_reqs="coreutils/latest gzip/latest zlib/latest xz/latest bzip2/latest"
 pkg_uses="$pkg_reqs"
 pkg_cfg=""
 pkg_cfg="$pkg_cfg --with-xz=$BLDR_LOCAL_PATH/compression/xz/latest/bin/xz"

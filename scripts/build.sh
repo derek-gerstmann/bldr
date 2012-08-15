@@ -94,8 +94,8 @@ eval set -- $pkg_args
 while getopts ":hdVc:n:v:o:" opt; do
     case $opt in
         h)  usage && exit 1;;
-        d)  use_debug=true;;
-        V)  use_verbose=true;;
+        d)  use_debug="true";;
+        V)  use_verbose="true";;
         c)  pkg_ctry="$pkg_ctry:$OPTARG" ;;
         n)  pkg_name="$pkg_name:$OPTARG" ;;
         v)  pkg_vers="$pkg_vers:$OPTARG" ;;
@@ -105,6 +105,11 @@ while getopts ":hdVc:n:v:o:" opt; do
         *)  echo "ERROR: '-$OPTARG' is an unrecognized option! See --help!" && exit 1 ;;
     esac
 done
+
+if [[ "$use_verbose" == "true" ]]
+then
+  export BLDR_VERBOSE=true
+fi
 
 ####################################################################################################
 

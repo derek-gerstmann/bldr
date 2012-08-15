@@ -54,6 +54,17 @@ BLDR_CATEGORIES=(
     "toolkits" 
     "compilers")
 
+BLDR_MODULE_EXPORT_PATHS=(
+    "bin" "sbin" 
+    "inc" "include" 
+    "lib" "lib32" "lib64" 
+    "man" "doc" "info"
+    "share" "locale"
+    "etc" "config" 
+    "pkg-config"
+    "aclocal" 
+    "site-packages")
+
 BLDR_PARALLEL=${BLDR_PARALLEL:=true}
 BLDR_VERBOSE=${BLDR_VERBOSE:=false}
 BLDR_DEBUG=${BLDR_DEBUG:=false}
@@ -516,7 +527,7 @@ fi
 
 ####################################################################################################
 
-# setup system paths
+# export system paths
 BLDR_CONFIG_PATH=${BLDR_CONFIG_PATH:=$BLDR_ROOT_PATH}
 export BLDR_SCRIPTS_PATH="$BLDR_CONFIG_PATH/scripts"
 export BLDR_PKGS_PATH="$BLDR_CONFIG_PATH/pkgs"
@@ -526,11 +537,22 @@ export BLDR_CACHE_PATH="$BLDR_CONFIG_PATH/cache"
 export BLDR_BUILD_PATH="$BLDR_CONFIG_PATH/build"
 export BLDR_LOG_PATH="$BLDR_CONFIG_PATH/logs"
 
-# setup install paths
+# export install paths
 BLDR_INSTALL_PATH=${BLDR_INSTALL_PATH:=$BLDR_ABS_PWD}
 export BLDR_LOCAL_PATH="$BLDR_INSTALL_PATH/local"
 export BLDR_MODULE_PATH="$BLDR_INSTALL_PATH/modules"
 export BLDR_OS_LIB_EXT="a"
+
+# export env paths (for use in module files)
+export BLDR_LOCAL_ENV_PATH="env(BLDR_LOCAL_PATH)"
+export BLDR_SCRIPTS_ENV_PATH="env(BLDR_SCRIPTS_PATH)"
+export BLDR_PKGS_ENV_PATH="env(BLDR_PKGS_PATH)"
+export BLDR_PATCHES_ENV_PATH="env(BLDR_PATCHES_PATH)"
+export BLDR_SYSTEM_ENV_PATH="env(BLDR_SYSTEM_PATH)"
+export BLDR_MODULE_ENV_PATH="env(BLDR_MODULE_PATH)"
+export BLDR_CACHE_ENV_PATH="env(BLDR_CACHE_PATH)"
+export BLDR_BUILD_ENV_PATH="env(BLDR_BUILD_PATH)"
+export BLDR_LOG_ENV_PATH="env(BLDR_LOG_PATH)"
 
 ####################################################################################################
 
@@ -771,14 +793,15 @@ bldr_startup
 
 BLDR_BOOT_SEARCH_PATH=". build source src ../build ../source ../src"
 BLDR_CONFIG_SEARCH_PATH=". source src build .. ../build ../source ../src"
-BLDR_BUILD_SEARCH_PATH=". ./build ../build .. ../src ../source"
-BLDR_MAKE_SEARCH_PATH=". ./build ../build .. ../src ../source"
+BLDR_BUILD_SEARCH_PATH=". build ../build source src .. ../source ../src"
+BLDR_MAKE_SEARCH_PATH=". build ../build source src .. ../source ../src"
 
 BLDR_BOOT_FILE_SEARCH_LIST="bootstrap bootstrap.sh autogen.sh"
 BLDR_AUTOCONF_FILE_SEARCH_LIST="configure configure.sh config"
 BLDR_CMAKE_FILE_SEARCH_LIST="CMakeLists.txt cmakelists.txt"
 BLDR_MAKE_FILE_SEARCH_LIST="Makefile makefile"
 BLDR_MAVEN_FILE_SEARCH_LIST="pom.xml project.xml"
+BLDR_PYTHON_FILE_SEARCH_LIST="setup.py install.py"
 
 ####################################################################################################
 
@@ -788,52 +811,53 @@ function bldr_locate_build_path
     local mk_opts=$2
     local mk_paths=$(bldr_trim_str "$mk_srch $BLDR_BUILD_SEARCH_PATH")
     local mk_files=$BLDR_MAKE_FILE_SEARCH_LIST
-    local cmk_file=$BLDR_CMAKE_FILE_SEARCH_LIST
+    local cm_files=$BLDR_CMAKE_FILE_SEARCH_LIST
+    local ac_files=$BLDR_AUTOCONF_FILE_SEARCH_LIST
 
     local tst_path=""
     local tst_file=""
 
     local use_cmake=true
-    local use_autocfg=false
+    local use_autocfg=true
     local use_maven=false
+    local use_python=false
 
     if [[ $(bldr_has_cfg_option "$pkg_opts" "cmake" ) == "true" ]]
     then
+        use_autocfg=false
         use_cmake=true
+        use_maven=false
+        use_python=false
     
     elif [[ $(bldr_has_cfg_option "$pkg_opts" "configure" ) == "true" ]]
     then
         use_autocfg=true
+        use_cmake=false
+        use_maven=false
+        use_python=false
 
     elif [[ $(bldr_has_cfg_option "$pkg_opts" "maven" ) == "true" ]]
     then
+        use_autocfg=false
+        use_cmake=false
         use_maven=true
+        use_python=false
+
+    elif [[ $(bldr_has_cfg_option "$pkg_opts" "python" ) == "true" ]]
+    then
+        use_autocfg=false
+        use_cmake=false
+        use_maven=false
+        use_python=true
     fi
 
     local build_path=""
+    local tst_mk=""
+    local tst_cm=""
+    local tst_ac=""
     for tst_path in ${mk_paths}
     do
-        if [ -f "$tst_path/CMakeLists.txt" ] && [ -f "$tst_path/build/Makefile" ]
-        then
-            if [[ $use_cmake == true ]]
-            then
-                build_path="$tst_path/build"
-                break
-            fi
-        fi
-        if [ "$build_path" != "." ]
-        then
-            break
-        fi
-        if [ -f "$tst_path/configure" ] && [ -f "$tst_path/Makefile" ]
-        then
-            if [[ $use_autocfg == true ]]
-            then
-                build_path="."
-                break
-            fi
-        fi
-        if [ "$build_path" != "." ]
+        if [ "$build_path" != "" ]
         then
             break
         fi
@@ -845,11 +869,11 @@ function bldr_locate_build_path
                 break
             fi
         done
-        if [ "$build_path" != "." ]
+        if [ "$build_path" != "" ]
         then
             break
         fi
-        for tst_file in ${cmk_files}
+        for tst_file in ${cm_files}
         do
             if [ -f "$tst_path/$tst_file" ]
             then
@@ -857,10 +881,70 @@ function bldr_locate_build_path
                 break
             fi
         done
-        if [ "$build_path" != "." ]
+        if [ "$build_path" != "" ]
         then
             break
         fi
+        for tst_cm in ${cm_files}
+        do
+            for tst_mf in ${mk_files}
+            do
+                if [ -f "$tst_path/$tst_cm" ] && [ -f "$tst_path/build/$tst_mf" ]
+                then
+                    if [[ $use_cmake == true ]]
+                    then
+                        build_path="$tst_path/build"
+                        break
+                    fi
+                fi
+
+                if [ -f "$tst_path/$tst_cm" ] && [ -f "$tst_path/$tst_mf" ]
+                then
+                    if [[ $use_cmake == true ]]
+                    then
+                        build_path="$tst_path"
+                        break
+                    fi
+                fi
+            done
+            if [ "$build_path" != "" ]
+            then
+                break
+            fi
+        done
+
+        if [ "$build_path" != "" ]
+        then
+            break
+        fi
+
+        for tst_ac in ${ac_files}
+        do
+            for tst_mf in ${mk_files}
+            do
+                if [ -f "$tst_path/$tst_ac" ] && [ -f "$tst_path/build/$tst_mf" ]
+                then
+                    if [[ $use_autocfg == true ]]
+                    then
+                        build_path="$tst_path/build"
+                        break
+                    fi
+                fi
+
+                if [ -f "$tst_path/$tst_ac" ] && [ -f "$tst_path/$tst_mf" ]
+                then
+                    if [[ $use_autocfg == true ]]
+                    then
+                        build_path="$tst_path"
+                        break
+                    fi
+                fi
+            done
+            if [ "$build_path" != "" ]
+            then
+                break
+            fi
+        done
     done
     echo "$build_path"
 }
@@ -1008,28 +1092,40 @@ function bldr_locate_config_script
     local cmake_files=$BLDR_CMAKE_FILE_SEARCH_LIST
     local autocfg_files=$BLDR_AUTOCONF_FILE_SEARCH_LIST
     local maven_files=$BLDR_MAVEN_FILE_SEARCH_LIST
+    local python_files=$BLDR_PYTHON_FILE_SEARCH_LIST
 
     local use_cmake=true
     local use_autocfg=true
     local use_maven=true
+    local use_python=true
 
     if [[ $(echo "$cfg_opts" | grep -m1 -c "cmake" ) > 0 ]]
     then
         use_cmake=true
         use_autocfg=false
         use_maven=false
+        use_python=false
     
     elif [[ $(echo "$cfg_opts" | grep -m1 -c "config" ) > 0 ]]
     then
         use_cmake=false
         use_autocfg=true
         use_maven=false
+        use_python=false
 
     elif [[ $(echo "$cfg_opts" | grep -m1 -c "maven" ) > 0 ]]
     then
         use_cmake=false
         use_autocfg=false
         use_maven=true
+        use_python=false
+
+    elif [[ $(echo "$cfg_opts" | grep -m1 -c "python" ) > 0 ]]
+    then
+        use_cmake=false
+        use_autocfg=false
+        use_maven=false
+        use_python=true
     fi
 
     local tst_path=""
@@ -1062,6 +1158,17 @@ function bldr_locate_config_script
         if [[ $use_maven == true ]]
         then
             for tst_file in ${maven_files}
+            do
+                if [ -f "$tst_path/$tst_file" ]
+                then
+                    found_path="$tst_path/$tst_file"
+                    break
+                fi
+            done
+        fi
+        if [[ $use_python == true ]]
+        then
+            for tst_file in ${python_files}
             do
                 if [ -f "$tst_path/$tst_file" ]
                 then
@@ -1188,6 +1295,50 @@ function bldr_fetch()
     fi
 }
 
+function bldr_is_library()
+{
+    local is="false"
+    local tst="$1"
+    if [ -f $tst ] ; then
+       case $tst in
+        *.a)        is="true";;
+        *.so)       is="true";;
+        *.la)       is="true";;
+        *.dylib)    is="true";;
+        *.so.*)     is="true";;
+        *)          is="false";;
+       esac    
+    fi
+    echo "$is"
+}
+
+function bldr_strip_archive_ext()
+{
+    local archive=$1
+    local result=""
+
+    if [[ -f $archive ]]
+    then
+       case $archive in
+        *.tar.bz2)  result=$(echo ${archive%.tar.bz2} );;
+        *.tar.gz)   result=$(echo ${archive%.tar.gz} );;
+        *.tar.xz)   result=$(echo ${archive%.tar.xz} );;
+        *.bz2)      result=$(echo ${archive%.bz2} );;
+        *.rar)      result=$(echo ${archive%.rar} );;
+        *.gz)       result=$(echo ${archive%.gz} );;
+        *.tar)      result=$(echo ${archive%.tar} );;
+        *.tbz2)     result=$(echo ${archive%.tbz2} );;
+        *.tgz)      result=$(echo ${archive%.tgz} );;
+        *.zip)      result=$(echo ${archive%.zip} );;
+        *.Z)        result=$(echo ${archive%.Z} );;
+        *.7z)       result=$(echo ${archive%.7z} );;
+        *)          bldr_bail "Failed to extract archive contents '${archive}'";;
+       esac    
+    fi
+
+    echo $result
+}
+
 function bldr_get_archive_flag()
 {
     local is="z"
@@ -1230,80 +1381,6 @@ function bldr_is_valid_archive()
     echo "$is"
 }
 
-function bldr_is_library()
-{
-    local is="false"
-    local tst="$1"
-    if [ -f $tst ] ; then
-       case $tst in
-        *.a)        is="true";;
-        *.so)       is="true";;
-        *.la)       is="true";;
-        *.dylib)    is="true";;
-        *.so.*)     is="true";;
-        *)          is="false";;
-       esac    
-    fi
-    echo "$is"
-}
-
-function bldr_extract_archive()
-{
-    local archive=$1
-    local extr=$(which tar)
-
-    if [ -e $BLDR_LOCAL_PATH/gtar/latest/bin/tar ]
-    then
-        extr=$BLDR_LOCAL_PATH/gtar/latest/bin/tar
-    fi
-
-    if [[ -f $archive ]]
-    then
-       case $archive in
-        *.tar.bz2)  bldr_run_cmd "$extr xvjf ${archive}" || bldr_bail "Failed to extract archive '${archive}'";;
-        *.tar.gz)   bldr_run_cmd "$extr xvzf ${archive}" || bldr_bail "Failed to extract archive '${archive}'";;
-        *.tar.xz)   bldr_run_cmd "$extr Jxvf ${archive}" || bldr_bail "Failed to extract archive '${archive}'";;
-        *.bz2)      bldr_run_cmd "bunzip2 ${archive}" || bldr_bail "Failed to extract archive '${archive}'";;
-        *.rar)      bldr_run_cmd "unrar x ${archive}" || bldr_bail "Failed to extract archive '${archive}'";;
-        *.gz)       bldr_run_cmd "gunzip ${archive}" || bldr_bail "Failed to extract archive '${archive}'";;
-        *.tar)      bldr_run_cmd "$extr xvf ${archive}" || bldr_bail "Failed to extract archive '${archive}'";;
-        *.tbz2)     bldr_run_cmd "$extr xvjf ${archive}" || bldr_bail "Failed to extract archive '${archive}'";;
-        *.tgz)      bldr_run_cmd "$extr xvzf ${archive}" || bldr_bail "Failed to extract archive '${archive}'";;
-        *.zip)      bldr_run_cmd "unzip -uo ${archive}" || bldr_bail "Failed to extract archive '${archive}'";;
-        *.Z)        bldr_run_cmd "uncompress ${archive}" || bldr_bail "Failed to extract archive '${archive}'";;
-        *.7z)       bldr_run_cmd "7z x ${archive}" || bldr_bail "Failed to extract archive '${archive}'";;
-        *)          bldr_bail "Failed to extract archive '${archive}'";;
-       esac    
-    fi
-}
-
-function bldr_strip_archive_ext()
-{
-    local archive=$1
-    local result=""
-
-    if [[ -f $archive ]]
-    then
-       case $archive in
-        *.tar.bz2)  result=$(echo ${archive%.tar.bz2} );;
-        *.tar.gz)   result=$(echo ${archive%.tar.gz} );;
-        *.tar.xz)   result=$(echo ${archive%.tar.xz} );;
-        *.bz2)      result=$(echo ${archive%.bz2} );;
-        *.rar)      result=$(echo ${archive%.rar} );;
-        *.gz)       result=$(echo ${archive%.gz} );;
-        *.tar)      result=$(echo ${archive%.tar} );;
-        *.tbz2)     result=$(echo ${archive%.tbz2} );;
-        *.tgz)      result=$(echo ${archive%.tgz} );;
-        *.zip)      result=$(echo ${archive%.zip} );;
-        *.Z)        result=$(echo ${archive%.Z} );;
-        *.7z)       result=$(echo ${archive%.7z} );;
-        *)          bldr_bail "Failed to extract archive contents '${archive}'";;
-       esac    
-    fi
-
-    echo $result
-}
-
 function bldr_list_archive()
 {
     local archive=$1
@@ -1325,7 +1402,7 @@ function bldr_list_archive()
         *.tar)      result=$(eval $extr tf ${archive} ) || bad_archive=true;;
         *.tbz2)     result=$(eval $extr tjf ${archive} ) || bad_archive=true;;
         *.tgz)      result=$(eval $extr tzf ${archive} ) || bad_archive=true;;
-        *.zip)      result=$(eval unzip -l ${archive} ) || bad_archive=true;;
+        *.zip)      result=$(eval unzip -l ${archive} | awk '/-----/ {p = ++p % 2; next} p {print "./"$NF}' ) || bad_archive=true;;
         *)          bad_archive=true;;
        esac    
     fi
@@ -1335,6 +1412,10 @@ function bldr_list_archive()
     if [[ $bad_archive == true ]]
     then
         listing="error"
+
+    elif [[ $(echo "$result" | grep -m1 -c "^./") > 0 ]]
+    then
+        listing="$base_dir"
     
     elif [[ $(echo "$result" | grep -m1 -c "$base_dir/") > 0 ]]
     then
@@ -1344,6 +1425,37 @@ function bldr_list_archive()
         listing=$(echo "$result" | grep -E -o "(\S+)/" | sed 's/\/.*//g' | sort -u )
     fi
     echo "$listing"
+}
+
+function bldr_extract_archive()
+{
+    local archive=$1
+    local extr=$(which tar)
+
+    if [ -e $BLDR_LOCAL_PATH/gtar/latest/bin/tar ]
+    then
+        extr=$BLDR_LOCAL_PATH/gtar/latest/bin/tar
+    fi
+
+    local base_dir=$(bldr_strip_archive_ext "$archive")
+    if [[ -f $archive ]]
+    then
+       case $archive in
+        *.tar.bz2)  bldr_run_cmd "$extr xvjf ${archive}" || bldr_bail "Failed to extract archive '${archive}'";;
+        *.tar.gz)   bldr_run_cmd "$extr xvzf ${archive}" || bldr_bail "Failed to extract archive '${archive}'";;
+        *.tar.xz)   bldr_run_cmd "$extr Jxvf ${archive}" || bldr_bail "Failed to extract archive '${archive}'";;
+        *.bz2)      bldr_run_cmd "bunzip2 ${archive}" || bldr_bail "Failed to extract archive '${archive}'";;
+        *.rar)      bldr_run_cmd "unrar x ${archive}" || bldr_bail "Failed to extract archive '${archive}'";;
+        *.gz)       bldr_run_cmd "gunzip ${archive}" || bldr_bail "Failed to extract archive '${archive}'";;
+        *.tar)      bldr_run_cmd "$extr xvf ${archive}" || bldr_bail "Failed to extract archive '${archive}'";;
+        *.tbz2)     bldr_run_cmd "$extr xvjf ${archive}" || bldr_bail "Failed to extract archive '${archive}'";;
+        *.tgz)      bldr_run_cmd "$extr xvzf ${archive}" || bldr_bail "Failed to extract archive '${archive}'";;
+        *.zip)      bldr_run_cmd "unzip -uo -d ${base_dir} ${archive}" || bldr_bail "Failed to extract archive '${archive}'";;
+        *.Z)        bldr_run_cmd "uncompress ${archive}" || bldr_bail "Failed to extract archive '${archive}'";;
+        *.7z)       bldr_run_cmd "7z x ${archive}" || bldr_bail "Failed to extract archive '${archive}'";;
+        *)          bldr_bail "Failed to extract archive '${archive}'";;
+       esac    
+    fi
 }
 
 function bldr_make_dir()
@@ -2056,7 +2168,7 @@ function bldr_load_pkg()
             local fnd_need="$pkg_name/$fnd_vers"
             if [[ $(echo "$BLDR_LOADED_MODULES" | grep -m1 -c "$fnd_need") < 1 ]]
             then
-                bldr_log_info "Loading module '$pkg_name/$fnd_vers' from '$fnd_ctry' ..."
+                bldr_log_item_suffix "Loading '$fnd_ctry' module" "'$pkg_name/$fnd_vers'"
                 module load $pkg_name/$fnd_vers || bldr_bail "Failed to load '$pkg_name/$fnd_vers' module from '$fnd_ctry'!"
                 BLDR_LOADED_MODULES="$BLDR_LOADED_MODULES:$fnd_need"
             fi
@@ -2293,15 +2405,15 @@ function bldr_fetch_pkg()
 
         bldr_copy_file "$BLDR_CACHE_PATH/$pkg_file" "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_file"
 
-        bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name"
-        local archive_listing=$(bldr_list_archive $pkg_file)
-
         bldr_log_info "Extracting package '$pkg_file' ..."
         bldr_log_split
-        bldr_extract_archive "$pkg_file" 
+
+        bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name"
+        local archive_listing=$(bldr_list_archive "$pkg_file")
+        bldr_extract_archive "$pkg_file"
 
         local move_item=""
-        local move_list=$(echo "$archive_listing" | bldr_split_str " ")
+        local move_list=$(echo "$archive_listing" | bldr_split_str "\n" )
         for move_item in $move_list
         do
             bldr_log_info "Moving '$move_item' to '$pkg_name/$pkg_vers' ..."
@@ -3862,8 +3974,10 @@ function bldr_modulate_pkg()
 
     if [[ "$pkg_name" != "bldr" ]]
     then
+        pkg_reqs=$(bldr_trim_str "$pkg_reqs")
         pkg_reqs=$(bldr_trim_list_str "bldr/latest $pkg_reqs")
     else
+        pkg_reqs=$(bldr_trim_str "$pkg_reqs")
         pkg_reqs=$(bldr_trim_list_str "$pkg_reqs")
     fi
 
@@ -3877,30 +3991,30 @@ function bldr_modulate_pkg()
 
     local pkg_env_prefix=$(echo $pkg_title | bldr_join_str "_")
 
-    echo "#%Module 1.0"                                         >  $module_file
-    echo "#"                                                    >> $module_file
-    echo "# '$pkg_name v$pkg_vers' module for use with 'environment-modules' package." >> $module_file
-    echo "#"                                                    >> $module_file
+    echo "#%Module 1.0"                                                              >  $module_file
+    echo "#"                                                                         >> $module_file
+    echo "# '$pkg_name v$pkg_vers' module package."                                  >> $module_file
+    echo "#"                                                                         >> $module_file
     echo "# =======================================================================" >> $module_file
-    echo "# Generated by BLDR $BLDR_VERSION_STR on $tstamp"     >> $module_file
+    echo "# Generated by BLDR $BLDR_VERSION_STR on $tstamp"                          >> $module_file
     echo "# =======================================================================" >> $module_file
-    echo "# -- Category:      '$pkg_ctry'"                      >> $module_file
-    echo "# -- Name:          '$pkg_name'"                      >> $module_file
-    echo "# -- Version:       '$pkg_vers'"                      >> $module_file
-    echo "# -- Info:          '$pkg_info'"                      >> $module_file
-    echo "# -- File:          '$pkg_file'"                      >> $module_file
-    echo "# -- Urls:          '$pkg_urls'"                      >> $module_file
-    echo "# -- Options:       '$pkg_opts'"                      >> $module_file
-    echo "# -- Uses:          '$pkg_uses'"                      >> $module_file
-    echo "# -- Requires:      '$pkg_reqs'"                      >> $module_file
-    echo "# -- CompilerFlags: '$pkg_cflags'"                    >> $module_file
-    echo "# -- LinkerFlags:   '$pkg_ldflags'"                   >> $module_file
-    echo "# -- Config:        '$pkg_cfg'"                       >> $module_file
-    echo "# -- ConfigPath:    '$pkg_cfg_path'"                  >> $module_file
+    echo "# -- Category:      '$pkg_ctry'"                                           >> $module_file
+    echo "# -- Name:          '$pkg_name'"                                           >> $module_file
+    echo "# -- Version:       '$pkg_vers'"                                           >> $module_file
+    echo "# -- Info:          '$pkg_info'"                                           >> $module_file
+    echo "# -- File:          '$pkg_file'"                                           >> $module_file
+    echo "# -- Urls:          '$pkg_urls'"                                           >> $module_file
+    echo "# -- Options:       '$pkg_opts'"                                           >> $module_file
+    echo "# -- Uses:          '$pkg_uses'"                                           >> $module_file
+    echo "# -- Requires:      '$pkg_reqs'"                                           >> $module_file
+    echo "# -- CompilerFlags: '$pkg_cflags'"                                         >> $module_file
+    echo "# -- LinkerFlags:   '$pkg_ldflags'"                                        >> $module_file
+    echo "# -- Config:        '$pkg_cfg'"                                            >> $module_file
+    echo "# -- ConfigPath:    '$pkg_cfg_path'"                                       >> $module_file
     echo "# =======================================================================" >> $module_file
-    echo "#"                                                    >> $module_file
-    echo ""                                                     >> $module_file
-    echo "proc ModulesHelp { } { "                              >> $module_file
+    echo "#"                                                                         >> $module_file
+    echo ""                                                                          >> $module_file
+    echo "proc ModulesHelp { } { "                                                   >> $module_file
     echo "    puts stderr \"Provides module environment support for '$pkg_name v$pkg_vers'.\"" >> $module_file
     
     local line_string=""
@@ -3913,7 +4027,7 @@ function bldr_modulate_pkg()
 
     if [[ "$md_desc" != "" ]]
     then
-        echo "    puts stderr \" \""                            >> $module_file
+        echo "    puts stderr \" \""                                                 >> $module_file
 
         local md_word=""
         local md_desc_lines=$(echo $md_desc | bldr_split_str ' ' )
@@ -3922,12 +4036,12 @@ function bldr_modulate_pkg()
             line_string=$(bldr_trim_str "$line_string $md_word")
             if [[ $(echo -e "$md_word" | wc -l ) > 1 ]]
             then
-                echo "    puts stderr \"$line_string\""     >> $module_file
+                echo "    puts stderr \"$line_string\""                              >> $module_file
                 line_string=""
 
             elif [[ ${#line_string} -ge $BLDR_DEFAULT_LINE_WIDTH ]]
             then
-                echo "    puts stderr \"$line_string\""     >> $module_file
+                echo "    puts stderr \"$line_string\""                              >> $module_file
                 line_string=""
             fi
         done
@@ -3935,66 +4049,72 @@ function bldr_modulate_pkg()
         if [[ ${#line_string} -ge 1 ]]
         then
             line_string=$(bldr_trim_str $line_string)
-            echo "    puts stderr \"$line_string\""             >> $module_file
+            echo "    puts stderr \"$line_string\""                                  >> $module_file
             line_string=""
         fi
     fi
-    echo "    puts stderr \" \""                                >> $module_file
-    echo "}"                                                    >> $module_file
-    echo ""                                                     >> $module_file
+    echo "    puts stderr \" \""                                                     >> $module_file
+    echo "}"                                                                         >> $module_file
+    echo ""                                                                          >> $module_file
 
     
     if [[ "$pkg_info" != "" ]]
     then
-        echo "module-whatis \"$pkg_info\""                      >> $module_file
-        echo ""                                                 >> $module_file
+        echo "module-whatis \"$pkg_info\""                                           >> $module_file
+        echo ""                                                                      >> $module_file
     fi
 
     echo "# =======================================================================" >> $module_file
-    echo ""                                                     >> $module_file
+    echo ""                                                                          >> $module_file
 
     if [ "$pkg_reqs" != "" ]
     then
         for require in ${pkg_reqs}
         do
-            echo "if { ! [ is-loaded $require ] } {"            >> $module_file
-            echo "    module load $require"                     >> $module_file
-            echo "}"                                            >> $module_file
-            echo ""                                             >> $module_file
+            echo "if { ! [ is-loaded $require ] } {"                                 >> $module_file
+            echo "    module load $require"                                          >> $module_file
+            echo "}"                                                                 >> $module_file
+            echo ""                                                                  >> $module_file
         done
 
         for require in ${pkg_reqs}
         do
-            echo "prereq $require"                              >> $module_file
+            echo "prereq $require"                                                   >> $module_file
         done
-        echo ""                                                 >> $module_file
+        echo ""                                                                      >> $module_file
 
-        echo "if { [ module-info mode remove ] } { "            >> $module_file
+        echo "if { [ module-info mode remove ] } { "                                 >> $module_file
         for require in ${pkg_reqs}
         do
-            echo "    module unload $require"                   >> $module_file
+            echo "    module unload $require"                                        >> $module_file
         done
-        echo "}"                                                >> $module_file     
-        echo ""                                                 >> $module_file
+        echo "}"                                                                     >> $module_file     
+        echo ""                                                                      >> $module_file
     fi
 
     echo "# =======================================================================" >> $module_file
-    echo ""                                                     >> $module_file
+    echo ""                                                                          >> $module_file
 
     local fmt_lc="%-15s\t%-35s\t%-45s\n"
 
     # pkg specific environment settings
-    printf $fmt_lc "setenv" "${pkg_title}_VERSION" "$pkg_vers"  >> $module_file
+    local local_path="\$::$BLDR_LOCAL_ENV_PATH"
+    printf $fmt_lc "setenv" "${pkg_title}_VERSION" "$pkg_vers"                       >> $module_file
     if [[ "$pkg_name" != "bldr" ]]
     then
-        printf $fmt_lc "setenv" "${pkg_title}_BASE_PATH" "\"\$::env(BLDR_LOCAL_PATH)/$pkg_ctry/$pkg_name/$pkg_vers\""  >> $module_file
+        printf $fmt_lc "setenv" "${pkg_title}_BASE_PATH" "\"$local_path/$pkg_ctry/$pkg_name/$pkg_vers\""  >> $module_file
     fi
 
-    # append any -E directives as environment variables to export (eg. -EPYTHONPATH=path/to/export -> PYTHONPATH=path/to/export)
+    # append any -E directives as environment variables to export 
+    # (eg. -EPYTHONPATH=path/to/export -> PYTHONPATH=path/to/export)
     local def_name=""
     local def_value=""
     if [[ $(echo "$pkg_opts" | grep -m1 -c '\-E') > 0 ]]
     then
+        echo ""                                                                          >> $module_file
+        echo "# =======================================================================" >> $module_file
+        echo ""                                                                          >> $module_file
+
         local def=""
         local defines=$(echo $pkg_opts | grep -E -o "\-E(\S+)\s*" | sed 's/-E//g' )
         for def in ${defines}
@@ -4003,176 +4123,190 @@ function bldr_modulate_pkg()
             then
                 def_name=$(echo $def | sed 's/+=.*//g')
                 def_value=$(echo $def | sed 's/.*+=//g')
-                printf $fmt_lc "append-path" "$def_name" "$def_value" >> $module_file
+
+                # add TCL environment expansion '$::' to env variable lookup  
+                if [[ $(echo "$def_value" | grep -m1 -c 'env(.*)') > 0 ]]
+                then
+                    def_value=$(echo "$def_value" | sed 's/env(/$::env(/g' )
+                fi
+
+                printf $fmt_lc "append-path" "$def_name" "${def_value}"              >> $module_file
+
             elif [[ $(echo "$def" | grep -m1 -c '\:=') > 0 ]]
             then
                 def_name=$(echo $def | sed 's/:=.*//g')
                 def_value=$(echo $def | sed 's/.*:=//g')
-                printf $fmt_lc "prepend-path" "$def_name" "$def_value" >> $module_file
+
+                # add TCL environment expansion '$::' to env variable lookup  
+                if [[ $(echo "$def_value" | grep -m1 -c 'env(.*)') > 0 ]]
+                then
+                    def_value=$(echo "$def_value" | sed 's/env(/$::env(/g' )
+                fi
+
+                printf $fmt_lc "prepend-path" "$def_name" "$def_value"               >> $module_file
+
             elif [[ $(echo "$def" | grep -m1 -c '=') > 0 ]]
             then
-                def_name=$(echo $def | sed 's/=.*//g')
-                def_value=$(echo $def | sed 's/.*=//g')
-                printf $fmt_lc "setenv" "$def_name" "$def_value" >> $module_file
+                def_name="$(echo $def | sed 's/=.*//g')"
+                def_value="$(echo $def | sed 's/.*=//g')"
+
+                # add TCL environment expansion '$::' to env variable lookup  
+                if [[ $(echo "$def_value" | grep -m1 -c 'env(.*)') > 0 ]]
+                then
+                    def_value=$(echo "$def_value" | sed 's/env(/$::env(/g' )
+                fi
+
+                printf $fmt_lc "setenv" "$def_name" "$def_value"                     >> $module_file
             fi
         done
         echo "" >> $module_file
     fi
 
+    bldr_push_dir $prefix
+
+    echo ""                                                                          >> $module_file
+    echo "# =======================================================================" >> $module_file
+    echo ""                                                                          >> $module_file
+
     local fnd=""
     local found=""
     local subdir=""
-    bldr_push_dir $prefix
-    for fnd in $(find . -type d -iname "include")
-    do
-        local subpath=$(basename $fnd)
-        found="\$::env(BLDR_LOCAL_PATH)/$pkg_ctry/$pkg_name/$pkg_vers/$subpath"
-        printf $fmt_lc "setenv" "${pkg_title}_INCLUDE_PATH" "\"$found\""         >> $module_file
-        printf $fmt_lc "setenv" "C_INCLUDE_PATH" "\"$found\""                    >> $module_file
-        printf $fmt_lc "setenv" "CPLUS_INCLUDE_PATH" "\"$found\""                >> $module_file
-        printf $fmt_lc "setenv" "CPATH" "\"$found\""                             >> $module_file
-        printf $fmt_lc "setenv" "FPATH" "\"$found\""                             >> $module_file
-    done
+    local src_path=""
 
-    for fnd in $(find . -type d -iname "inc")
+    for srch_path in ${BLDR_MODULE_EXPORT_PATHS[@]}
     do
-        local subpath=$(basename $fnd)
-        found="\$::env(BLDR_LOCAL_PATH)/$pkg_ctry/$pkg_name/$pkg_vers/$subpath"
-        printf $fmt_lc "setenv" "${pkg_title}_INCLUDE_PATH" "\"$found\""         >> $module_file
-        printf $fmt_lc "setenv" "C_INCLUDE_PATH" "\"$found\""                    >> $module_file
-        printf $fmt_lc "setenv" "CPLUS_INCLUDE_PATH" "\"$found\""                >> $module_file
-        printf $fmt_lc "setenv" "CPATH" "\"$found\""                             >> $module_file
-        printf $fmt_lc "setenv" "FPATH" "\"$found\""                             >> $module_file
-    done
-
-    for fnd in $(find . -type d -iname "bin")
-    do
-        local subpath=$(basename $fnd)
-        found="\$::env(BLDR_LOCAL_PATH)/$pkg_ctry/$pkg_name/$pkg_vers/$subpath"
-        printf $fmt_lc "setenv" "${pkg_title}_BIN_PATH" "\"$found\""             >> $module_file
-        printf $fmt_lc "prepend-path" "PATH" "\"$found\""                        >> $module_file
-        for subdir in $found/*
+        for fnd in $(find . -type d -iname "$srch_path")
         do
-            if [ -d $subdir ]
-            then
-                local subfnd=$(basename "$subdir")
-                printf $fmt_lc "prepend-path" "PATH" "\"$found/$subfnd\""               >> $module_file
-            fi
+            local sub_path=$(basename $fnd)
+            local fnd_sub=$(echo "$sub_path" | sed 's/[^a-zA-Z0-9\-]/_/g' | sed 's/-/_/g' | sed 's/__/_/g' )
+            local fnd_name=$(bldr_make_uppercase "${pkg_title}_${fnd_sub}_PATH")
+            local fnd_value="$local_path/$pkg_ctry/$pkg_name/$pkg_vers/$sub_path"
+            printf $fmt_lc "setenv" "$fnd_name" "\"$fnd_value\""                     >> $module_file
         done
     done
 
-    for fnd in $(find . -type d -iname "sbin")
-    do
-        local subpath=$(basename $fnd)
-        found="\$::env(BLDR_LOCAL_PATH)/$pkg_ctry/$pkg_name/$pkg_vers/$subpath"
-        printf $fmt_lc  "setenv" "${pkg_title}_SBIN_PATH" "\"$found\""           >> $module_file
-        printf $fmt_lc  "prepend-path" "PATH" "\"$found\""                       >> $module_file
-        for subdir in $found/*
-        do
-            if [ -d $subdir ]
-            then
-                local subfnd=$(basename "$subdir")
-                printf $fmt_lc "prepend-path" "PATH" "\"$found/$subfnd\""               >> $module_file
-            fi
-        done
-    done
-
-    for fnd in $(find . -type d -iname "site-packages")
-    do
-        local subpath=$(basename $fnd)
-        found="\$::env(BLDR_LOCAL_PATH)/$pkg_ctry/$pkg_name/$pkg_vers/$subpath"
-        printf $fmt_lc "append-path" "${pkg_title}_PYTHON_SITE_PACKAGES_PATH" "\"$found\""     >> $module_file
-        printf $fmt_lc "append-path" "PYTHONPATH" "\"$found\""                   >> $module_file
-    done
-
-    for fnd in $(find . -type d -iname "lib")
-    do
-        local subpath=$(basename $fnd)
-        found="\$::env(BLDR_LOCAL_PATH)/$pkg_ctry/$pkg_name/$pkg_vers/$subpath"
-        printf $fmt_lc "setenv" "${pkg_title}_LIB_PATH" "\"$found\""             >> $module_file
-        if [[ $BLDR_SYSTEM_IS_OSX == true ]]
-        then
-            printf $fmt_lc "prepend-path" "DYLD_LIBRARY_PATH" "\"$found\""       >> $module_file
-        fi
-        printf $fmt_lc "prepend-path" "LD_LIBRARY_PATH" "\"$found\""             >> $module_file
-        printf $fmt_lc "prepend-path" "LIBRARY_PATH" "\"$found\""                >> $module_file
-    done
-
-    for fnd in $(find . -type d -iname "lib32")
-    do
-        local subpath=$(basename $fnd)
-        found="\$::env(BLDR_LOCAL_PATH)/$pkg_ctry/$pkg_name/$pkg_vers/$subpath"
-        printf $fmt_lc "setenv" "${pkg_title}_LIB32_PATH" "\"$found\""           >> $module_file
-        if [[ $BLDR_SYSTEM_IS_OSX == true ]]
-        then
-            printf $fmt_lc "prepend-path" "DYLD_LIBRARY_PATH" "\"$found\""       >> $module_file
-        fi
-        printf $fmt_lc "prepend-path" "LD_LIBRARY_PATH" "\"$found\""             >> $module_file
-        printf $fmt_lc "prepend-path" "LIBRARY_PATH" "\"$found\""                >> $module_file
-    done
-
-    for fnd in $(find . -type d -iname "lib64")
-    do
-        local subpath=$(basename $fnd)
-        found="\$::env(BLDR_LOCAL_PATH)/$pkg_ctry/$pkg_name/$pkg_vers/$subpath"
-        printf $fmt_lc "setenv" "${pkg_title}_LIB64_PATH" "\"$found\""           >> $module_file
-        if [[ $BLDR_SYSTEM_IS_OSX == true ]]
-        then
-            printf $fmt_lc "prepend-path" "DYLD_LIBRARY_PATH" "\"$found\""       >> $module_file
-        fi
-        printf $fmt_lc "prepend-path" "LD_LIBRARY_PATH" "\"$found\""             >> $module_file
-        printf $fmt_lc "prepend-path" "LIBRARY_PATH" "\"$found\""                >> $module_file
-    done
-
-    for fnd in $(find . -type d -iname "man")
-    do
-        local subpath=$(basename $fnd)
-        found="\$::env(BLDR_LOCAL_PATH)/$pkg_ctry/$pkg_name/$pkg_vers/$subpath"
-        printf $fmt_lc "prepend-path" "MANPATH" "\"$found\""                     >> $module_file
-    done
-
-    for fnd in $(find . -type d -iname "locale")
-    do
-        local subpath=$(basename $fnd)
-        found="\$::env(BLDR_LOCAL_PATH)/$pkg_ctry/$pkg_name/$pkg_vers/$subpath"
-        printf $fmt_lc "prepend-path" "NLSPATH" "\"$found\""                     >> $module_file
-    done
-
-    for fnd in $(find . -type d -iname "info")
-    do
-        local subpath=$(basename $fnd)
-        found="\$::env(BLDR_LOCAL_PATH)/$pkg_ctry/$pkg_name/$pkg_vers/$subpath"
-        printf $fmt_lc "prepend-path" "INFOPATH" "\"$found\""                    >> $module_file
-    done
-
-    if [ -d "$prefix/man" ]
-    then
-        found="\$::env(BLDR_LOCAL_PATH)/$pkg_ctry/$pkg_name/$pkg_vers/man"
-        printf $fmt_lc "setenv" "${pkg_title}_MAN_PATH" "\"$found\""             >> $module_file
-    fi
-
-    if [ -d "$prefix/share" ]
-    then
-        found="\$::env(BLDR_LOCAL_PATH)/$pkg_ctry/$pkg_name/$pkg_vers/share"
-        printf $fmt_lc  "setenv" "${pkg_title}_SHARE_PATH" "\"$found\""          >> $module_file
-    fi
-
-    if [ -d "$prefix/etc" ]
-    then
-        found="\$::env(BLDR_LOCAL_PATH)/$pkg_ctry/$pkg_name/$pkg_vers/etc"
-        printf $fmt_lc  "setenv" "${pkg_title}_ETC_PATH" "\"$found\""            >> $module_file
-    fi
-
-    if [ -d "$prefix/config" ]
-    then
-        found="\$::env(BLDR_LOCAL_PATH)/$pkg_ctry/$pkg_name/$pkg_vers/config"
-        printf $fmt_lc  "setenv" "${pkg_title}_CONFIG_PATH" "\"$found\""         >> $module_file
-    fi
-
-    echo ""                                                                      >> $module_file
+    echo ""                                                                          >> $module_file
     echo "# =======================================================================" >> $module_file
-    echo ""                                                                      >> $module_file
+    echo ""                                                                          >> $module_file
     
+    if [[ $(bldr_has_cfg_option "$pkg_opts" "skip-export-system-paths") == "false" ]]
+    then
+        for fnd in $(find . -type d -iname "include")
+        do
+            local sub_path=$(basename $fnd)
+            found="$local_path/$pkg_ctry/$pkg_name/$pkg_vers/$sub_path"
+            printf $fmt_lc "prepend-path" "C_INCLUDE_PATH" "\"$found\""              >> $module_file
+            printf $fmt_lc "prepend-path" "CPLUS_INCLUDE_PATH" "\"$found\""          >> $module_file
+            printf $fmt_lc "prepend-path" "CPATH" "\"$found\""                       >> $module_file
+            printf $fmt_lc "prepend-path" "FPATH" "\"$found\""                       >> $module_file
+        done
+
+        for fnd in $(find . -type d -iname "inc")
+        do
+            local sub_path=$(basename $fnd)
+            found="$local_path/$pkg_ctry/$pkg_name/$pkg_vers/$sub_path"
+            printf $fmt_lc "prepend-path" "C_INCLUDE_PATH" "\"$found\""              >> $module_file
+            printf $fmt_lc "prepend-path" "CPLUS_INCLUDE_PATH" "\"$found\""          >> $module_file
+            printf $fmt_lc "prepend-path" "CPATH" "\"$found\""                       >> $module_file
+            printf $fmt_lc "prepend-path" "FPATH" "\"$found\""                       >> $module_file
+        done
+
+        for fnd in $(find . -type d -iname "bin")
+        do
+            local sub_path=$(basename $fnd)
+            found="$local_path/$pkg_ctry/$pkg_name/$pkg_vers/$sub_path"
+            printf $fmt_lc "prepend-path" "PATH" "\"$found\""                        >> $module_file
+            for sub_dir in $found/*
+            do
+                if [ -d $sub_dir ]
+                then
+                    local sub_fnd=$(basename "$sub_dir")
+                    printf $fmt_lc "prepend-path" "PATH" "\"$found/$subfnd\""        >> $module_file
+                fi
+            done
+        done
+
+        for fnd in $(find . -type d -iname "sbin")
+        do
+            local sub_path=$(basename $fnd)
+            found="$local_path/$pkg_ctry/$pkg_name/$pkg_vers/$sub_path"
+            printf $fmt_lc  "prepend-path" "PATH" "\"$found\""                       >> $module_file
+            for sub_dir in $found/*
+            do
+                if [ -d $sub_dir ]
+                then
+                    local subfnd=$(basename "$sub_dir")
+                    printf $fmt_lc "prepend-path" "PATH" "\"$found/$sub_fnd\""        >> $module_file
+                fi
+            done
+        done
+
+        for fnd in $(find . -type d -iname "site-packages")
+        do
+            local sub_path=$(basename $fnd)
+            found="$local_path/$pkg_ctry/$pkg_name/$pkg_vers/$sub_path"
+            printf $fmt_lc "append-path" "PYTHONPATH" "\"$found\""                   >> $module_file
+        done
+
+        for fnd in $(find . -type d -iname "lib")
+        do
+            local sub_path=$(basename $fnd)
+            found="$local_path/$pkg_ctry/$pkg_name/$pkg_vers/$sub_path"
+            if [[ $BLDR_SYSTEM_IS_OSX == true ]]
+            then
+                printf $fmt_lc "prepend-path" "DYLD_LIBRARY_PATH" "\"$found\""       >> $module_file
+            fi
+            printf $fmt_lc "prepend-path" "LD_LIBRARY_PATH" "\"$found\""             >> $module_file
+        done
+
+        for fnd in $(find . -type d -iname "lib32")
+        do
+            local sub_path=$(basename $fnd)
+            found="$local_path/$pkg_ctry/$pkg_name/$pkg_vers/$sub_path"
+            if [[ $BLDR_SYSTEM_IS_OSX == true ]]
+            then
+                printf $fmt_lc "prepend-path" "DYLD_LIBRARY_PATH" "\"$found\""       >> $module_file
+            fi
+            printf $fmt_lc "prepend-path" "LD_LIBRARY_PATH" "\"$found\""             >> $module_file
+        done
+
+        for fnd in $(find . -type d -iname "lib64")
+        do
+            local sub_path=$(basename $fnd)
+            found="$local_path/$pkg_ctry/$pkg_name/$pkg_vers/$sub_path"
+            if [[ $BLDR_SYSTEM_IS_OSX == true ]]
+            then
+                printf $fmt_lc "prepend-path" "DYLD_LIBRARY_PATH" "\"$found\""       >> $module_file
+            fi
+            printf $fmt_lc "prepend-path" "LD_LIBRARY_PATH" "\"$found\""             >> $module_file
+        done
+
+        for fnd in $(find . -type d -iname "man")
+        do
+            local sub_path=$(basename $fnd)
+            found="$local_path/$pkg_ctry/$pkg_name/$pkg_vers/$sub_path"
+            printf $fmt_lc "prepend-path" "MANPATH" "\"$found\""                     >> $module_file
+        done
+
+        for fnd in $(find . -type d -iname "locale")
+        do
+            local sub_path=$(basename $fnd)
+            found="$local_path/$pkg_ctry/$pkg_name/$pkg_vers/$sub_path"
+            printf $fmt_lc "prepend-path" "NLSPATH" "\"$found\""                     >> $module_file
+        done
+
+        for fnd in $(find . -type d -iname "info")
+        do
+            local sub_path=$(basename $fnd)
+            found="$local_path/$pkg_ctry/$pkg_name/$pkg_vers/$sub_path"
+            printf $fmt_lc "prepend-path" "INFOPATH" "\"$found\""                    >> $module_file
+        done
+    fi
+
+    echo ""                                                                          >> $module_file
+    echo "# =======================================================================" >> $module_file
+    echo ""                                                                          >> $module_file
+
     bldr_pop_dir
 
     local pkg_latest=$pkg_vers
@@ -4386,7 +4520,7 @@ function bldr_build_pkg()
 
     while true ; do
         case "$1" in
-           --verbose)       use_verbose="true"; shift;;
+           --verbose)       use_verbose="$2"; shift 2;;
            --name)          pkg_name="$2"; shift 2;;
            --version)       pkg_vers="$2"; shift 2;;
            --info)          pkg_info="$2"; shift 2;;
@@ -4538,7 +4672,7 @@ function bldr_build_pkg()
             fi
         done
     fi
-    
+
     local override_setup=$(type -t bldr_pkg_setup_method)
     local override_fetch=$(type -t bldr_pkg_fetch_method)
     local override_boot=$(type -t bldr_pkg_boot_method)
@@ -4929,7 +5063,7 @@ function bldr_modularize_pkg()
 
     while true ; do
         case "$1" in
-           --verbose)       use_verbose="true"; shift;;
+           --verbose)       use_verbose="$2"; shift 2;;
            --name)          pkg_name="$2"; shift 2;;
            --version)       pkg_vers="$2"; shift 2;;
            --info)          pkg_info="$2"; shift 2;;

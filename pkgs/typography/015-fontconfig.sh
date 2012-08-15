@@ -28,43 +28,41 @@ pkg_urls="http://www.freedesktop.org/software/$pkg_name/release/$pkg_file"
 pkg_opts="configure"
 pkg_reqs="zlib/latest libicu/latest libxml2/latest freetype/latest"
 pkg_uses="$pkg_reqs"
-
+pkg_cflags=""
+pkg_ldflags=""
 pkg_cfg=""
 pkg_patch=""
 
-pkg_cflags="-I$BLDR_LOCAL_PATH/compression/zlib/latest/include"
-pkg_ldflags="-L$BLDR_LOCAL_PATH/compression/zlib/latest/lib"
-
-pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/typography/freetype/latest/include"
-pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/typography/freetype/latest/lib"
-
-if [[ $BLDR_SYSTEM_IS_OSX == true ]]; then
-     if [[ $BLDR_SYSTEM_IS_64BIT == true ]]; then
+if [[ $BLDR_SYSTEM_IS_OSX == true ]]
+then
+     if [[ $BLDR_SYSTEM_IS_64BIT == true ]]
+     then
           pkg_cfg="$pkg_cfg --with-arch=x86_64"
      fi
      pkg_cfg="$pkg_cfg --with-sysroot=$BLDR_OSX_SYSROOT"
 else
      pkg_reqs="$pkg_reqs libiconv/latest"
-     pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/text/libiconv/latest/include"
-     pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/text/libiconv/latest/lib"
 fi
+
+pkg_uses=$pkg_reqs
 
 ####################################################################################################
 # build and install pkg as local module
 ####################################################################################################
 
-bldr_build_pkg --category    "$pkg_ctry"    \
-               --name        "$pkg_name"    \
-               --version     "$pkg_vers"    \
-               --info        "$pkg_info"    \
-               --description "$pkg_desc"    \
-               --file        "$pkg_file"    \
-               --url         "$pkg_urls"    \
-               --uses        "$pkg_uses"    \
-               --requires    "$pkg_reqs"    \
-               --options     "$pkg_opts"    \
-               --cflags      "$pkg_cflags"  \
-               --ldflags     "$pkg_ldflags" \
-               --config      "$pkg_cfg"
+bldr_build_pkg                 \
+  --category    "$pkg_ctry"    \
+  --name        "$pkg_name"    \
+  --version     "$pkg_vers"    \
+  --info        "$pkg_info"    \
+  --description "$pkg_desc"    \
+  --file        "$pkg_file"    \
+  --url         "$pkg_urls"    \
+  --uses        "$pkg_uses"    \
+  --requires    "$pkg_reqs"    \
+  --options     "$pkg_opts"    \
+  --cflags      "$pkg_cflags"  \
+  --ldflags     "$pkg_ldflags" \
+  --config      "$pkg_cfg"
 
 

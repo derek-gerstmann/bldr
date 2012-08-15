@@ -37,12 +37,13 @@ pkg_uses="$pkg_reqs"
 # satisfy pkg dependencies and load their environment settings
 ####################################################################################################
 
-bldr_satisfy_pkg --category    "$pkg_ctry"    \
-                 --name        "$pkg_name"    \
-                 --version     "$pkg_vers"    \
-                 --requires    "$pkg_reqs"    \
-                 --uses        "$pkg_uses"    \
-                 --options     "$pkg_opts"
+bldr_satisfy_pkg               \
+  --category    "$pkg_ctry"    \
+  --name        "$pkg_name"    \
+  --version     "$pkg_vers"    \
+  --requires    "$pkg_reqs"    \
+  --uses        "$pkg_uses"    \
+  --options     "$pkg_opts"
 
 ####################################################################################################
 
@@ -131,22 +132,23 @@ function bldr_pkg_install_method()
 
     # call the standard BLDR install method
     #
-    bldr_install_pkg         --category    "$pkg_ctry"    \
-                             --name        "$pkg_name"    \
-                             --version     "$pkg_vers"    \
-                             --info        "$pkg_info"    \
-                             --description "$pkg_desc"    \
-                             --file        "$pkg_file"    \
-                             --url         "$pkg_urls"    \
-                             --uses        "$pkg_uses"    \
-                             --requires    "$pkg_reqs"    \
-                             --options     "$pkg_opts"    \
-                             --cflags      "$pkg_cflags"  \
-                             --ldflags     "$pkg_ldflags" \
-                             --config      "$pkg_cfg"     \
-                             --config-path "$pkg_cfg_path"\
-                             --patch       "$pkg_patches" \
-                             --verbose     "$use_verbose"
+    bldr_install_pkg               \
+      --category    "$pkg_ctry"    \
+      --name        "$pkg_name"    \
+      --version     "$pkg_vers"    \
+      --info        "$pkg_info"    \
+      --description "$pkg_desc"    \
+      --file        "$pkg_file"    \
+      --url         "$pkg_urls"    \
+      --uses        "$pkg_uses"    \
+      --requires    "$pkg_reqs"    \
+      --options     "$pkg_opts"    \
+      --cflags      "$pkg_cflags"  \
+      --ldflags     "$pkg_ldflags" \
+      --config      "$pkg_cfg"     \
+      --config-path "$pkg_cfg_path"\
+      --patch       "$pkg_patches" \
+      --verbose     "$use_verbose"
 }
 
 ####################################################################################################
@@ -170,19 +172,20 @@ do
         pkg_cfg="$pkg_cfg --enable-fortran"
     fi
 
-    bldr_build_pkg --category    "$pkg_ctry"    \
-                   --name        "$pkg_name"    \
-                   --version     "$pkg_vers"    \
-                   --info        "$pkg_info"    \
-                   --description "$pkg_desc"    \
-                   --file        "$pkg_file"    \
-                   --url         "$pkg_urls"    \
-                   --uses        "$pkg_uses"    \
-                   --requires    "$pkg_reqs"    \
-                   --options     "$pkg_opts"    \
-                   --cflags      "$pkg_cflags"  \
-                   --ldflags     "$pkg_ldflags" \
-                   --config      "$pkg_cfg"
+    bldr_build_pkg                 \
+      --category    "$pkg_ctry"    \
+      --name        "$pkg_name"    \
+      --version     "$pkg_vers"    \
+      --info        "$pkg_info"    \
+      --description "$pkg_desc"    \
+      --file        "$pkg_file"    \
+      --url         "$pkg_urls"    \
+      --uses        "$pkg_uses"    \
+      --requires    "$pkg_reqs"    \
+      --options     "$pkg_opts"    \
+      --cflags      "$pkg_cflags"  \
+      --ldflags     "$pkg_ldflags" \
+      --config      "$pkg_cfg"
 
     #
     # hdf5 - with legacy v1.6 API methods
@@ -198,19 +201,20 @@ do
             pkg_cfg="$pkg_cfg --enable-fortran"
         fi
 
-        bldr_build_pkg --category    "$pkg_ctry"    \
-                       --name        "$pkg_name"    \
-                       --version     "$pkg_vers"    \
-                       --info        "$pkg_info"    \
-                       --description "$pkg_desc"    \
-                       --file        "$pkg_file"    \
-                       --url         "$pkg_urls"    \
-                       --uses        "$pkg_uses"    \
-                       --requires    "$pkg_reqs"    \
-                       --options     "$pkg_opts"    \
-                       --cflags      "$pkg_cflags"  \
-                       --ldflags     "$pkg_ldflags" \
-                       --config      "$pkg_cfg"
+        bldr_build_pkg                 \
+          --category    "$pkg_ctry"    \
+          --name        "$pkg_name"    \
+          --version     "$pkg_vers"    \
+          --info        "$pkg_info"    \
+          --description "$pkg_desc"    \
+          --file        "$pkg_file"    \
+          --url         "$pkg_urls"    \
+          --uses        "$pkg_uses"    \
+          --requires    "$pkg_reqs"    \
+          --options     "$pkg_opts"    \
+          --cflags      "$pkg_cflags"  \
+          --ldflags     "$pkg_ldflags" \
+          --config      "$pkg_cfg"
     fi
 
 
@@ -220,19 +224,20 @@ do
     pkg_name="hdf5-threadsafe"
     pkg_cfg="$hdf5_cfg --enable-threadsafe"
 
-    bldr_build_pkg --category    "$pkg_ctry"    \
-                   --name        "$pkg_name"    \
-                   --version     "$pkg_vers"    \
-                   --info        "$pkg_info"    \
-                   --description "$pkg_desc"    \
-                   --file        "$pkg_file"    \
-                   --url         "$pkg_urls"    \
-                   --uses        "$pkg_uses"    \
-                   --requires    "$pkg_reqs"    \
-                   --options     "$pkg_opts"    \
-                   --cflags      "$pkg_cflags"  \
-                   --ldflags     "$pkg_ldflags" \
-                   --config      "$pkg_cfg"
+    bldr_build_pkg                 \
+      --category    "$pkg_ctry"    \
+      --name        "$pkg_name"    \
+      --version     "$pkg_vers"    \
+      --info        "$pkg_info"    \
+      --description "$pkg_desc"    \
+      --file        "$pkg_file"    \
+      --url         "$pkg_urls"    \
+      --uses        "$pkg_uses"    \
+      --requires    "$pkg_reqs"    \
+      --options     "$pkg_opts"    \
+      --cflags      "$pkg_cflags"  \
+      --ldflags     "$pkg_ldflags" \
+      --config      "$pkg_cfg"
 
     #
     # hdf5 - threadsafe w/v1.6 API methods
@@ -243,19 +248,20 @@ do
         pkg_cfg="$hdf5_cfg --enable-threadsafe"
         pkg_cfg="$hdf5_cfg --with-default-api-version=v16"
 
-        bldr_build_pkg --category    "$pkg_ctry"    \
-                       --name        "$pkg_name"    \
-                       --version     "$pkg_vers"    \
-                       --info        "$pkg_info"    \
-                       --description "$pkg_desc"    \
-                       --file        "$pkg_file"    \
-                       --url         "$pkg_urls"    \
-                       --uses        "$pkg_uses"    \
-                       --requires    "$pkg_reqs"    \
-                       --options     "$pkg_opts"    \
-                       --cflags      "$pkg_cflags"  \
-                       --ldflags     "$pkg_ldflags" \
-                       --config      "$pkg_cfg"
+        bldr_build_pkg                 \
+          --category    "$pkg_ctry"    \
+          --name        "$pkg_name"    \
+          --version     "$pkg_vers"    \
+          --info        "$pkg_info"    \
+          --description "$pkg_desc"    \
+          --file        "$pkg_file"    \
+          --url         "$pkg_urls"    \
+          --uses        "$pkg_uses"    \
+          --requires    "$pkg_reqs"    \
+          --options     "$pkg_opts"    \
+          --cflags      "$pkg_cflags"  \
+          --ldflags     "$pkg_ldflags" \
+          --config      "$pkg_cfg"
 
     fi
 done

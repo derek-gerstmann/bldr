@@ -62,10 +62,10 @@ pkg_ldflags=""
 pkg_cfg=""
 
 pkg_cfg="$pkg_cfg --with-tiff-includes=\"$BLDR_LIBTIFF_INCLUDE_PATH\""
-pkg_cfg="$pkg_cfg --with-tiff-libraries=\"$BLDR_LIBTIFF_LIB_PATH\""
+pkg_cfg="$pkg_cfg --with-tiff-libraries=\"$BLDR_LIBTIFF_LIB_PATH/libtiff.a\""
 
 pkg_cfg="$pkg_cfg --with-jpeg-includes=\"$BLDR_LIBJPEG_INCLUDE_PATH\""
-pkg_cfg="$pkg_cfg --with-jpeg-libraries=\"$BLDR_LIBJPEG_LIB_PATH\""
+pkg_cfg="$pkg_cfg --with-jpeg-libraries=\"$BLDR_LIBJPEG_LIB_PATH/libjpeg.a\""
 
 ####################################################################################################
 # build and install pkg as local module

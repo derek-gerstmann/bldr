@@ -10,25 +10,19 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_ctry="storage"
-pkg_name="libxml2"
-pkg_vers="2.8.0"
-pkg_info="Libxml2 is the XML C parser and toolkit developed for the Gnome project"
-
-pkg_desc="Libxml2 is the XML C parser and toolkit developed for the Gnome project 
-(but usable outside of the Gnome platform), it is free software available under 
-the MIT License. XML itself is a metalanguage to design markup languages, i.e. text 
-language where semantic and structure are added to the content using extra 'markup' 
-information enclosed between angle brackets. HTML is the most well-known markup 
-language. Though the library is written in C a variety of language bindings make 
-it available in other environments."
+pkg_ctry="text"
+pkg_name="libunistring"
+pkg_vers="0.9.3"
+pkg_info="libunistring provides functions for manipulating Unicode strings and for manipulating C strings according to the Unicode standard."
+pkg_desc="libunistring provides functions for manipulating Unicode strings and 
+for manipulating C strings according to the Unicode standard."
 
 pkg_file="$pkg_name-$pkg_vers.tar.gz"
-pkg_urls="http://xmlsoft.org/sources/$pkg_file"
+pkg_urls="http://ftp.gnu.org/gnu/libunistring/$pkg_file"
 pkg_opts="configure"
 pkg_reqs="zlib/latest"
 pkg_uses="$pkg_reqs"
-pkg_cfg=""
+pkg_cfg="--enable-static --enable-shared"
 pkg_cflags=""
 pkg_ldflags=""
 
