@@ -814,53 +814,129 @@ function bldr_locate_build_path
     local cm_files=$BLDR_CMAKE_FILE_SEARCH_LIST
     local ac_files=$BLDR_AUTOCONF_FILE_SEARCH_LIST
 
-    local tst_path=""
-    local tst_file=""
-
-    local use_cmake=true
-    local use_autocfg=true
+    local use_cmake=false
+    local use_autocfg=false
     local use_maven=false
     local use_python=false
 
     if [[ $(bldr_has_cfg_option "$pkg_opts" "cmake" ) == "true" ]]
     then
-        use_autocfg=false
         use_cmake=true
-        use_maven=false
-        use_python=false
     
     elif [[ $(bldr_has_cfg_option "$pkg_opts" "configure" ) == "true" ]]
     then
         use_autocfg=true
-        use_cmake=false
-        use_maven=false
-        use_python=false
 
     elif [[ $(bldr_has_cfg_option "$pkg_opts" "maven" ) == "true" ]]
     then
-        use_autocfg=false
-        use_cmake=false
         use_maven=true
-        use_python=false
 
     elif [[ $(bldr_has_cfg_option "$pkg_opts" "python" ) == "true" ]]
     then
-        use_autocfg=false
-        use_cmake=false
-        use_maven=false
         use_python=true
+    else
+
+        use_autocfg=true
+    fi
+
+    if [[ $(echo "$pkg_opts" | grep -m1 -c 'use-setup-makefile') > 0 ]]
+    then
+        local user_mk=$(echo $pkg_opts | grep -E -o 'use-setup-makefile=(\S+)' | sed 's/.*=//g' )
+        if [[ "$user_mk" != "" ]]
+        then
+            mk_files="$user_mk $mk_files"
+        fi
+    fi
+
+    if [[ $(echo "$pkg_opts" | grep -m1 -c 'use-build-makefile') > 0 ]]
+    then
+        local user_mk=$(echo $pkg_opts | grep -E -o 'use-build-makefile=(\S+)' | sed 's/.*=//g' )
+        if [[ "$user_mk" != "" ]]
+        then
+            mk_files="$user_mk $mk_files"
+        fi
+    fi
+
+    if [[ $(echo "$pkg_opts" | grep -m1 -c 'use-install-makefile') > 0 ]]
+    then
+        local user_mk=$(echo $pkg_opts | grep -E -o 'use-install-makefile=(\S+)' | sed 's/.*=//g' )
+        if [[ "$user_mk" != "" ]]
+        then
+            mk_files="$user_mk $mk_files"
+        fi
     fi
 
     local build_path=""
+    local tst_path=""
+    local tst_file=""
     local tst_mk=""
     local tst_cm=""
     local tst_ac=""
+
     for tst_path in ${mk_paths}
     do
-        if [ "$build_path" != "" ]
+        if [[ $use_cmake == true ]]
         then
-            break
+            for tst_cm in ${cm_files}
+            do
+                if [[ ! -f "$tst_path/$tst_cm" ]]
+                then 
+                    continue
+                fi
+
+                for tst_mf in ${mk_files}
+                do
+                    if [[ -f "$tst_path/build/$tst_mf" ]]
+                    then
+                        build_path="$tst_path/build"
+                        break
+                    fi
+
+                    if [[ -f "$tst_path/$tst_mf" ]]
+                    then
+                        build_path="$tst_path"
+                        break
+                    fi
+                done
+
+                if [ "$build_path" != "" ]
+                then
+                    break
+                fi
+            done
         fi
+
+        if [[ $use_autocfg == true ]]
+        then
+            for tst_ac in ${ac_files}
+            do
+                if [[ ! -f "$tst_path/$tst_ac" ]]
+                then 
+                    continue
+                fi
+
+                for tst_mf in ${mk_files}
+                do
+                    if [[ -f "$tst_path/build/$tst_mf" ]]
+                    then
+                        build_path="$tst_path/build"
+                        break
+                    fi
+
+                    if [[ -f "$tst_path/$tst_mf" ]]
+                    then
+                        build_path="$tst_path"
+                        break
+                    fi
+                done
+
+                if [ "$build_path" != "" ]
+                then
+                    break
+                fi
+            done
+        fi
+
         for tst_file in ${mk_files}
         do
             if [ -f "$tst_path/$tst_file" ]
@@ -873,113 +949,157 @@ function bldr_locate_build_path
         then
             break
         fi
-        for tst_file in ${cm_files}
-        do
-            if [ -f "$tst_path/$tst_file" ]
-            then
-                build_path="$tst_path/build"
-                break
-            fi
-        done
-        if [ "$build_path" != "" ]
-        then
-            break
-        fi
-        for tst_cm in ${cm_files}
-        do
-            for tst_mf in ${mk_files}
-            do
-                if [ -f "$tst_path/$tst_cm" ] && [ -f "$tst_path/build/$tst_mf" ]
-                then
-                    if [[ $use_cmake == true ]]
-                    then
-                        build_path="$tst_path/build"
-                        break
-                    fi
-                fi
-
-                if [ -f "$tst_path/$tst_cm" ] && [ -f "$tst_path/$tst_mf" ]
-                then
-                    if [[ $use_cmake == true ]]
-                    then
-                        build_path="$tst_path"
-                        break
-                    fi
-                fi
-            done
-            if [ "$build_path" != "" ]
-            then
-                break
-            fi
-        done
-
-        if [ "$build_path" != "" ]
-        then
-            break
-        fi
-
-        for tst_ac in ${ac_files}
-        do
-            for tst_mf in ${mk_files}
-            do
-                if [ -f "$tst_path/$tst_ac" ] && [ -f "$tst_path/build/$tst_mf" ]
-                then
-                    if [[ $use_autocfg == true ]]
-                    then
-                        build_path="$tst_path/build"
-                        break
-                    fi
-                fi
-
-                if [ -f "$tst_path/$tst_ac" ] && [ -f "$tst_path/$tst_mf" ]
-                then
-                    if [[ $use_autocfg == true ]]
-                    then
-                        build_path="$tst_path"
-                        break
-                    fi
-                fi
-            done
-            if [ "$build_path" != "" ]
-            then
-                break
-            fi
-        done
     done
     echo "$build_path"
 }
 
 function bldr_locate_make_file
 {
-    local make_file="."
-    local given=$(bldr_trim_str "${@}")
-    local mk_paths=$(bldr_trim_str "$given $BLDR_MAKE_SEARCH_PATH")
+    local mk_srch=$(bldr_trim_str "$1")
+    local mk_opts=$2
+    local mk_paths=$(bldr_trim_str "$mk_srch $BLDR_BUILD_SEARCH_PATH")
     local mk_files=$BLDR_MAKE_FILE_SEARCH_LIST
-    local tst_path=""
+    local cm_files=$BLDR_CMAKE_FILE_SEARCH_LIST
+    local ac_files=$BLDR_AUTOCONF_FILE_SEARCH_LIST
 
-    if [ -f "CMakeLists.txt" ] && [ -f "build/Makefile" ]
+    local use_cmake=false
+    local use_autocfg=false
+    local use_maven=false
+    local use_python=false
+
+    if [[ $(bldr_has_cfg_option "$pkg_opts" "cmake" ) == "true" ]]
     then
-        make_file="build/Makefile"
+        use_cmake=true
+    
+    elif [[ $(bldr_has_cfg_option "$pkg_opts" "configure" ) == "true" ]]
+    then
+        use_autocfg=true
+
+    elif [[ $(bldr_has_cfg_option "$pkg_opts" "maven" ) == "true" ]]
+    then
+        use_maven=true
+
+    elif [[ $(bldr_has_cfg_option "$pkg_opts" "python" ) == "true" ]]
+    then
+        use_python=true
     else
-        for tst_path in ${mk_paths}
-        do
-            for tst_file in ${mk_files}
+
+        use_autocfg=true
+    fi
+
+    if [[ $(echo "$pkg_opts" | grep -m1 -c 'use-setup-makefile') > 0 ]]
+    then
+        local user_mk=$(echo $pkg_opts | grep -E -o 'use-setup-makefile=(\S+)' | sed 's/.*=//g' )
+        if [[ "$user_mk" != "" ]]
+        then
+            mk_files="$user_mk $mk_files"
+        fi
+    fi
+
+    if [[ $(echo "$pkg_opts" | grep -m1 -c 'use-build-makefile') > 0 ]]
+    then
+        local user_mk=$(echo $pkg_opts | grep -E -o 'use-build-makefile=(\S+)' | sed 's/.*=//g' )
+        if [[ "$user_mk" != "" ]]
+        then
+            mk_files="$user_mk $mk_files"
+        fi
+    fi
+
+    if [[ $(echo "$pkg_opts" | grep -m1 -c 'use-install-makefile') > 0 ]]
+    then
+        local user_mk=$(echo $pkg_opts | grep -E -o 'use-install-makefile=(\S+)' | sed 's/.*=//g' )
+        if [[ "$user_mk" != "" ]]
+        then
+            mk_files="$user_mk $mk_files"
+        fi
+    fi
+
+    local build_path=""
+    local tst_path=""
+    local tst_file=""
+    local tst_mk=""
+    local tst_cm=""
+    local tst_ac=""
+
+    for tst_path in ${mk_paths}
+    do
+        if [[ $use_cmake == true ]]
+        then
+            for tst_cm in ${cm_files}
             do
-                if [ -f "$tst_path/$tst_file" ]
+                if [[ ! -f "$tst_path/$tst_cm" ]]
+                then 
+                    continue
+                fi
+
+                for tst_mf in ${mk_files}
+                do
+                    if [[ -f "$tst_path/build/$tst_mf" ]]
+                    then
+                        build_path="$tst_path/build/$tst_mf"
+                        break
+                    fi
+
+                    if [[ -f "$tst_path/$tst_mf" ]]
+                    then
+                        build_path="$tst_path/$tst_mf"
+                        break
+                    fi
+                done
+
+                if [ "$build_path" != "" ]
                 then
-                    make_file="$tst_path/$tst_file"
                     break
                 fi
             done
-            if [ "$make_file" != "." ]
+        fi
+
+        if [[ $use_autocfg == true ]]
+        then
+            for tst_ac in ${ac_files}
+            do
+                if [[ ! -f "$tst_path/$tst_ac" ]]
+                then 
+                    continue
+                fi
+
+                for tst_mf in ${mk_files}
+                do
+                    if [[ -f "$tst_path/build/$tst_mf" ]]
+                    then
+                        build_path="$tst_path/build/$tst_mf"
+                        break
+                    fi
+
+                    if [[ -f "$tst_path/$tst_mf" ]]
+                    then
+                        build_path="$tst_path/$tst_mf"
+                        break
+                    fi
+                done
+
+                if [ "$build_path" != "" ]
+                then
+                    break
+                fi
+            done
+        fi
+
+        for tst_file in ${mk_files}
+        do
+            if [ -f "$tst_path/$tst_file" ]
             then
+                build_path="$tst_path/$tst_file"
                 break
             fi
         done
-    fi
-    echo "$make_file"
+        if [ "$build_path" != "" ]
+        then
+            break
+        fi
+    done
+    echo "$build_path"
 }
-
 
 function bldr_locate_boot_script
 {
@@ -1094,38 +1214,29 @@ function bldr_locate_config_script
     local maven_files=$BLDR_MAVEN_FILE_SEARCH_LIST
     local python_files=$BLDR_PYTHON_FILE_SEARCH_LIST
 
-    local use_cmake=true
-    local use_autocfg=true
-    local use_maven=true
-    local use_python=true
+    local use_cmake=false
+    local use_autocfg=false
+    local use_maven=false
+    local use_python=false
 
     if [[ $(echo "$cfg_opts" | grep -m1 -c "cmake" ) > 0 ]]
     then
         use_cmake=true
-        use_autocfg=false
-        use_maven=false
-        use_python=false
     
-    elif [[ $(echo "$cfg_opts" | grep -m1 -c "config" ) > 0 ]]
+    elif [[ $(echo "$cfg_opts" | grep -m1 -c "configure" ) > 0 ]]
     then
-        use_cmake=false
         use_autocfg=true
-        use_maven=false
-        use_python=false
 
     elif [[ $(echo "$cfg_opts" | grep -m1 -c "maven" ) > 0 ]]
     then
-        use_cmake=false
-        use_autocfg=false
         use_maven=true
-        use_python=false
 
     elif [[ $(echo "$cfg_opts" | grep -m1 -c "python" ) > 0 ]]
     then
-        use_cmake=false
-        use_autocfg=false
-        use_maven=false
         use_python=true
+
+    else
+        use_autocfg=true
     fi
 
     local tst_path=""
@@ -1499,6 +1610,22 @@ function bldr_pop_dir()
 #    bldr_log_cmd "popd ${dir}"
 #    popd || bldr_bail "Failed to push directory '${dir}'"
     popd  > /dev/null  || bldr_bail "Failed to pop directory!"
+}
+
+function bldr_readlink()
+{
+    local _=`pwd`; cd "$1" && echo `pwd` && cd "$_";
+}
+
+function bldr_create_symlink()
+{
+    if [ $BLDR_VERBOSE != false ]
+    then
+        ln -sv "$1" "$2" || bldr_bail "Failed to link '$1' to '$2'!"
+        bldr_log_split    
+    else
+        ln -s "$1" "$2"   || bldr_bail "Failed to link '$1' to '$2'!"
+    fi
 }
 
 function bldr_move_file()
@@ -2546,6 +2673,8 @@ function bldr_boot_pkg()
 
     if [ "$pkg_uses" != "" ]
     then
+        local ld_cnt
+        let ld_cnt=0
         for using in ${pkg_uses}
         do
             if [[ $(echo $using | grep -m1 -c '\/') > 0 ]]
@@ -2564,11 +2693,15 @@ function bldr_boot_pkg()
                     bldr_log_warning "Module environment not setup!  Skipping load request for package '$pkg_name/$pkg_vers' ..."
                 fi
             else
-                bldr_load_pkg --name "$req_name" --version "$req_vers" --verbose $use_verbose                                
+                bldr_load_pkg --name "$req_name" --version "$req_vers" --verbose $use_verbose          
+                let ld_cnt++                      
             fi
 
         done
-        bldr_log_split
+        if [[ $ld_cnt -gt 0 ]]
+        then
+            bldr_log_split
+        fi
     fi
 
     bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
@@ -2627,6 +2760,9 @@ function bldr_boot_pkg()
         fi
         bldr_pop_dir
     fi
+
+    bldr_log_item_suffix "Done booting package" "$pkg_name/$pkg_vers"
+    bldr_log_split
 }
 
 function bldr_maven_pkg()
@@ -3409,10 +3545,102 @@ function bldr_compile_pkg()
         done
     fi
 
-    if [ -f "./Makefile" ] || [ -f "./makefile" ]
+    # append any CFLAGS or LDFLAGS if requested
+    if [[ $(bldr_has_cfg_option "$pkg_opts" "use-make-envflags" ) == "true" ]]
     then
-        bldr_run_cmd "make $options" || bldr_bail "Failed to build package: '$prefix'"
+        if [[ $BLDR_SYSTEM_IS_OSX == true ]]
+        then
+            if [[ $(bldr_has_cfg_option "$pkg_opts" "skip-auto-compile-flags" ) == "false" ]]
+            then
+                if [[ $(bldr_has_cfg_option "$pkg_opts" "skip-xcode-config" ) == "false" ]]
+                then
+                    if [[ $(bldr_has_cfg_option "$pkg_opts" "disable-xcode-cflags" ) == "true" ]]
+                    then
+                        bldr_log_info "Disabling XCode Compile FLAGS ..."
+                        bldr_log_split
+                    else
+                        pkg_cflags="$pkg_cflags:$BLDR_XCODE_CFLAGS"
+                    fi
+
+                    if [[ $(bldr_has_cfg_option "$pkg_opts" "disable-xcode-ldflags" ) == "true" ]]
+                    then
+                        bldr_log_info "Disabling XCode Linker FLAGS ..."
+                        bldr_log_split
+                    else
+                        pkg_ldflags="$pkg_ldflags:$BLDR_XCODE_LDFLAGS"
+                    fi
+                else
+                    bldr_log_info "Disabling XCode Configuration ..."
+                    bldr_log_split                
+                fi
+            fi
+        fi
+
+        pkg_cflags=$(bldr_trim_list_str "$pkg_cflags")
+        if [ "$pkg_cflags" != "" ] && [ "$pkg_cflags" != " " ]  && [ "$pkg_cflags" != ":" ]
+        then
+            pkg_cflags=$(echo $pkg_cflags | bldr_split_str ":" | bldr_join_str " ")
+            if [[ $BLDR_SYSTEM_IS_CENTOS == true ]]
+            then
+                pkg_cflags="$pkg_cflags -I/usr/include"
+            fi
+        else
+            pkg_cflags=""
+        fi
+
+        local all_cxxflags=$(bldr_trim_str "$pkg_cflags $CXXFLAGS")
+        if [ "$all_cxxflags" != "" ]
+        then
+            env_flags="$env_flags CXXFLAGS=\"$all_cxxflags\""
+        fi
+
+        local all_cppflags=$(bldr_trim_str "$pkg_cflags $CPPFLAGS")
+        if [ "$all_cppflags" != "" ]
+        then
+            env_flags="$env_flags CPPFLAGS=\"$all_cppflags\""
+        fi
+
+        local all_cflags=$(bldr_trim_str "$pkg_cflags $CFLAGS")
+        if [ "$all_cflags" != "" ]
+        then
+            env_flags="$env_flags CFLAGS=\"$all_cflags\""
+        fi
+
+        pkg_ldflags=$(bldr_trim_list_str "$pkg_ldflags")
+        if [ "$pkg_ldflags" != "" ] && [ "$pkg_ldflags" != " " ] && [ "$pkg_ldflags" != ":" ]
+        then
+            pkg_ldflags=$(echo $pkg_ldflags | bldr_split_str ":" | bldr_join_str " ")
+            if [[ $BLDR_SYSTEM_IS_CENTOS == true ]]
+            then
+                pkg_ldflags="$pkg_ldflags -L/usr/lib64 -L/usr/lib"
+            fi
+        else
+            pkg_ldflags=""
+        fi
+
+        local all_ldflags=$(bldr_trim_str "$pkg_ldflags $LDFLAGS")
+        if [ "$all_ldflags" != "" ]
+        then
+            env_flags="$env_flags LDFLAGS=\"$all_ldflags\""
+        fi
+        options="$options $env_flags"
     fi
+
+    local mk_file=$(bldr_locate_make_file $pkg_cfg_path $pkg_opts)
+    if [[ $(echo "$pkg_opts" | grep -m1 -c 'use-build-makefile') > 0 ]]
+    then
+        local user_mk=$(echo $pkg_opts | grep -E -o 'use-build-makefile=(\S+)' | sed 's/.*=//g' )
+        if [[ "$user_mk" != "" ]]
+        then
+            mk_file="$user_mk"
+        fi
+    fi
+
+    if [ -f "$mk_file" ]
+    then
+        bldr_run_cmd "make -f $mk_file $options" || bldr_bail "Failed to build package: '$prefix'"
+    fi
+
     bldr_pop_dir
 }
 
@@ -3474,6 +3702,26 @@ function bldr_install_pkg()
     fi
 
     local prefix="$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
+    
+    if [[ $(bldr_has_cfg_option "$pkg_opts" "create-local-base-path" ) == "true" ]]
+    then
+        bldr_make_dir "$prefix"
+    fi
+
+    if [[ $(bldr_has_cfg_option "$pkg_opts" "create-local-bin-path" ) == "true" ]]
+    then
+        bldr_make_dir "$prefix/bin"
+    fi
+    
+    if [[ $(bldr_has_cfg_option "$pkg_opts" "create-local-lib-path" ) == "true" ]]
+    then
+        bldr_make_dir "$prefix/lib"
+    fi
+
+    if [[ $(bldr_has_cfg_option "$pkg_opts" "create-local-include-path" ) == "true" ]]
+    then
+        bldr_make_dir "$prefix/include"
+    fi
 
     bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
     local build_path=$(bldr_locate_build_path $pkg_cfg_path $pkg_opts)
@@ -3487,27 +3735,117 @@ function bldr_install_pkg()
     then
         options="--quiet $options"
     fi
-    # extract the makefile rule names and filter out empty lines and comments
-    if [ -f "./Makefile" ] || [ -f "./makefile" ]
+
+    local mk_file=$(bldr_locate_make_file $pkg_cfg_path $pkg_opts)
+    if [[ $(echo "$pkg_opts" | grep -m1 -c 'use-build-makefile') > 0 ]]
+    then
+        local user_mk=$(echo $pkg_opts | grep -E -o 'use-build-makefile=(\S+)' | sed 's/.*=//g' )
+        if [[ "$user_mk" != "" ]]
+        then
+            mk_file="$user_mk"
+        fi
+    fi
+
+    # append any -M directives as macros to the make command (eg. -MMAKE_EXAMPLES=0 -> MAKE_EXAMPLES=0)
+    if [[ $(echo "$pkg_opts" | grep -m1 -c '\-M') > 0 ]]
+    then
+        local def=""
+        defines=$(echo $pkg_opts | grep -E -o "\-M(\S+)\s*" | sed 's/-M//g' )
+        for def in ${defines}
+        do
+            options="$options $def"
+        done
+    fi
+
+    # append any CFLAGS or LDFLAGS if requested
+    if [[ $(bldr_has_cfg_option "$pkg_opts" "use-make-envflags" ) == "true" ]]
+    then
+        if [[ $BLDR_SYSTEM_IS_OSX == true ]]
+        then
+            if [[ $(bldr_has_cfg_option "$pkg_opts" "skip-auto-compile-flags" ) == "false" ]]
+            then
+                if [[ $(bldr_has_cfg_option "$pkg_opts" "skip-xcode-config" ) == "false" ]]
+                then
+                    if [[ $(bldr_has_cfg_option "$pkg_opts" "disable-xcode-cflags" ) == "true" ]]
+                    then
+                        bldr_log_info "Disabling XCode Compile FLAGS ..."
+                        bldr_log_split
+                    else
+                        pkg_cflags="$pkg_cflags:$BLDR_XCODE_CFLAGS"
+                    fi
+
+                    if [[ $(bldr_has_cfg_option "$pkg_opts" "disable-xcode-ldflags" ) == "true" ]]
+                    then
+                        bldr_log_info "Disabling XCode Linker FLAGS ..."
+                        bldr_log_split
+                    else
+                        pkg_ldflags="$pkg_ldflags:$BLDR_XCODE_LDFLAGS"
+                    fi
+                else
+                    bldr_log_info "Disabling XCode Configuration ..."
+                    bldr_log_split                
+                fi
+            fi
+        fi
+
+        pkg_cflags=$(bldr_trim_list_str "$pkg_cflags")
+        if [ "$pkg_cflags" != "" ] && [ "$pkg_cflags" != " " ]  && [ "$pkg_cflags" != ":" ]
+        then
+            pkg_cflags=$(echo $pkg_cflags | bldr_split_str ":" | bldr_join_str " ")
+            if [[ $BLDR_SYSTEM_IS_CENTOS == true ]]
+            then
+                pkg_cflags="$pkg_cflags -I/usr/include"
+            fi
+        else
+            pkg_cflags=""
+        fi
+
+        local all_cxxflags=$(bldr_trim_str "$pkg_cflags $CXXFLAGS")
+        if [ "$all_cxxflags" != "" ]
+        then
+            env_flags="$env_flags CXXFLAGS=\"$all_cxxflags\""
+        fi
+
+        local all_cppflags=$(bldr_trim_str "$pkg_cflags $CPPFLAGS")
+        if [ "$all_cppflags" != "" ]
+        then
+            env_flags="$env_flags CPPFLAGS=\"$all_cppflags\""
+        fi
+
+        local all_cflags=$(bldr_trim_str "$pkg_cflags $CFLAGS")
+        if [ "$all_cflags" != "" ]
+        then
+            env_flags="$env_flags CFLAGS=\"$all_cflags\""
+        fi
+
+        pkg_ldflags=$(bldr_trim_list_str "$pkg_ldflags")
+        if [ "$pkg_ldflags" != "" ] && [ "$pkg_ldflags" != " " ] && [ "$pkg_ldflags" != ":" ]
+        then
+            pkg_ldflags=$(echo $pkg_ldflags | bldr_split_str ":" | bldr_join_str " ")
+            if [[ $BLDR_SYSTEM_IS_CENTOS == true ]]
+            then
+                pkg_ldflags="$pkg_ldflags -L/usr/lib64 -L/usr/lib"
+            fi
+        else
+            pkg_ldflags=""
+        fi
+
+        local all_ldflags=$(bldr_trim_str "$pkg_ldflags $LDFLAGS")
+        if [ "$all_ldflags" != "" ]
+        then
+            env_flags="$env_flags LDFLAGS=\"$all_ldflags\""
+        fi
+        options="$options $env_flags"
+    fi
+
+    if [ -f "$mk_file" ]
     then
         # install using make if an 'install' rule exists
-        local rules=$(make -pnsk | grep -v ^$ | grep -v ^# | grep -m1 -c '^install:')
+        local rules=$(make -f $mk_file -pnsk | grep -v ^$ | grep -v ^# | grep -m1 -c '^install:')
         if [[ $(echo "$rules") > 0 ]]
         then
-
-            # append any -M directives as macros to the make command (eg. -MMAKE_EXAMPLES=0 -> MAKE_EXAMPLES=0)
-            if [[ $(echo "$pkg_opts" | grep -m1 -c '\-M') > 0 ]]
-            then
-                local def=""
-                defines=$(echo $pkg_opts | grep -E -o "\-M(\S+)\s*" | sed 's/-M//g' )
-                for def in ${defines}
-                do
-                    options="$options $def"
-                done
-            fi
-
             bldr_log_subsection "Installing package '$pkg_name/$pkg_vers' for '$pkg_ctry' ..."
-            bldr_run_cmd "make $options install" || bldr_bail "Failed to install package: '$prefix'"
+            bldr_run_cmd "make -f $mk_file $options install" || bldr_bail "Failed to install package: '$prefix'"
         fi
     fi
     bldr_pop_dir
@@ -3674,12 +4012,16 @@ function bldr_migrate_pkg()
             local binary=""
             for binary in ${src_path}/*
             do
-                if [ -x "$binary" ] && [ ! -d "$binary" ]
+                if [ ! -d "$binary" ]
                 then
                     if [[ $(bldr_is_library "$binary") == "true" ]]
                     then
                         subdir="lib"
+                    elif [[ ! -x "$binary" ]]
+                    then
+                        continue
                     fi
+
                     if [ $first_file ]
                     then
                         bldr_log_status "Migrating build binaries from '$subdir' for '$pkg_name/$pkg_vers'"

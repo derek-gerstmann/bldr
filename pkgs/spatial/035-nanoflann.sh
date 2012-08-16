@@ -21,7 +21,7 @@ for 2D or 3D point clouds.
 
 nanoflann does not require compiling or installing, just an #include <nanoflann.hpp> in your code.
 
-This library is a fork (and a subset) of the `flann` library, by Marius Muja and David G. Lowe, 
+This library is a fork (and a subset) of the flann library, by Marius Muja and David G. Lowe, 
 born as a child project of MRPT. Following the original license terms, nanoflann is distributed 
 under the BSD license."
 

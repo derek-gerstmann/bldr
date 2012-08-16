@@ -29,23 +29,11 @@ pkg_reqs="$pkg_reqs libxml2/latest"
 pkg_reqs="$pkg_reqs lcms2/latest"
 pkg_reqs="$pkg_reqs libpng/latest"
 pkg_reqs="$pkg_reqs libjpeg/latest"
-if [[ $BLDR_SYSTEM_IS_OSX == false ]]
-then
-     pkg_reqs="$pkg_reqs text/libiconv"
-fi
+pkg_reqs="$pkg_reqs text/libiconv"
 pkg_uses=$pkg_reqs
 
 pkg_cflags=""
 pkg_ldflags=""
-
-if [[ $BLDR_SYSTEM_IS_OSX == true ]]
-then
-     pkg_cflags="$pkg_cflags:-I/usr/local/include:-I/usr/include"
-     pkg_ldflags="$pkg_ldflags:-L/usr/local/lib:-L/usr/lib:-lintl"
-fi
-
-pkg_uses="$pkg_reqs"
-
 
 ####################################################################################################
 # build and install pkg as local module

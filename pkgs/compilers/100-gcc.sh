@@ -32,6 +32,7 @@ pkg_file="$pkg_name-$pkg_vers.tar.bz2"
 pkg_urls="http://ftp.tsukuba.wide.ad.jp/software/gcc/releases/$pkg_name-$pkg_vers/$pkg_file"
 pkg_opts="configure skip-xcode-config"
 
+pkg_reqs="$pkg_reqs zlib/latest"
 pkg_reqs="$pkg_reqs gmp/latest"
 pkg_reqs="$pkg_reqs ppl/latest"
 pkg_reqs="$pkg_reqs mpfr/latest"
@@ -42,17 +43,24 @@ pkg_reqs="$pkg_reqs cloog/latest"
 pkg_reqs="$pkg_reqs perl/latest"
 pkg_uses="$pkg_reqs"
 
-pkg_cflags=""
-pkg_ldflags=""
-pkg_cfg="--enable-checking=release"
-pkg_cfg="$pkg_cfg --enable-languages=c,c++,fortran"
+pkg_cfg=""
+pkg_cfg="$pkg_cfg --enable-checking=release"
+pkg_cfg="$pkg_cfg --enable-languages=c,c++,objc,obj-c++,lto,fortran"
 pkg_cfg="$pkg_cfg --with-gmp=$BLDR_LOCAL_PATH/numerics/gmp/latest"
 pkg_cfg="$pkg_cfg --with-mpfr=$BLDR_LOCAL_PATH/numerics/mpfr/latest"
 pkg_cfg="$pkg_cfg --with-mpc=$BLDR_LOCAL_PATH/numerics/mpc/latest"
 pkg_cfg="$pkg_cfg --with-isl=$BLDR_LOCAL_PATH/numerics/isl/latest"
 pkg_cfg="$pkg_cfg --with-ppl=$BLDR_LOCAL_PATH/numerics/ppl/latest"
 pkg_cfg="$pkg_cfg --with-cloog=$BLDR_LOCAL_PATH/compilers/cloog/latest"
-pkg_cfg="$pkg_cfg --with-host-libstdcxx=-lstdc++"
+pkg_cfg="$pkg_cfg --enable-cloog-backend=isl"
+pkg_cfg="$pkg_cfg --with-system-zlib"
+pkg_cfg="$pkg_cfg --enable-stage1-checking"
+pkg_cfg="$pkg_cfg --disable-nls"
+pkg_cfg="$pkg_cfg --disable-multilib"
+pkg_cfg="$pkg_cfg --enable-lto"
+
+pkg_cflags=""
+pkg_ldflags=""
 pkg_patch=""
 
 ####################################################################################################
@@ -62,6 +70,7 @@ pkg_patch=""
 for pkg_vers in ${pkg_ver_list}
 do
      pkg_file="$pkg_name-$pkg_vers.tar.bz2"
+     pkg_pre=$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers
      pkg_urls="http://ftp.tsukuba.wide.ad.jp/software/gcc/releases/$pkg_name-$pkg_vers/$pkg_file"
      bldr_build_pkg --category    "$pkg_ctry"    \
                     --name        "$pkg_name"    \

@@ -31,11 +31,7 @@ feature. "
 pkg_file="$pkg_name-$pkg_vers.tar.xz"
 pkg_urls="http://ftp.gnu.org/gnu/$pkg_name/$pkg_file"
 pkg_opts="configure"
-pkg_reqs="coreutils/latest gettext/latest"
-if [[ $BLDR_SYSTEM_IS_OSX == false ]]
-then
-     pkg_cfg="$pkg_cfg libiconv/latest"
-fi
+pkg_reqs="coreutils/latest gettext/latest libiconv/latest"
 pkg_uses="$pkg_reqs"
 
 ####################################################################################################
@@ -54,14 +50,8 @@ bldr_satisfy_pkg --category    "$pkg_ctry"    \
 pkg_cflags=""
 pkg_ldflags=""
 
-if [[ $BLDR_SYSTEM_IS_OSX == false ]]
-then
-     pkg_cfg="$pkg_cfg --with-libiconv-prefix=\"$BLDR_LIBICONV_BASE_PATH\""
-else
-     pkg_cflags="$pkg_cflags:-I/usr/local/include:-I/usr/include"
-     pkg_ldflags="$pkg_ldflags:-L/usr/local/lib:-L/usr/lib:-lintl"     
-fi
-
+pkg_cfg=""
+pkg_cfg="$pkg_cfg --with-libiconv-prefix=\"$BLDR_LIBICONV_BASE_PATH\""
 pkg_cfg="$pkg_cfg --with-libintl-prefix=\"$BLDR_GETTEXT_BASE_PATH\""
 
 pkg_patch=""

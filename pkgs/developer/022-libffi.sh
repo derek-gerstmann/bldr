@@ -28,16 +28,11 @@ that handles type conversions for values passed between the two languages."
 pkg_file="$pkg_name-$pkg_vers.tar.gz"
 pkg_urls="http://sourceware.mirrors.tds.net/pub/sourceware.org/libffi/$pkg_file"
 pkg_opts="configure"
-pkg_reqs="zlib/latest"
+pkg_reqs="zlib/latest libiconv/latest"
 pkg_uses="$pkg_reqs"
 pkg_cfg="--enable-static --enable-shared"
 pkg_cflags=""
 pkg_ldflags=""
-
-if [ $BLDR_SYSTEM_IS_OSX == false ]
-then
-     pkg_reqs="$pkg_reqs libiconv/latest"
-fi
 
 ####################################################################################################
 # build and install pkg as local module

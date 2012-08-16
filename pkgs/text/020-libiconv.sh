@@ -35,7 +35,7 @@ conversion library for both kinds of applications. "
 
 pkg_file="$pkg_name-$pkg_vers.tar.gz"
 pkg_urls="http://ftp.gnu.org/pub/gnu/libiconv/$pkg_file"
-pkg_opts="configure -M-f -MMakefile.devel"
+pkg_opts="configure"
 pkg_reqs="zlib/latest libunistring/latest gperf/latest"
 pkg_uses="$pkg_reqs"
 pkg_cfg="--enable-static --enable-shared --enable-extra-encodings" 
@@ -44,7 +44,17 @@ pkg_ldflags=""
 
 ####################################################################################################
 
-function bldr_compile_pkg()
+# OSX >= 10.6 ships with GNU libiconv w/tons of proprietary (unknown) patches 
+# -- just copy that version into our local tree
+#
+if [ $BLDR_SYSTEM_IS_OSX == true ]
+then
+    pkg_opts="$pkg_opts skip-fetch skip-boot skip-config skip-install migrate-build-tree"
+fi
+
+####################################################################################################
+
+function bldr_pkg_compile_method()
 {
     local use_verbose="false"
     local pkg_ctry=""
@@ -84,118 +94,86 @@ function bldr_compile_pkg()
         esac
     done
 
-    if [ "$use_verbose" == "true" ]
-    then
-        BLDR_VERBOSE=true
-    fi
-
-    if [[ $(bldr_has_cfg_option "$pkg_opts" "skip-compile" ) == "true" ]]
-    then
-        return
-    fi
-
-    if [ ! -d "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers" ]
-    then
-        bldr_log_warning "Build directory not found for '$pkg_name/$pkg_vers'!  Skipping 'compile' stage ..."
-        bldr_log_split
-        return
-    fi
-
-    # setup the build and prep for the compile
+    # call the standard BLDR compile method
     #
-    bldr_log_subsection "Building package '$pkg_name/$pkg_vers' ..."
-
+    if [[ $BLDR_SYSTEM_IS_OSX == false ]]
+    then
+        bldr_compile_pkg                 \
+            --category    "$pkg_ctry"    \
+            --name        "$pkg_name"    \
+            --version     "$pkg_vers"    \
+            --info        "$pkg_info"    \
+            --description "$pkg_desc"    \
+            --file        "$pkg_file"    \
+            --url         "$pkg_urls"    \
+            --uses        "$pkg_uses"    \
+            --requires    "$pkg_reqs"    \
+            --options     "$pkg_opts"    \
+            --cflags      "$pkg_cflags"  \
+            --ldflags     "$pkg_ldflags" \
+            --config      "$pkg_cfg"     \
+            --config-path "$pkg_cfg_path"\
+            --patch       "$pkg_patches" \
+            --verbose     "$use_verbose"
+            return
+    fi
+    
     local prefix="$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
-
     bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
-    local cfg_path=$(bldr_locate_config_path $pkg_cfg_path $pkg_opts)
-    local cfg_cmd=$(bldr_locate_config_script $pkg_cfg_path $pkg_opts)
-    local build_path=$(bldr_locate_build_path $pkg_cfg_path $pkg_opts)
+    local build_path=$(bldr_locate_build_path $pkg_cfg_path)
     bldr_pop_dir
-    
-    bldr_log_info "Moving to build path: '$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$build_path' ..."
+
+    # handle OSX specific build setup
+    #
+    bldr_make_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
+    bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
     bldr_log_split
-    bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$build_path"
 
-    if [[ $(bldr_has_cfg_option "$pkg_opts" "force-serial-build" ) == "true" ]]
-    then
-        bldr_log_info "Forcing serial build for '$pkg_name/$pkg_vers' ..."
-        bldr_log_split
-        BLDR_PARALLEL=false
-    fi
-    
-    if [[ $(bldr_has_pkg --category "internal" --name "make" --version "3.8.2" ) == "false" ]]
-    then
-        BLDR_PARALLEL=false
-    fi
+    bldr_make_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/lib"
+    bldr_make_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/include"
 
-    local defines=""
-    local output=$(bldr_get_stdout)
-    local options="--stop"
+    local fnd_lib=""
+    local fnd_lst=$(find /usr/lib/* -type f -iname "libiconv*")
+    for fnd_lib in ${fnd_lst}
+    do
+        bldr_copy_file "$fnd_lib" "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/lib"
+    done
 
-    if [[ $BLDR_VERBOSE != true ]]
-    then
-        options="--quiet $options"
-    fi
+    local fnd_lst=$(find /usr/lib/* -type l -iname "libiconv*")
+    for fnd_lib in ${fnd_lst}
+    do
+        local fnd_lnk=$(readlink $fnd_lib)
+        local fnd_base=$(basename $fnd_lib)
+        bldr_copy_file "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/lib/$fnd_lnk" "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/lib/$fnd_base"
+    done
 
-    if [[ $BLDR_PARALLEL == true ]]
-    then
-        local procs=2
-        if [[ $BLDR_SYSTEM_IS_OSX == true ]]
-        then
-            procs=$(sysctl -n hw.ncpu)
-        fi
-        if [[ $BLDR_SYSTEM_IS_LINUX == true ]]
-        then
-            procs=$(grep "^core id" /proc/cpuinfo | sort -u | wc -l)
-        fi
-        options="-j$procs $options"
-    fi
+    local fnd_hdr=""
+    local fnd_lst=$(find /usr/include/* -type f -iname "*iconv*")
+    for fnd_lib in ${fnd_lst}
+    do
+        bldr_copy_file "$fnd_lib" "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/include"
+    done
 
-    # append any -M directives as macros to the make command (eg. -MMAKE_EXAMPLES=0 -> MAKE_EXAMPLES=0)
-    if [[ $(echo "$pkg_opts" | grep -m1 -c '\-M') > 0 ]]
-    then
-        local def=""
-        defines=$(echo $pkg_opts | grep -E -o "\-M(\S+)\s*" | sed 's/-M//g' )
-        for def in ${defines}
-        do
-            options="$options $def"
-        done
-    fi
-
-     if [ $BLDR_SYSTEM_IS_OSX == true ]
-     then
-        bldr_run_cmd "make -f Makefile.devel $options" || bldr_bail "Failed to build package: '$prefix'"
-     fi
-
-     bldr_run_cmd "make check $options" || bldr_bail "Failed to build package: '$prefix'"
-     bldr_run_cmd "make install $options" || bldr_bail "Failed to build package: '$prefix'"
+    bldr_log_split
     bldr_pop_dir
 }
-
 
 ####################################################################################################
 # build and install pkg as local module
 ####################################################################################################
 
-if [ $BLDR_SYSTEM_IS_OSX == true ]
-then
-  bldr_log_warning "$pkg_name uses the native OSX version bundled with MacOSX.  Skipping..."
-  bldr_log_split
-else
-  bldr_build_pkg                 \
-    --category    "$pkg_ctry"    \
-    --name        "$pkg_name"    \
-    --version     "$pkg_vers"    \
-    --info        "$pkg_info"    \
-    --description "$pkg_desc"    \
-    --file        "$pkg_file"    \
-    --url         "$pkg_urls"    \
-    --uses        "$pkg_uses"    \
-    --requires    "$pkg_reqs"    \
-    --options     "$pkg_opts"    \
-    --cflags      "$pkg_cflags"  \
-    --ldflags     "$pkg_ldflags" \
-    --config      "$pkg_cfg"
-fi
+bldr_build_pkg                 \
+  --category    "$pkg_ctry"    \
+  --name        "$pkg_name"    \
+  --version     "$pkg_vers"    \
+  --info        "$pkg_info"    \
+  --description "$pkg_desc"    \
+  --file        "$pkg_file"    \
+  --url         "$pkg_urls"    \
+  --uses        "$pkg_uses"    \
+  --requires    "$pkg_reqs"    \
+  --options     "$pkg_opts"    \
+  --cflags      "$pkg_cflags"  \
+  --ldflags     "$pkg_ldflags" \
+  --config      "$pkg_cfg"
 

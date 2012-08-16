@@ -44,40 +44,36 @@ pkg_uses=""
 pkg_reqs=""
 pkg_cfg=""
 
-pkg_uses=""
 pkg_reqs=""
+pkg_reqs="$pkg_reqs zlib/latest"
+pkg_reqs="$pkg_reqs libxml2/latest"
+pkg_reqs="$pkg_reqs libicu/latest"
+pkg_reqs="$pkg_reqs libiconv/latest"
+pkg_reqs="$pkg_reqs gtk-doc/latest"
+pkg_reqs="$pkg_reqs gettext/latest"
+pkg_reqs="$pkg_reqs glib/latest"
+pkg_reqs="$pkg_reqs libpng/latest"
+pkg_reqs="$pkg_reqs freetype/latest"
+pkg_reqs="$pkg_reqs fontconfig/latest"
+pkg_reqs="$pkg_reqs pango/latest"
+pkg_reqs="$pkg_reqs pixman/latest"
+pkg_reqs="$pkg_reqs poppler/latest"
+if [[ $BLDR_SYSTEM_IS_OSX == false ]]; then
+     pkg_reqs="$pkg_reqs cogl/latest"
+fi
+
+pkg_cfg=""
+pkg_cfg_path=""
 pkg_cflags=""
 pkg_ldflags=""
 
-dep_list="compression/zlib text/libicu formats/libxml2"
-dep_list="$dep_list typography/freetype typography/fontconfig"
-dep_list="$dep_list graphics/pixman imaging/libpng"
-dep_list="$dep_list text/gettext developer/glib"
-
-if [[ $BLDR_SYSTEM_IS_OSX == false ]]; then
-     dep_list="$dep_list text/libiconv graphics/cogl"
-fi
-
-for dep_pkg in $dep_list
-do
-     pkg_req_name=$(echo "$dep_pkg" | sed 's/.*\///g' )
-     pkg_reqs="$pkg_reqs $pkg_req_name/latest"
-     pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/$dep_pkg/latest/include"
-     pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/$dep_pkg/latest/lib"
-done
-
 if [[ $BLDR_SYSTEM_IS_OSX == true ]]; then
      pkg_cfg="$pkg_cfg --disable-xlib --enable-quartz --enable-quartz-image"
-     # pkg_ldflags="$pkg_ldflags:-framework:ApplicationServices"
-     pkg_cflags="$pkg_cflags:-I/usr/local/include:-I/usr/include"
-     pkg_ldflags="$pkg_ldflags:-L/usr/local/lib:-L/usr/lib:-lintl"
 else
      pkg_cfg="$pkg_cfg --enable-drm --enable-directfb --enable-gl --enable-cogl"     
 fi
 
 pkg_uses="$pkg_reqs"
-
-
 
 ####################################################################################################
 # build and install pkg as local module

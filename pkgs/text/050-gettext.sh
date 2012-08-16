@@ -30,13 +30,13 @@ remainder of the Translation Project, and consequently, have a glimpse at the bi
 pkg_file="$pkg_name-$pkg_vers.tar.gz"
 pkg_urls="http://ftp.gnu.org/pub/gnu/gettext/$pkg_file"
 pkg_opts="configure"
-pkg_reqs="zlib/latest libicu/latest libxml2/latest"
-
-if [[ $BLDR_SYSTEM_IS_OSX == false ]]
-then
-     pkg_reqs="$pkg_reqs libiconv/latest"
-fi
-
+pkg_reqs="$pkg_reqs coreutils/latest"
+pkg_reqs="$pkg_reqs zlib/latest"
+pkg_reqs="$pkg_reqs libicu/latest"
+pkg_reqs="$pkg_reqs libunistring/latest"
+pkg_reqs="$pkg_reqs expat/latest"
+pkg_reqs="$pkg_reqs libxml2/latest"
+pkg_reqs="$pkg_reqs libiconv/latest"
 pkg_uses="$pkg_reqs"
 
 ####################################################################################################
@@ -52,18 +52,13 @@ bldr_satisfy_pkg --category    "$pkg_ctry"    \
 
 ####################################################################################################
 
-pkg_cfg="--with-gnu-ld --without-emacs"
+pkg_cfg="--with-gnu-ld --without-emacs --disable-rpath"
 pkg_cfg="$pkg_cfg --with-included-libunistring"
 pkg_cfg="$pkg_cfg --with-included-libcroco"
+pkg_cfg="$pkg_cfg --with-libunistring-prefix=\"$BLDR_LIBUNISTRING_BASE_PATH\""
+pkg_cfg="$pkg_cfg --with-libexpat-prefix=\"$BLDR_EXPAT_BASE_PATH\""
 pkg_cfg="$pkg_cfg --with-libxml2-prefix=\"$BLDR_LIBXML2_BASE_PATH\""
-
-if [ $BLDR_SYSTEM_IS_OSX == true ]
-then
-     pkg_cfg="$pkg_cfg --with-libiconv-prefix=/usr"
-else
-     pkg_cfg="$pkg_cfg --with-libiconv-prefix=\"$BLDR_LIBICONV_BASE_PATH\""
-fi
-
+pkg_cfg="$pkg_cfg --with-libiconv-prefix=\"$BLDR_LIBICONV_BASE_PATH\""
 pkg_patch=""
 pkg_cflags=""
 pkg_ldflags=""

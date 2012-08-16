@@ -38,7 +38,7 @@ The library also comes with test programs for measuring the quality of performan
 ANN on any particular data sets, as well as programs for visualizing the structure of 
 the geometric data structures."
 
-pkg_file="$pkg_name_$pkg_vers.tar.gz"
+pkg_file="${pkg_name}_${pkg_vers}.tar.gz"
 pkg_urls="http://www.cs.umd.edu/~mount/ANN/Files/$pkg_vers/$pkg_file"
 pkg_opts="configure"
 pkg_uses=""
