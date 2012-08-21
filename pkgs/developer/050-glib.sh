@@ -61,7 +61,12 @@ pkg_cfg="$pkg_cfg --disable-maintainer-mode"
 pkg_cfg="$pkg_cfg --disable-dependency-tracking"
 pkg_cfg="$pkg_cfg --disable-dtrace" 
 pkg_cfg="$pkg_cfg --with-pcre=system"
-pkg_cfg="$pkg_cfg --with-libiconv=native"
+if [[ $BLDR_SYSTEM_IS_OSX == true ]]
+then
+  pkg_cfg="$pkg_cfg --with-libiconv=native"
+else
+  pkg_cfg="$pkg_cfg --with-libiconv=gnu"
+fi
 pkg_patch=""
 
 ####################################################################################################
