@@ -25,7 +25,7 @@ pkg_reqs="pkg-config/latest glib/latest"
 pkg_uses="$pkg_reqs"
 pkg_cflags=""
 pkg_ldflags=""
-pkg_cfg=""
+pkg_cfg="--disable-tests"
 pkg_patch=""
 
 ####################################################################################################
