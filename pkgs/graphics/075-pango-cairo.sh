@@ -62,8 +62,25 @@ pkg_reqs="$pkg_reqs glib/latest"
 pkg_reqs="$pkg_reqs gobject-isl/latest"
 pkg_reqs="$pkg_reqs cairo/latest"
 pkg_uses="$pkg_reqs"
+
+
+####################################################################################################
+# satisfy pkg dependencies and load their environment settings
+####################################################################################################
+
+bldr_satisfy_pkg --category    "$pkg_ctry"    \
+                 --name        "$pkg_name"    \
+                 --version     "$pkg_vers"    \
+                 --requires    "$pkg_reqs"    \
+                 --uses        "$pkg_uses"    \
+                 --options     "$pkg_opts"
+
+####################################################################################################
+
 pkg_cfg="--enable-static --enable-shared --enable-introspection=yes"
 pkg_cflags=""
+pkg_cflags="$pkg_cflags:-I$BLDR_GLIB_INCLUDE_DIR/glib-2.0"
+pkg_cflags="$pkg_cflags:-I$BLDR_GLIB_INCLUDE_DIR/gio-unix-2.0"
 pkg_ldflags=""
 
 ####################################################################################################
