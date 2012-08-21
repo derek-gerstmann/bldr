@@ -10,7 +10,8 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_ver_list=("2.15.1")
+pkg_vers="2.15.1"
+pkg_ver_list=("$pkg_vers")
 pkg_ctry="languages"
 pkg_name="R"
 
@@ -43,25 +44,51 @@ piece of data analysis."
 pkg_file="$pkg_name-$pkg_vers.tar.gz"
 pkg_urls="http://cran.ms.unimelb.edu.au/src/base/R-2/$pkg_file"
 pkg_opts="configure"
-pkg_reqs="zlib/latest bzip2/latest tcl/latest tk/latest libpng/latest libjpeg/latest gsl/latest cairo/latest"
+pkg_reqs="$pkg_reqs zlib/latest"
+pkg_reqs="$pkg_reqs bzip2/latest"
+pkg_reqs="$pkg_reqs tcl/latest"
+pkg_reqs="$pkg_reqs tk/latest"
+pkg_reqs="$pkg_reqs pcre/latest"
+pkg_reqs="$pkg_reqs gettext/latest"
+pkg_reqs="$pkg_reqs libiconv/latest"
+pkg_reqs="$pkg_reqs libicu/latest"
+pkg_reqs="$pkg_reqs libpng/latest"
+pkg_reqs="$pkg_reqs libjpeg/latest"
+pkg_reqs="$pkg_reqs gsl/latest"
+pkg_reqs="$pkg_reqs cairo/latest"
+pkg_reqs="$pkg_reqs gfortran/latest"
+pkg_reqs="$pkg_reqs lapack/latest"
+pkg_uses="$pkg_reqs"
 
-if [[ $BLDR_SYSTEM_IS_OSX == false ]]; then
-    pkg_reqs="$pkg_reqs lapack/latest"
-    pkg_cfg="$pkg_cfg --with-lapack"
-fi
+####################################################################################################
+# satisfy pkg dependencies and load their environment settings
+####################################################################################################
+
+bldr_satisfy_pkg --category    "$pkg_ctry"    \
+                 --name        "$pkg_name"    \
+                 --version     "$pkg_vers"    \
+                 --requires    "$pkg_reqs"    \
+                 --uses        "$pkg_uses"    \
+                 --options     "$pkg_opts"
+
+####################################################################################################
 
 pkg_cfg="$pkg_cfg --with-system-zlib"
 pkg_cfg="$pkg_cfg --with-system-bzlib"
 pkg_cfg="$pkg_cfg --with-system-xz"
-pkg_cfg="$pkg_cfg --with-cairo"
+pkg_cfg="$pkg_cfg --with-system-pcre"
 pkg_cfg="$pkg_cfg --with-jpeglib"
 pkg_cfg="$pkg_cfg --with-libpng"
 pkg_cfg="$pkg_cfg --with-blas"
-pkg_cfg="$pkg_cfg --with-cairo=$BLDR_LOCAL_PATH/graphics/cairo/latest"
-pkg_cfg="$pkg_cfg --with-tcl-config=$BLDR_LOCAL_PATH/languages/tcl/latest/include"
-pkg_cfg="$pkg_cfg --with-tk-config=$BLDR_LOCAL_PATH/toolkits/tk/latest/include"
-
-pkg_uses="$pkg_reqs"
+pkg_cfg="$pkg_cfg --with-lapack"
+pkg_cfg="$pkg_cfg --with-ICU"
+pkg_cfg="$pkg_cfg --with-tcltk"
+pkg_cfg="$pkg_cfg --disable-R-framework"
+pkg_cfg="$pkg_cfg --without-aqua"
+pkg_cfg="$pkg_cfg --with-libintl-prefix=\"$BLDR_GETTEXT_BASE_PATH\""
+pkg_cfg="$pkg_cfg --with-cairo=\"$BLDR_CAIRO_BASE_PATH\""
+pkg_cfg="$pkg_cfg --with-tcl-config=\"$BLDR_TCL_BASE_PATH\""
+pkg_cfg="$pkg_cfg --with-tk-config=\"$BLDR_TK_BASE_PATH\""
 
 ####################################################################################################
 # build and install each pkg version as local module

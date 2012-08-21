@@ -10,24 +10,20 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_name="openexr"
-pkg_vers="2.0-beta1"
+pkg_ctry="storage"
+pkg_name="h5fddsm"
+pkg_vers="0.9.8"
 
-pkg_info="OpenEXR is a high dynamic-range (HDR) image file format developed by Industrial Light & Magic for use in computer imaging applications."
+pkg_info="H5F-DDSM is a Virtual File Driver for HDF5 which uses parallel communication to transfer data between applications using the HDF5 IO API and a distributed shared memory (DSM) buffer."
 
-pkg_desc="OpenEXR is a high dynamic-range (HDR) image file format developed by 
-Industrial Light & Magic for use in computer imaging applications.
+pkg_desc="H5F-DDSM is a Virtual File Driver for HDF5 which uses parallel communication 
+to transfer data between applications using the HDF5 IO API and a distributed shared 
+memory (DSM) buffer."
 
-OpenEXR is used by ILM on all motion pictures currently in production. 
-The first movies to employ OpenEXR were Harry Potter and the Sorcerers Stone, 
-Men in Black II, Gangs of New York, and Signs. Since then, OpenEXR has become 
-ILM's main image file format."
-
-pkg_file="$pkg_name-$pkg_vers.zip"
-pkg_urls="http://github.com/openexr/openexr/zipball/v2_beta.1"
-pkg_opts="cmake skip-boot force-serial-build use-base-dir=openexr-openexr-d847d1e"
-pkg_cfg_path="openexr-openexr-d847d1e/OpenEXR"
-pkg_reqs="zlib/latest lcms2/latest ilmbase/latest"
+pkg_file="$pkg_name-$pkg_vers.tar.bz2"
+pkg_urls="http://hpcforge.org/frs/download.php/43/$pkg_file"
+pkg_opts="cmake"
+pkg_reqs="szip/latest zlib/latest szip/latest openmpi/1.6 hdf5-vfd/latest"
 pkg_uses="$pkg_reqs"
 
 ####################################################################################################
@@ -46,26 +42,19 @@ bldr_satisfy_pkg --category    "$pkg_ctry"    \
 pkg_cflags=""
 pkg_ldflags=""
 
-sub_list="Half IlmThread Imath ImathTest Iex IexMath IexTest"
-for sub_inc in $sub_list
-do
-     pkg_cflags="$pkg_cflags:-I$BLDR_BUILD_PATH/imaging/$pkg_name/$pkg_vers/openexr/IlmBase/$sub_inc"
-done
+####################################################################################################
 
-pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/imaging/ilmbase/latest/include/OpenEXR"
-pkg_cflags="$pkg_cflags:-I$BLDR_BUILD_PATH/imaging/$pkg_name/$pkg_vers/openexr/OpenEXR/IlmImf"
-
-pkg_uses="$pkg_reqs"
-
-pkg_cfg="--disable-dependency-tracking "
-pkg_cfg="$pkg_cfg Z_CFLAGS=-I$BLDR_LOCAL_PATH/compression/zlib/latest/include"
-pkg_cfg="$pkg_cfg Z_LIBS=-lz"
+pkg_cfg="-DMAKESTATIC=1:-DLINKSTATIC=1"
+pkg_cfg="$pkg_cfg:-DMPI_INCLUDE_PATH=$BLDR_OPENMPI_INCLUDE_PATH"
+pkg_cfg="$pkg_cfg:-H5FD_DSM_BUILD_FORTRAN=ON"                                           
+pkg_cfg="$pkg_cfg:-H5FD_DSM_BUILD_STEERING=ON"
+pkg_cfg="$pkg_cfg:-HDF5_DIR=$BLDR_HDF5_VFD_SHARE_PATH/cmake/hdf5-version"
 
 ####################################################################################################
 # build and install pkg as local module
 ####################################################################################################
 
-bldr_build_pkg --category    "imaging"      \
+bldr_build_pkg --category    "$pkg_ctry"    \
                --name        "$pkg_name"    \
                --version     "$pkg_vers"    \
                --info        "$pkg_info"    \
@@ -77,7 +66,7 @@ bldr_build_pkg --category    "imaging"      \
                --options     "$pkg_opts"    \
                --cflags      "$pkg_cflags"  \
                --ldflags     "$pkg_ldflags" \
-               --config      "$pkg_cfg"     \
-               --config-path "$pkg_cfg_path"
+               --config      "$pkg_cfg"
 
+####################################################################################################
 

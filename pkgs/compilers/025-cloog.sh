@@ -40,13 +40,28 @@ pkg_reqs="$pkg_reqs isl/latest"
 pkg_reqs="$pkg_reqs osl/latest"
 pkg_reqs="$pkg_reqs zlib/latest"
 pkg_uses="$pkg_reqs"
-pkg_cflags=""
-pkg_ldflags=""
+
+####################################################################################################
+# satisfy pkg dependencies and load their environment settings
+####################################################################################################
+
+bldr_satisfy_pkg --category    "$pkg_ctry"    \
+                 --name        "$pkg_name"    \
+                 --version     "$pkg_vers"    \
+                 --requires    "$pkg_reqs"    \
+                 --uses        "$pkg_uses"    \
+                 --options     "$pkg_opts"
+
+####################################################################################################
 
 pkg_cfg=""
-pkg_cfg="$pkg_cfg --with-gmp=$BLDR_LOCAL_PATH/numerics/gmp/latest"
-pkg_cfg="$pkg_cfg --with-isl=$BLDR_LOCAL_PATH/numerics/isl/latest"
-pkg_cfg="$pkg_cfg --with-osl=$BLDR_LOCAL_PATH/compilers/osl/latest"
+pkg_cfg="$pkg_cfg --with-bits=gmp"
+pkg_cfg="$pkg_cfg --with-gmp=\"$BLDR_GMP_BASE_PATH\""
+pkg_cfg="$pkg_cfg --with-isl=\"$BLDR_ISL_BASE_PATH\""
+pkg_cfg="$pkg_cfg --with-osl=\"$BLDR_OSL_BASE_PATH\""
+
+pkg_cflags=""
+pkg_ldflags=""
 pkg_patch=""
 
 ####################################################################################################

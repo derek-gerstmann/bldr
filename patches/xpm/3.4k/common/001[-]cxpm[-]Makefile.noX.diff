@@ -1,0 +1,23 @@
+--- ./build/imaging/xpm/3.4k/cxpm/Makefile.noX	1998-03-20 03:51:01.000000000 +0800
++++ 000_cxpm_Makefile.noX	2012-08-16 13:23:43.000000000 +0800
+@@ -28,9 +28,9 @@
+ #
+ 
+ # where the program will be installed
+-DESTBINDIR=/usr/local/bin/X11
++DESTBINDIR=$(DESTBINDIR)
+ # where the man page will be installed
+-MANDIR=/usr/local/man/manl
++MANDIR=$(MANDIR)
+ 
+ CC = cc
+ RM = rm -f
+@@ -54,7 +54,7 @@
+ 	$(CC) $(CFLAGS) cxpm.o -o cxpm
+ 
+ install:
+-	$(INSTALL) -m 0755 cxpm $(DESTBINDIR)
++	$(INSTALL) -m 0755 cxpm $(DESTBINDIR)/cxpm
+ 
+ install.man:
+ 	$(INSTALL) -m 0644 cxpm.man $(MANDIR)/cxpm.l

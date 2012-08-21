@@ -1,0 +1,23 @@
+--- ./build/imaging/xpm/3.4k/sxpm/Makefile.noX	1998-03-20 03:51:01.000000000 +0800
++++ 000_sxpm_Makefile.noX	2012-08-16 13:25:46.000000000 +0800
+@@ -28,9 +28,9 @@
+ #
+ 
+ # where the program will be installed
+-DESTBINDIR=/usr/local/bin/X11
++DESTBINDIR=$(DESTBINDIR)
+ # where the man page will be installed
+-MANDIR=/usr/local/man/manl
++MANDIR=$(MANDIR)
+ 
+ # where the X11 libs are
+ XLIBDIRS= -L/usr/X11/lib
+@@ -60,7 +60,7 @@
+ 	$(CC) $(CFLAGS) sxpm.o $(LIBDIRS) $(XLIBDIRS) $(LIBS) -o sxpm
+ 
+ install:
+-	$(INSTALL) -m 0755 sxpm $(DESTBINDIR)
++	$(INSTALL) -m 0755 sxpm $(DESTBINDIR)/sxpm
+ 
+ install.man:
+ 	$(INSTALL) -m 0644 sxpm.man $(MANDIR)/sxpm.l

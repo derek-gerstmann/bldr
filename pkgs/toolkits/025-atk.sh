@@ -10,24 +10,26 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_name="openexr"
-pkg_vers="2.0-beta1"
+pkg_ctry="toolkits"
+pkg_name="atk"
+pkg_vers="2.4.0"
 
-pkg_info="OpenEXR is a high dynamic-range (HDR) image file format developed by Industrial Light & Magic for use in computer imaging applications."
+pkg_info="The Accessibility ToolKit (ATK) provides the set of accessibility interfaces that are implemented by other toolkits and applications."
 
-pkg_desc="OpenEXR is a high dynamic-range (HDR) image file format developed by 
-Industrial Light & Magic for use in computer imaging applications.
+pkg_desc="The Accessibility ToolKit (ATK) provides the set of accessibility interfaces 
+that are implemented by other toolkits and applications. Using the ATK interfaces, 
+accessibility tools have full access to view and control running applications."
 
-OpenEXR is used by ILM on all motion pictures currently in production. 
-The first movies to employ OpenEXR were Harry Potter and the Sorcerers Stone, 
-Men in Black II, Gangs of New York, and Signs. Since then, OpenEXR has become 
-ILM's main image file format."
-
-pkg_file="$pkg_name-$pkg_vers.zip"
-pkg_urls="http://github.com/openexr/openexr/zipball/v2_beta.1"
-pkg_opts="cmake skip-boot force-serial-build use-base-dir=openexr-openexr-d847d1e"
-pkg_cfg_path="openexr-openexr-d847d1e/OpenEXR"
-pkg_reqs="zlib/latest lcms2/latest ilmbase/latest"
+pkg_file="$pkg_name-$pkg_vers.tar.xz"
+pkg_urls="http://ftp.gnome.org/pub/gnome/sources/atk/2.4/$pkg_file"
+pkg_opts="configure"
+pkg_reqs="$pkg_reqs zlib/latest"
+pkg_reqs="$pkg_reqs libxml2/latest"
+pkg_reqs="$pkg_reqs libicu/latest"
+pkg_reqs="$pkg_reqs libiconv/latest"
+pkg_reqs="$pkg_reqs gtk-doc/latest"
+pkg_reqs="$pkg_reqs glib/latest"
+pkg_reqs="$pkg_reqs gobject-isl/latest"
 pkg_uses="$pkg_reqs"
 
 ####################################################################################################
@@ -43,29 +45,16 @@ bldr_satisfy_pkg --category    "$pkg_ctry"    \
 
 ####################################################################################################
 
+pkg_cfg=""
+pkg_cfg_path=""
 pkg_cflags=""
 pkg_ldflags=""
-
-sub_list="Half IlmThread Imath ImathTest Iex IexMath IexTest"
-for sub_inc in $sub_list
-do
-     pkg_cflags="$pkg_cflags:-I$BLDR_BUILD_PATH/imaging/$pkg_name/$pkg_vers/openexr/IlmBase/$sub_inc"
-done
-
-pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/imaging/ilmbase/latest/include/OpenEXR"
-pkg_cflags="$pkg_cflags:-I$BLDR_BUILD_PATH/imaging/$pkg_name/$pkg_vers/openexr/OpenEXR/IlmImf"
-
-pkg_uses="$pkg_reqs"
-
-pkg_cfg="--disable-dependency-tracking "
-pkg_cfg="$pkg_cfg Z_CFLAGS=-I$BLDR_LOCAL_PATH/compression/zlib/latest/include"
-pkg_cfg="$pkg_cfg Z_LIBS=-lz"
 
 ####################################################################################################
 # build and install pkg as local module
 ####################################################################################################
 
-bldr_build_pkg --category    "imaging"      \
+bldr_build_pkg --category    "$pkg_ctry"    \
                --name        "$pkg_name"    \
                --version     "$pkg_vers"    \
                --info        "$pkg_info"    \

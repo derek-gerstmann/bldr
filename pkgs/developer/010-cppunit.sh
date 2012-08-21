@@ -10,25 +10,22 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_ctry="concurrent"
-pkg_name="ck"
-pkg_vers="0.2.7"
-pkg_info="Concurrency Kit provides a plethora of concurrency primitives for high-performance concurrent systems."
+pkg_ctry="developer"
+pkg_name="cppunit"
+pkg_vers="1.12.1"
+pkg_info="CppUnit is a C++ unit testing framework."
 
-pkg_desc="Concurrency Kit provides a plethora of concurrency primitives, safe memory reclamation 
-mechanisms and lock-less and lock-free data structures designed to aid in the design and 
-implementation of high performance concurrent systems. It is designed to minimize dependencies 
-on operating system-specific interfaces and most of the interface relies only on a strict subset 
-of the standard library and more popular compiler extensions."
+pkg_desc="CppUnit is a C++ unit testing framework. It started its life as a port of JUnit to C++ by Michael Feathers."
 
 pkg_file="$pkg_name-$pkg_vers.tar.gz"
-pkg_urls="http://www.concurrencykit.org/releases/$pkg_file"
-pkg_opts="configure skip-xcode-config"
-pkg_reqs=""
-pkg_uses=""
+pkg_urls="http://downloads.sourceforge.net/$pkg_name/$pkg_file"
+pkg_opts="configure"
+pkg_reqs="coreutils/latest"
+pkg_uses="$pkg_reqs"
 pkg_cflags=""
 pkg_ldflags=""
-pkg_cfg="" 
+pkg_cfg=""
+pkg_patch=""
 
 ####################################################################################################
 # build and install pkg as local module
@@ -45,8 +42,8 @@ bldr_build_pkg                    \
      --uses        "$pkg_uses"    \
      --requires    "$pkg_reqs"    \
      --options     "$pkg_opts"    \
+     --patch       "$pkg_patch"   \
      --cflags      "$pkg_cflags"  \
      --ldflags     "$pkg_ldflags" \
      --config      "$pkg_cfg"
-
 

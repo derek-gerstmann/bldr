@@ -352,6 +352,20 @@ function bldr_log_list_item_suffix()
     echo -e ${BLDR_TXT_HEADER}"-- "${BLDR_TXT_TITLE}"["${BLDR_TXT_HEADER}" $txt_idx "${BLDR_TXT_TITLE}"]"${BLDR_TXT_RST}${BLDR_TXT_HEADER}" $item_msg ""'"${BLDR_TXT_TITLE}"$item_sfx"${BLDR_TXT_HEADER}"'"${BLDR_TXT_RST}
 }
 
+function bldr_log_dual_item_suffix()
+{
+    local log_file="$BLDR_LOG_PATH/$BLDR_LOG_FILE"
+
+    local item_msg0="${1}"
+    local item_sfx0="${2}"
+
+    local item_msg1="${3}"
+    local item_sfx1="${4}"
+
+    (echo "-- $item_msg0 '$item_sfx0' $item_msg1 '$item_sfx1'" 2>&1) >> $log_file
+    echo -e ${BLDR_TXT_HEADER}"-- "${BLDR_TXT_RST}${BLDR_TXT_HEADER}"$item_msg0 ""'"${BLDR_TXT_TITLE}"$item_sfx0"${BLDR_TXT_HEADER}"' "${BLDR_TXT_RST}${BLDR_TXT_HEADER}"$item_msg1 ""'"${BLDR_TXT_TITLE}"$item_sfx1"${BLDR_TXT_HEADER}"'"${BLDR_TXT_RST}
+}
+
 function bldr_log_list_item_progress()
 {
     local log_file="$BLDR_LOG_PATH/$BLDR_LOG_FILE"
@@ -808,7 +822,7 @@ BLDR_PYTHON_FILE_SEARCH_LIST="setup.py install.py"
 function bldr_locate_build_path
 {
     local mk_srch=$(bldr_trim_str "$1")
-    local mk_opts=$2
+    local mk_opts="$2"
     local mk_paths=$(bldr_trim_str "$mk_srch $BLDR_BUILD_SEARCH_PATH")
     local mk_files=$BLDR_MAKE_FILE_SEARCH_LIST
     local cm_files=$BLDR_CMAKE_FILE_SEARCH_LIST
@@ -839,9 +853,9 @@ function bldr_locate_build_path
         use_autocfg=true
     fi
 
-    if [[ $(echo "$pkg_opts" | grep -m1 -c 'use-setup-makefile') > 0 ]]
+    if [[ $(echo "$pkg_opts" | grep -m1 -c 'use-build-script') > 0 ]]
     then
-        local user_mk=$(echo $pkg_opts | grep -E -o 'use-setup-makefile=(\S+)' | sed 's/.*=//g' )
+        local user_mk=$(echo $pkg_opts | grep -E -o 'use-build-script=(\S+)' | sed 's/.*=//g' )
         if [[ "$user_mk" != "" ]]
         then
             mk_files="$user_mk $mk_files"
@@ -851,15 +865,6 @@ function bldr_locate_build_path
     if [[ $(echo "$pkg_opts" | grep -m1 -c 'use-build-makefile') > 0 ]]
     then
         local user_mk=$(echo $pkg_opts | grep -E -o 'use-build-makefile=(\S+)' | sed 's/.*=//g' )
-        if [[ "$user_mk" != "" ]]
-        then
-            mk_files="$user_mk $mk_files"
-        fi
-    fi
-
-    if [[ $(echo "$pkg_opts" | grep -m1 -c 'use-install-makefile') > 0 ]]
-    then
-        local user_mk=$(echo $pkg_opts | grep -E -o 'use-install-makefile=(\S+)' | sed 's/.*=//g' )
         if [[ "$user_mk" != "" ]]
         then
             mk_files="$user_mk $mk_files"
@@ -956,11 +961,12 @@ function bldr_locate_build_path
 function bldr_locate_make_file
 {
     local mk_srch=$(bldr_trim_str "$1")
-    local mk_opts=$2
+    local mk_opts="$2"
     local mk_paths=$(bldr_trim_str "$mk_srch $BLDR_BUILD_SEARCH_PATH")
     local mk_files=$BLDR_MAKE_FILE_SEARCH_LIST
     local cm_files=$BLDR_CMAKE_FILE_SEARCH_LIST
     local ac_files=$BLDR_AUTOCONF_FILE_SEARCH_LIST
+    local py_files=$BLDR_PYTHON_FILE_SEARCH_LIST
 
     local use_cmake=false
     local use_autocfg=false
@@ -1020,6 +1026,7 @@ function bldr_locate_make_file
     local tst_mk=""
     local tst_cm=""
     local tst_ac=""
+    local tst_py=""
 
     for tst_path in ${mk_paths}
     do
@@ -1085,6 +1092,24 @@ function bldr_locate_make_file
             done
         fi
 
+
+        if [[ $use_python == true ]]
+        then
+            for tst_py in ${py_files}
+            do
+                if [[ -f "$tst_path/$tst_py" ]]
+                then
+                    build_path="$tst_path/$tst_py"
+                    break
+                fi
+
+                if [ "$build_path" != "" ]
+                then
+                    break
+                fi
+            done
+        fi
+
         for tst_file in ${mk_files}
         do
             if [ -f "$tst_path/$tst_file" ]
@@ -1104,9 +1129,21 @@ function bldr_locate_make_file
 function bldr_locate_boot_script
 {
     local found_path="."
-    local given=$(bldr_trim_str "${@}")
+    local given=$(bldr_trim_str "$1")
+    local boot_opts="$2"
+
+    local bt_file=""
+    if [[ $(echo "$boot_opts" | grep -m1 -c 'use-boot-script') > 0 ]]
+    then
+        local user_bt=$(echo $boot_opts | grep -E -o 'use-boot-script=(\S+)' | sed 's/.*=//g' )
+        if [[ "$user_bt" != "" ]]
+        then
+            bt_file="$user_bt"
+        fi
+    fi
+
     local cfg_paths=$(bldr_trim_str "$given $BLDR_BOOT_SEARCH_PATH")
-    local cfg_files=$BLDR_BOOT_FILE_SEARCH_LIST
+    local cfg_files="$user_bt $BLDR_BOOT_FILE_SEARCH_LIST"
 
     local tst_path=""
     local tst_file=""
@@ -1131,8 +1168,8 @@ function bldr_locate_boot_script
 
 function bldr_locate_boot_path
 {
-    local given=$(bldr_trim_str "${@}")
-    local script=$(bldr_locate_boot_script "$given")
+    local given=$(bldr_trim_str "$1")
+    local script=$(bldr_locate_boot_script "$given" "$2")
     local path=$(dirname "$script")
     echo "$path"
 }
@@ -1146,6 +1183,24 @@ function bldr_is_autoconf_file
     for tst_file in ${cfg_files}
     do
         if [[ $(echo "$cfg_srch" | grep -m1 -c "$tst_file") > 0 ]]
+        then
+            echo "true"
+            return
+        fi
+    done
+    echo "false"
+}
+
+
+function bldr_is_python_file
+{
+    local py_srch=$(bldr_trim_str "$1")
+    local py_files=$BLDR_PYTHON_FILE_SEARCH_LIST
+    local tst_file=""
+
+    for tst_file in ${py_files}
+    do
+        if [[ $(echo "$py_srch" | grep -m1 -c "$tst_file") > 0 ]]
         then
             echo "true"
             return
@@ -1205,9 +1260,9 @@ function bldr_is_maven_file
 function bldr_locate_config_script
 {
     local cfg_srch=$(bldr_trim_str "$1")
-    local cfg_opts=$2
+    local cfg_opts="$2"
     local cfg_paths=$(bldr_trim_str "$cfg_srch $BLDR_CONFIG_SEARCH_PATH")
-    local found_path="."
+    local cfg_file=""
 
     local cmake_files=$BLDR_CMAKE_FILE_SEARCH_LIST
     local autocfg_files=$BLDR_AUTOCONF_FILE_SEARCH_LIST
@@ -1219,8 +1274,18 @@ function bldr_locate_config_script
     local use_maven=false
     local use_python=false
 
+    if [[ $(echo "$cfg_opts" | grep -m1 -c 'use-config-script') > 0 ]]
+    then
+        local user_cfg=$(echo $cfg_opts | grep -E -o 'use-config-script=(\S+)' | sed 's/.*=//g' )
+        if [[ "$user_cfg" != "" ]]
+        then
+            cfg_file="$user_cfg"
+        fi
+    fi
+
     if [[ $(echo "$cfg_opts" | grep -m1 -c "cmake" ) > 0 ]]
     then
+        cfg_paths=$(bldr_trim_str "build $cfg_paths")
         use_cmake=true
     
     elif [[ $(echo "$cfg_opts" | grep -m1 -c "configure" ) > 0 ]]
@@ -1241,9 +1306,19 @@ function bldr_locate_config_script
 
     local tst_path=""
     local tst_file=""
+    local found_path="."
 
     for tst_path in ${cfg_paths}
     do
+        if [ "$cfg_file" != "" ]
+        then
+            if [ -f "$tst_path/$cfg_file" ]
+            then
+                found_path="$tst_path/$cfg_file"
+                break
+            fi
+        fi
+
         if [[ $use_autocfg == true ]]
         then
             for tst_file in ${autocfg_files}
@@ -1650,10 +1725,10 @@ function bldr_apply_patch()
     # strip leading index '000_' from file name
     local patch_base="$(basename $patch_file)"
     local path_length=${#patch_base}
-    local patch_path=$(echo $patch_base|sed 's/^[0-9]*_//g' )
+    local patch_path=$(echo $patch_base|sed 's/^[0-9]*\[\-\]//g' )
 
-    # split filename into dir parts replacing '_' with '/'
-    patch_path=$(echo $patch_path|sed 's/_/\//g')
+    # split filename into dir parts replacing '[-]' with '/'
+    patch_path=$(echo $patch_path|sed 's/\[\-\]/\//g')
 
     if [[ $(echo $patch_path | grep -m1 -c '.diff$' ) > 0 ]]
     then
@@ -1867,7 +1942,7 @@ function bldr_has_pkg()
             local fnd_list=$(find "$BLDR_PKGS_PATH/$pkg_ctry"/* -newer "$BLDR_MODULE_PATH/$pkg_ctry/$pkg_name/$pkg_vers" -iname "*$pkg_name.sh" -print 2>/dev/null )
             for found in ${fnd_list}
             do
-                if [[ $(echo "$found" | grep -m1 -c "$pkg_name") > 0 ]]                    
+                if [[ $(echo "$found" | grep -m1 -c "[0-9][0-9][0-9]*[0-9]*-$pkg_name") > 0 ]]                    
                 then
                     has_existing="false"
                 fi
@@ -1969,7 +2044,7 @@ function bldr_find_pkg_ctry()
                     pkg_tst_vers="latest"
                 fi
 
-                if [[ $(echo "$pkg_sh" | grep -m1 -c "$pkg_tst_name" ) > 0 ]]
+                if [[ $(echo "$pkg_sh" | grep -m1 -c "$pkg_tst_name.sh" ) > 0 ]]
                 then
                     fnd_ctry="$ctry_name"
                     found_pkg=true
@@ -2083,7 +2158,7 @@ function bldr_has_required_pkg()
                     pkg_tst_vers="latest"
                 fi
 
-                if [[ $(echo "$pkg_sh" | grep -m1 -c "$pkg_tst_name" ) > 0 ]]
+                if [[ $(echo "$pkg_sh" | grep -m1 -c "$pkg_tst_name.sh" ) > 0 ]]
                 then
 
                     local use_existing="false"
@@ -2154,7 +2229,7 @@ function bldr_build_required_pkg()
         return
     fi
 
-    bldr_log_subsection "Scanning for dependencies for '$pkg_name/$pkg_vers' ..."
+    bldr_log_status "Scanning for dependencies for '$pkg_name/$pkg_vers' ..."
 
     local bld_cnt
     let bld_cnt=0
@@ -2199,7 +2274,7 @@ function bldr_build_required_pkg()
                     pkg_tst_vers="latest"
                 fi
 
-                if [[ $(echo "$pkg_sh" | grep -m1 -c "$pkg_tst_name" ) > 0 ]]
+                if [[ $(echo "$pkg_sh" | grep -m1 -c "$pkg_tst_name.sh" ) > 0 ]]
                 then
 
                     local use_existing="false"
@@ -2228,7 +2303,7 @@ function bldr_load_pkg()
     local pkg_name="" 
     local pkg_vers=""
     local pkg_opts=""
-    local use_verbose=false
+    local use_verbose="false"
 
     while true ; do
         case "$1" in
@@ -2295,7 +2370,7 @@ function bldr_load_pkg()
             local fnd_need="$pkg_name/$fnd_vers"
             if [[ $(echo "$BLDR_LOADED_MODULES" | grep -m1 -c "$fnd_need") < 1 ]]
             then
-                bldr_log_item_suffix "Loading '$fnd_ctry' module" "'$pkg_name/$fnd_vers'"
+                bldr_log_dual_item_suffix "Loading" "$fnd_ctry" "module" "$pkg_name/$fnd_vers"
                 module load $pkg_name/$fnd_vers || bldr_bail "Failed to load '$pkg_name/$fnd_vers' module from '$fnd_ctry'!"
                 BLDR_LOADED_MODULES="$BLDR_LOADED_MODULES:$fnd_need"
             fi
@@ -2305,7 +2380,7 @@ function bldr_load_pkg()
 
     if [[ $loaded == false ]]
     then
-        bldr_log_warning "Failed to locate a suitable module to load for package '$pkg_name/$pkg_vers' ..."
+        bldr_bail "Failed to locate a suitable module to load for package '$pkg_name/$pkg_vers' ..."
     fi
 }
 
@@ -2325,6 +2400,7 @@ function bldr_setup_pkg()
     local pkg_ldflags=""
     local pkg_cfg=""
     local pkg_cfg_path=""
+    local use_verbose="false"
 
     while true ; do
         case "$1" in
@@ -2601,7 +2677,7 @@ function bldr_boot_pkg()
 
     local prefix="$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
 
-    bldr_log_subsection "Booting package '$pkg_name/$pkg_vers' for '$pkg_ctry' ... "
+    bldr_log_status "Booting package '$pkg_name/$pkg_vers' for '$pkg_ctry' ... "
 
     if [ ! -d "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers" ]
     then
@@ -2610,7 +2686,20 @@ function bldr_boot_pkg()
     fi
 
     bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
+    local base_dir=$(bldr_locate_config_path "$pkg_cfg_path" "$pkg_opts")
+    bldr_pop_dir
+    if [[ $(echo "$pkg_opts" | grep -m1 -c 'use-base-dir') > 0 ]]
+    then
+        local user_dir=$(echo $pkg_opts | grep -E -o 'use-base-dir=(\S+)' | sed 's/.*=//g' )
+        if [[ "$base_dir" != "" ]]
+        then
+            base_dir="$user_dir"
+        fi
+    fi
 
+    bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$base_dir"
+
+    local applied_patch=false
     local patch_file=""
     if [[ $(bldr_has_cfg_option "$pkg_opts" "skip-system-patches" ) == "true" ]]
     then
@@ -2626,6 +2715,7 @@ function bldr_boot_pkg()
                 bldr_log_split
 
                 bldr_apply_patch $patch_file $use_verbose
+                applied_patch=true
             fi
         done
 
@@ -2638,6 +2728,7 @@ function bldr_boot_pkg()
                 bldr_log_split
 
                 bldr_apply_patch $patch_file $use_verbose
+                applied_patch=true
             fi
         done
     fi
@@ -2659,9 +2750,16 @@ function bldr_boot_pkg()
             bldr_log_split
 
             bldr_apply_patch $patch_file $use_verbose
+            applied_patch=true
         fi
     done
     bldr_pop_dir
+
+    if [[ applied_patch == true ]]
+    then
+        bldr_log_info "Done applying patches!"
+        bldr_log_split
+    fi
 
     pkg_uses=$(bldr_trim_list_str "$pkg_uses")
     if [ "$pkg_uses" != "" ] && [ "$pkg_uses" != " " ] && [ "$pkg_uses" != ":" ]
@@ -2693,7 +2791,7 @@ function bldr_boot_pkg()
                     bldr_log_warning "Module environment not setup!  Skipping load request for package '$pkg_name/$pkg_vers' ..."
                 fi
             else
-                bldr_load_pkg --name "$req_name" --version "$req_vers" --verbose $use_verbose          
+                bldr_load_pkg --name "$req_name" --version "$req_vers" --verbose "$use_verbose"          
                 let ld_cnt++                      
             fi
 
@@ -2705,8 +2803,8 @@ function bldr_boot_pkg()
     fi
 
     bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
-    local cfg_path=$(bldr_locate_config_path $pkg_cfg_path $pkg_opts)
-    local boot_path=$(bldr_locate_boot_path $pkg_cfg_path)
+    local cfg_path=$(bldr_locate_config_path "$pkg_cfg_path" "$pkg_opts")
+    local boot_path=$(bldr_locate_boot_path "$pkg_cfg_path")
     bldr_pop_dir
 
     bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$cfg_path"
@@ -2740,7 +2838,7 @@ function bldr_boot_pkg()
         fi
     else
         bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$boot_path"
-        local boot_cmd=$(bldr_locate_boot_script $pkg_cfg_path)
+        local boot_cmd=$(bldr_locate_boot_script $pkg_cfg_path $pkg_opts )
         local output=$(bldr_get_stdout)
 
         if [ -x "$boot_cmd" ] && [ "$boot_cmd" != "." ]
@@ -2760,10 +2858,88 @@ function bldr_boot_pkg()
         fi
         bldr_pop_dir
     fi
-
-    bldr_log_item_suffix "Done booting package" "$pkg_name/$pkg_vers"
-    bldr_log_split
 }
+
+function bldr_pysetup_pkg()
+{
+    local use_verbose="false"
+    local pkg_ctry=""
+    local pkg_name="" 
+    local pkg_vers=""
+    local pkg_info=""
+    local pkg_desc=""
+    local pkg_file=""
+    local pkg_urls=""
+    local pkg_uses=""
+    local pkg_reqs=""
+    local pkg_opts=""
+    local pkg_cflags=""
+    local pkg_ldflags=""
+    local pkg_cfg=""
+    local pkg_cfg_path=""
+
+    while true ; do
+        case "$1" in
+           --verbose)       use_verbose="$2"; shift 2;;
+           --name)          pkg_name="$2"; shift 2;;
+           --version)       pkg_vers="$2"; shift 2;;
+           --info)          pkg_info="$2"; shift 2;;
+           --description)   pkg_desc="$2"; shift 2;;
+           --category)      pkg_ctry="$2"; shift 2;;
+           --options)       pkg_opts="$2"; shift 2;;
+           --file)          pkg_file="$2"; shift 2;;
+           --config)        pkg_cfg="$pkg_cfg:$2"; shift 2;;
+           --config-path)   pkg_cfg_path="$2"; shift 2;;
+           --cflags)        pkg_cflags="$pkg_cflags:$2"; shift 2;;
+           --ldflags)       pkg_ldflags="$pkg_ldflags:$2"; shift 2;;
+           --patch)         pkg_patches="$2"; shift 2;;
+           --uses)          pkg_uses="$pkg_uses:$2"; shift 2;;
+           --requires)      pkg_reqs="$pkg_reqs:$2"; shift 2;;
+           --url)           pkg_urls="$pkg_urls;$2"; shift 2;;
+           * )              break ;;
+        esac
+    done
+
+    if [ "$use_verbose" == "true" ]
+    then
+        BLDR_VERBOSE=true
+    fi
+
+    if [[ $(bldr_has_cfg_option "$pkg_opts" "skip-config" ) == "true" ]]
+    then
+        return
+    fi
+
+    bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
+    local cfg_path=$(bldr_locate_config_path "$pkg_cfg_path" "$pkg_opts")
+    bldr_pop_dir
+
+  
+    local prefix="$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
+    local env_mpath=""
+    local env_flags=" "
+
+    pkg_cfg=$(bldr_trim_list_str "$pkg_cfg")
+    if [ "$pkg_cfg" != "" ] && [ "$pkg_cfg" != " " ] && [ "$pkg_cfg" != ":" ]
+    then
+        pkg_cfg=$(echo $pkg_cfg | bldr_split_str ":" | bldr_join_str " ")
+    else
+        pkg_cfg=""
+    fi
+
+    bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$cfg_path"
+
+    bldr_log_status "Launching 'python' for '$pkg_name/$pkg_vers' from '$cfg_path' ..."
+    bldr_log_split
+
+    bldr_run_cmd "python setup.py install --prefix=\"$prefix\" ${pkg_cfg}"
+
+    bldr_log_info "Done configuring package '$pkg_name/$pkg_vers'"
+    bldr_log_split
+
+    bldr_pop_dir
+}
+
 
 function bldr_maven_pkg()
 {
@@ -2816,7 +2992,7 @@ function bldr_maven_pkg()
     fi
 
     bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
-    local cfg_path=$(bldr_locate_config_path $pkg_cfg_path $pkg_opts)
+    local cfg_path=$(bldr_locate_config_path "$pkg_cfg_path" "$pkg_opts")
     bldr_pop_dir
 
   
@@ -2896,7 +3072,7 @@ function bldr_cmake_pkg()
     fi
 
     bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
-    local cfg_path=$(bldr_locate_config_path $pkg_cfg_path $pkg_opts)
+    local cfg_path=$(bldr_locate_config_path "$pkg_cfg_path" "$pkg_opts")
     bldr_pop_dir
   
     local prefix="$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
@@ -2999,8 +3175,8 @@ function bldr_cmake_pkg()
     fi
 
     bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
-    local cfg_path=$(bldr_locate_config_path $pkg_cfg_path $pkg_opts)
-    local cfg_cmd=$(bldr_locate_config_script $pkg_cfg_path $pkg_opts)
+    local cfg_path=$(bldr_locate_config_path "$pkg_cfg_path" "$pkg_opts")
+    local cfg_cmd=$(bldr_locate_config_script "$pkg_cfg_path" "$pkg_opts")
     bldr_pop_dir
 
     bldr_make_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$cfg_path/build"
@@ -3075,7 +3251,7 @@ function bldr_autocfg_pkg()
         bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
     fi
 
-    local cfg_path=$(bldr_locate_config_path $pkg_cfg_path $pkg_opts)
+    local cfg_path=$(bldr_locate_config_path "$pkg_cfg_path" "$pkg_opts")
     bldr_pop_dir
 
     local env_flags=" "
@@ -3208,9 +3384,14 @@ function bldr_autocfg_pkg()
         bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$cfg_path"
     fi
 
-    local cfg_cmd=$(bldr_locate_config_script $pkg_cfg_path $pkg_opts)
+    local cfg_cmd=$(bldr_locate_config_script "$pkg_cfg_path" "$pkg_opts")
     local output=$(bldr_get_stdout)  
 
+    if [[ $(bldr_has_cfg_option "$pkg_opts" "config-prepend-env" ) == "true" ]]
+    then
+        cfg_cmd="$env_flags $cfg_cmd"
+        env_flags=""
+    fi
     if [[ $(bldr_has_cfg_option "$pkg_opts" "config-agree-to-prompt" ) == "true" ]]
     then
         bldr_log_cmd "$cfg_cmd --prefix=\"$prefix\" $pkg_cfg $env_flags"
@@ -3290,8 +3471,8 @@ function bldr_config_pkg()
     local prefix="$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
 
     bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
-    local cfg_path=$(bldr_locate_config_path $pkg_cfg_path $pkg_opts)
-    local cfg_cmd=$(bldr_locate_config_script $pkg_cfg_path $pkg_opts)
+    local cfg_path=$(bldr_locate_config_path "$pkg_cfg_path" "$pkg_opts")
+    local cfg_cmd=$(bldr_locate_config_script "$pkg_cfg_path" "$pkg_opts")
     bldr_pop_dir
 
     local output=$(bldr_get_stdout)  
@@ -3307,6 +3488,9 @@ function bldr_config_pkg()
     local use_maven=false
     local has_maven=false
 
+    local use_python=false
+    local has_python=false
+
     if [[ $(bldr_is_cmake_file "$cfg_cmd") == "true" ]]
     then
         has_cmake=true
@@ -3318,6 +3502,10 @@ function bldr_config_pkg()
     elif [[ $(bldr_is_maven_file "$cfg_cmd") == "true" ]]
     then
         has_maven=true
+
+    elif [[ $(bldr_is_python_file "$cfg_cmd") == "true" ]]
+    then
+        has_python=true
     fi
 
     if [[ $(bldr_has_cfg_option "$pkg_opts" "cmake" ) == "true" ]]
@@ -3339,6 +3527,16 @@ function bldr_config_pkg()
         has_cmake=false
         use_autocfg=false
         has_autocfg=false
+
+    elif [[ $(bldr_has_cfg_option "$pkg_opts" "python" ) == "true" ]]
+    then
+        use_maven=false
+        has_maven=false
+        use_cmake=false
+        has_cmake=false
+        use_autocfg=false
+        has_autocfg=false
+        use_python=true
     fi
 
     if [[ $use_cmake == true ]]; then
@@ -3356,6 +3554,12 @@ function bldr_config_pkg()
     if [[ $use_maven == true ]]; then
         if [[ $has_maven == false ]]; then
             use_maven=false
+        fi
+    fi
+
+    if [[ $use_python == true ]]; then
+        if [[ $has_python == false ]]; then
+            use_python=false
         fi
     fi
 
@@ -3424,6 +3628,28 @@ function bldr_config_pkg()
             --config-path "$pkg_cfg_path" \
             --verbose     "$use_verbose"
     fi
+
+    if [[ $use_python == true ]]
+    then
+        bldr_log_info "Using python for '$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$cfg_path' ..."
+        bldr_log_split
+
+        bldr_pysetup_pkg                  \
+            --category    "$pkg_ctry"     \
+            --name        "$pkg_name"     \
+            --version     "$pkg_vers"     \
+            --file        "$pkg_file"     \
+            --url         "$pkg_urls"     \
+            --uses        "$pkg_uses"     \
+            --requires    "$pkg_reqs"     \
+            --options     "$pkg_opts"     \
+            --cflags      "$pkg_cflags"   \
+            --ldflags     "$pkg_ldflags"  \
+            --patch       "$pkg_patches"  \
+            --config      "$pkg_cfg"      \
+            --config-path "$pkg_cfg_path" \
+            --verbose     "$use_verbose"
+    fi
 }
 
 function bldr_compile_pkg()
@@ -3476,6 +3702,11 @@ function bldr_compile_pkg()
         return
     fi
 
+    if [[ $(bldr_has_cfg_option "$pkg_opts" "python" ) == "true" ]]
+    then
+        return
+    fi
+
     if [ ! -d "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers" ]
     then
         bldr_log_warning "Build directory not found for '$pkg_name/$pkg_vers'!  Skipping 'compile' stage ..."
@@ -3490,9 +3721,9 @@ function bldr_compile_pkg()
     local prefix="$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
 
     bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
-    local cfg_path=$(bldr_locate_config_path $pkg_cfg_path $pkg_opts)
-    local cfg_cmd=$(bldr_locate_config_script $pkg_cfg_path $pkg_opts)
-    local build_path=$(bldr_locate_build_path $pkg_cfg_path $pkg_opts)
+    local cfg_path=$(bldr_locate_config_path "$pkg_cfg_path" "$pkg_opts")
+    local cfg_cmd=$(bldr_locate_config_script "$pkg_cfg_path" "$pkg_opts")
+    local build_path=$(bldr_locate_build_path "$pkg_cfg_path" "$pkg_opts")
     bldr_pop_dir
     
     bldr_log_info "Moving to build path: '$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$build_path' ..."
@@ -3506,7 +3737,7 @@ function bldr_compile_pkg()
         BLDR_PARALLEL=false
     fi
     
-    if [[ $(bldr_has_pkg --category "internal" --name "make" --version "3.8.2" ) == "false" ]]
+    if [[ $(bldr_has_pkg --category "internal" --name "make" ) == "false" ]]
     then
         BLDR_PARALLEL=false
     fi
@@ -3694,6 +3925,11 @@ function bldr_install_pkg()
         return
     fi
 
+    if [[ $(bldr_has_cfg_option "$pkg_opts" "python" ) == "true" ]]
+    then
+        return
+    fi
+
     if [ ! -d "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers" ]
     then
         bldr_log_warning "Build directory not found for '$pkg_name/$pkg_vers'!  Skipping 'install' stage ..."
@@ -3724,7 +3960,7 @@ function bldr_install_pkg()
     fi
 
     bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
-    local build_path=$(bldr_locate_build_path $pkg_cfg_path $pkg_opts)
+    local build_path=$(bldr_locate_build_path "$pkg_cfg_path" "$pkg_opts")
     bldr_pop_dir
 
     bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$build_path"
@@ -3911,7 +4147,7 @@ function bldr_migrate_pkg()
     local prefix="$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
 
     bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
-    local build_path=$(bldr_locate_build_path $pkg_cfg_path $pkg_opts)
+    local build_path=$(bldr_locate_build_path "$pkg_cfg_path" "$pkg_opts")
     bldr_pop_dir
 
     bldr_log_subsection "Migrating package '$pkg_name/$pkg_vers' for '$pkg_ctry' ..."
@@ -3943,8 +4179,17 @@ function bldr_migrate_pkg()
 
     if [[ $(bldr_has_cfg_option "$pkg_opts" "migrate-build-tree" ) == "true" ]]
     then
+        local bt_path="$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
+        if [[ $(echo "$pkg_opts" | grep -m1 -c 'migrate-build-tree=') > 0 ]]
+        then
+            local user_bt=$(echo $pkg_opts | grep -E -o 'migrate-build-tree=(\S+)' | sed 's/.*=//g' )
+            if [[ "$user_bt" != "" ]]
+            then
+                bt_path="$bt_path/$user_bt"
+            fi
+        fi    
         bldr_make_dir "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
-        bldr_copy_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers" "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers" || bldr_bail "Failed to copy shared files into directory: $BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
+        bldr_copy_dir "$bt_path" "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers" || bldr_bail "Failed to copy shared files into directory: $BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
         bldr_log_split
     fi
     
@@ -4772,7 +5017,10 @@ function bldr_satisfy_pkg()
         else
             if [[ $(echo $pkg_req_has | grep -m1 -c "$req_name/$req_vers") < 1 ]]
             then
-                bldr_log_item_suffix "Using required" "$req_name/$req_vers"
+                if [[ $BLDR_VERBOSE == true ]]
+                then
+                    bldr_log_item_suffix "Using required" "$req_name/$req_vers"
+                fi
                 pkg_req_has="$pkg_req_has $req_name/$req_vers"
 
                 if [[ $(bldr_has_cfg_option "$pkg_opts" "skip-auto-compile-flags" ) == "false" ]]
@@ -4798,7 +5046,11 @@ function bldr_satisfy_pkg()
     local skip_rebuild=$(bldr_has_cfg_option "$pkg_opts" "skip-build-dependencies" )
     if [[ "$pkg_req_build" != "" ]]  && [[ "$skip_rebuild" == "false" ]]
     then
-        bldr_log_split
+        if [[ $BLDR_VERBOSE == true ]]
+        then
+            bldr_log_split
+        fi
+
         bldr_log_status "Building required dependencies:"
         bldr_log_split
         bldr_log_list $pkg_req_build
@@ -4816,8 +5068,8 @@ function bldr_satisfy_pkg()
             fi
             bldr_build_required_pkg --name "$req_name" --version "$req_vers" --verbose "$use_verbose"
         done        
+        bldr_log_split
     fi
-    bldr_log_split
 
     for pkg_need_name in ${pkg_needs}
     do
@@ -4829,7 +5081,7 @@ function bldr_satisfy_pkg()
             local req_name=$(echo "$pkg_need_name" | sed 's/\/.*//g')
             local req_vers="latest"
         fi
-        bldr_load_pkg --name "$req_name" --version "$req_vers" --verbose $use_verbose                
+        bldr_load_pkg --name "$req_name" --version "$req_vers" --verbose "$use_verbose"                
     done
     bldr_log_split
 
@@ -5378,7 +5630,7 @@ function bldr_build_pkg()
             --verbose     "$use_verbose"
     fi
 
-    bldr_log_status "DONE with '$pkg_name/$pkg_vers'! --"
+    bldr_log_item_suffix "DONE with" "$pkg_name/$pkg_vers"
     bldr_log_split
 }
 
@@ -5524,11 +5776,11 @@ function bldr_build_pkgs()
 
     while true ; do
         case "$1" in
-           --verbose)       use_verbose="$2"; shift 2;;
-           --name)          pkg_name="$2"; shift 2;;
-           --category)      pkg_ctry="$2"; shift 2;;
-           --version)       pkg_vers="$2"; shift 2;;
-           --options)       pkg_opts="$pkg_opts $2"; shift 2;;
+           --verbose)       use_verbose=$(bldr_trim_str "$2"); shift 2;;
+           --name)          pkg_name=$(bldr_trim_str "$2"); shift 2;;
+           --category)      pkg_ctry=$(bldr_trim_str "$2"); shift 2;;
+           --version)       pkg_vers=$(bldr_trim_str "$2"); shift 2;;
+           --options)       pkg_opts=$(bldr_trim_str "$pkg_opts $2"); shift 2;;
            * )              break ;;
         esac
     done
@@ -5631,7 +5883,7 @@ function bldr_build_pkgs()
                     pkg_tst_vers="$pkg_vers"
                 fi
 
-                if [[ $(echo "$pkg_sh" | grep -m1 -c "$pkg_tst_name" ) > 0 ]]
+                if [[ $(echo "$pkg_sh" | grep -m1 -c "$pkg_tst_name.sh" ) > 0 ]]
                 then
 
                     local use_existing="false"
@@ -5716,7 +5968,7 @@ function bldr_build_pkgs()
                     pkg_tst_vers="$pkg_vers"
                 fi
 
-                if [[ $(echo "$pkg_sh" | grep -m1 -c "$pkg_tst_name" ) > 0 ]]
+                if [[ $(echo "$pkg_sh" | grep -m1 -c "$pkg_tst_name.sh" ) > 0 ]]
                 then
 
                     local use_existing="false"

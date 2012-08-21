@@ -28,7 +28,7 @@ we have tested it on many machines ranging from PCs to Crays."
 
 pkg_file="jpegsrc.v8d.tar.gz"
 pkg_urls="http://www.ijg.org/files/$pkg_file"
-pkg_opts="configure"
+pkg_opts="configure force-static"
 pkg_reqs="zlib/latest"
 pkg_uses="$pkg_reqs"
 pkg_cflags=""

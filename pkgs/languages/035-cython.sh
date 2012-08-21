@@ -10,40 +10,27 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_ctry="graphics"
-pkg_name="cogl"
-pkg_vers="1.10.2"
+pkg_ctry="languages"
+pkg_name="cython"
+pkg_vers="0.16"
+pkg_info="Cython is a language that makes writing C extensions for the Python language as easy as Python itself."
 
-pkg_info="Cogl is a modern 3D graphics API with associated utility APIs designed to expose the features of 3D graphics hardware using a direct state access API design, as opposed to the state-machine style of OpenGL."
+pkg_desc="Cython is a language that makes writing C extensions for the Python language as easy as Python itself. 
 
-pkg_desc="Cogl is a modern 3D graphics API with associated utility APIs designed to 
-expose the features of 3D graphics hardware using a direct state access API design, 
-as opposed to the state-machine style of OpenGL. It is implemented in the C programming 
-language but we want to provide bindings for everyone's favorite language too."
+Cython is a programming language based on Python, with extra syntax allowing for optional static type declarations. 
+It aims to become a superset of the [Python] language which gives it high-level, object-oriented, functional, 
+and dynamic programming. The source code gets translated into optimized C/C++ code and compiled as Python 
+extension modules. This allows for both very fast program execution and tight integration with external C 
+libraries, while keeping up the high programmer productivity for which the Python language is well known."
 
-pkg_file="$pkg_name-$pkg_vers.tar.bz2"
-pkg_urls="http://source.clutter-project.org/sources/cogl/1.10/$pkg_file"
-pkg_opts="configure"
-pkg_cfg=""
-pkg_cfg_path=""
-
-pkg_reqs=""
-pkg_reqs="$pkg_reqs zlib/latest"
-pkg_reqs="$pkg_reqs libxml2/latest"
-pkg_reqs="$pkg_reqs libicu/latest"
-pkg_reqs="$pkg_reqs libiconv/latest"
-pkg_reqs="$pkg_reqs gettext/latest"
-pkg_reqs="$pkg_reqs glib/latest"
-pkg_reqs="$pkg_reqs libpng/latest"
-pkg_reqs="$pkg_reqs pango/latest"
+pkg_file="Cython-$pkg_vers.tar.gz"
+pkg_urls="http://www.cython.org/release/$pkg_file"
+pkg_opts="python"
+pkg_reqs="python/2.7.3"
 pkg_uses="$pkg_reqs"
-
-pkg_cfg=""
-pkg_cfg_path=""
 pkg_cflags=""
 pkg_ldflags=""
-
-pkg_uses="$pkg_reqs"
+pkg_cfg="" 
 
 ####################################################################################################
 # build and install pkg as local module
@@ -62,4 +49,5 @@ bldr_build_pkg --category    "$pkg_ctry"    \
                --cflags      "$pkg_cflags"  \
                --ldflags     "$pkg_ldflags" \
                --config      "$pkg_cfg"
+
 

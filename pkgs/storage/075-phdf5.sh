@@ -10,7 +10,8 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_ver_list=("1.6.10" "1.8.2" "1.8.8")
+pkg_vers="1.8.8"
+pkg_ver_list=("$pkg_vers" "1.8.2" "1.6.10")
 pkg_ctry="storage"
 pkg_name="phdf5"
 
@@ -28,7 +29,7 @@ The Parallel-HDF5 technology suite includes:
 
 pkg_file="hdf5-$pkg_vers.tar.gz"
 pkg_urls="http://www.hdfgroup.org/ftp/HDF5/releases/$pkg_name-$pkg_vers/src/$pkg_file"
-pkg_opts="configure keep-build-ctry disable-xcode-cflags disable-xcode-ldflags"
+pkg_opts="configure disable-xcode-cflags disable-xcode-ldflags"
 pkg_reqs="szip/latest zlib/latest openmpi/1.6"
 pkg_uses="$pkg_reqs"
 
@@ -52,12 +53,9 @@ pkg_cfg="--enable-parallel"
 pkg_cfg="$pkg_cfg --enable-hl"
 pkg_cfg="$pkg_cfg --enable-filters=all"
 
-if [[ -x $(which "mpif90") ]]; then
+if [[ $BLDR_SYSTEM_IS_LINUX == true ]]; then
     pkg_cfg="$pkg_cfg FC=mpif90"
     pkg_cfg="$pkg_cfg --enable-fortran"
-fi
-
-if [[ $BLDR_SYSTEM_IS_LINUX == true ]]; then
     pkg_cfg="$pkg_cfg --enable-linux-lfs"
     pkg_cfg="$pkg_cfg --with-pthread=\"/usr\""
     pkg_cflags="$pkg_cflags:-I/opt/openmpi/1.6/include"

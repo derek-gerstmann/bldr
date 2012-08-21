@@ -11,26 +11,18 @@ source "bldr.sh"
 ####################################################################################################
 
 pkg_vers="1.8.8"
-pkg_ver_list=("$pkg_vers" "1.8.2" "1.6.10")
+pkg_ver_list=("$pkg_vers" "1.8.9")
 pkg_ctry="storage"
-pkg_name="hdf5"
+pkg_name="hdf5-vfd"
 
-pkg_info="HDF5 is a unique technology suite that makes possible the management of extremely large and complex data collections."
+pkg_info="HDF5-VFD is a modified HDF5 source package that provides additional internal support for MPI virtual file drivers."
 
-pkg_desc="HDF5 is a unique technology suite that makes possible the management of extremely large and complex data collections.
+pkg_desc="HDF5-VFD is a modified HDF5 source package that provides additional internal support for MPI virtual file drivers."
 
-The HDF5 technology suite includes:
-
-* A versatile data model that can represent very complex data objects and a wide variety of metadata.
-* A completely portable file format with no limit on the number or size of data objects in the collection.
-* A software library that runs on a range of computational platforms, from laptops to massively parallel systems, and implements a high-level API with C, C++, Fortran 90, and Java interfaces.
-* A rich set of integrated performance features that allow for access time and storage space optimizations.
-* Tools and applications for managing, manipulating, viewing, and analyzing the data in the collection."
-
-pkg_file="hdf5-$pkg_vers.tar.gz"
-pkg_urls="http://www.hdfgroup.org/ftp/HDF5/releases/$pkg_name-$pkg_vers/src/$pkg_file"
-pkg_opts="configure keep-build-ctry disable-xcode-cflags disable-xcode-ldflags"
-pkg_reqs="szip/latest zlib/latest"
+pkg_file="$pkg_name-$pkg_vers.tar.bz2"
+pkg_urls="https://hpcforge.org/frs/download.php/41/$pkg_file"
+pkg_opts="cmake"
+pkg_reqs="szip/latest zlib/latest openmpi/1.6"
 pkg_uses="$pkg_reqs"
 
 ####################################################################################################
@@ -50,19 +42,22 @@ bldr_satisfy_pkg               \
 pkg_cflags=""
 pkg_ldflags=""
 
-pkg_cfg=""
-pkg_cfg="$pkg_cfg --enable-hl"
-pkg_cfg="$pkg_cfg --enable-filters=all"
-if [[ $BLDR_SYSTEM_IS_OSX == false ]]
-then
-    pkg_cfg="$pkg_cfg --enable-linux-lfs"
-    pkg_cfg="$pkg_cfg --with-pthread=/usr"
-else
-    pkg_cfg="$pkg_cfg --enable-static-exec"
-    pkg_cfg="$pkg_cfg --with-pthread=/usr"
-fi
-pkg_cfg="$pkg_cfg --with-szlib=\"$BLDR_SZIP_BASE_PATH\""
-pkg_cfg="$pkg_cfg --with-zlib=\"$BLDR_ZLIB_BASE_PATH\""
+pkg_cfg="-DMAKESTATIC=1:-DLINKSTATIC=1"
+pkg_cfg="$pkg_cfg:-DMPI_COMPILER=$BLDR_OPENMPI_BIN_PATH/mpicc"
+pkg_cfg="$pkg_cfg:-DHDF5_BUILD_TOOLS=ON"
+pkg_cfg="$pkg_cfg:-DHDF5_ENABLE_PARALLEL=ON"
+pkg_cfg="$pkg_cfg:-DHDF5_ENABLE_HSIZET=ON"
+pkg_cfg="$pkg_cfg:-DHDF5_ENABLE_LARGE_FILE=ON"
+pkg_cfg="$pkg_cfg:-DHDF5_ENABLE_ZLIB=ON"
+pkg_cfg="$pkg_cfg:-DHDF5_ENABLE_Z_LIB_SUPPORT=ON"
+pkg_cfg="$pkg_cfg:-DHDF5_ENABLE_SZIP=ON"
+pkg_cfg="$pkg_cfg:-DHDF5_ENABLE_SZIP_SUPPORT=ON"
+pkg_cfg="$pkg_cfg:-DHDF5_ENABLE_HL_LIB=ON"
+pkg_cfg="$pkg_cfg:-DHDF5_BUILD_CPP_LIB=OFF"
+pkg_cfg="$pkg_cfg:-DZLIB_INCLUDE_DIR=$BLDR_ZLIB_INCLUDE_PATH"
+pkg_cfg="$pkg_cfg:-DZLIB_LIBRARY=$BLDR_ZLIB_LIB_PATH/libz.a"
+pkg_cfg="$pkg_cfg:-DSZIP_INCLUDE_DIR=$BLDR_SZIP_INCLUDE_PATH/include"
+pkg_cfg="$pkg_cfg:-DSZIP_LIBRARY=$BLDR_SZIP_LIB_PATH/libsz.a"
 
 hdf5_cfg="$pkg_cfg"
 
@@ -157,19 +152,16 @@ function bldr_pkg_install_method()
 
 for pkg_vers in "${pkg_ver_list[@]}"
 do
-    pkg_name="hdf5"
-    pkg_file="hdf5-$pkg_vers.tar.gz"
-    pkg_urls="http://www.hdfgroup.org/ftp/HDF5/releases/$pkg_name-$pkg_vers/src/$pkg_file"
+    pkg_file="$pkg_name-$pkg_vers.tar.bz2"
+    pkg_urls="https://hpcforge.org/frs/download.php/57/$pkg_file"
 
     #
     # hdf5 - standard
     #
-    pkg_name="hdf5"
-    pkg_cfg="$hdf5_cfg --enable-cxx"
+    pkg_cfg="$hdf5_cfg"
     if [ $BLDR_SYSTEM_IS_OSX == false ]
     then
-        pkg_cfg="$pkg_cfg FC=gfortran"
-        pkg_cfg="$pkg_cfg --enable-fortran"
+        pkg_cfg="$pkg_cfg:-DHDF5_BUILD_FORTRAN=ON"
     fi
 
     bldr_build_pkg                 \
@@ -186,47 +178,15 @@ do
       --cflags      "$pkg_cflags"  \
       --ldflags     "$pkg_ldflags" \
       --config      "$pkg_cfg"
-
-    #
-    # hdf5 - with legacy v1.6 API methods
-    #
-    if [[ $(echo $pkg_vers | grep -m1 -c '^1.8' ) > 0 ]]; then
-
-        pkg_name="hdf5-16"
-        pkg_cfg="$hdf5_cfg --enable-cxx"
-        pkg_cfg="$hdf5_cfg --with-default-api-version=v16"
-        if [ $BLDR_SYSTEM_IS_OSX == false ]
-        then
-            pkg_cfg="$pkg_cfg FC=gfortran"
-            pkg_cfg="$pkg_cfg --enable-fortran"
-        fi
-
-        bldr_build_pkg                 \
-          --category    "$pkg_ctry"    \
-          --name        "$pkg_name"    \
-          --version     "$pkg_vers"    \
-          --info        "$pkg_info"    \
-          --description "$pkg_desc"    \
-          --file        "$pkg_file"    \
-          --url         "$pkg_urls"    \
-          --uses        "$pkg_uses"    \
-          --requires    "$pkg_reqs"    \
-          --options     "$pkg_opts"    \
-          --cflags      "$pkg_cflags"  \
-          --ldflags     "$pkg_ldflags" \
-          --config      "$pkg_cfg"
-    fi
-
 
     #
     # hdf5 - threadsafe (re-entrant methods wrapped in mutex locks) 
     #
-    pkg_name="hdf5-threadsafe"
-    pkg_cfg="$hdf5_cfg --enable-threadsafe"
-
+    ts_name="$pkg_name-threadsafe"
+    pkg_cfg="$hdf5_cfg:-DHDF5_ENABLE_THREADSAFE=ON"
     bldr_build_pkg                 \
       --category    "$pkg_ctry"    \
-      --name        "$pkg_name"    \
+      --name        "$ts_name"     \
       --version     "$pkg_vers"    \
       --info        "$pkg_info"    \
       --description "$pkg_desc"    \
@@ -239,29 +199,4 @@ do
       --ldflags     "$pkg_ldflags" \
       --config      "$pkg_cfg"
 
-    #
-    # hdf5 - threadsafe w/v1.6 API methods
-    #
-    if [[ $(echo $pkg_vers | grep -m1 -c '^1.8' ) > 0 ]]; then
-
-        pkg_name="hdf5-threadsafe-16"
-        pkg_cfg="$hdf5_cfg --enable-threadsafe"
-        pkg_cfg="$hdf5_cfg --with-default-api-version=v16"
-
-        bldr_build_pkg                 \
-          --category    "$pkg_ctry"    \
-          --name        "$pkg_name"    \
-          --version     "$pkg_vers"    \
-          --info        "$pkg_info"    \
-          --description "$pkg_desc"    \
-          --file        "$pkg_file"    \
-          --url         "$pkg_urls"    \
-          --uses        "$pkg_uses"    \
-          --requires    "$pkg_reqs"    \
-          --options     "$pkg_opts"    \
-          --cflags      "$pkg_cflags"  \
-          --ldflags     "$pkg_ldflags" \
-          --config      "$pkg_cfg"
-
-    fi
 done

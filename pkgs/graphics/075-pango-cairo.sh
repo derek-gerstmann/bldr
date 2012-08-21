@@ -10,8 +10,8 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_ctry="typography"
-pkg_name="pango"
+pkg_ctry="graphics"
+pkg_name="pango-cairo"
 pkg_vers="1.30.1"
 
 pkg_info="Pango is a library for laying out and rendering of text, with an emphasis on internationalization."
@@ -47,8 +47,9 @@ internationalized text.
 Pango depends on 2.x series of the GLib library; more information about GLib can be 
 found at http://www.gtk.org/."
 
-pkg_file="$pkg_name-$pkg_vers.tar.xz"
+pkg_file="pango-$pkg_vers.tar.xz"
 pkg_urls="http://ftp.gnome.org/pub/GNOME/sources/$pkg_name/1.30/$pkg_file"
+pkg_cfg="--enable-introspection=yes"
 pkg_opts="configure"
 pkg_reqs=""
 pkg_reqs="$pkg_reqs zlib/latest"
@@ -59,6 +60,8 @@ pkg_reqs="$pkg_reqs freetype/latest"
 pkg_reqs="$pkg_reqs fontconfig/latest"
 pkg_reqs="$pkg_reqs gettext/latest"
 pkg_reqs="$pkg_reqs glib/latest"
+pkg_reqs="$pkg_reqs gobject-isl/latest"
+pkg_reqs="$pkg_reqs cairo/latest"
 pkg_uses="$pkg_reqs"
 
 pkg_cflags=""

@@ -1,0 +1,14 @@
+--- ./build/imaging/xpm/3.4k/lib/Makefile.noX	1998-03-20 03:50:59.000000000 +0800
++++ 000_lib_Makefile.noX	2012-08-16 12:53:07.000000000 +0800
+@@ -35,9 +35,9 @@
+ DEFINES =
+ 
+ # where the library will be installed
+-DESTLIBDIR=/usr/local/lib/X11
++DESTLIBDIR=$(DESTLIBDIR)
+ # where the include file (pxm.h) will be installed
+-DESTINCLUDEDIR=/usr/local/include/X11
++DESTINCLUDEDIR=$(DESTINCLUDEDIR)
+ 
+ CC = cc
+ AR = ar r

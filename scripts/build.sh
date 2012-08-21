@@ -59,11 +59,11 @@ usage () {
 
 ####################################################################################################
 
-pkg_ctry=""
-pkg_name=""
-pkg_opts=""
 pkg_args=""
-pkg_vers=""
+pkg_ctry=" "
+pkg_name=" "
+pkg_opts=" "
+pkg_vers=" "
 use_verbose="false"
 use_debug="false"
 
@@ -113,12 +113,13 @@ fi
 
 ####################################################################################################
 
-bldr_build_pkgs --category "$pkg_ctry" \
-                --name     "$pkg_name" \
-                --version  "$pkg_vers" \
-                --options  "$pkg_opts" \
-                --verbose  "$use_verbose" \
-                --debug    "$use_debug" \
-                ${pkg_args}
+bldr_build_pkgs             \
+  --category "$pkg_ctry"    \
+  --name     "$pkg_name"    \
+  --version  "$pkg_vers"    \
+  --options  "$pkg_opts"    \
+  --verbose  "$use_verbose" \
+  --debug    "$use_debug"   \
+  ${pkg_args}
 
 ####################################################################################################

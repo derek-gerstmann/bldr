@@ -23,7 +23,7 @@ threads running on cache-coherent multi-core architectures."
 
 pkg_file="$pkg_name-cpp-$pkg_vers.tar.gz"
 pkg_urls="http://mc-fastflow.svn.sourceforge.net/viewvc/mc-fastflow/?view=tar"
-pkg_opts="cmake force-serial-build"
+pkg_opts="cmake force-serial-build migrate-build-bin migrate-build-headers migrate-build-tree"
 pkg_reqs="zlib/latest bzip2/latest boost/latest gsl/latest"
 pkg_uses="$pkg_reqs"
 
@@ -52,6 +52,12 @@ pkg_cfg="$pkg_cfg:-DGSL_CONFIG_EXECUTABLE=\"$BLDR_GSL_BIN_PATH/gsl-config\""
 
 pkg_cflags=""
 pkg_ldflags=""
+
+if [[ $BLDR_SYSTEM_IS_OSX == true ]]
+then
+    pkg_cflags="$pkg_cflags:-I/opt/X11/include"
+    pkg_ldflags="$pkg_ldflags:-L/opt/X11/lib"
+fi
 
 ####################################################################################################
 # build and install pkg as local module

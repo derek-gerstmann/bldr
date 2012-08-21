@@ -10,40 +10,26 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_ctry="imaging"
-pkg_name="libpng"
-pkg_vers="1.5.12"
+pkg_ctry="compilers"
+pkg_name="pyparsing"
+pkg_vers="1.5.6"
+pkg_info="PyParsing is a general parsing module for Python."
 
-pkg_info="PNG is an open, extensible image format with lossless compression."
+pkg_desc="PyParsing is a general parsing module for Python.
 
-pkg_desc="PNG is an open, extensible image format with lossless compression.
-Libpng is the official PNG reference library. It supports almost all PNG 
-features, is extensible, and has been extensively tested for over 16 years."
+Grammars are implemented directly in the client code using parsing objects, instead of externally, 
+as with lex/yacc-type tools. 
+
+Includes simple examples for parsing SQL, CORBA IDL, and 4-function math"
 
 pkg_file="$pkg_name-$pkg_vers.tar.gz"
-pkg_urls="http://prdownloads.sourceforge.net/libpng/$pkg_file?download"
-pkg_opts="configure force-static"
-pkg_reqs="zlib/latest"
-pkg_uses="$pkg_reqs"
-
-####################################################################################################
-# satisfy pkg dependencies and load their environment settings
-####################################################################################################
-
-bldr_satisfy_pkg --category    "$pkg_ctry"    \
-                 --name        "$pkg_name"    \
-                 --version     "$pkg_vers"    \
-                 --requires    "$pkg_reqs"    \
-                 --uses        "$pkg_uses"    \
-                 --options     "$pkg_opts"
-
-####################################################################################################
-
-pkg_cfg=""
-pkg_cfg="$pkg_cfg --with-zlib-prefix=\"$BLDR_ZLIB_BASE_PATH\""
-pkg_cfg="$pkg_cfg --with-pkgconfigdir=$PKG_CONFIG_PATH"
+pkg_urls="http://downloads.sourceforge.net/project/$pkg_name/$pkg_name/$pkg_name-$pkg_vers/$pkg_file"
+pkg_opts="python"
+pkg_reqs=""
+pkg_uses=""
 pkg_cflags=""
 pkg_ldflags=""
+pkg_cfg="" 
 
 ####################################################################################################
 # build and install pkg as local module

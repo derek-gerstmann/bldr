@@ -10,24 +10,32 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_name="openexr"
-pkg_vers="2.0-beta1"
+pkg_vers_list=("2.8.12" "2.9.4")
+pkg_ctry="toolkits"
+pkg_name="wx"
+pkg_vers="3.4.4"
 
-pkg_info="OpenEXR is a high dynamic-range (HDR) image file format developed by Industrial Light & Magic for use in computer imaging applications."
+pkg_info="WX is a C++ Widgets library that lets developers create GUI applications for many platforms."
 
-pkg_desc="OpenEXR is a high dynamic-range (HDR) image file format developed by 
-Industrial Light & Magic for use in computer imaging applications.
+pkg_desc="wxWidgets is a C++ library that lets developers create applications for Windows, 
+OS X, Linux and UNIX on 32-bit and 64-bit architectures as well as several mobile 
+platforms including Windows Mobile, iPhone SDK and embedded GTK+.
 
-OpenEXR is used by ILM on all motion pictures currently in production. 
-The first movies to employ OpenEXR were Harry Potter and the Sorcerers Stone, 
-Men in Black II, Gangs of New York, and Signs. Since then, OpenEXR has become 
-ILM's main image file format."
+It has popular language bindings for Python, Perl, Ruby and many other languages. 
+Unlike other cross-platform toolkits, wxWidgets gives its applications a truly native 
+look and feel because it uses the platform's native API rather than emulating the GUI. 
+It's also extensive, free, open-source and mature."
 
-pkg_file="$pkg_name-$pkg_vers.zip"
-pkg_urls="http://github.com/openexr/openexr/zipball/v2_beta.1"
-pkg_opts="cmake skip-boot force-serial-build use-base-dir=openexr-openexr-d847d1e"
-pkg_cfg_path="openexr-openexr-d847d1e/OpenEXR"
-pkg_reqs="zlib/latest lcms2/latest ilmbase/latest"
+pkg_file="wxWidgets-$pkg_vers-src.tar.bz2"
+pkg_urls="http://prdownloads.sourceforge.net/wxwindows/$pkg_file"
+pkg_opts="configure"
+pkg_reqs="$pkg_reqs zlib/latest"
+pkg_reqs="$pkg_reqs libxml2/latest"
+pkg_reqs="$pkg_reqs libicu/latest"
+pkg_reqs="$pkg_reqs libiconv/latest"
+pkg_reqs="$pkg_reqs glib/latest"
+pkg_reqs="$pkg_reqs libpng/latest"
+pkg_reqs="$pkg_reqs pango/latest"
 pkg_uses="$pkg_reqs"
 
 ####################################################################################################
@@ -43,29 +51,16 @@ bldr_satisfy_pkg --category    "$pkg_ctry"    \
 
 ####################################################################################################
 
+pkg_cfg=""
+pkg_cfg_path=""
 pkg_cflags=""
 pkg_ldflags=""
-
-sub_list="Half IlmThread Imath ImathTest Iex IexMath IexTest"
-for sub_inc in $sub_list
-do
-     pkg_cflags="$pkg_cflags:-I$BLDR_BUILD_PATH/imaging/$pkg_name/$pkg_vers/openexr/IlmBase/$sub_inc"
-done
-
-pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/imaging/ilmbase/latest/include/OpenEXR"
-pkg_cflags="$pkg_cflags:-I$BLDR_BUILD_PATH/imaging/$pkg_name/$pkg_vers/openexr/OpenEXR/IlmImf"
-
-pkg_uses="$pkg_reqs"
-
-pkg_cfg="--disable-dependency-tracking "
-pkg_cfg="$pkg_cfg Z_CFLAGS=-I$BLDR_LOCAL_PATH/compression/zlib/latest/include"
-pkg_cfg="$pkg_cfg Z_LIBS=-lz"
 
 ####################################################################################################
 # build and install pkg as local module
 ####################################################################################################
 
-bldr_build_pkg --category    "imaging"      \
+bldr_build_pkg --category    "$pkg_ctry"    \
                --name        "$pkg_name"    \
                --version     "$pkg_vers"    \
                --info        "$pkg_info"    \

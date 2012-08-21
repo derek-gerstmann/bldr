@@ -10,40 +10,51 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_ctry="imaging"
-pkg_name="libpng"
-pkg_vers="1.5.12"
+pkg_ctry="graphics"
+pkg_name="gdk-pixbuf"
+pkg_vers="2.26.2"
 
-pkg_info="PNG is an open, extensible image format with lossless compression."
+pkg_info="GdkPixbuf is a library for image loading and manipulation."
 
-pkg_desc="PNG is an open, extensible image format with lossless compression.
-Libpng is the official PNG reference library. It supports almost all PNG 
-features, is extensible, and has been extensively tested for over 16 years."
+pkg_desc="GdkPixbuf is a library for image loading and manipulation. The"
 
-pkg_file="$pkg_name-$pkg_vers.tar.gz"
-pkg_urls="http://prdownloads.sourceforge.net/libpng/$pkg_file?download"
-pkg_opts="configure force-static"
-pkg_reqs="zlib/latest"
-pkg_uses="$pkg_reqs"
+pkg_file="$pkg_name-$pkg_vers.tar.xz"
+pkg_urls="http://ftp.gnome.org/pub/GNOME/sources/gdk-pixbuf/2.26/$pkg_file"
+pkg_opts="configure force-bootstrap"
+pkg_uses=""
+pkg_reqs=""
+pkg_cfg=""
 
-####################################################################################################
-# satisfy pkg dependencies and load their environment settings
-####################################################################################################
-
-bldr_satisfy_pkg --category    "$pkg_ctry"    \
-                 --name        "$pkg_name"    \
-                 --version     "$pkg_vers"    \
-                 --requires    "$pkg_reqs"    \
-                 --uses        "$pkg_uses"    \
-                 --options     "$pkg_opts"
-
-####################################################################################################
+pkg_reqs=""
+pkg_reqs="$pkg_reqs zlib/latest"
+pkg_reqs="$pkg_reqs libxml2/latest"
+pkg_reqs="$pkg_reqs libicu/latest"
+pkg_reqs="$pkg_reqs libiconv/latest"
+pkg_reqs="$pkg_reqs gtk-doc/latest"
+pkg_reqs="$pkg_reqs gettext/latest"
+pkg_reqs="$pkg_reqs glib/latest"
+pkg_reqs="$pkg_reqs libpng/latest"
+pkg_reqs="$pkg_reqs freetype/latest"
+pkg_reqs="$pkg_reqs fontconfig/latest"
+pkg_reqs="$pkg_reqs libjpeg/latest"
+pkg_reqs="$pkg_reqs pixman/latest"
+pkg_reqs="$pkg_reqs poppler/latest"
+if [[ $BLDR_SYSTEM_IS_OSX == false ]]; then
+     pkg_reqs="$pkg_reqs cogl/latest"
+fi
 
 pkg_cfg=""
-pkg_cfg="$pkg_cfg --with-zlib-prefix=\"$BLDR_ZLIB_BASE_PATH\""
-pkg_cfg="$pkg_cfg --with-pkgconfigdir=$PKG_CONFIG_PATH"
+pkg_cfg_path=""
 pkg_cflags=""
 pkg_ldflags=""
+
+if [[ $BLDR_SYSTEM_IS_OSX == true ]]; then
+     pkg_cfg="$pkg_cfg --disable-xlib --enable-quartz --enable-quartz-image"
+else
+     pkg_cfg="$pkg_cfg --enable-drm --enable-directfb --enable-gl --enable-cogl"     
+fi
+
+pkg_uses="$pkg_reqs"
 
 ####################################################################################################
 # build and install pkg as local module
@@ -62,5 +73,4 @@ bldr_build_pkg --category    "$pkg_ctry"    \
                --cflags      "$pkg_cflags"  \
                --ldflags     "$pkg_ldflags" \
                --config      "$pkg_cfg"
-
 

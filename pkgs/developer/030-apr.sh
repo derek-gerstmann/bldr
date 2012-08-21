@@ -10,25 +10,30 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_ctry="concurrent"
-pkg_name="ck"
-pkg_vers="0.2.7"
-pkg_info="Concurrency Kit provides a plethora of concurrency primitives for high-performance concurrent systems."
+pkg_ctry="developer"
+pkg_name="apr"
+pkg_vers="1.4.6"
+pkg_info="The Apache Portable Runtime library provides platform-independent system-level access and functionality."
 
-pkg_desc="Concurrency Kit provides a plethora of concurrency primitives, safe memory reclamation 
-mechanisms and lock-less and lock-free data structures designed to aid in the design and 
-implementation of high performance concurrent systems. It is designed to minimize dependencies 
-on operating system-specific interfaces and most of the interface relies only on a strict subset 
-of the standard library and more popular compiler extensions."
+pkg_desc="The mission of the Apache Portable Runtime Project is to create and maintain software 
+libraries that provide a predictable and consistent interface to underlying platform-specific 
+implementations. The primary goal is to provide an API to which software developers may code and 
+be assured of predictable if not identical behavior regardless of the platform on which their 
+software is built, relieving them of the need to code special-case conditions to work around or 
+take advantage of platform-specific deficiencies or features.
 
-pkg_file="$pkg_name-$pkg_vers.tar.gz"
-pkg_urls="http://www.concurrencykit.org/releases/$pkg_file"
-pkg_opts="configure skip-xcode-config"
-pkg_reqs=""
-pkg_uses=""
+APR and its companion libraries are implemented entirely in C and provide a common programming 
+interface across a wide variety of operating system platforms without sacrificing performance. "
+
+pkg_file="$pkg_name-$pkg_vers.tar.bz2"
+pkg_urls="http://apache.tradebit.com/pub/$pkg_name/$pkg_file"
+pkg_opts="configure"
+pkg_reqs="coreutils/latest pkg-config/latest zlib/latest"
+pkg_uses="$pkg_reqs"
 pkg_cflags=""
 pkg_ldflags=""
-pkg_cfg="" 
+pkg_patch=""
+pkg_cfg="--enable-static --enable-shared"
 
 ####################################################################################################
 # build and install pkg as local module
@@ -45,8 +50,8 @@ bldr_build_pkg                    \
      --uses        "$pkg_uses"    \
      --requires    "$pkg_reqs"    \
      --options     "$pkg_opts"    \
+     --patch       "$pkg_patch"   \
      --cflags      "$pkg_cflags"  \
      --ldflags     "$pkg_ldflags" \
      --config      "$pkg_cfg"
-
 
