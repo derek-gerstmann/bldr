@@ -30,7 +30,7 @@ pkg_reqs="zlib/latest libicu/latest libiconv/latest libxml2/latest freetype/late
 pkg_uses="$pkg_reqs"
 pkg_cflags=""
 pkg_ldflags=""
-pkg_cfg=""
+pkg_cfg="--disable-docs"
 pkg_patch=""
 
 if [[ $BLDR_SYSTEM_IS_OSX == true ]]
