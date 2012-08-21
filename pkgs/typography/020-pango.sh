@@ -49,7 +49,6 @@ found at http://www.gtk.org/."
 
 pkg_file="$pkg_name-$pkg_vers.tar.xz"
 pkg_urls="http://ftp.gnome.org/pub/GNOME/sources/$pkg_name/1.30/$pkg_file"
-pkg_opts="configure"
 pkg_reqs=""
 pkg_reqs="$pkg_reqs zlib/latest"
 pkg_reqs="$pkg_reqs libicu/latest"
@@ -59,8 +58,9 @@ pkg_reqs="$pkg_reqs freetype/latest"
 pkg_reqs="$pkg_reqs fontconfig/latest"
 pkg_reqs="$pkg_reqs gettext/latest"
 pkg_reqs="$pkg_reqs glib/latest"
+pkg_reqs="$pkg_reqs gobject-isl/latest"
 pkg_uses="$pkg_reqs"
-
+pkg_cfg="--enable-static --enable-shared --enable-introspection=yes"
 pkg_cflags=""
 pkg_ldflags=""
 

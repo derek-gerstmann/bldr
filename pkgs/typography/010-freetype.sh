@@ -29,7 +29,7 @@ and uniform interface to access the content of font files."
 pkg_file="$pkg_name-$pkg_vers.tar.gz"
 pkg_urls="http://download.savannah.gnu.org/releases/freetype/$pkg_file;http://downloads.sourceforge.net/project/$pkg_name/freetype2/$pkg_vers/$pkg_file?use_mirror=aarnet"
 pkg_opts="configure force-serial-build"
-pkg_reqs="zlib/latest libicu/latest libxml2/latest"
+pkg_reqs="zlib/latest libicu/latest libiconv/latest libxml2/latest"
 pkg_cflags=""
 pkg_ldflags=""
 pkg_cfg=""
@@ -42,8 +42,6 @@ then
           pkg_cfg="$pkg_cfg --with-arch=x86_64"
      fi
      pkg_cfg="$pkg_cfg --with-sysroot=$BLDR_OSX_SYSROOT"
-else
-     pkg_reqs="$pkg_reqs libiconv/latest"
 fi
 
 pkg_uses=$pkg_reqs

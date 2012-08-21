@@ -811,7 +811,7 @@ BLDR_BUILD_SEARCH_PATH=". build ../build source src .. ../source ../src"
 BLDR_MAKE_SEARCH_PATH=". build ../build source src .. ../source ../src"
 
 BLDR_BOOT_FILE_SEARCH_LIST="bootstrap bootstrap.sh autogen.sh"
-BLDR_AUTOCONF_FILE_SEARCH_LIST="configure configure.sh config"
+BLDR_AUTOCONF_FILE_SEARCH_LIST="configure configure.sh config Configure"
 BLDR_CMAKE_FILE_SEARCH_LIST="CMakeLists.txt cmakelists.txt"
 BLDR_MAKE_FILE_SEARCH_LIST="Makefile makefile"
 BLDR_MAVEN_FILE_SEARCH_LIST="pom.xml project.xml"
@@ -2804,12 +2804,13 @@ function bldr_boot_pkg()
 
     bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
     local cfg_path=$(bldr_locate_config_path "$pkg_cfg_path" "$pkg_opts")
+    local cfg_cmd=$(bldr_locate_config_script "$pkg_cfg_path" "$pkg_opts")
     local boot_path=$(bldr_locate_boot_path "$pkg_cfg_path")
     bldr_pop_dir
 
     bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$cfg_path"
     local bootstrap=false
-    if [ ! -x "./configure" ] && [ ! -x "./configure.sh" ] && [ ! -x "./config" ]
+    if [ ! -x "$cfg_cmd" ]
     then
         bootstrap=true
     fi
