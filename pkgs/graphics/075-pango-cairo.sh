@@ -79,8 +79,8 @@ bldr_satisfy_pkg --category    "$pkg_ctry"    \
 
 pkg_cfg="--enable-static --enable-shared --enable-introspection=yes"
 pkg_cflags=""
-pkg_cflags="$pkg_cflags:-I$BLDR_GLIB_INCLUDE_DIR/glib-2.0"
-pkg_cflags="$pkg_cflags:-I$BLDR_GLIB_INCLUDE_DIR/gio-unix-2.0"
+pkg_cflags="$pkg_cflags:-I$BLDR_GLIB_INCLUDE_PATH/glib-2.0"
+pkg_cflags="$pkg_cflags:-I$BLDR_GLIB_INCLUDE_PATH/gio-unix-2.0"
 pkg_ldflags=""
 
 ####################################################################################################
