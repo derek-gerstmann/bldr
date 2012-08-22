@@ -29,8 +29,9 @@ pkg_cflags=""
 pkg_ldflags=""
 pkg_cfg=""
 
-pkg_opts="configure skip-bootstrap"
+pkg_opts="configure skip-bootstrap migrate-build-headers migrate-build-bin"
 pkg_opts="$pkg_opts -MPREFIX=\"$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers\""
+bz2_opts="$pkg_opts"
 
 ####################################################################################################
 # build and install pkg as local module
@@ -38,7 +39,7 @@ pkg_opts="$pkg_opts -MPREFIX=\"$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers\""
 
 if [[ $BLDR_SYSTEM_IS_LINUX == true ]]
 then
-     pkg_opts="$pkg_opts use-build-makefile=Makefile-libbz2_so"
+     pkg_opts="$bz2_opts use-build-makefile=Makefile-libbz2_so"
 
      bldr_build_pkg --category    "$pkg_ctry"    \
                     --name        "$pkg_name"    \
@@ -59,7 +60,7 @@ fi
 # build and install pkg as local module
 ####################################################################################################
 
-pkg_opts="$pkg_opts -MPREFIX=\"$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers\""
+pkg_opts="$bz2_opts"
 
 bldr_build_pkg --category    "$pkg_ctry"    \
                --name        "$pkg_name"    \
