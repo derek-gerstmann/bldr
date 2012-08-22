@@ -54,6 +54,8 @@ then
                     --cflags      "$pkg_cflags"  \
                     --ldflags     "$pkg_ldflags" \
                     --config      "$pkg_cfg"
+                    
+     bz2_opts="$bz2_opts keep-existing-install force-rebuild"
 fi
 
 ####################################################################################################
