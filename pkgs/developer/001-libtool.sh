@@ -10,7 +10,7 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_ctry="internal"
+pkg_ctry="developer"
 pkg_name="libtool"
 pkg_vers="2.4.2"
 

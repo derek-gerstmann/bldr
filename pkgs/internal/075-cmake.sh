@@ -12,7 +12,7 @@ source "bldr.sh"
 
 pkg_ctry="internal"
 pkg_name="cmake"
-pkg_vers="2.8.8"
+pkg_vers="2.8.9"
 
 pkg_info="CMake is a family of tools designed to build, test and package software."
 
@@ -36,7 +36,6 @@ pkg_uses="$pkg_uses m4/latest"
 pkg_uses="$pkg_uses autoconf/latest"
 pkg_uses="$pkg_uses automake/latest"
 pkg_uses="$pkg_uses pkg-config/latest"
-pkg_uses="$pkg_uses libtool/latest"
 pkg_uses="$pkg_uses make/latest"
 pkg_reqs="$pkg_uses"
 pkg_cflags=""

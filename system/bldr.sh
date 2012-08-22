@@ -2489,12 +2489,21 @@ function bldr_setup_pkg()
 
     if [ -d "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers" ]
     then
-        if [[ $BLDR_VERBOSE == true ]]
+        if [[ $(bldr_has_cfg_option "$pkg_opts" "keep-existing-install" ) == "true" ]]
         then
-            bldr_log_info "Removing stale install '$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers'"
-            bldr_log_split
+            if [[ $BLDR_VERBOSE == true ]]
+            then
+                bldr_log_info "Keeping existing install '$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers'"
+                bldr_log_split
+            fi
+        else
+            if [[ $BLDR_VERBOSE == true ]]
+            then
+                bldr_log_info "Removing stale install '$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers'"
+                bldr_log_split
+            fi
+            bldr_remove_dir "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
         fi
-        bldr_remove_dir "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
     fi
 
     bldr_log_info "Done setting up package '$pkg_name/$pkg_vers'!"

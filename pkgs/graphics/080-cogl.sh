@@ -46,13 +46,25 @@ if [[ $BLDR_SYSTEM_IS_OSX == false ]]
 then
      pkg_reqs="$pkg_reqs libpng/latest"
 fi
-
-pkg_cfg=""
-pkg_cfg_path=""
-pkg_cflags=""
-pkg_ldflags=""
-
 pkg_uses="$pkg_reqs"
+
+####################################################################################################
+# satisfy pkg dependencies and load their environment settings
+####################################################################################################
+
+bldr_satisfy_pkg --category    "$pkg_ctry"    \
+                 --name        "$pkg_name"    \
+                 --version     "$pkg_vers"    \
+                 --requires    "$pkg_reqs"    \
+                 --uses        "$pkg_uses"    \
+                 --options     "$pkg_opts"
+
+####################################################################################################
+
+pkg_cfg="--disable-introspection --disable-glibtest"
+pkg_cfg_path=""
+pkg_cflags="-I$BLDR_GLIB_INCLUDE_PATH/glib-2.0"
+pkg_ldflags=""
 
 ####################################################################################################
 # build and install pkg as local module

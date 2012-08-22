@@ -26,7 +26,7 @@ and data interactively, but has grown to support many non-interactive uses such 
 It is also used as a plotting engine by third-party applications like Octave. Gnuplot has been 
 supported and under active development since 1986."
 
-pkg_file="$pkg_name-$pkg_vers.tar.bz2"
+pkg_file="$pkg_name-$pkg_vers.tar.gz"
 pkg_urls="http://downloads.sourceforge.net/project/$pkg_name/$pkg_name/$pkg_vers/$pkg_file"
 pkg_opts="configure"
 
