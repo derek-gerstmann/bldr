@@ -11,7 +11,7 @@ source "bldr.sh"
 ####################################################################################################
 
 pkg_ctry="toolkits"
-pkg_name="qt"
+pkg_name="qt5"
 pkg_vers="5.0.0-beta1"
 pkg_info="Qt is a cross-platform application and UI framework for developers using C++ or QML, 
 a CSS & JavaScript like language."
@@ -37,7 +37,6 @@ pkg_reqs="$pkg_reqs python/2.7.3"
 pkg_reqs="$pkg_reqs libtiff/latest"
 pkg_reqs="$pkg_reqs libjpeg/latest"
 pkg_reqs="$pkg_reqs libpng/latest"
-pkg_uses="$pkg_reqs"
 pkg_uses="$pkg_reqs"
 
 pkg_cflags=""

@@ -38,6 +38,11 @@ pkg_ldflags="-L$BLDR_LOCAL_PATH/compression/zlib/latest/lib"
 pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/internal/bzip2/latest/include"
 pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/internal/bzip2/latest/lib"
 
+if [[ $BLDR_SYSTEM_IS_OSX == false ]]
+then
+  pkg_cflags="$pkg_cflags:-fPIC"
+fi
+
 pkg_cfg=""
 
 ####################################################################################################

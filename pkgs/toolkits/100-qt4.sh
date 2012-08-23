@@ -11,7 +11,7 @@ source "bldr.sh"
 ####################################################################################################
 
 pkg_ctry="toolkits"
-pkg_name="qt"
+pkg_name="qt4"
 pkg_vers="4.8.2"
 pkg_info="Qt is a cross-platform application and UI framework for developers using C++ or QML, a CSS & JavaScript like language."
 

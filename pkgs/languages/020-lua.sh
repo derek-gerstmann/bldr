@@ -38,6 +38,7 @@ then
 elif [[ $BLDR_SYSTEM_IS_LINUX == true ]]
 then
     pkg_opts="$pkg_opts -Mlinux"
+    pkg_cflags="$pkg_cflags:-fPIC"
 fi
 
 ####################################################################################################
