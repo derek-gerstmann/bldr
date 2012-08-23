@@ -10,34 +10,39 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_ctry="imaging"
-pkg_name="libjpeg"
-pkg_vers="8d"
+pkg_ctry="internal"
+pkg_name="scons"
+pkg_vers="2.2.0"
 
-pkg_info="JPEG is a standardized compression method for full-color and gray-scale images."
+pkg_info="SCons is an Open Source software construction tool—that is, a next-generation build tool."
 
-pkg_desc="JPEG is a standardized compression method for full-color and gray-scale images.
-This package from the Independent JPEG Group contains C software to implement JPEG 
-image encoding, decoding, and transcoding.  
+pkg_desc="SCons is an Open Source software construction tool—that is, a next-generation build tool. 
 
-The distributed programs provide conversion between JPEG 'JFIF' format and
-image files in PBMPLUS PPM/PGM, GIF, BMP, and Targa file formats.  The
-core compression and decompression library can easily be reused in other
-programs, such as image viewers.  The package is highly portable C code;
-we have tested it on many machines ranging from PCs to Crays."
+Think of SCons as an improved, cross-platform substitute for the classic Make utility with 
+integrated functionality similar to autoconf/automake and compiler caches such as ccache.
 
-pkg_file="jpegsrc.v8d.tar.gz"
-pkg_urls="http://www.ijg.org/files/$pkg_file"
-pkg_opts="configure"
-pkg_reqs="zlib/latest"
-pkg_uses="$pkg_reqs"
+In short, SCons is an easier, more reliable and faster way to build software."
+
+pkg_file="$pkg_name-$pkg_vers.tar.gz"
+pkg_urls="http://downloads.sourceforge.net/project/scons/$pkg_name/$pkg_vers/$pkg_file"
+pkg_opts="python"
+pkg_uses=""
+pkg_uses="$pkg_uses coreutils/latest"
+pkg_uses="$pkg_uses findutils/latest"
+pkg_uses="$pkg_uses diffutils/latest"
+pkg_uses="$pkg_uses patch/latest"
+pkg_uses="$pkg_uses sed/latest"
+pkg_uses="$pkg_uses grep/latest"
+pkg_uses="$pkg_uses tar/latest"
+pkg_uses="$pkg_uses m4/latest"
+pkg_uses="$pkg_uses autoconf/latest"
+pkg_uses="$pkg_uses automake/latest"
+pkg_uses="$pkg_uses pkg-config/latest"
+pkg_uses="$pkg_uses make/latest"
+pkg_uses="$pkg_uses python/2.7.3"
+pkg_reqs="$pkg_uses"
 pkg_cflags=""
 pkg_ldflags=""
-
-if [[ $BLDR_SYSTEM_IS_OSX == false ]]
-then
-     pkg_cflags="$pkg_cflags -fPIC"
-fi
 pkg_cfg=""
 
 ####################################################################################################
@@ -56,6 +61,6 @@ bldr_build_pkg --category    "$pkg_ctry"    \
                --options     "$pkg_opts"    \
                --cflags      "$pkg_cflags"  \
                --ldflags     "$pkg_ldflags" \
-               --config      "$pkg_cfg"
+               --config      "$pkg_cfg"     
 
 

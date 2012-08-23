@@ -55,25 +55,20 @@ then
                     --ldflags     "$pkg_ldflags" \
                     --config      "$pkg_cfg"
                     
-     bz2_opts="$bz2_opts keep-existing-install force-rebuild"
+else
+     pkg_opts="$bz2_opts"
+
+     bldr_build_pkg --category    "$pkg_ctry"    \
+                    --name        "$pkg_name"    \
+                    --version     "$pkg_vers"    \
+                    --info        "$pkg_info"    \
+                    --description "$pkg_desc"    \
+                    --file        "$pkg_file"    \
+                    --url         "$pkg_urls"    \
+                    --uses        "$pkg_uses"    \
+                    --requires    "$pkg_reqs"    \
+                    --options     "$pkg_opts"    \
+                    --cflags      "$pkg_cflags"  \
+                    --ldflags     "$pkg_ldflags" \
+                    --config      "$pkg_cfg"
 fi
-
-####################################################################################################
-# build and install pkg as local module
-####################################################################################################
-
-pkg_opts="$bz2_opts"
-
-bldr_build_pkg --category    "$pkg_ctry"    \
-               --name        "$pkg_name"    \
-               --version     "$pkg_vers"    \
-               --info        "$pkg_info"    \
-               --description "$pkg_desc"    \
-               --file        "$pkg_file"    \
-               --url         "$pkg_urls"    \
-               --uses        "$pkg_uses"    \
-               --requires    "$pkg_reqs"    \
-               --options     "$pkg_opts"    \
-               --cflags      "$pkg_cflags"  \
-               --ldflags     "$pkg_ldflags" \
-               --config      "$pkg_cfg"

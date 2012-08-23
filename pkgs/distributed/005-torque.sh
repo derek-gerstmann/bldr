@@ -10,7 +10,8 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_vers_list=("2.5.12" "4.1.0")
+pkg_vers="2.5.12"
+pkg_vers_list=("$pkg_vers")
 pkg_ctry="distributed"
 pkg_name="torque"
 

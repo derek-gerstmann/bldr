@@ -10,9 +10,10 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
+pkg_vers="1.6"
+pkg_vers_list=("$pkg_vers" "1.6.1")
 pkg_ctry="distributed"
 pkg_name="openmpi"
-pkg_vers="1.6"
 
 pkg_info="The Open MPI Project is an open source MPI-2 implementation that is developed and maintained by a consortium of academic, research, and industry partners."
 
@@ -58,18 +59,23 @@ fi
 # build and install pkg as local module
 ####################################################################################################
 
-bldr_build_pkg --category    "$pkg_ctry"    \
-               --name        "$pkg_name"    \
-               --version     "$pkg_vers"    \
-               --info        "$pkg_info"    \
-               --description "$pkg_desc"    \
-               --file        "$pkg_file"    \
-               --url         "$pkg_urls"    \
-               --uses        "$pkg_uses"    \
-               --requires    "$pkg_reqs"    \
-               --options     "$pkg_opts"    \
-               --cflags      "$pkg_cflags"  \
-               --ldflags     "$pkg_ldflags" \
-               --config      "$pkg_cfg"
+for pkg_vers in ${pkg_vers_list}
+do
+     pkg_file="$pkg_name-$pkg_vers.tar.bz2"
+     pkg_urls="http://www.open-mpi.org/software/ompi/v1.6/downloads/$pkg_file"
 
+     bldr_build_pkg --category    "$pkg_ctry"    \
+                    --name        "$pkg_name"    \
+                    --version     "$pkg_vers"    \
+                    --info        "$pkg_info"    \
+                    --description "$pkg_desc"    \
+                    --file        "$pkg_file"    \
+                    --url         "$pkg_urls"    \
+                    --uses        "$pkg_uses"    \
+                    --requires    "$pkg_reqs"    \
+                    --options     "$pkg_opts"    \
+                    --cflags      "$pkg_cflags"  \
+                    --ldflags     "$pkg_ldflags" \
+                    --config      "$pkg_cfg"
+done
 
