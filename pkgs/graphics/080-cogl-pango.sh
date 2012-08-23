@@ -11,7 +11,7 @@ source "bldr.sh"
 ####################################################################################################
 
 pkg_ctry="graphics"
-pkg_name="cogl"
+pkg_name="cogl-pango"
 pkg_vers="1.10.2"
 
 pkg_info="Cogl is a modern 3D graphics API with associated utility APIs designed to expose the features of 3D graphics hardware using a direct state access API design, as opposed to the state-machine style of OpenGL."
@@ -34,7 +34,8 @@ pkg_reqs="$pkg_reqs libiconv/latest"
 pkg_reqs="$pkg_reqs gettext/latest"
 pkg_reqs="$pkg_reqs glib/latest"
 pkg_reqs="$pkg_reqs gtk-doc/latest"
-pkg_reqs="$pkg_reqs pango/latest"
+pkg_reqs="$pkg_reqs cairo/latest"
+pkg_reqs="$pkg_reqs pango-cairo/latest"
 pkg_uses="$pkg_reqs"
 
 if [[ $BLDR_SYSTEM_IS_OSX == false ]]
@@ -57,7 +58,7 @@ bldr_satisfy_pkg --category    "$pkg_ctry"    \
 ####################################################################################################
 
 pkg_cfg="--disable-introspection --disable-glibtest"
-pkg_cfg="$pkg_cfg --disable-cairo --enable-cogl-pango=no"
+pkg_cfg="$pkg_cfg --enable-cairo --enable-cogl-pango=yes"
 if [[ $BLDR_SYSTEM_IS_OSX == true ]]
 then
      pkg_cfg="$pkg_cfg --with-flavour=osx"
