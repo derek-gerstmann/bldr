@@ -32,7 +32,7 @@ proposed for TR2."
 
 pkg_file="boost_1_50_0.tar.bz2"
 pkg_urls="http://sourceforge.net/projects/boost/files/$pkg_name/$pkg_vers/$pkg_file/download"
-pkg_opts="configure skip-config force-static skip-auto-compile-flags"
+pkg_opts="configure force-boostrap skip-config force-static skip-auto-compile-flags"
 pkg_reqs="zlib/latest bzip2/latest libicu/latest"
 pkg_uses="$pkg_reqs"
 

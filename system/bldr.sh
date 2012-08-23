@@ -2044,7 +2044,7 @@ function bldr_find_pkg_ctry()
                     pkg_tst_vers="latest"
                 fi
 
-                if [[ $(echo "$pkg_sh" | grep -m1 -c "$pkg_tst_name.sh" ) > 0 ]]
+                if [[ $(echo "$pkg_sh" | grep -m1 -c "[0-9][0-9][0-9]*[0-9]*-$pkg_tst_name.sh") > 0 ]]                    
                 then
                     fnd_ctry="$ctry_name"
                     found_pkg=true
@@ -2158,7 +2158,7 @@ function bldr_has_required_pkg()
                     pkg_tst_vers="latest"
                 fi
 
-                if [[ $(echo "$pkg_sh" | grep -m1 -c "$pkg_tst_name.sh" ) > 0 ]]
+                if [[ $(echo "$pkg_sh" | grep -m1 -c "[0-9][0-9][0-9]*[0-9]*-$pkg_tst_name.sh") > 0 ]]                    
                 then
 
                     local use_existing="false"
@@ -2274,7 +2274,7 @@ function bldr_build_required_pkg()
                     pkg_tst_vers="latest"
                 fi
 
-                if [[ $(echo "$pkg_sh" | grep -m1 -c "$pkg_tst_name.sh" ) > 0 ]]
+                if [[ $(echo "$pkg_sh" | grep -m1 -c "[0-9][0-9][0-9]*[0-9]*-$pkg_tst_name.sh") > 0 ]]                    
                 then
 
                     local use_existing="false"
@@ -4164,7 +4164,6 @@ function bldr_migrate_pkg()
 
     local src_path=""
 
-    # build using make if a makefile exists
     if [ -d "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$build_path" ] 
     then
         bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$build_path"
@@ -4187,17 +4186,18 @@ function bldr_migrate_pkg()
         bldr_pop_dir
     fi
 
+    local bt_path="$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
+    if [[ $(echo "$pkg_opts" | grep -m1 -c 'use-build-tree=') > 0 ]]
+    then
+        local user_bt=$(echo $pkg_opts | grep -E -o 'use-build-tree=(\S+)' | sed 's/.*=//g' )
+        if [[ "$user_bt" != "" ]]
+        then
+            bt_path="$bt_path/$user_bt"
+        fi
+    fi   
+
     if [[ $(bldr_has_cfg_option "$pkg_opts" "migrate-build-tree" ) == "true" ]]
     then
-        local bt_path="$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
-        if [[ $(echo "$pkg_opts" | grep -m1 -c 'migrate-build-tree=') > 0 ]]
-        then
-            local user_bt=$(echo $pkg_opts | grep -E -o 'migrate-build-tree=(\S+)' | sed 's/.*=//g' )
-            if [[ "$user_bt" != "" ]]
-            then
-                bt_path="$bt_path/$user_bt"
-            fi
-        fi    
         bldr_make_dir "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
         bldr_copy_dir "$bt_path" "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers" || bldr_bail "Failed to copy shared files into directory: $BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
         bldr_log_split
@@ -4205,7 +4205,7 @@ function bldr_migrate_pkg()
     
     if [[ $(bldr_has_cfg_option "$pkg_opts" "migrate-build-headers" ) == "true" ]]
     then
-        bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
+        bldr_push_dir "$bt_path"
         local inc_paths="include inc man share"
         for src_path in ${inc_paths}
         do
@@ -4224,7 +4224,7 @@ function bldr_migrate_pkg()
 
     if [[ $(bldr_has_cfg_option "$pkg_opts" "migrate-build-source" ) == "true" ]]
     then
-        bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
+        bldr_push_dir "$bt_path"
         local inc_paths="src source"
         for src_path in ${inc_paths}
         do
@@ -4243,7 +4243,7 @@ function bldr_migrate_pkg()
 
     if [[ $(bldr_has_cfg_option "$pkg_opts" "migrate-build-bin" ) == "true" ]]
     then
-        bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
+        bldr_push_dir "$bt_path"
         local bin_paths=". lib bin lib32 lib64 build src"
         local binary=""
         local subdir=""
@@ -4301,7 +4301,7 @@ function bldr_migrate_pkg()
 
     if [[ $(bldr_has_cfg_option "$pkg_opts" "migrate-build-doc" ) == "true" ]]
     then
-        bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
+        bldr_push_dir "$bt_path"
         local inc_paths="doc man share etc"
         for src_path in ${inc_paths}
         do

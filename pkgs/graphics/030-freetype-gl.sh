@@ -20,10 +20,25 @@ pkg_desc="FreeTypeGL provides a basic typography interface to use Freetype fonts
 
 pkg_file="$pkg_name-$pkg_vers.tar.gz"
 pkg_urls="svn://freetype-gl.googlecode.com/svn/trunk"
-pkg_opts="configure skip-install migrate-build-tree"
-pkg_uses=""
-pkg_reqs=""
-pkg_cfg="--enable-shared --enable-static"
+pkg_opts="cmake migrate-build-headers migrate-build-source migrate-build-bin"
+pkg_uses="freetype/latest fontconfig/latest atb/latest"
+pkg_reqs="$pkg_uses"
+
+####################################################################################################
+# satisfy pkg dependencies and load their environment settings
+####################################################################################################
+
+bldr_satisfy_pkg --category    "$pkg_ctry"    \
+                 --name        "$pkg_name"    \
+                 --version     "$pkg_vers"    \
+                 --requires    "$pkg_reqs"    \
+                 --uses        "$pkg_uses"    \
+                 --options     "$pkg_opts"
+
+####################################################################################################
+
+pkg_cfg=""
+pkg_cfg_path="build"
 pkg_cflags=""
 pkg_ldflags=""
 
@@ -43,5 +58,6 @@ bldr_build_pkg --category    "$pkg_ctry"    \
                --options     "$pkg_opts"    \
                --cflags      "$pkg_cflags"  \
                --ldflags     "$pkg_ldflags" \
-               --config      "$pkg_cfg"
+               --config      "$pkg_cfg"     \
+               --config-path "$pkg_cfg_path"
 

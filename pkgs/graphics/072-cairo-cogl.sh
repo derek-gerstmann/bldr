@@ -11,7 +11,7 @@ source "bldr.sh"
 ####################################################################################################
 
 pkg_ctry="graphics"
-pkg_name="cairo"
+pkg_name="cairo-cogl"
 pkg_vers="1.12.2"
 
 pkg_info="Cairo is a 2D graphics library with support for multiple output devices."
@@ -37,7 +37,7 @@ Cairo is free software and is available to be redistributed and/or modified
 under the terms of either the GNU Lesser General Public License (LGPL) version 
 2.1 or the Mozilla Public License (MPL) version 1.1 at your option."
 
-pkg_file="$pkg_name-$pkg_vers.tar.xz"
+pkg_file="cairo-$pkg_vers.tar.xz"
 pkg_urls="http://cairographics.org/releases/$pkg_file"
 pkg_opts="configure force-bootstrap"
 pkg_uses=""
@@ -59,6 +59,7 @@ pkg_reqs="$pkg_reqs fontconfig/latest"
 pkg_reqs="$pkg_reqs pango/latest"
 pkg_reqs="$pkg_reqs pixman/latest"
 pkg_reqs="$pkg_reqs poppler/latest"
+pkg_reqs="$pkg_reqs cogl/latest"
 
 pkg_cfg="--disable-introspection"
 pkg_cfg_path=""
@@ -66,9 +67,9 @@ pkg_cflags=""
 pkg_ldflags=""
 
 if [[ $BLDR_SYSTEM_IS_OSX == true ]]; then
-     pkg_cfg="$pkg_cfg --disable-xlib --enable-quartz --enable-quartz-image --without-x"
+     pkg_cfg="$pkg_cfg --disable-xlib --enable-quartz --enable-quartz-image --enable-cogl"
 else
-     pkg_cfg="$pkg_cfg --enable-drm --enable-directfb --enable-gl"     
+     pkg_cfg="$pkg_cfg --enable-drm --enable-directfb --enable-gl --enable-cogl"     
 fi
 
 pkg_uses="$pkg_reqs"
@@ -77,17 +78,20 @@ pkg_uses="$pkg_reqs"
 # build and install pkg as local module
 ####################################################################################################
 
-bldr_build_pkg --category    "$pkg_ctry"    \
-               --name        "$pkg_name"    \
-               --version     "$pkg_vers"    \
-               --info        "$pkg_info"    \
-               --description "$pkg_desc"    \
-               --file        "$pkg_file"    \
-               --url         "$pkg_urls"    \
-               --uses        "$pkg_uses"    \
-               --requires    "$pkg_reqs"    \
-               --options     "$pkg_opts"    \
-               --cflags      "$pkg_cflags"  \
-               --ldflags     "$pkg_ldflags" \
-               --config      "$pkg_cfg"
-
+if [[ $BLDR_SYSTEM_IS_OSX == true ]]; then
+     bldr_log_warning "'$pkg_name/$pkg_vers' not supported on OSX!  Skipping ..."
+else
+     bldr_build_pkg --category    "$pkg_ctry"    \
+                    --name        "$pkg_name"    \
+                    --version     "$pkg_vers"    \
+                    --info        "$pkg_info"    \
+                    --description "$pkg_desc"    \
+                    --file        "$pkg_file"    \
+                    --url         "$pkg_urls"    \
+                    --uses        "$pkg_uses"    \
+                    --requires    "$pkg_reqs"    \
+                    --options     "$pkg_opts"    \
+                    --cflags      "$pkg_cflags"  \
+                    --ldflags     "$pkg_ldflags" \
+                    --config      "$pkg_cfg"
+fi
