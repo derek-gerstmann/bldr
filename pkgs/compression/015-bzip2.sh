@@ -60,7 +60,7 @@ fi
 pkg_opts="$bz2_opts"
 if [[ $BLDR_SYSTEM_IS_LINUX == true ]]
 then
-     pkg_opts="$pkg_opts migrate-skip-libs"
+     pkg_opts="$pkg_opts migrate-skip-libs keep-existing-install force-rebuild"
 fi
 
 bldr_build_pkg --category    "$pkg_ctry"    \
