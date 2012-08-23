@@ -39,7 +39,7 @@ pkg_reqs="$pkg_reqs libiconv/latest"
 pkg_reqs="$pkg_reqs gettext/latest"
 pkg_reqs="$pkg_reqs glib/latest"
 pkg_reqs="$pkg_reqs gtk-doc/latest"
-pkg_reqs="$pkg_reqs pango/latest"
+pkg_reqs="$pkg_reqs pango-cairo/latest"
 pkg_uses="$pkg_reqs"
 
 if [[ $BLDR_SYSTEM_IS_OSX == false ]]
