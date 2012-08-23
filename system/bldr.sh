@@ -4248,6 +4248,8 @@ function bldr_migrate_pkg()
         local binary=""
         local subdir=""
         local src_path=""
+        local only_bins=$(bldr_has_cfg_option "$pkg_opts" "migrate-skip-libs" )
+
         for src_path in ${bin_paths}
         do
             # move product into external path
@@ -4272,6 +4274,10 @@ function bldr_migrate_pkg()
                     if [[ $(bldr_is_library "$binary") == "true" ]]
                     then
                         subdir="lib"
+                        if [[ $only_bins == "true" ]]
+                        then
+                            continue
+                        fi
                     elif [[ ! -x "$binary" ]]
                     then
                         continue

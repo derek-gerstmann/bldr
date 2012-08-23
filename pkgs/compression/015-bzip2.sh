@@ -55,20 +55,24 @@ then
                     --ldflags     "$pkg_ldflags" \
                     --config      "$pkg_cfg"
                     
-else
-     pkg_opts="$bz2_opts"
-
-     bldr_build_pkg --category    "$pkg_ctry"    \
-                    --name        "$pkg_name"    \
-                    --version     "$pkg_vers"    \
-                    --info        "$pkg_info"    \
-                    --description "$pkg_desc"    \
-                    --file        "$pkg_file"    \
-                    --url         "$pkg_urls"    \
-                    --uses        "$pkg_uses"    \
-                    --requires    "$pkg_reqs"    \
-                    --options     "$pkg_opts"    \
-                    --cflags      "$pkg_cflags"  \
-                    --ldflags     "$pkg_ldflags" \
-                    --config      "$pkg_cfg"
 fi
+
+pkg_opts="$bz2_opts"
+if [[ $BLDR_SYSTEM_IS_LINUX == true ]]
+then
+     pkg_opts="$pkg_opts migrate-skip-libs"
+fi
+
+bldr_build_pkg --category    "$pkg_ctry"    \
+               --name        "$pkg_name"    \
+               --version     "$pkg_vers"    \
+               --info        "$pkg_info"    \
+               --description "$pkg_desc"    \
+               --file        "$pkg_file"    \
+               --url         "$pkg_urls"    \
+               --uses        "$pkg_uses"    \
+               --requires    "$pkg_reqs"    \
+               --options     "$pkg_opts"    \
+               --cflags      "$pkg_cflags"  \
+               --ldflags     "$pkg_ldflags" \
+               --config      "$pkg_cfg"
