@@ -42,7 +42,7 @@ in reference to its ubiquity and perceived inelegance."
 
 pkg_file="$pkg_name-$pkg_vers.tar.gz"
 pkg_urls="http://www.cpan.org/src/5.0/$pkg_file"
-pkg_opts="configure config-disable-prefix disable-xcode-cflags disable-xcode-ldflags"
+pkg_opts="configure force-serial-build config-disable-prefix disable-xcode-cflags disable-xcode-ldflags"
 pkg_reqs="coreutils/latest tar/latest make/latest"
 pkg_uses="$pkg_reqs"
 pkg_cfg="-des -Dusethreads"
