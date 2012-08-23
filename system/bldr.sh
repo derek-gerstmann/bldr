@@ -1602,7 +1602,7 @@ function bldr_list_archive()
 
     elif [[ $(echo "$result" | grep -m1 -c "^./") > 0 ]]
     then
-        listing="$base_dir"
+        listing=$(echo "$result" | grep -E -o -m1 "^./(\S+)/"  )
     
     elif [[ $(echo "$result" | grep -m1 -c "$base_dir/") > 0 ]]
     then
@@ -4187,6 +4187,7 @@ function bldr_migrate_pkg()
         bldr_pop_dir
     fi
 
+    local bt_base="$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
     local bt_path="$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
     if [[ $(echo "$pkg_opts" | grep -m1 -c 'use-build-tree=') > 0 ]]
     then
@@ -4206,8 +4207,23 @@ function bldr_migrate_pkg()
     
     if [[ $(bldr_has_cfg_option "$pkg_opts" "migrate-build-headers" ) == "true" ]]
     then
-        bldr_push_dir "$bt_path"
+        bldr_push_dir "$bt_base"
         local inc_paths="include inc man share"
+        for src_path in ${inc_paths}
+        do
+            # move product into external path
+            if [ -d "$src_path" ]
+            then
+                bldr_log_status "Migrating build files from '$src_path' for '$pkg_name/$pkg_vers'"
+                bldr_log_split
+                bldr_make_dir "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$src_path"
+                bldr_copy_dir "$src_path" "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$src_path" || bldr_bail "Failed to copy shared files into directory: $BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$src_path"
+                bldr_log_split
+            fi
+        done
+        bldr_pop_dir
+
+        bldr_push_dir "$bt_path"
         for src_path in ${inc_paths}
         do
             # move product into external path
@@ -4225,8 +4241,23 @@ function bldr_migrate_pkg()
 
     if [[ $(bldr_has_cfg_option "$pkg_opts" "migrate-build-source" ) == "true" ]]
     then
-        bldr_push_dir "$bt_path"
+        bldr_push_dir "$bt_base"
         local inc_paths="src source"
+        for src_path in ${inc_paths}
+        do
+            # move product into external path
+            if [ -d "$src_path" ]
+            then
+                bldr_log_status "Migrating build files from '$src_path' for '$pkg_name/$pkg_vers'"
+                bldr_log_split
+                bldr_make_dir "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$src_path"
+                bldr_copy_dir "$src_path" "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$src_path" || bldr_bail "Failed to copy shared files into directory: $BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$src_path"
+                bldr_log_split
+            fi
+        done
+        bldr_pop_dir
+
+        bldr_push_dir "$bt_path"
         for src_path in ${inc_paths}
         do
             # move product into external path
