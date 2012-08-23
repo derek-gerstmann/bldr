@@ -59,7 +59,6 @@ pkg_reqs="$pkg_reqs freetype/latest"
 pkg_reqs="$pkg_reqs fontconfig/latest"
 pkg_reqs="$pkg_reqs gettext/latest"
 pkg_reqs="$pkg_reqs glib/latest"
-pkg_reqs="$pkg_reqs gobject-isl/latest"
 pkg_reqs="$pkg_reqs cairo/latest"
 pkg_uses="$pkg_reqs"
 
@@ -77,7 +76,7 @@ bldr_satisfy_pkg --category    "$pkg_ctry"    \
 
 ####################################################################################################
 
-pkg_cfg="--enable-static --enable-shared --enable-introspection=yes"
+pkg_cfg="--enable-static --enable-shared --disable-introspection"
 pkg_cflags=""
 pkg_cflags="$pkg_cflags:-I$BLDR_GLIB_INCLUDE_PATH/glib-2.0"
 pkg_cflags="$pkg_cflags:-I$BLDR_GLIB_INCLUDE_PATH/gio-unix-2.0"
