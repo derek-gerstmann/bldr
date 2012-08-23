@@ -48,6 +48,7 @@ BLDR_CATEGORIES=(
     "typography" 
     "graphics" 
     "distributed" 
+    "tracing"
     "storage" 
     "imaging" 
     "databases" 

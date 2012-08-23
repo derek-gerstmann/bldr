@@ -46,9 +46,9 @@ pkg_cfg="$pkg_cfg --enable-romio"
 pkg_cfg="$pkg_cfg --enable-cxx"
 pkg_Cfg="$pkg_cfg --enable-mpe"
 pkg_cfg="$pkg_cfg --enable-fc"
-pkg_cfg="$pkg_cfg --enable-ckpt"
-pkg_cfg="$pkg_cfg --enable-ckpt-aggregation"
-pkg_cfg="$pkg_cfg --enable-ckpt-migration"
+# pkg_cfg="$pkg_cfg --enable-ckpt"
+# pkg_cfg="$pkg_cfg --enable-ckpt-aggregation"
+# pkg_cfg="$pkg_cfg --enable-ckpt-migration"
 
 #
 # Disable vampire trace avoids build errors on OSX:

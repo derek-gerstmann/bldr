@@ -10,7 +10,8 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_vers_list=("0.9.56")
+pkg_vers="0.9.56"
+pkg_vers_list=("$pkg_vers")
 pkg_ctry="databases"
 pkg_name="kyoto-tycoon"
 pkg_info="Kyoto Tycoon is a lightweight database server."

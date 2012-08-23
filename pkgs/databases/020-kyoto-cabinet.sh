@@ -10,7 +10,8 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_vers_list=("1.2.76")
+pkg_vers="1.2.76"
+pkg_vers_list=("$pkg_vers")
 pkg_ctry="databases"
 pkg_name="kyoto-cabinet"
 pkg_info="Kyoto Cabinet is a library of routines for managing a database."

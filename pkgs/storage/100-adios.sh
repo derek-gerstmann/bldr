@@ -26,7 +26,7 @@ can transparently change how they process the data."
 pkg_file="$pkg_name-$pkg_vers.tar.gz"
 pkg_urls="http://users.nccs.gov/~pnorbert/$pkg_file"
 pkg_opts="configure"
-pkg_reqs="szip/latest zlib/latest mxml/latest openmpi/1.6 phdf5/latest pnetcdf/latest"
+pkg_reqs="szip/latest zlib/latest mxml/latest openmpi/1.6 phdf5/latest pnetcdf/latest gfortran/latest"
 pkg_uses="$pkg_reqs"
 
 ####################################################################################################
@@ -44,17 +44,11 @@ bldr_satisfy_pkg --category    "$pkg_ctry"    \
 
 pkg_cflags=""
 pkg_ldflags=""
+pkg_cfg=""
 
 ####################################################################################################
 
-
-if [[ -x $(which "mpif90") ]]; then
-     pkg_cfg="$pkg_cfg FC=mpif90"
-     pkg_cfg="$pkg_cfg --enable-fortran"
-else
-     pkg_cfg="--disable-fortran"
-fi
-
+pkg_cfg="$pkg_cfg --enable-fortran"
 pkg_cfg="$pkg_cfg --with-mxml=\"$BLDR_MXML_BASE_PATH\""
 
 pkg_cfg="$pkg_cfg --with-phdf5=\"$BLDR_PHDF5_BASE_PATH\""
