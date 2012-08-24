@@ -32,8 +32,8 @@ proposed for TR2."
 
 pkg_file="boost_1_50_0.tar.bz2"
 pkg_urls="http://sourceforge.net/projects/boost/files/$pkg_name/$pkg_vers/$pkg_file/download"
-pkg_opts="configure force-boostrap skip-config force-static skip-auto-compile-flags"
-pkg_reqs="zlib/latest bzip2/latest libicu/latest"
+pkg_opts="configure force-bootstrap skip-config force-static skip-auto-compile-flags"
+pkg_reqs="zlib/latest bzip2/latest libicu/latest openmpi/latest"
 pkg_uses="$pkg_reqs"
 
 ####################################################################################################
@@ -50,7 +50,7 @@ bldr_satisfy_pkg --category    "$pkg_ctry"    \
 ####################################################################################################
 
 pkg_cfg=""
-pkg_cfg="variant=release link=static threading=multi runtime-link=static"
+pkg_cfg="variant=release link=static threading=multi runtime-link=static --with-mpi"
 pkg_cfg="$pkg_cfg -s ICU_PATH=\"$BLDR_LIBICU_BASE_PATH\""
 pkg_cfg="$pkg_cfg -s BZIP2_INCLUDE=\"$BLDR_BZIP2_INCLUDE_PATH\""
 pkg_cfg="$pkg_cfg -s BZIP2_LIBPATH=\"$BLDR_BZIP2_LIB_PATH\""
@@ -161,20 +161,8 @@ function bldr_pkg_compile_method()
         pkg_ldflags=""
     fi
 
-    bldr_log_cmd "./b2 --prefix="$prefix" $pkg_cfg $env_flags"
-    bldr_log_split
-
-    echo ./b2 --prefix="$prefix" $pkg_cfg $env_flags 
-    bldr_log_split
-
-    eval ./b2 --prefix="$prefix" $pkg_cfg $env_flags 
-    bldr_log_split
-
-    bldr_log_cmd "./b2 install"
-    bldr_log_split
-
-    eval ./b2 install 
-    bldr_log_split
+    bldr_run_cmd "./b2 --prefix=\"$prefix\" $pkg_cfg $env_flags"
+    bldr_run_cmd "./b2 install"
     bldr_pop_dir
 }
 

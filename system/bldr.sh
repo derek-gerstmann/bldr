@@ -1600,14 +1600,18 @@ function bldr_list_archive()
     then
         listing="error"
 
+    elif [[ $(echo "$result" | grep -m1 -c "^$base_dir/") > 0 ]]
+    then
+        listing="$base_dir"
+
+    elif [[ $(echo "$result" | grep -m1 -c "^./$base_dir/") > 0 ]]
+    then
+        listing="$base_dir"
+
     elif [[ $(echo "$result" | grep -m1 -c "^./") > 0 ]]
     then
         listing=$(echo "$result" | grep -E -o -m1 "^./(\S+)/"  )
-    
-    elif [[ $(echo "$result" | grep -m1 -c "$base_dir/") > 0 ]]
-    then
-        listing="$base_dir"
-    
+        
     else
         listing=$(echo "$result" | grep -E -o "(\S+)/" | sed 's/\/.*//g' | sort -u )
     fi

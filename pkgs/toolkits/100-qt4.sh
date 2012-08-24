@@ -17,8 +17,8 @@ pkg_info="Qt is a cross-platform application and UI framework for developers usi
 
 pkg_desc="Qt is a cross-platform application and UI framework for developers using C++ or QML, a CSS & JavaScript like language"
 
-pkg_file="$pkg_name-everywhere-opensource-src-$pkg_vers.tar.gz"
-pkg_urls="http://releases.qt-project.org/qt4/source/$pkg_file"
+pkg_file="qt-everywhere-opensource-src-$pkg_vers.tar.gz"
+pkg_urls="http://origin.releases.qt-project.org/qt4/source/$pkg_file"
 pkg_opts="configure skip-auto-compile-flags"
 
 pkg_reqs=""
@@ -67,7 +67,7 @@ pkg_cfg="$pkg_cfg -no-libmng"
 pkg_cfg="$pkg_cfg -system-libjpeg"
 pkg_cfg="$pkg_cfg -system-libtiff"
 pkg_cfg="$pkg_cfg -system-libpng"
-pkg_cfg="$pkg_cfg -system-zlib"
+pkg_cfg="$pkg_cfg -qt-zlib"
 pkg_cfg="$pkg_cfg -openssl-linked"
 pkg_cfg="$pkg_cfg -I \"$BLDR_ZLIB_INCLUDE_PATH\""
 pkg_cfg="$pkg_cfg -I \"$BLDR_FLEX_INCLUDE_PATH\""
@@ -81,7 +81,6 @@ pkg_cfg="$pkg_cfg -I \"$BLDR_LIBPNG_INCLUDE_PATH\""
 pkg_cfg="$pkg_cfg -L \"$BLDR_ZLIB_LIB_PATH\""
 pkg_cfg="$pkg_cfg -L \"$BLDR_BISON_LIB_PATH\""
 pkg_cfg="$pkg_cfg -L \"$BLDR_FLEX_LIB_PATH\""
-pkg_cfg="$pkg_cfg -L \"$BLDR_GPERF_LIB_PATH\""
 pkg_cfg="$pkg_cfg -L \"$BLDR_OPENSSL_LIB_PATH\""
 pkg_cfg="$pkg_cfg -L \"$BLDR_LIBICU_LIB_PATH\""
 pkg_cfg="$pkg_cfg -L \"$BLDR_LIBICONV_LIB_PATH\""
@@ -95,7 +94,7 @@ qt4_cfg="$pkg_cfg"
 # build and install pkg as local module
 ####################################################################################################
 
-pkg_name="qt-static"
+pkg_name="qt4-static"
 pkg_cfg="$qt4_cfg -no-framework -static"
 bldr_build_pkg                    \
      --category    "$pkg_ctry"    \
@@ -112,7 +111,7 @@ bldr_build_pkg                    \
      --ldflags     "$pkg_ldflags" \
      --config      "$pkg_cfg"
 
-pkg_name="qt"
+pkg_name="qt4"
 pkg_cfg="$qt4_cfg"
 bldr_build_pkg                    \
      --category    "$pkg_ctry"    \

@@ -59,7 +59,7 @@ fi
 # build and install pkg as local module
 ####################################################################################################
 
-for pkg_vers in ${pkg_vers_list}
+for pkg_vers in "${pkg_ver_list[@]}"
 do
      pkg_file="$pkg_name-$pkg_vers.tar.bz2"
      pkg_urls="http://www.open-mpi.org/software/ompi/v1.6/downloads/$pkg_file"
