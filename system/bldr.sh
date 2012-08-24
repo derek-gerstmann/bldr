@@ -1580,6 +1580,8 @@ function bldr_list_archive()
         extr=$BLDR_LOCAL_PATH/gtar/latest/bin/tar
     fi
 
+    local base_dir=$(bldr_strip_archive_ext "$archive")
+
     if [[ -f $archive ]]
     then
        case $archive in
@@ -1589,13 +1591,12 @@ function bldr_list_archive()
         *.tar)      result=$(eval $extr tf ${archive} ) || bad_archive=true;;
         *.tbz2)     result=$(eval $extr tjf ${archive} ) || bad_archive=true;;
         *.tgz)      result=$(eval $extr tzf ${archive} ) || bad_archive=true;;
-        *.zip)      result=$(eval unzip -l ${archive} | awk '/-----/ {p = ++p % 2; next} p {print "./"$NF}' ) || bad_archive=true;;
+        *.zip)      result=$base_dir;; # (eval unzip -l ${archive} | awk '/-----/ {p = ++p % 2; next} p {print "./"$NF}' ) || bad_archive=true;;
         *)          bad_archive=true;;
        esac    
     fi
 
     local listing=""
-    local base_dir=$(bldr_strip_archive_ext "$archive")
     if [[ $bad_archive == true ]]
     then
         listing="error"
