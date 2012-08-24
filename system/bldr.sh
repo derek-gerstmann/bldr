@@ -2639,7 +2639,10 @@ function bldr_fetch_pkg()
         local base_dir=$(bldr_strip_archive_ext "$pkg_file" )
         if [[ -d $base_dir ]]
         then 
-            base_move=$base_dir
+            if [[ $(echo "$base_dir" | grep -c -m1 "${move_list[0]}") < 1 ]]
+            then
+                base_move=$base_dir
+            fi
         fi
 
         local move_item=""
