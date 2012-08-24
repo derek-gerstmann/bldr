@@ -22,8 +22,8 @@ related software packages, due to its stability, feature-set and overall code qu
 
 pkg_file="$pkg_name-$pkg_vers.zip"
 pkg_urls="http://github.com/openexr/openexr/zipball/v2_beta.1"
-pkg_opts="cmake skip-boot force-serial-build use-base-dir=openexr-openexr-d847d1e"
-pkg_cfg_path="openexr-openexr-d847d1e/IlmBase"
+pkg_opts="cmake skip-boot force-serial-build"
+pkg_cfg_path="IlmBase"
 pkg_reqs="zlib/latest lcms2/latest"
 pkg_uses="$pkg_reqs"
 

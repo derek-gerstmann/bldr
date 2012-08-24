@@ -1591,7 +1591,7 @@ function bldr_list_archive()
         *.tar)      result=$(eval $extr tf ${archive} ) || bad_archive=true;;
         *.tbz2)     result=$(eval $extr tjf ${archive} ) || bad_archive=true;;
         *.tgz)      result=$(eval $extr tzf ${archive} ) || bad_archive=true;;
-        *.zip)      result=$base_dir;; # (eval unzip -l ${archive} | awk '/-----/ {p = ++p % 2; next} p {print "./"$NF}' ) || bad_archive=true;;
+        *.zip)      result=$(eval unzip -l ${archive} | awk '/-----/ {p = ++p % 2; next} p {print "./"$NF}' ) || bad_archive=true;;
         *)          bad_archive=true;;
        esac    
     fi
@@ -1600,6 +1600,10 @@ function bldr_list_archive()
     if [[ $bad_archive == true ]]
     then
         listing="error"
+
+    elif [[ "$result" == "$base_dir" ]]
+    then
+        listing="$base_dir"
 
     elif [[ $(echo "$result" | grep -m1 -c "^$base_dir/") > 0 ]]
     then
@@ -2630,12 +2634,19 @@ function bldr_fetch_pkg()
         local archive_listing=$(bldr_list_archive "$pkg_file")
         bldr_extract_archive "$pkg_file"
 
-        local move_item=""
+        local base_move="."
         local move_list=$(echo "$archive_listing" | bldr_split_str "\n" )
+        local base_dir=$(bldr_strip_archive_ext "$pkg_file" )
+        if [[ -d $base_dir ]]
+        then 
+            base_move=$base_dir
+        fi
+
+        local move_item=""
         for move_item in $move_list
         do
-            bldr_log_info "Moving '$move_item' to '$pkg_name/$pkg_vers' ..."
-            bldr_move_file "$move_item" "$pkg_vers"
+            bldr_log_info "Moving '$base_move/$move_item' to '$pkg_name/$pkg_vers' ..."
+            bldr_move_file "$base_move/$move_item" "$pkg_vers"
         done
 
         bldr_log_split

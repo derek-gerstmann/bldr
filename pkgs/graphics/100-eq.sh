@@ -12,7 +12,7 @@ source "bldr.sh"
 
 pkg_ctry="graphics"
 pkg_name="eq"
-pkg_vers="1.4.9"
+pkg_vers="trunk"
 
 pkg_info="Equalizer is a middleware library used to create and deploy parallel OpenGL-based applications."
 
@@ -24,15 +24,33 @@ on any visualization system, from a simple workstation to large scale graphics c
 multi-GPU workstations and Virtual Reality installations"
 
 pkg_file="$pkg_name-$pkg_vers.tar.gz"
-pkg_urls="https://github.com/Eyescale/Equalizer.git"
-pkg_opts="cmake keep"
-pkg_reqs="zlib/latest"
+pkg_urls="git://github.com/Eyescale/Equalizer.git"
+pkg_opts="cmake"
+pkg_reqs="zlib/latest vmmlib/latest"
 pkg_uses=""
 pkg_cflags=""
 pkg_ldflags=""
 
 pkg_cfg="-DMAKESTATIC=1:-DLINKSTATIC=1"
-pkg_cfg="$pkg_cfg:-DZLIB_INCLUDE_DIR=$BLDR_LOCAL_PATH/compression/zlib/latest/include"
-pkg_cfg="$pkg_cfg:-DZLIB_LIBRARY=$BLDR_LOCAL_PATH/compression/zlib/latest/lib/libz.a"
+
+####################################################################################################
+# build and install pkg as local module
+####################################################################################################
+
+bldr_build_pkg                 \
+  --category    "$pkg_ctry"    \
+  --name        "$pkg_name"    \
+  --version     "$pkg_vers"    \
+  --info        "$pkg_info"    \
+  --description "$pkg_desc"    \
+  --file        "$pkg_file"    \
+  --url         "$pkg_urls"    \
+  --uses        "$pkg_uses"    \
+  --requires    "$pkg_reqs"    \
+  --options     "$pkg_opts"    \
+  --cflags      "$pkg_cflags"  \
+  --ldflags     "$pkg_ldflags" \
+  --config      "$pkg_cfg"     \
+  --config-path "$pkg_cfg_path"
 
 ####################################################################################################

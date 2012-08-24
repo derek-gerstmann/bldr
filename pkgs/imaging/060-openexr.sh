@@ -25,8 +25,8 @@ ILM's main image file format."
 
 pkg_file="$pkg_name-$pkg_vers.zip"
 pkg_urls="http://github.com/openexr/openexr/zipball/v2_beta.1"
-pkg_opts="cmake skip-boot force-serial-build use-base-dir=openexr-openexr-d847d1e"
-pkg_cfg_path="openexr-openexr-d847d1e/OpenEXR"
+pkg_opts="cmake skip-boot force-serial-build"
+pkg_cfg_path="OpenEXR"
 pkg_reqs="zlib/latest lcms2/latest ilmbase/latest"
 pkg_uses="$pkg_reqs"
 
@@ -49,10 +49,10 @@ pkg_ldflags=""
 sub_list="Half IlmThread Imath ImathTest Iex IexMath IexTest"
 for sub_inc in $sub_list
 do
-     pkg_cflags="$pkg_cflags:-I$BLDR_BUILD_PATH/imaging/$pkg_name/$pkg_vers/openexr/IlmBase/$sub_inc"
+     pkg_cflags="$pkg_cflags:-I$BLDR_ILMBASE_INCLUDE_PATH/$sub_inc"
 done
 
-pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/imaging/ilmbase/latest/include/OpenEXR"
+pkg_cflags="$pkg_cflags:-I$BLDR_ILMBASE_INCLUDE_PATH/OpenEXR"
 pkg_cflags="$pkg_cflags:-I$BLDR_BUILD_PATH/imaging/$pkg_name/$pkg_vers/openexr/OpenEXR/IlmImf"
 
 pkg_uses="$pkg_reqs"

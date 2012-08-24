@@ -31,7 +31,7 @@ prototypes, inline editors, debug facilities of weightier graphical applications
 
 pkg_file="AntTweakBar_115.zip"
 pkg_urls="http://www.antisphere.com/Tools/AntTweakBar/$pkg_file"
-pkg_opts="configure migrate-build-headers migrate-build-source migrate-build-bin use-build-tree=AntTweakBar"
+pkg_opts="configure migrate-build-headers migrate-build-source migrate-build-bin"
 pkg_uses=""
 pkg_reqs=""
 
@@ -46,7 +46,7 @@ pkg_reqs="$pkg_uses"
 pkg_cfg=""
 pkg_cflags=""
 pkg_ldflags=""
-pkg_cfg_path="AntTweakBar/src"
+pkg_cfg_path="src"
 
 ####################################################################################################
 # build and install pkg as local module
