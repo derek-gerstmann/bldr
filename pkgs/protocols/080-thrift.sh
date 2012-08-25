@@ -24,7 +24,14 @@ Haskell, C#, Cocoa, JavaScript, Node.js, Smalltalk, OCaml and Delphi and other l
 pkg_file="$pkg_name-$pkg_vers.tar.gz"
 pkg_urls="https://dist.apache.org/repos/dist/release/$pkg_name/$pkg_vers/$pkg_file"
 pkg_opts="configure force-serial-build -EPYTHONPATH+=$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/bindings/python/lib/python2.7/site-packages"
-pkg_reqs="bison/latest flex/latest boost/latest openssl/latest libevent/latest python/2.7.3 glib/latest"
+pkg_reqs="pkg-config/latest"
+pkg_reqs="$pkg_reqs bison/latest"
+pkg_reqs="$pkg_reqs flex/latest"
+pkg_reqs="$pkg_reqs boost/latest"
+pkg_reqs="$pkg_reqs openssl/latest"
+pkg_reqs="$pkg_reqs libevent/latest"
+pkg_reqs="$pkg_reqs python/2.7.3"
+pkg_reqs="$pkg_reqs glib/latest"
 pkg_uses="$pkg_reqs"
 
 ####################################################################################################
@@ -42,8 +49,8 @@ bldr_satisfy_pkg               \
 ####################################################################################################
 
 pkg_cfg=""
-pkg_cflags=""
-pkg_ldflags=""
+pkg_cflags="-I$BLDR_OPENSSL_INCLUDE_PATH"
+pkg_ldflags="-L$BLDR_OPENSSL_LIB_PATH"
 
 pkg_cfg="--with-c_glib --with-ruby=no --with-php=no --with-erlang=no"
 pkg_cfg="$pkg_cfg --with-boost=\"$BLDR_BOOST_BASE_PATH\""
