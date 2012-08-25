@@ -3841,9 +3841,12 @@ function bldr_compile_pkg()
         if [ "$pkg_cflags" != "" ] && [ "$pkg_cflags" != " " ]  && [ "$pkg_cflags" != ":" ]
         then
             pkg_cflags=$(echo $pkg_cflags | bldr_split_str ":" | bldr_join_str " ")
-            if [[ $BLDR_SYSTEM_IS_CENTOS == true ]]
+            if [[ $(bldr_has_cfg_option "$pkg_opts" "skip-auto-compile-flags" ) == "false" ]]
             then
-                pkg_cflags="$pkg_cflags -I/usr/include"
+                if [[ $BLDR_SYSTEM_IS_CENTOS == true ]]
+                then
+                    pkg_cflags="$pkg_cflags -I/usr/include"
+                fi
             fi
         else
             pkg_cflags=""
@@ -3871,9 +3874,12 @@ function bldr_compile_pkg()
         if [ "$pkg_ldflags" != "" ] && [ "$pkg_ldflags" != " " ] && [ "$pkg_ldflags" != ":" ]
         then
             pkg_ldflags=$(echo $pkg_ldflags | bldr_split_str ":" | bldr_join_str " ")
-            if [[ $BLDR_SYSTEM_IS_CENTOS == true ]]
+            if [[ $(bldr_has_cfg_option "$pkg_opts" "skip-auto-compile-flags" ) == "false" ]]
             then
-                pkg_ldflags="$pkg_ldflags -L/usr/lib64 -L/usr/lib"
+                if [[ $BLDR_SYSTEM_IS_CENTOS == true ]]
+                then
+                    pkg_ldflags="$pkg_ldflags -L/usr/lib64 -L/usr/lib"
+                fi
             fi
         else
             pkg_ldflags=""
