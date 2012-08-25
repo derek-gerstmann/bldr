@@ -38,7 +38,8 @@ bldr_satisfy_pkg               \
 
 ####################################################################################################
 
-pkg_cfg=""
+pkg_cfg="$pkg_cfg:-DBoost_NO_SYSTEM_PATHS=ON"
+pkg_cfg="$pkg_cfg:-DBoost_NO_BOOST_CMAKE=ON"
 pkg_cfg="$pkg_cfg:-DBoost_DIR=\"$BLDR_BOOST_BASE_PATH\""
 pkg_cfg="$pkg_cfg:-DBoost_INCLUDE_DIR=\"$BLDR_BOOST_INCLUDE_PATH\""
 
