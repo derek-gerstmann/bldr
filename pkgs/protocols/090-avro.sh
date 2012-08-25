@@ -42,14 +42,32 @@ pkg_urls="http://mirror.overthewire.com.au/pub/apache/$pkg_name/$pkg_name-$pkg_v
 pkg_opts="cmake"
 pkg_reqs="zlib/latest boost/latest"
 pkg_uses="$pkg_reqs"
-pkg_cflags="-I$BLDR_LOCAL_PATH/developer/boost/latest/include"
-pkg_ldflags="-L$BLDR_LOCAL_PATH/developer/boost/latest/lib:-lboost_program_options"
+
+
+####################################################################################################
+# satisfy pkg dependencies and load their environment settings
+####################################################################################################
+
+bldr_satisfy_pkg               \
+  --category    "$pkg_ctry"    \
+  --name        "$pkg_name"    \
+  --version     "$pkg_vers"    \
+  --requires    "$pkg_reqs"    \
+  --uses        "$pkg_uses"    \
+  --options     "$pkg_opts"
+
+####################################################################################################
+
+pkg_cfg=""
+
+pkg_cflags="-I$BLDR_BOOST_INCLUDE_PATH"
+pkg_ldflags="-L$BLDR_BOOST_LIB_PATH:-lboost_program_options"
 
 pkg_cfg="-DMAKESTATIC=1:-DLINKSTATIC=1"
-pkg_cfg="$pkg_cfg:-DZLIB_INCLUDE_DIR=$BLDR_LOCAL_PATH/compression/zlib/latest/include"
-pkg_cfg="$pkg_cfg:-DZLIB_LIBRARY=$BLDR_LOCAL_PATH/compression/zlib/latest/lib/libz.a"
-pkg_cfg="$pkg_cfg:-DBOOST_INCLUDEDIR=$BLDR_LOCAL_PATH/developer/boost/latest/include"
-pkg_cfg="$pkg_cfg:-DBOOST_ROOT=$BLDR_LOCAL_PATH/developer/boost/latest"
+pkg_cfg="$pkg_cfg:-DZLIB_INCLUDE_DIR=\"$BLDR_LOCAL_PATH/compression/zlib/latest/include\""
+pkg_cfg="$pkg_cfg:-DZLIB_LIBRARY=\"$BLDR_ZLIB_LIB_PATH/libz.a\""
+pkg_cfg="$pkg_cfg:-DBOOST_ROOT=\"$BLDR_BOOST_BASE_PATH\""
+pkg_cfg="$pkg_cfg:-DBOOST_INCLUDEDIR=\"$BLDR_BOOST_INCLUDE_PATH\""
 
 ####################################################################################################
 # build and install pkg as local module

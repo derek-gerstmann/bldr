@@ -22,7 +22,26 @@ pkg_urls="git://github.com/Eyescale/Lunchbox.git"
 pkg_opts="cmake"
 pkg_reqs="tar/latest boost/latest"
 pkg_uses="$pkg_reqs"
+
+
+####################################################################################################
+# satisfy pkg dependencies and load their environment settings
+####################################################################################################
+
+bldr_satisfy_pkg               \
+  --category    "$pkg_ctry"    \
+  --name        "$pkg_name"    \
+  --version     "$pkg_vers"    \
+  --requires    "$pkg_reqs"    \
+  --uses        "$pkg_uses"    \
+  --options     "$pkg_opts"
+
+####################################################################################################
+
 pkg_cfg=""
+pkg_cfg="$pkg_cfg:-DBoost_DIR=\"$BLDR_BOOST_BASE_PATH\""
+pkg_cfg="$pkg_cfg:-DBoost_INCLUDE_DIR=\"$BLDR_BOOST_INCLUDE_PATH\""
+
 pkg_patch=""
 pkg_cflags=""
 pkg_ldflags=""
