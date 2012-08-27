@@ -23,10 +23,12 @@ pkg_urls="https://github.com/Eyescale/gpusd/zipball/1.4/$pkg_file"
 pkg_opts="cmake"
 pkg_uses=""
 pkg_reqs=""
-if [[ $BLDR_SYSTEM_IS_OSX == false ]]
-then
-     pkg_uses="avahi/latest"
-fi
+
+# if [[ $BLDR_SYSTEM_IS_OSX == false ]]
+# then
+#      pkg_uses="avahi/latest"
+#fi
+
 pkg_reqs="$pkg_uses"
 pkg_cflags=""
 pkg_ldflags=""

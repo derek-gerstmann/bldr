@@ -12,17 +12,17 @@ source "bldr.sh"
 
 pkg_ctry="typography"
 pkg_name="lcdf"
-pkg_vers="2.92"
+pkg_vers="2.93"
 
 pkg_info="The LCDF Typetools package offers tools for manipulating PostScript-flavored fonts."
 
 pkg_desc="The LCDF Typetools package contains several command-line programs for 
 manipulating PostScript Type 1 and PostScript-flavored OpenType fonts."
 
-pkg_file="lcdf-typetools-2.92.tar.gz"
+pkg_file="lcdf-typetools-2.93.tar.gz"
 pkg_urls="http://www.lcdf.org/type/$pkg_file"
-pkg_opts="configure keep"
-pkg_uses=""
+pkg_opts="configure skip-auto-compile-flags"
+pkg_uses="pkg-config/latest coreutils/latest"
 pkg_reqs=""
 pkg_cfg="--without-kpathsea"
 pkg_cflags=""

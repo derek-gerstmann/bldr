@@ -1,0 +1,17 @@
+--- ./build/imaging/ilmbase/2.0-beta1/openexr-openexr-27b2bf9/IlmBase/IlmThread/CMakeLists.txt	2012-08-02 15:41:52.000000000 +0800
++++ ./patches/ilmbase/2.0-beta1/002[-]IlmBase[-]IlmThread[-]CMakeLists.txt	2012-08-27 14:08:35.000000000 +0800
+@@ -40,10 +40,12 @@
+ )
+ 
+ INSTALL ( FILES 
+-  IlmThreadPool.h
+   IlmThread.h
+-  IlmThreadSemaphore.h
++  IlmThreadForward.h
+   IlmThreadMutex.h
++  IlmThreadNamespace.h
++  IlmThreadPool.h
++  IlmThreadSemaphore.h
+   DESTINATION
+   include/OpenEXR
+ )

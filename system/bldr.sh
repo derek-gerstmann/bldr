@@ -2642,7 +2642,7 @@ function bldr_fetch_pkg()
         then 
             if [[ $(echo "$base_dir" | grep -c -m1 "${move_list[0]}") < 1 ]]
             then
-                base_move=$base_dir
+                move_list=$base_dir
             fi
         fi
 

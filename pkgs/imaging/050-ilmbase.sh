@@ -21,9 +21,10 @@ It is distributed as part of OpenEXR, but has become adopted for many other comp
 related software packages, due to its stability, feature-set and overall code quality."
 
 pkg_file="$pkg_name-$pkg_vers.zip"
+pkg_base="openexr-openexr-27b2bf9"
 pkg_urls="http://github.com/openexr/openexr/zipball/v2_beta.1"
-pkg_opts="cmake skip-boot force-serial-build"
-pkg_cfg_path="IlmBase"
+pkg_opts="cmake skip-boot force-serial-build use-base-dir=$pkg_base"
+pkg_cfg_path="$pkg_base/IlmBase"
 pkg_reqs="zlib/latest lcms2/latest"
 pkg_uses="$pkg_reqs"
 
@@ -46,7 +47,7 @@ pkg_ldflags=""
 sub_list="Half IlmThread Imath ImathTest Iex IexMath IexTest"
 for sub_inc in $sub_list
 do
-     pkg_cflags="$pkg_cflags:-I$BLDR_BUILD_PATH/imaging/$pkg_name/$pkg_vers/openexr/IlmBase/$sub_inc"
+     pkg_cflags="$pkg_cflags:-I$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$pkg_base/IlmBase/$sub_inc"
 done
 
 pkg_cfg="--disable-dependency-tracking "

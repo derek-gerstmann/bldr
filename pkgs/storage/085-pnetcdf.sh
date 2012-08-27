@@ -25,7 +25,7 @@ and other languages. The netCDF libraries support a machine-independent format f
 representing scientific data. Together, the interfaces, libraries, and format support 
 the creation, access, and sharing of scientific data."
 
-pkg_file="$pkg_name-$pkg_vers.tar.gz"
+pkg_file="netcdf-$pkg_vers.tar.gz"
 pkg_urls="http://www.unidata.ucar.edu/downloads/netcdf/ftp/$pkg_file"
 pkg_opts="configure"
 pkg_reqs="szip/latest zlib/latest phdf5/latest openmpi/1.6"

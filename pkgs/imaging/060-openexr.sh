@@ -10,6 +10,7 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
+pkg_ctry="imaging"
 pkg_name="openexr"
 pkg_vers="2.0-beta1"
 
@@ -24,9 +25,10 @@ Men in Black II, Gangs of New York, and Signs. Since then, OpenEXR has become
 ILM's main image file format."
 
 pkg_file="$pkg_name-$pkg_vers.zip"
+pkg_base="openexr-openexr-27b2bf9"
 pkg_urls="http://github.com/openexr/openexr/zipball/v2_beta.1"
-pkg_opts="cmake skip-boot force-serial-build"
-pkg_cfg_path="OpenEXR"
+pkg_opts="cmake skip-boot force-serial-build use-base-dir=$pkg_base"
+pkg_cfg_path="$pkg_base/OpenEXR"
 pkg_reqs="zlib/latest lcms2/latest ilmbase/latest"
 pkg_uses="$pkg_reqs"
 
@@ -53,19 +55,19 @@ do
 done
 
 pkg_cflags="$pkg_cflags:-I$BLDR_ILMBASE_INCLUDE_PATH/OpenEXR"
-pkg_cflags="$pkg_cflags:-I$BLDR_BUILD_PATH/imaging/$pkg_name/$pkg_vers/openexr/OpenEXR/IlmImf"
+pkg_cflags="$pkg_cflags:-I$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$pkg_base/OpenEXR/IlmImf"
 
 pkg_uses="$pkg_reqs"
 
 pkg_cfg="--disable-dependency-tracking "
-pkg_cfg="$pkg_cfg Z_CFLAGS=-I$BLDR_LOCAL_PATH/compression/zlib/latest/include"
+pkg_cfg="$pkg_cfg Z_CFLAGS=-I\"$BLDR_ZLIB_INCLUDE_PATH\""
 pkg_cfg="$pkg_cfg Z_LIBS=-lz"
 
 ####################################################################################################
 # build and install pkg as local module
 ####################################################################################################
 
-bldr_build_pkg --category    "imaging"      \
+bldr_build_pkg --category    "$pkg_ctry"    \
                --name        "$pkg_name"    \
                --version     "$pkg_vers"    \
                --info        "$pkg_info"    \

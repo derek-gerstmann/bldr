@@ -1,5 +1,5 @@
---- ./cache/openexr-openexr-d847d1e/IlmBase/Imath/CMakeLists.txt	2012-07-26 11:36:12.000000000 +0800
-+++ 003_IlmBase_IlmMath_CMakeLists.txt	2012-07-31 15:04:51.000000000 +0800
+--- ./build/imaging/ilmbase/2.0-beta1/openexr-openexr-27b2bf9/IlmBase/Imath/CMakeLists.txt	2012-08-02 15:41:52.000000000 +0800
++++ ./patches/ilmbase/2.0-beta1/003[-]IlmBase[-]Imath[-]CMakeLists.txt	2012-08-27 14:11:18.000000000 +0800
 @@ -17,35 +17,38 @@
  )
  

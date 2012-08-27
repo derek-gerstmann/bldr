@@ -1,5 +1,5 @@
---- /Users/dg/Workspace/bldr/build/imaging/ilmbase/2.0-beta1/IlmBase/Half/CMakeLists.txt	2012-07-26 11:36:12.000000000 +0800
-+++ 000_IlmBase_Half_CMakeLists.txt	2012-07-31 13:55:16.000000000 +0800
+--- ./build/imaging/ilmbase/2.0-beta1/openexr-openexr-27b2bf9/IlmBase/Half/CMakeLists.txt	2012-08-02 15:41:52.000000000 +0800
++++ ./patches/ilmbase/2.0-beta1/000[-]IlmBase[-]Half[-]CMakeLists.txt	2012-08-27 14:03:13.000000000 +0800
 @@ -8,7 +8,7 @@
    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
  )

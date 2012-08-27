@@ -25,12 +25,17 @@ manipulating and filtering the information in FITS files."
 
 pkg_file="cfitsio3310.tar.gz"
 pkg_urls="ftp://heasarc.gsfc.nasa.gov/software/fitsio/c/$pkg_file"
-pkg_opts="configure force-serial-build"
+pkg_opts="configure force-serial-build -Mshared"
 pkg_reqs="zlib/latest"
 pkg_uses="$pkg_reqs"
 pkg_cflags=""
 pkg_ldflags=""
-pkg_cfg="--enable-reentrant --enable-sse2 --enable-ssse3"
+pkg_cfg="--enable-reentrant --enable-sse2 --enable-ssse3 --enable-shared --enable-static"
+ 
+if [[ $BLDR_SYSTEM_IS_LINUX == true ]]
+then
+     pkg_cflags="$pkg_cflags -fPIC"
+fi
 
 ####################################################################################################
 # build and install pkg as local module

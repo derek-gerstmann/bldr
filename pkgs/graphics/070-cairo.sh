@@ -67,8 +67,6 @@ pkg_ldflags=""
 
 if [[ $BLDR_SYSTEM_IS_OSX == true ]]; then
      pkg_cfg="$pkg_cfg --disable-xlib --enable-quartz --enable-quartz-image --without-x"
-else
-     pkg_cfg="$pkg_cfg --enable-gl"     
 fi
 
 pkg_uses="$pkg_reqs"

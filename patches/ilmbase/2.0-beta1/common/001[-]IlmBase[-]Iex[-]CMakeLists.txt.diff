@@ -1,5 +1,5 @@
---- ./cache/openexr-openexr-d847d1e/IlmBase/Iex/CMakeLists.txt	2012-07-26 11:36:12.000000000 +0800
-+++ 002_IlmBase_Iex_CMakeLists.txt	2012-07-31 14:30:55.000000000 +0800
+--- ./build/imaging/ilmbase/2.0-beta1/openexr-openexr-27b2bf9/IlmBase/Iex/CMakeLists.txt	2012-08-02 15:41:52.000000000 +0800
++++ ./patches/ilmbase/2.0-beta1/001[-]IlmBase[-]Iex[-]CMakeLists.txt	2012-08-27 14:06:29.000000000 +0800
 @@ -12,12 +12,18 @@
  )
  

@@ -22,6 +22,10 @@ pkg_file="$pkg_name-$pkg_vers.tar.gz"
 pkg_urls="svn://freetype-gl.googlecode.com/svn/trunk"
 pkg_opts="cmake migrate-build-headers migrate-build-source migrate-build-bin"
 pkg_uses="freetype/latest fontconfig/latest atb/latest"
+if [[ $BLDR_SYSTEM_IS_OSX == false ]]
+then
+  pkg_uses="$pkg_uses freeglut/latest"
+fi
 pkg_reqs="$pkg_uses"
 
 ####################################################################################################

@@ -63,6 +63,10 @@ if [[ $BLDR_SYSTEM_IS_OSX == true ]]
 then
      pkg_cfg="$pkg_cfg --with-flavour=osx"
 fi
+if [[ $BLDR_SYSTEM_IS_LINUX == true ]]
+then
+     pkg_cfg="$pkg_cfg --with-flavour=linux"
+fi
 pkg_cfg_path=""
 pkg_cflags="-I$BLDR_GLIB_INCLUDE_PATH/glib-2.0"
 pkg_ldflags=""

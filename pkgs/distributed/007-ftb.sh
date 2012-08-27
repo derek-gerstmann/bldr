@@ -131,5 +131,5 @@ else
                     --cflags      "$pkg_cflags"  \
                     --ldflags     "$pkg_ldflags" \
                     --config      "$pkg_cfg"
-#fi
+fi
 
