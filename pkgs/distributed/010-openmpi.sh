@@ -59,14 +59,14 @@ fi
 # build and install pkg as local module
 ####################################################################################################
 
-for pkg_vers in "${pkg_ver_list[@]}"
+for omp_vers in "${pkg_vers_list[@]}"
 do
-     pkg_file="$pkg_name-$pkg_vers.tar.bz2"
+     pkg_file="$pkg_name-$omp_vers.tar.bz2"
      pkg_urls="http://www.open-mpi.org/software/ompi/v1.6/downloads/$pkg_file"
 
      bldr_build_pkg --category    "$pkg_ctry"    \
                     --name        "$pkg_name"    \
-                    --version     "$pkg_vers"    \
+                    --version     "$omp_vers"    \
                     --info        "$pkg_info"    \
                     --description "$pkg_desc"    \
                     --file        "$pkg_file"    \
