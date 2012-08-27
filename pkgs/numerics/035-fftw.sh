@@ -27,11 +27,12 @@ pkg_urls="http://www.fftw.org/$pkg_file"
 pkg_opts="configure"
 pkg_uses=""
 pkg_reqs=""
-pkg_cfg="--enable-threads --enable-sse2"
+pkg_cfg="--enable-threads --enable-sse2 --enable-static --enable-shared"
 
 if [ $BLDR_SYSTEM_IS_OSX == false ]
 then
   pkg_cfg="$pkg_cfg --enable-openmp --enable-avx"
+  pkg_cflags="-fPIC"
 fi
 
 pkg_cflags=""
