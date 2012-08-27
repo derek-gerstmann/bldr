@@ -10,27 +10,41 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_ctry="concurrent"
-pkg_name="tbb"
-pkg_vers="4.0u5"
-pkg_info="Intel® Threading Building Blocks (Intel® TBB) offers a rich and complete approach to expressing parallelism in a C++ program."
+pkg_ctry="network"
+pkg_name="collage"
+pkg_vers="1.4"
+pkg_info="Cross-platform C++ library for building heterogenous, distributed applications "
 
-pkg_desc="Intel® Threading Building Blocks (Intel® TBB) offers a rich and 
-complete approach to expressing parallelism in a C++ program.
+pkg_desc="Cross-platform C++ library for building heterogenous, distributed applications."
 
-It is a library that helps you take advantage of multi-core processor performance without 
-having to be a threading expert. Intel TBB is not just a threads-replacement library. 
-It represents a higher-level, task-based parallelism that abstracts platform details 
-and threading mechanisms for scalability and performance. "
+pkg_file="$pkg_name-$pkg_vers.tar.bz2"
+pkg_urls="git://github.com/Eyescale/Collage.git"
+pkg_opts="cmake"
+pkg_reqs="tar/latest boost/latest lunchbox/latest"
+pkg_uses="$pkg_reqs"
 
-pkg_file="tbb40_20120613oss_src.tgz"
-pkg_urls="http://threadingbuildingblocks.org/uploads/77/187/4.0%20update%205/$pkg_file"
-pkg_opts="configure -ETBBROOT=$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
-pkg_reqs=""
-pkg_uses=""
+####################################################################################################
+# satisfy pkg dependencies and load their environment settings
+####################################################################################################
+
+bldr_satisfy_pkg               \
+  --category    "$pkg_ctry"    \
+  --name        "$pkg_name"    \
+  --version     "$pkg_vers"    \
+  --requires    "$pkg_reqs"    \
+  --uses        "$pkg_uses"    \
+  --options     "$pkg_opts"
+
+####################################################################################################
+
+pkg_cfg=""
+pkg_cfg="$pkg_cfg:-DBoost_NO_SYSTEM_PATHS=ON"
+pkg_cfg="$pkg_cfg:-DBoost_NO_BOOST_CMAKE=ON"
+pkg_cfg="$pkg_cfg:-DBoost_DIR=\"$BLDR_BOOST_BASE_PATH\""
+pkg_cfg="$pkg_cfg:-DBoost_INCLUDE_DIR=\"$BLDR_BOOST_INCLUDE_PATH\""
+
 pkg_cflags=""
 pkg_ldflags=""
-pkg_cfg="" 
 
 ####################################################################################################
 # build and install pkg as local module

@@ -589,7 +589,7 @@ fi
 # 
 if [[ $( uname -s | grep -m1 -c -i 'Linux' ) > 0 ]]
 then
-    export BLDR_OS_NAME="lnx"
+    export BLDR_OS_NAME="linux"
     export BLDR_SYSTEM_IS_LINUX=true
 else
     export BLDR_SYSTEM_IS_LINUX=false
@@ -604,6 +604,7 @@ then
     then
         if [[ $(cat /etc/redhat-release | grep -m1 -c -i 'CentOS' ) > 0 ]]
         then
+            export BLDR_OS_NAME="centos"
             export BLDR_SYSTEM_IS_CENTOS=true
         fi
     fi
@@ -615,7 +616,7 @@ fi
 # 
 if [[ $(uname -s | grep -m1 -c -i 'Darwin' ) > 0 ]]
 then
-    export BLDR_OS_NAME="osx"
+    export BLDR_OS_NAME="darwin"
     export BLDR_SYSTEM_IS_OSX=true
 
     if [[ $( uname -v | grep -m1 -c -i 'x86_64') > 0 ]]

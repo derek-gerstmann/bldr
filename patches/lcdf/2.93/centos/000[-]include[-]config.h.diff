@@ -1,0 +1,11 @@
+--- ./build/typography/lcdf/2.93/include/config.h	2012-07-23 15:02:41.000000000 +0000
++++ config.h	2012-08-27 01:49:40.837034063 +0000
+@@ -26,7 +26,7 @@
+ 
+ /* Prototype strnlen if necessary. */
+ #if !HAVE_DECL_STRNLEN
+-size_t strnlen(const char *s, size_t maxlen);
++// size_t strnlen(const char *s, size_t maxlen);
+ #endif
+ 
+ /* Prototype good_strtod if necessary. */
