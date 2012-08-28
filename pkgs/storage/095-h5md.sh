@@ -23,7 +23,7 @@ independently."
 pkg_file="$pkg_name-$pkg_vers.tar.bz2"
 pkg_urls="https://hpcforge.org/anonscm/git/libh5mb/libh5mb.git"
 pkg_opts="cmake"
-pkg_reqs="szip/latest zlib/latest szip/latest openmpi/1.6 phdf5/latest gfortran/latest"
+pkg_reqs="szip/latest zlib/latest szip/latest openmpi/1.6 phdf5/latest"
 pkg_uses="$pkg_reqs"
 
 ####################################################################################################
@@ -59,6 +59,7 @@ pkg_cfg="$pkg_cfg:-DHDF5_hdf5_hl_LIBRARY=$BLDR_PHDF5_LIB_PATH/libhdf5_hl.a"
 pkg_cfg="$pkg_cfg:-DHDF5_z_LIBRARY=$BLDR_ZLIB_LIB_PATH/libz.a"
 pkg_cfg="$pkg_cfg:-DHDF5_sz_LIBRARY=$BLDR_SZIP_LIB_PATH/libsz.a"
 pkg_cfg="$pkg_cfg:-DHDF5_ENABLE_PARALLEL=ON"
+pkg_cfg="$pkg_cfg:-DHDF5_BUILD_FORTRAN=OFF"
 pkg_cfg="$pkg_cfg:-DHDF5_ENABLE_ZLIB=ON"
 pkg_cfg="$pkg_cfg:-DHDF5_ENABLE_HL_LIB=ON"
 

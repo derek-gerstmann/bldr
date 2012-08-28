@@ -23,7 +23,7 @@ memory (DSM) buffer."
 pkg_file="$pkg_name-$pkg_vers.tar.bz2"
 pkg_urls="http://hpcforge.org/frs/download.php/43/$pkg_file"
 pkg_opts="cmake"
-pkg_reqs="szip/latest zlib/latest szip/latest openmpi/1.6 hdf5-vfd/latest gfortran/latest"
+pkg_reqs="szip/latest zlib/latest szip/latest openmpi/1.6 hdf5-vfd/latest"
 pkg_uses="$pkg_reqs"
 
 ####################################################################################################
@@ -46,7 +46,7 @@ pkg_ldflags=""
 
 pkg_cfg="-DMAKESTATIC=1:-DLINKSTATIC=1"
 pkg_cfg="$pkg_cfg:-DMPI_INCLUDE_PATH=$BLDR_OPENMPI_INCLUDE_PATH"
-pkg_cfg="$pkg_cfg:-H5FD_DSM_BUILD_FORTRAN=ON"                                           
+pkg_cfg="$pkg_cfg:-H5FD_DSM_BUILD_FORTRAN=OFF"                                           
 pkg_cfg="$pkg_cfg:-H5FD_DSM_BUILD_STEERING=ON"
 pkg_cfg="$pkg_cfg:-HDF5_DIR=$BLDR_HDF5_VFD_SHARE_PATH/cmake/hdf5-version"
 

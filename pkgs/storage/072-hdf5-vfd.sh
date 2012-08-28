@@ -21,8 +21,8 @@ pkg_desc="HDF5-VFD is a modified HDF5 source package that provides additional in
 
 pkg_file="$pkg_name-$pkg_vers.tar.bz2"
 pkg_urls="https://hpcforge.org/frs/download.php/41/$pkg_file"
-pkg_opts="cmake"
-pkg_reqs="szip/latest zlib/latest openmpi/1.6 gfortran/latest"
+pkg_opts="cmake migrate-build-bin migrate-build-doc migrate-build-headers"
+pkg_reqs="szip/latest zlib/latest openmpi/1.6"
 pkg_uses="$pkg_reqs"
 
 ####################################################################################################
@@ -44,6 +44,7 @@ pkg_ldflags=""
 
 pkg_cfg="-DMAKESTATIC=1:-DLINKSTATIC=1"
 pkg_cfg="$pkg_cfg:-DMPI_COMPILER=$BLDR_OPENMPI_BIN_PATH/mpicc"
+pkg_cfg="$pkg_cfg:-DHDF5_BUILD_FORTRAN=OFF"
 pkg_cfg="$pkg_cfg:-DHDF5_BUILD_TOOLS=ON"
 pkg_cfg="$pkg_cfg:-DHDF5_ENABLE_PARALLEL=ON"
 pkg_cfg="$pkg_cfg:-DHDF5_ENABLE_HSIZET=ON"
@@ -52,7 +53,7 @@ pkg_cfg="$pkg_cfg:-DHDF5_ENABLE_ZLIB=ON"
 pkg_cfg="$pkg_cfg:-DHDF5_ENABLE_Z_LIB_SUPPORT=ON"
 pkg_cfg="$pkg_cfg:-DHDF5_ENABLE_SZIP=ON"
 pkg_cfg="$pkg_cfg:-DHDF5_ENABLE_SZIP_SUPPORT=ON"
-pkg_cfg="$pkg_cfg:-DHDF5_ENABLE_HL_LIB=ON"
+pkg_cfg="$pkg_cfg:-DHDF5_BUILD_HL_LIB=ON"
 pkg_cfg="$pkg_cfg:-DHDF5_BUILD_CPP_LIB=OFF"
 pkg_cfg="$pkg_cfg:-DZLIB_INCLUDE_DIR=$BLDR_ZLIB_INCLUDE_PATH"
 pkg_cfg="$pkg_cfg:-DZLIB_LIBRARY=$BLDR_ZLIB_LIB_PATH/libz.a"
@@ -157,7 +158,6 @@ do
     #
     pkg_file="$pkg_name-$pkg_vers.tar.bz2"
     pkg_urls="https://hpcforge.org/frs/download.php/57/$pkg_file"
-    pkg_cfg="$hdf5_cfg:-DHDF5_BUILD_FORTRAN=ON"
     bldr_build_pkg                 \
       --category    "$pkg_ctry"    \
       --name        "$pkg_name"    \

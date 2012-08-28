@@ -30,7 +30,25 @@ pkg_file="$pkg_name-$pkg_vers.tar.bz2"
 pkg_urls="http://www.open-mpi.org/software/ompi/v1.6/downloads/$pkg_file"
 pkg_opts="configure skip-xcode-config"
 pkg_reqs="zlib/latest papi/latest"
+if [[ $BLDR_SYSTEM_IS_OSX == false ]]
+then
+     pkg_reqs="$pkg_reqs ftb/latest valgrind/latest"
+fi
 pkg_uses="$pkg_reqs"
+
+####################################################################################################
+# satisfy pkg dependencies and load their environment settings
+####################################################################################################
+
+bldr_satisfy_pkg --category    "$pkg_ctry"    \
+                 --name        "$pkg_name"    \
+                 --version     "$pkg_vers"    \
+                 --requires    "$pkg_reqs"    \
+                 --uses        "$pkg_uses"    \
+                 --options     "$pkg_opts"
+
+####################################################################################################
+
 
 pkg_cflags=""
 pkg_ldflags=""
@@ -40,11 +58,7 @@ pkg_cfg="$pkg_cfg --enable-static"
 pkg_cfg="$pkg_cfg --enable-shared"
 pkg_cfg="$pkg_cfg --enable-heterogeneous"
 pkg_cfg="$pkg_cfg --enable-mpi-thread-multiple"
-
-if [[ -d "$BLDR_LOCAL_PATH/distributed/torque/latest" ]]
-then 
-     pkg_cfg="$pkg_cfg --with-tm=\"$BLDR_LOCAL_PATH/distributed/torque/latest\""
-fi
+pkg_cfg="$pkg_cfg --with-tm=\"$BLDR_TORQUE_BASE_PATH\""
 
 #
 # Disable vampire trace avoids build errors on OSX:
@@ -55,11 +69,29 @@ fi
 if [[ $BLDR_SYSTEM_IS_OSX == true ]] 
 then
     pkg_cfg="$pkg_cfg --disable-vt "
+else
+    pkg_cfg="$pkg_cfg --with-ftb=\"$BLDR_FTB_BASE_PATH\""
+    pkg_cfg="$pkg_cfg --with-valgrind=\"$BLDR_VALGRIND_BASE_PATH\""
 fi
 
 if [[ $BLDR_SYSTEM_IS_LINUX == true ]] 
 then
      pkg_cflags="$pkg_cflags -fPIC"    
+     pkg_cfg="$pkg_cfg --with-libltdl=external"
+     pkg_cfg="$pkg_cfg --with-psm=no"
+     pkg_cfg="$pkg_cfg --with-gnu-ld"
+     pkg_cfg="$pkg_cfg --with-threads=posix"
+     pkg_cfg="$pkg_cfg --enable-openib-rdmacm"
+     pkg_cfg="$pkg_cfg --enable-openib-connectx-xrc"
+     pkg_cfg="$pkg_cfg --enable-openib-dynamic-sl"
+     pkg_cfg="$pkg_cfg --enable-mca-no-build=psm"
+     pkg_cfg="$pkg_cfg --disable-mmap-shmem"
+     pkg_cfg="$pkg_cfg --with-openib=/usr"
+     if [[ -d "/opt/mellanox" ]]
+     then
+          pkg_cfg="$pkg_cfg --with-mxm=/opt/mellanox/mxm"
+          pkg_cfg="$pkg_cfg --with-fca=/opt/mellanox/fca"
+     fi
 fi
 
 ####################################################################################################
