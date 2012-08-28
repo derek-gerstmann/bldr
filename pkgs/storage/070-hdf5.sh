@@ -30,7 +30,7 @@ The HDF5 technology suite includes:
 pkg_file="hdf5-$pkg_vers.tar.gz"
 pkg_urls="http://www.hdfgroup.org/ftp/HDF5/releases/$pkg_name-$pkg_vers/src/$pkg_file"
 pkg_opts="configure keep-build-ctry disable-xcode-cflags disable-xcode-ldflags"
-pkg_reqs="szip/latest zlib/latest"
+pkg_reqs="szip/latest zlib/latest gfortran/latest"
 pkg_uses="$pkg_reqs"
 
 ####################################################################################################
@@ -166,11 +166,8 @@ do
     #
     pkg_name="hdf5"
     pkg_cfg="$hdf5_cfg --enable-cxx"
-    if [ $BLDR_SYSTEM_IS_OSX == false ]
-    then
-        pkg_cfg="$pkg_cfg FC=gfortran"
-        pkg_cfg="$pkg_cfg --enable-fortran"
-    fi
+    pkg_cfg="$pkg_cfg FC=gfortran"
+    pkg_cfg="$pkg_cfg --enable-fortran"
 
     bldr_build_pkg                 \
       --category    "$pkg_ctry"    \
@@ -194,12 +191,9 @@ do
 
         pkg_name="hdf5-16"
         pkg_cfg="$hdf5_cfg --enable-cxx"
-        pkg_cfg="$hdf5_cfg --with-default-api-version=v16"
-        if [ $BLDR_SYSTEM_IS_OSX == false ]
-        then
-            pkg_cfg="$pkg_cfg FC=gfortran"
-            pkg_cfg="$pkg_cfg --enable-fortran"
-        fi
+        pkg_cfg="$pkg_cfg --with-default-api-version=v16"
+        pkg_cfg="$pkg_cfg FC=gfortran"
+        pkg_cfg="$pkg_cfg --enable-fortran"
 
         bldr_build_pkg                 \
           --category    "$pkg_ctry"    \

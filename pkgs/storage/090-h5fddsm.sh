@@ -23,7 +23,7 @@ memory (DSM) buffer."
 pkg_file="$pkg_name-$pkg_vers.tar.bz2"
 pkg_urls="http://hpcforge.org/frs/download.php/43/$pkg_file"
 pkg_opts="cmake"
-pkg_reqs="szip/latest zlib/latest szip/latest openmpi/1.6 hdf5-vfd/latest"
+pkg_reqs="szip/latest zlib/latest szip/latest openmpi/1.6 hdf5-vfd/latest gfortran/latest"
 pkg_uses="$pkg_reqs"
 
 ####################################################################################################

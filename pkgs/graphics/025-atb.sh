@@ -32,6 +32,7 @@ prototypes, inline editors, debug facilities of weightier graphical applications
 pkg_file="AntTweakBar_115.zip"
 pkg_urls="http://www.antisphere.com/Tools/AntTweakBar/$pkg_file"
 pkg_opts="configure migrate-build-headers migrate-build-source migrate-build-bin"
+pkg_opts="$pkg_opts use-base-dir=AntTweakBar use-build-tree=AntTweakBar"
 pkg_uses=""
 pkg_reqs=""
 
@@ -39,6 +40,7 @@ if [[ $BLDR_SYSTEM_IS_OSX == true ]]
 then
   pkg_opts="$pkg_opts use-build-makefile=Makefile.osx"
 else
+  pkg_opts="$pkg_opts use-build-makefile=Makefile"
   pkg_uses="freeglut/latest"
 fi
 
@@ -46,7 +48,7 @@ pkg_reqs="$pkg_uses"
 pkg_cfg=""
 pkg_cflags=""
 pkg_ldflags=""
-pkg_cfg_path="src"
+pkg_cfg_path="AntTweakBar/src"
 
 ####################################################################################################
 # build and install pkg as local module

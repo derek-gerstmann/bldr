@@ -22,7 +22,7 @@ pkg_desc="HDF5-VFD is a modified HDF5 source package that provides additional in
 pkg_file="$pkg_name-$pkg_vers.tar.bz2"
 pkg_urls="https://hpcforge.org/frs/download.php/41/$pkg_file"
 pkg_opts="cmake"
-pkg_reqs="szip/latest zlib/latest openmpi/1.6"
+pkg_reqs="szip/latest zlib/latest openmpi/1.6 gfortran/latest"
 pkg_uses="$pkg_reqs"
 
 ####################################################################################################

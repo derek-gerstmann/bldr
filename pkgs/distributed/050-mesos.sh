@@ -21,13 +21,45 @@ sharing across distributed applications, or frameworks. It can run Hadoop, MPI, 
 Spark (a new framework for low-latency interactive and iterative jobs), and other applications.
  Mesos is open source in the Apache Incubator."
 
-pkg_opts="configure use-config-script=configure.macosx skip-auto-compile-flags"
+pkg_opts="configure skip-auto-compile-flags"
 pkg_reqs="python/2.7.3 cppunit/latest"
+
+if [[ $BLDR_SYSTEM_IS_OSX == true ]]
+then
+    pkg_opts="$pkg_opts use-config-script=configure.macosx"
+
+elif [[ $BLDR_SYSTEM_IS_LINUX == true ]]
+then
+    pkg_opts="$pkg_opts use-config-scripts=configure"
+    pkg_reqs="$pkg_reqs libunwind/latest"
+
+else
+    pkg_opts="$pkg_opts use-config-scripts=configure"
+fi
+
 pkg_uses="$pkg_uses"
+
+####################################################################################################
+# satisfy pkg dependencies and load their environment settings
+####################################################################################################
+
+bldr_satisfy_pkg --category    "$pkg_ctry"    \
+                 --name        "$pkg_name"    \
+                 --version     "$pkg_vers"    \
+                 --requires    "$pkg_reqs"    \
+                 --uses        "$pkg_uses"    \
+                 --options     "$pkg_opts"
+
+####################################################################################################
+
+
 pkg_cflags=""
 pkg_ldflags=""
 pkg_cfg=""
-pkg_cfg="$pkg_cfg --with-webui --with-included-zookeeper"
+pkg_cfg="$pkg_cfg --with-webui"
+pkg_cfg="$pkg_cfg --with-included-zookeeper"
+pkg_cfg="$pkg_cfg --with-python-headers=\"$BLDR_PYTHON_INCLUDE_PATH\""
+pkg_cfg="$pkg_cfg PYTHON=\"$BLDR_PYTHON_BIN_PATH/python\""
 
 ####################################################################################################
 
@@ -35,6 +67,11 @@ if [[ $BLDR_SYSTEM_IS_OSX == true ]]
 then
     export JAVA_HEADERS="/System/Library/Frameworks/JavaVM.framework/Versions/A/Headers"
     export JAVA_CPPFLAGS="-I/System/Library/Frameworks/JavaVM.framework/Headers"
+else
+    if [[ -d "/usr/java/default" ]]
+    then
+        pkg_cfg="$pkg_cfg JAVA_HOME=\"/usr/java/default\""
+    fi
 fi
 
 ####################################################################################################
@@ -63,21 +100,22 @@ bldr_build_pkg                   \
 # build and install the trunk as a local module
 ####################################################################################################
 
-pkg_vers="trunk"
-pkg_file="$pkg_name-$pkg_vers.tar.gz"
-pkg_urls="git://git.apache.org/mesos.git"
-bldr_build_pkg                   \
-    --category    "$pkg_ctry"    \
-    --name        "$pkg_name"    \
-    --version     "$pkg_vers"    \
-    --info        "$pkg_info"    \
-    --description "$pkg_desc"    \
-    --file        "$pkg_file"    \
-    --url         "$pkg_urls"    \
-    --uses        "$pkg_uses"    \
-    --requires    "$pkg_reqs"    \
-    --options     "$pkg_opts"    \
-    --patch       "$pkg_patch"   \
-    --cflags      "$pkg_cflags"  \
-    --ldflags     "$pkg_ldflags" \
-    --config      "$pkg_cfg"
+# pkg_vers="trunk"
+# pkg_file="$pkg_name-$pkg_vers.tar.gz"
+# pkg_urls="git://git.apache.org/mesos.git"
+# pkg_opts="$pkg_opts force-bootstrap no-bootstrap-prefix"
+# bldr_build_pkg                   \
+#     --category    "$pkg_ctry"    \
+#     --name        "$pkg_name"    \
+#     --version     "$pkg_vers"    \
+#     --info        "$pkg_info"    \
+#     --description "$pkg_desc"    \
+#     --file        "$pkg_file"    \
+#     --url         "$pkg_urls"    \
+#     --uses        "$pkg_uses"    \
+#     --requires    "$pkg_reqs"    \
+#     --options     "$pkg_opts"    \
+#     --patch       "$pkg_patch"   \
+#     --cflags      "$pkg_cflags"  \
+#     --ldflags     "$pkg_ldflags" \
+#     --config      "$pkg_cfg"

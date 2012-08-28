@@ -113,13 +113,7 @@ function bldr_load()
 
 	if [[ -d "$BLDR_ROOT_PATH/modules/internal" ]]
 	then
-		local internal_path=""
-		local internal_base=""
-		for internal_path in "$BLDR_ROOT_PATH/modules/internal"/*
-		do
-			internal_base=$(basename $internal_path)
-			module load $internal_base
-		done
+		module load "bldr/latest"	
 	fi
 }
 
@@ -150,7 +144,7 @@ function bldr_unload()
 		for internal_path in "$BLDR_ROOT_PATH/modules/internal"/*
 		do
 			internal_base=$(basename $internal_path)
-			module unload $internal_base
+			module unload -f $internal_base
 		done
 		module unuse "$BLDR_ROOT_PATH/modules/internal"
 	fi

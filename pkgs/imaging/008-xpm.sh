@@ -52,11 +52,14 @@ pkg_cfg="--enable-shared --enable-static"
 pkg_cflags=""
 pkg_ldflags=""
 
-if [[ $BLDR_SYSTEM_IS_OSX == true ]]; then
+if [[ $BLDR_SYSTEM_IS_OSX == true ]]
+then
      pkg_cflags="$pkg_cflags:-I/opt/X11/include"
      pkg_ldflags="$pkg_ldflags:-L/opt/X11/lib"
-elif [[ $BLDR_SYSTEM_IS_LINUX == true ]]; then
-     pkg_cflags="$pkg_cflags:-I/usr/include/X11"
+
+elif [[ $BLDR_SYSTEM_IS_LINUX == true ]]
+then
+     pkg_cflags="$pkg_cflags:-I/usr/include/X11:-fPIC"
      pkg_ldflags="$pkg_ldflags:-L/usr/lib"
 fi
 

@@ -50,7 +50,7 @@ fi
 pkg_cfg="--without-x"
 pkg_cfg_path=""
 pkg_cflags=""
-pkg_ldflags=""
+pkg_ldflags="-liconv"
 
 pkg_uses="$pkg_reqs"
 

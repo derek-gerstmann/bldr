@@ -28,7 +28,7 @@ the creation, access, and sharing of scientific data."
 pkg_file="netcdf-$pkg_vers.tar.gz"
 pkg_urls="http://www.unidata.ucar.edu/downloads/netcdf/ftp/$pkg_file"
 pkg_opts="configure"
-pkg_reqs="szip/latest zlib/latest phdf5/latest openmpi/1.6"
+pkg_reqs="szip/latest zlib/latest phdf5/latest openmpi/1.6 gfortran/latest"
 pkg_uses="$pkg_reqs"
 
 ####################################################################################################
@@ -44,21 +44,11 @@ bldr_satisfy_pkg --category    "$pkg_ctry"    \
 
 ####################################################################################################
 
-pkg_cflags=""
-pkg_ldflags=""
+pkg_cflags="-I$BLDR_PHDF5_INCLUDE_PATH"
+pkg_ldflags="-L$BLDR_PHDF5_LIB_PATH"
 
-if [[ $BLDR_SYSTEM_IS_OSX == true ]]; then
-    pkg_cfg="$pkg_cfg:-DMPI_INCLUDE_PATH=\"$BLDR_OPENMPI_INCLUDE_PATH\""
-else
-    pkg_cflags="$pkg_cflags:-I/opt/openmpi/1.6/include"
-    pkg_ldflags="$pkg_ldflags:-L/opt/openmpi/1.6/lib"
-    pkg_cfg="$pkg_cfg:-DMPI_INCLUDE_PATH=/opt/openmpi/1.6/include"
-fi
-
-####################################################################################################
-
-pkg_name="pnetcdf"
-pkg_cfg="--enable-parallel --enable-netcdf4 --enable-mmap"
+pkg_cfg="CC=mpicc FC=mpif90"
+pkg_cfg="$pkg_cfg --enable-netcdf4 --enable-mmap"
 
 ####################################################################################################
 # build and install pkg as local module

@@ -23,7 +23,7 @@ independently."
 pkg_file="$pkg_name-$pkg_vers.tar.bz2"
 pkg_urls="https://hpcforge.org/anonscm/git/libh5mb/libh5mb.git"
 pkg_opts="cmake"
-pkg_reqs="szip/latest zlib/latest szip/latest openmpi/1.6 phdf5/latest"
+pkg_reqs="szip/latest zlib/latest szip/latest openmpi/1.6 phdf5/latest gfortran/latest"
 pkg_uses="$pkg_reqs"
 
 ####################################################################################################
