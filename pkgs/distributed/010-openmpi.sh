@@ -89,9 +89,12 @@ then
      pkg_cfg="$pkg_cfg --enable-mca-no-build=psm"
      pkg_cfg="$pkg_cfg --disable-mmap-shmem"
      pkg_cfg="$pkg_cfg --with-openib=/usr"
-     if [[ -d "/opt/mellanox" ]]
+     if [[ -d "/opt/mellanox/mxm/lib" ]]
      then
           pkg_cfg="$pkg_cfg --with-mxm=/opt/mellanox/mxm"
+     fi
+     if [[ -d "/opt/mellanox/fca/lib" ]]
+     then
           pkg_cfg="$pkg_cfg --with-fca=/opt/mellanox/fca"
      fi
 fi
