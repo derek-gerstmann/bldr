@@ -76,14 +76,16 @@ fi
 
 if [[ $BLDR_SYSTEM_IS_LINUX == true ]] 
 then
-     pkg_cflags="$pkg_cflags -fPIC"    
+     pkg_cflags="$pkg_cflags -fPIC"
+     pkg_cflags="$pkg_cflags -I/usr/include/infiniband"    
+     pkg_cflags="$pkg_cflags -I/usr/include/infiniband/opensm"    
      pkg_cfg="$pkg_cfg --with-libltdl=external"
      pkg_cfg="$pkg_cfg --with-psm=no"
      pkg_cfg="$pkg_cfg --with-gnu-ld"
      pkg_cfg="$pkg_cfg --with-threads=posix"
+     pkg_cfg="$pkg_cfg --enable-openib-dynamic-sl"
      pkg_cfg="$pkg_cfg --enable-openib-rdmacm"
      pkg_cfg="$pkg_cfg --enable-openib-connectx-xrc"
-     pkg_cfg="$pkg_cfg --enable-openib-dynamic-sl"
      pkg_cfg="$pkg_cfg --enable-mca-no-build=psm"
      pkg_cfg="$pkg_cfg --disable-mmap-shmem"
      pkg_cfg="$pkg_cfg --with-openib=/usr"
