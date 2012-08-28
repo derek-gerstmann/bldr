@@ -34,6 +34,11 @@ pkg_cfg="$pkg_cfg --enable-unicode-properties"
 pkg_cflags=""
 pkg_ldflags=""
 
+if [[ $BLDR_SYSTEM_IS_LINUX == true ]]
+then
+     pkg_cflags="$pkg_cflags -fPIC"
+fi
+
 ####################################################################################################
 # build and install pkg as local module
 ####################################################################################################

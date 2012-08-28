@@ -10,7 +10,7 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_vers="1.8.8"
+pkg_vers="1.8.9"
 pkg_ver_list=("$pkg_vers" "1.8.2" "1.6.10")
 pkg_ctry="storage"
 pkg_name="hdf5"
@@ -166,8 +166,11 @@ do
     #
     pkg_name="hdf5"
     pkg_cfg="$hdf5_cfg --enable-cxx"
-    pkg_cfg="$pkg_cfg FC=gfortran"
-    pkg_cfg="$pkg_cfg --enable-fortran"
+    if [[ $(echo $pkg_vers | grep -m1 -c '^1.8' ) > 0 ]]
+    then
+        pkg_cfg="$pkg_cfg FC=gfortran"
+        pkg_cfg="$pkg_cfg --enable-fortran"
+    fi
 
     bldr_build_pkg                 \
       --category    "$pkg_ctry"    \
@@ -187,8 +190,8 @@ do
     #
     # hdf5 - with legacy v1.6 API methods
     #
-    if [[ $(echo $pkg_vers | grep -m1 -c '^1.8' ) > 0 ]]; then
-
+    if [[ $(echo $pkg_vers | grep -m1 -c '^1.8' ) > 0 ]]
+    then
         pkg_name="hdf5-16"
         pkg_cfg="$hdf5_cfg --enable-cxx"
         pkg_cfg="$pkg_cfg --with-default-api-version=v16"
@@ -236,8 +239,8 @@ do
     #
     # hdf5 - threadsafe w/v1.6 API methods
     #
-    if [[ $(echo $pkg_vers | grep -m1 -c '^1.8' ) > 0 ]]; then
-
+    if [[ $(echo $pkg_vers | grep -m1 -c '^1.8' ) > 0 ]]
+    then
         pkg_name="hdf5-threadsafe-16"
         pkg_cfg="$hdf5_cfg --enable-threadsafe"
         pkg_cfg="$hdf5_cfg --with-default-api-version=v16"

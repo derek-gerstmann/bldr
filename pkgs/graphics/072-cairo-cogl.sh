@@ -72,6 +72,11 @@ else
      pkg_cfg="$pkg_cfg --enable-cogl"     
 fi
 
+if [[ $BLDR_SYSTEM_IS_LINUX == true ]] 
+then
+     pkg_cflags="$pkg_cflags -fPIC"    
+fi
+
 pkg_uses="$pkg_reqs"
 
 ####################################################################################################

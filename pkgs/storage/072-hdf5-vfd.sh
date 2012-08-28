@@ -152,18 +152,12 @@ function bldr_pkg_install_method()
 
 for pkg_vers in "${pkg_ver_list[@]}"
 do
-    pkg_file="$pkg_name-$pkg_vers.tar.bz2"
-    pkg_urls="https://hpcforge.org/frs/download.php/57/$pkg_file"
-
     #
     # hdf5 - standard
     #
-    pkg_cfg="$hdf5_cfg"
-    if [ $BLDR_SYSTEM_IS_OSX == false ]
-    then
-        pkg_cfg="$pkg_cfg:-DHDF5_BUILD_FORTRAN=ON"
-    fi
-
+    pkg_file="$pkg_name-$pkg_vers.tar.bz2"
+    pkg_urls="https://hpcforge.org/frs/download.php/57/$pkg_file"
+    pkg_cfg="$hdf5_cfg:-DHDF5_BUILD_FORTRAN=ON"
     bldr_build_pkg                 \
       --category    "$pkg_ctry"    \
       --name        "$pkg_name"    \

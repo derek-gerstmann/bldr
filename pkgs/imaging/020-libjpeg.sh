@@ -34,7 +34,7 @@ pkg_uses="$pkg_reqs"
 pkg_cflags=""
 pkg_ldflags=""
 
-if [[ $BLDR_SYSTEM_IS_OSX == false ]]
+if [[ $BLDR_SYSTEM_IS_LINUX == true ]]
 then
      pkg_cflags="$pkg_cflags -fPIC"
 fi

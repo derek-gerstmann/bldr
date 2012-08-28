@@ -11,7 +11,7 @@ source "bldr.sh"
 ####################################################################################################
 
 pkg_ctry="toolkits"
-pkg_name="qt4"
+pkg_name="qt"
 pkg_vers="4.8.2"
 pkg_info="Qt is a cross-platform application and UI framework for developers using C++ or QML, a CSS & JavaScript like language."
 
@@ -54,15 +54,16 @@ bldr_satisfy_pkg --category    "$pkg_ctry"    \
 pkg_cflags=""
 pkg_ldflags=""
 
-pkg_cfg="-opensource -release -continue -silent -confirm-license -fast"
+pkg_cfg="-opensource -release -continue -silent -confirm-license -fast" 
 
 if [ $BLDR_SYSTEM_IS_OSX == true ]
 then
-     pkg_cfg="$pkg_cfg -arch $BLDR_OSX_ARCHITECTURES -no-webkit" 
+     pkg_cfg="$pkg_cfg -arch $BLDR_OSX_ARCHITECTURES" 
 fi
 
 pkg_cfg="$pkg_cfg -make libs"
 pkg_cfg="$pkg_cfg -make tools"
+pkg_cfg="$pkg_cfg -no-webkit"
 pkg_cfg="$pkg_cfg -no-libmng"
 pkg_cfg="$pkg_cfg -system-libjpeg"
 pkg_cfg="$pkg_cfg -system-libtiff"
@@ -88,31 +89,11 @@ pkg_cfg="$pkg_cfg -L \"$BLDR_LIBEDIT_LIB_PATH\""
 pkg_cfg="$pkg_cfg -L \"$BLDR_LIBTIFF_LIB_PATH\""
 pkg_cfg="$pkg_cfg -L \"$BLDR_LIBJPEG_LIB_PATH\""
 pkg_cfg="$pkg_cfg -L \"$BLDR_LIBPNG_LIB_PATH\""
-qt4_cfg="$pkg_cfg"
 
 ####################################################################################################
 # build and install pkg as local module
 ####################################################################################################
 
-pkg_name="qt4-static"
-pkg_cfg="$qt4_cfg -no-framework -static"
-bldr_build_pkg                    \
-     --category    "$pkg_ctry"    \
-     --name        "$pkg_name"    \
-     --version     "$pkg_vers"    \
-     --info        "$pkg_info"    \
-     --description "$pkg_desc"    \
-     --file        "$pkg_file"    \
-     --url         "$pkg_urls"    \
-     --uses        "$pkg_uses"    \
-     --requires    "$pkg_reqs"    \
-     --options     "$pkg_opts"    \
-     --cflags      "$pkg_cflags"  \
-     --ldflags     "$pkg_ldflags" \
-     --config      "$pkg_cfg"
-
-pkg_name="qt4"
-pkg_cfg="$qt4_cfg"
 bldr_build_pkg                    \
      --category    "$pkg_ctry"    \
      --name        "$pkg_name"    \

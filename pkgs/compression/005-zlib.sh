@@ -34,6 +34,7 @@ pkg_reqs=""
 pkg_cflags=""
 pkg_ldflags=""
 pkg_cfg="-t"
+
 if [[ $BLDR_SYSTEM_IS_64BIT == true ]]
 then
      pkg_cfg="$pkg_cfg -64"

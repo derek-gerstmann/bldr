@@ -36,6 +36,8 @@ pkg_cflags=""
 pkg_ldflags=""
 
 pkg_cfg="--enable-btl-openib-failover"
+pkg_cfg="$pkg_cfg --enable-static"
+pkg_cfg="$pkg_cfg --enable-shared"
 pkg_cfg="$pkg_cfg --enable-heterogeneous"
 pkg_cfg="$pkg_cfg --enable-mpi-thread-multiple"
 
@@ -47,12 +49,17 @@ fi
 #
 # Disable vampire trace avoids build errors on OSX:
 #
-# - Building MVAPICH2 > v1.5.4 on OSX causes error due to missing GCC internal
+# - Building OpenMPI > v1.6.x on OSX causes error due to missing GCC internal
 #   '__builtin_expect' directives when compiling with LLVM-GCC
 #
 if [[ $BLDR_SYSTEM_IS_OSX == true ]] 
 then
     pkg_cfg="$pkg_cfg --disable-vt "
+fi
+
+if [[ $BLDR_SYSTEM_IS_LINUX == true ]] 
+then
+     pkg_cflags="$pkg_cflags -fPIC"    
 fi
 
 ####################################################################################################

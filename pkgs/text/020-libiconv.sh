@@ -42,6 +42,11 @@ pkg_cfg="--enable-static --enable-shared --enable-extra-encodings"
 pkg_cflags=""
 pkg_ldflags=""
 
+if [[ $BLDR_SYSTEM_IS_LINUX == true ]]
+then
+     pkg_cflags="$pkg_cflags -fPIC"
+fi
+
 ####################################################################################################
 
 # OSX >= 10.6 ships with GNU libiconv w/tons of proprietary (unknown) patches 

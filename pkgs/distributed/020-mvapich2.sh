@@ -46,6 +46,9 @@ pkg_cfg="$pkg_cfg --enable-romio"
 pkg_cfg="$pkg_cfg --enable-cxx"
 pkg_Cfg="$pkg_cfg --enable-mpe"
 pkg_cfg="$pkg_cfg --enable-fc"
+pkg_cfg="$pkg_cfg --enable-shared"
+pkg_cfg="$pkg_cfg --enable-static"
+
 # pkg_cfg="$pkg_cfg --enable-ckpt"
 # pkg_cfg="$pkg_cfg --enable-ckpt-aggregation"
 # pkg_cfg="$pkg_cfg --enable-ckpt-migration"
@@ -59,6 +62,11 @@ pkg_cfg="$pkg_cfg --enable-fc"
 if [[ $BLDR_SYSTEM_IS_OSX == true ]] 
 then
     pkg_cfg="$pkg_cfg --disable-vt "
+fi
+
+if [[ $BLDR_SYSTEM_IS_LINUX == true ]] 
+then
+     pkg_cflags="$pkg_cflags -fPIC"    
 fi
 
 ####################################################################################################

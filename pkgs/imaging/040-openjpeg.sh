@@ -63,6 +63,11 @@ pkg_cfg="$pkg_cfg PNG_LIBS=-lpng"
 pkg_cfg="$pkg_cfg TIFF_CFLAGS=-I$BLDR_LOCAL_PATH/imaging/libtiff/latest/include"
 pkg_cfg="$pkg_cfg TIFF_LIBS=-ltiff"
 
+if [[ $BLDR_SYSTEM_IS_LINUX == true ]]
+then
+     pkg_cflags="$pkg_cflags -fPIC"
+fi
+
 ####################################################################################################
 # build and install pkg as local module
 ####################################################################################################

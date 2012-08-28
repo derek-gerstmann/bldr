@@ -56,19 +56,23 @@ bldr_satisfy_pkg --category    "$pkg_ctry"    \
 
 ####################################################################################################
 
+pkg_cfg_path=""
+pkg_cflags="-I$BLDR_GLIB_INCLUDE_PATH/glib-2.0"
+pkg_ldflags=""
+
 pkg_cfg="--disable-introspection --disable-glibtest"
 pkg_cfg="$pkg_cfg --disable-cairo --enable-cogl-pango=no"
+
 if [[ $BLDR_SYSTEM_IS_OSX == true ]]
 then
      pkg_cfg="$pkg_cfg --with-flavour=osx"
 fi
+
 if [[ $BLDR_SYSTEM_IS_LINUX == true ]]
 then
      pkg_cfg="$pkg_cfg --with-flavour=linux"
+     pkg_cflags="$pkg_cflags -fPIC"    
 fi
-pkg_cfg_path=""
-pkg_cflags="-I$BLDR_GLIB_INCLUDE_PATH/glib-2.0"
-pkg_ldflags=""
 
 ####################################################################################################
 # build and install pkg as local module

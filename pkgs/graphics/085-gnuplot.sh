@@ -52,6 +52,11 @@ pkg_cfg_path=""
 pkg_cflags=""
 pkg_ldflags="-liconv"
 
+if [[ $BLDR_SYSTEM_IS_LINUX == true ]] 
+then
+     pkg_cflags="$pkg_cflags -fPIC"    
+fi
+
 pkg_uses="$pkg_reqs"
 
 ####################################################################################################

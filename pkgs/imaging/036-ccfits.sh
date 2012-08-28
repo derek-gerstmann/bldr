@@ -34,6 +34,11 @@ pkg_ldflags="-L$BLDR_LOCAL_PATH/compression/zlib/latest/lib"
 pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/imaging/cfitsio/latest/lib"
 pkg_cfg="--with-cfitsio=$BLDR_LOCAL_PATH/imaging/cfitsio/latest"
 
+if [[ $BLDR_SYSTEM_IS_LINUX == true ]]
+then
+     pkg_cflags="$pkg_cflags -fPIC"
+fi
+
 ####################################################################################################
 # build and install pkg as local module
 ####################################################################################################

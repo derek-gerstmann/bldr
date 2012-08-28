@@ -29,6 +29,11 @@ pkg_cfg="--enable-static --enable-shared"
 pkg_cflags=""
 pkg_ldflags=""
 
+if [[ $BLDR_SYSTEM_IS_LINUX == true ]]
+then
+     pkg_cflags="$pkg_cflags -fPIC"
+fi
+
 ####################################################################################################
 # build and install pkg as local module
 ####################################################################################################

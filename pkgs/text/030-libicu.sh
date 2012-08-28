@@ -33,6 +33,11 @@ pkg_ldflags=""
 pkg_cfg=""
 pkg_cfg_path="source"
 
+if [[ $BLDR_SYSTEM_IS_LINUX == true ]]
+then
+     pkg_cflags="$pkg_cflags -fPIC"
+fi
+
 ####################################################################################################
 # build and install pkg as local module
 ####################################################################################################
