@@ -31,6 +31,10 @@ pkg_opts="configure"
 pkg_reqs="szip/latest zlib/latest phdf5/latest openmpi/1.6 gfortran/latest"
 pkg_uses="$pkg_reqs"
 
+if [[ $BLDR_SYSTEM_IS_LINUX == true ]]; then
+    pkg_cflags="$pkg_cflags -fPIC"
+fi
+
 ####################################################################################################
 # satisfy pkg dependencies and load their environment settings
 ####################################################################################################

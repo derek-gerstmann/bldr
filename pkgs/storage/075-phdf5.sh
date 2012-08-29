@@ -59,7 +59,7 @@ pkg_cfg="$pkg_cfg --with-pthread=\"/usr\""
 
 if [[ $BLDR_SYSTEM_IS_LINUX == true ]]; then
     pkg_cfg="$pkg_cfg --enable-linux-lfs"
-else
+    pkg_cflags="$pkg_cflags -fPIC"
 fi
 
 pkg_cfg="$pkg_cfg --with-szlib=\"$BLDR_SZIP_BASE_PATH\""
