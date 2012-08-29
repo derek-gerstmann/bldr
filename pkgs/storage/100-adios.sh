@@ -26,7 +26,16 @@ can transparently change how they process the data."
 pkg_file="$pkg_name-$pkg_vers.tar.gz"
 pkg_urls="http://users.nccs.gov/~pnorbert/$pkg_file"
 pkg_opts="configure"
-pkg_reqs="szip/latest zlib/latest mxml/latest openmpi/1.6 phdf5/latest pnetcdf/latest gfortran/latest"
+pkg_reqs="$pkg_reqs szip/latest"
+pkg_reqs="$pkg_reqs zlib/latest"
+pkg_reqs="$pkg_reqs python/2.7.3"
+pkg_reqs="$pkg_reqs mxml/latest"
+pkg_reqs="$pkg_reqs openmpi/1.6"
+pkg_reqs="$pkg_reqs hdf5/latest" 
+pkg_reqs="$pkg_reqs phdf5/latest"
+pkg_reqs="$pkg_reqs netcdf/latest"
+pkg_reqs="$pkg_reqs pnetcdf/latest"
+pkg_reqs="$pkg_reqs gfortran/latest"
 pkg_uses="$pkg_reqs"
 
 ####################################################################################################
@@ -48,16 +57,37 @@ pkg_cfg=""
 
 ####################################################################################################
 
+export MPICC="\"$BLDR_OPENMPI_BIN_PATH\mpicc\""
+export MPICXX="\"$BLDR_OPENMPI_BIN_PATH\mpicxx\""
+export MPIF90="\"$BLDR_OPENMPI_BIN_PATH\mpif90\""
+
 pkg_cfg="$pkg_cfg --enable-fortran"
 pkg_cfg="$pkg_cfg --with-mxml=\"$BLDR_MXML_BASE_PATH\""
+
+pkg_cfg="$pkg_cfg --with-hdf5=\"$BLDR_HDF5_BASE_PATH\""
+pkg_cfg="$pkg_cfg --with-hdf5-incdir=\"$BLDR_HDF5_INCLUDE_PATH\""
+pkg_cfg="$pkg_cfg --with-hdf5-libdir=\"$BLDR_HDF5_LIB_PATH\""
 
 pkg_cfg="$pkg_cfg --with-phdf5=\"$BLDR_PHDF5_BASE_PATH\""
 pkg_cfg="$pkg_cfg --with-phdf5-incdir=\"$BLDR_PHDF5_INCLUDE_PATH\""
 pkg_cfg="$pkg_cfg --with-phdf5-libdir=\"$BLDR_PHDF5_LIB_PATH\""
 
+pkg_cfg="$pkg_cfg --with-netcdf=\"$BLDR_NETCDF_BASE_PATH\""
+pkg_cfg="$pkg_cfg --with-netcdf-incdir=\"$BLDR_NETCDF_INCLUDE_PATH\""
+pkg_cfg="$pkg_cfg --with-netcdf-libdir=\"$BLDR_NETCDF_LIB_PATH\""
+
 pkg_cfg="$pkg_cfg --with-nc4par=\"$BLDR_PNETCDF_BASE_PATH\""
 pkg_cfg="$pkg_cfg --with-nc4par-incdir=\"$BLDR_PNETCDF_INCLUDE_PATH\""
 pkg_cfg="$pkg_cfg --with-nc4par-libdir=\"$BLDR_PNETCDF_LIB_PATH\""
+
+if [[ $BLDR_SYSTEM_IS_LINUX == true ]]
+then
+    pkg_cflags="$pkg_cflags -fPIC"
+    if [[ -f "/usr/lib64/libibverbs.so" ]]
+    then
+        pkg_cfg="$pkg_cfg --with-infiniband=/usr/lib64"
+    fi
+fi
 
 ####################################################################################################
 # build and install pkg as local module
