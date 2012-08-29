@@ -11,7 +11,6 @@ source "bldr.sh"
 ####################################################################################################
 
 pkg_vers="0.9.56"
-pkg_vers_list=("$pkg_vers")
 pkg_ctry="databases"
 pkg_name="kyoto-tycoon"
 pkg_info="Kyoto Tycoon is a lightweight database server."
@@ -65,24 +64,23 @@ pkg_cfg_path=""
 # build and install each pkg version as local module
 ####################################################################################################
 
-for pkg_vers in "${pkg_ver_list[@]}"
-do
-     pkg_file="kyototycoon-$pkg_vers.tar.gz"
-     pkg_opts="configure -MPREFIX=$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
-     pkg_urls="http://fallabs.com/kyototycoon/pkg/$pkg_file"
-     bldr_build_pkg --category    "$pkg_ctry"    \
-                    --name        "$pkg_name"    \
-                    --version     "$pkg_vers"    \
-                    --info        "$pkg_info"    \
-                    --description "$pkg_desc"    \
-                    --file        "$pkg_file"    \
-                    --url         "$pkg_urls"    \
-                    --uses        "$pkg_uses"    \
-                    --requires    "$pkg_reqs"    \
-                    --options     "$pkg_opts"    \
-                    --cflags      "$pkg_cflags"  \
-                    --ldflags     "$pkg_ldflags" \
-                    --config      "$pkg_cfg"     
-done
+pkg_file="kyototycoon-$pkg_vers.tar.gz"
+pkg_opts="configure -MPREFIX=$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
+pkg_urls="http://fallabs.com/kyototycoon/pkg/$pkg_file"
+
+bldr_build_pkg                   \
+    --category    "$pkg_ctry"    \
+    --name        "$pkg_name"    \
+    --version     "$pkg_vers"    \
+    --info        "$pkg_info"    \
+    --description "$pkg_desc"    \
+    --file        "$pkg_file"    \
+    --url         "$pkg_urls"    \
+    --uses        "$pkg_uses"    \
+    --requires    "$pkg_reqs"    \
+    --options     "$pkg_opts"    \
+    --cflags      "$pkg_cflags"  \
+    --ldflags     "$pkg_ldflags" \
+    --config      "$pkg_cfg"     
 
 

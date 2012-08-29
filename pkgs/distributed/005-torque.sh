@@ -11,7 +11,6 @@ source "bldr.sh"
 ####################################################################################################
 
 pkg_vers="2.5.12"
-pkg_vers_list=("$pkg_vers")
 pkg_ctry="distributed"
 pkg_name="torque"
 
@@ -58,27 +57,27 @@ pkg_ldflags=""
 
 if [ $BLDR_SYSTEM_IS_OSX == true ]
 then
-     bldr_log_status "$pkg_name $pkg_vers is not building on OSX right now.  Skipping ..."
-     bldr_log_split
+    bldr_log_status "$pkg_name $pkg_vers is not building on OSX right now.  Skipping ..."
+    bldr_log_split
 else
-     for pkg_vers in "${pkg_ver_list[@]}"
-     do
-          pkg_file="$pkg_name-$pkg_vers.tar.gz"
-          pkg_urls="http://www.adaptivecomputing.com/resources/downloads/torque/$pkg_file"
-          pkg_cfg="$tm_cfg --with-server-home=$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/var/spool/pbs"
-          bldr_build_pkg --category    "$pkg_ctry"    \
-                         --name        "$pkg_name"    \
-                         --version     "$pkg_vers"    \
-                         --info        "$pkg_info"    \
-                         --description "$pkg_desc"    \
-                         --file        "$pkg_file"    \
-                         --url         "$pkg_urls"    \
-                         --uses        "$pkg_uses"    \
-                         --requires    "$pkg_reqs"    \
-                         --options     "$pkg_opts"    \
-                         --patch       "$pkg_patch"   \
-                         --cflags      "$pkg_cflags"  \
-                         --ldflags     "$pkg_ldflags" \
-                         --config      "$pkg_cfg"
-     done
+
+    pkg_file="$pkg_name-$pkg_vers.tar.gz"
+    pkg_urls="http://www.adaptivecomputing.com/resources/downloads/torque/$pkg_file"
+    pkg_cfg="$tm_cfg --with-server-home=$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/var/spool/pbs"
+
+    bldr_build_pkg                   \
+        --category    "$pkg_ctry"    \
+        --name        "$pkg_name"    \
+        --version     "$pkg_vers"    \
+        --info        "$pkg_info"    \
+        --description "$pkg_desc"    \
+        --file        "$pkg_file"    \
+        --url         "$pkg_urls"    \
+        --uses        "$pkg_uses"    \
+        --requires    "$pkg_reqs"    \
+        --options     "$pkg_opts"    \
+        --patch       "$pkg_patch"   \
+        --cflags      "$pkg_cflags"  \
+        --ldflags     "$pkg_ldflags" \
+        --config      "$pkg_cfg"
 fi

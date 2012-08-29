@@ -32,9 +32,11 @@ pkg_opts="configure skip-xcode-config"
 pkg_reqs="zlib/latest papi/latest"
 if [[ $BLDR_SYSTEM_IS_OSX == false ]]
 then
-     pkg_reqs="$pkg_reqs ftb/latest valgrind/latest"
+    pkg_reqs="$pkg_reqs ftb/latest valgrind/latest"
+    pkg_uses="$pkg_reqs torque/latest"
+else
+    pkg_uses="$pkg_reqs"
 fi
-pkg_uses="$pkg_reqs"
 
 ####################################################################################################
 # satisfy pkg dependencies and load their environment settings
@@ -89,14 +91,15 @@ then
      pkg_cfg="$pkg_cfg --enable-mca-no-build=psm"
      pkg_cfg="$pkg_cfg --disable-mmap-shmem"
      pkg_cfg="$pkg_cfg --with-openib=/usr"
-     if [[ -d "/opt/mellanox/mxm/lib" ]]
-     then
-          pkg_cfg="$pkg_cfg --with-mxm=/opt/mellanox/mxm"
-     fi
-     if [[ -d "/opt/mellanox/fca/lib" ]]
-     then
-          pkg_cfg="$pkg_cfg --with-fca=/opt/mellanox/fca"
-     fi
+
+#     if [[ -d "/opt/mellanox/mxm/lib" ]]
+#     then
+#          pkg_cfg="$pkg_cfg --with-mxm=/opt/mellanox/mxm"
+#     fi
+#     if [[ -d "/opt/mellanox/fca/lib" ]]
+#     then
+#          pkg_cfg="$pkg_cfg --with-fca=/opt/mellanox/fca"
+#     fi
 fi
 
 ####################################################################################################
