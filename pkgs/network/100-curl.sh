@@ -26,11 +26,30 @@ proxy tunneling and a busload of other useful tricks."
 pkg_file="$pkg_name-$pkg_vers.tar.gz"
 pkg_urls="http://curl.haxx.se/download/$pkg_file"
 pkg_opts="configure"
-pkg_uses=""
-pkg_reqs=""
+pkg_uses="openssl/latest"
+pkg_reqs="$pkg_uses"
+
+####################################################################################################
+# satisfy pkg dependencies and load their environment settings
+####################################################################################################
+
+bldr_satisfy_pkg               \
+  --category    "$pkg_ctry"    \
+  --name        "$pkg_name"    \
+  --version     "$pkg_vers"    \
+  --requires    "$pkg_reqs"    \
+  --uses        "$pkg_uses"    \
+  --options     "$pkg_opts"
+
+####################################################################################################
+
 pkg_cflags=""
 pkg_ldflags=""
-pkg_cfg="--enable-optimize --enable-threaded-resolver --enable-nonblocking"
+
+pkg_cfg="--enable-optimize"
+pkg_cfg="$pkg_cfg --enable-threaded-resolver"
+pkg_cfg="$pkg_cfg --enable-nonblocking"
+pkg_cfg="$pkg_cfg --with-ssl=$BLDR_OPENSSL_BASE_PATH"
 
 ####################################################################################################
 # build and install pkg as local module

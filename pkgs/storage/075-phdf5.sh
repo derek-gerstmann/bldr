@@ -11,7 +11,7 @@ source "bldr.sh"
 ####################################################################################################
 
 pkg_vers="1.8.9"
-pkg_ver_list=("$pkg_vers" "1.8.2" "1.6.10")
+pkg_vers_list=("$pkg_vers" "1.8.2" "1.6.10")
 pkg_ctry="storage"
 pkg_name="phdf5"
 
@@ -155,7 +155,7 @@ function bldr_pkg_install_method()
 # build and install each pkg version as local module
 ####################################################################################################
 
-for pkg_vers in "${pkg_ver_list[@]}"
+for pkg_vers in ${pkg_vers_list[@]}
 do
     pkg_name="phdf5"
     pkg_file="hdf5-$pkg_vers.tar.gz"

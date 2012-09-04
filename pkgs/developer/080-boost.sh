@@ -12,7 +12,6 @@ source "bldr.sh"
 
 pkg_ctry="developer"
 pkg_name="boost"
-pkg_vers="1.50.0"
 
 pkg_info="Boost provides free peer-reviewed portable C++ source libraries."
 
@@ -30,7 +29,8 @@ Report (TR1) and in the new C++11 Standard. C++11 also includes several more
 Boost libraries in addition to those from TR1. More Boost libraries are 
 proposed for TR2."
 
-pkg_file="boost_1_50_0.tar.bz2"
+pkg_vers="1.51.0"
+pkg_file="boost_1_51_0.tar.bz2"
 pkg_urls="http://sourceforge.net/projects/boost/files/$pkg_name/$pkg_vers/$pkg_file/download"
 pkg_opts="configure force-bootstrap skip-config force-static skip-auto-compile-flags"
 pkg_reqs="zlib/latest bzip2/latest libicu/latest openmpi/latest"
@@ -170,6 +170,7 @@ function bldr_pkg_compile_method()
 # build and install pkg as local module
 ####################################################################################################
 
+
 bldr_build_pkg --category    "$pkg_ctry"    \
                --name        "$pkg_name"    \
                --version     "$pkg_vers"    \
@@ -184,3 +185,47 @@ bldr_build_pkg --category    "$pkg_ctry"    \
                --ldflags     "$pkg_ldflags" \
                --config      "$pkg_cfg"
 
+
+####################################################################################################
+# build and install pkg as local module
+####################################################################################################
+
+pkg_vers="1.50.0"
+pkg_file="boost_1_50_0.tar.bz2"
+pkg_urls="http://sourceforge.net/projects/boost/files/$pkg_name/$pkg_vers/$pkg_file/download"
+
+bldr_build_pkg --category    "$pkg_ctry"    \
+               --name        "$pkg_name"    \
+               --version     "$pkg_vers"    \
+               --info        "$pkg_info"    \
+               --description "$pkg_desc"    \
+               --file        "$pkg_file"    \
+               --url         "$pkg_urls"    \
+               --uses        "$pkg_uses"    \
+               --requires    "$pkg_reqs"    \
+               --options     "$pkg_opts"    \
+               --cflags      "$pkg_cflags"  \
+               --ldflags     "$pkg_ldflags" \
+               --config      "$pkg_cfg"
+
+####################################################################################################
+# build and install pkg as local module
+####################################################################################################
+
+pkg_vers="1.49.0"
+pkg_file="boost_1_49_0.tar.bz2"
+pkg_urls="http://sourceforge.net/projects/boost/files/$pkg_name/$pkg_vers/$pkg_file/download"
+
+bldr_build_pkg --category    "$pkg_ctry"    \
+               --name        "$pkg_name"    \
+               --version     "$pkg_vers"    \
+               --info        "$pkg_info"    \
+               --description "$pkg_desc"    \
+               --file        "$pkg_file"    \
+               --url         "$pkg_urls"    \
+               --uses        "$pkg_uses"    \
+               --requires    "$pkg_reqs"    \
+               --options     "$pkg_opts"    \
+               --cflags      "$pkg_cflags"  \
+               --ldflags     "$pkg_ldflags" \
+               --config      "$pkg_cfg"

@@ -32,13 +32,13 @@ Pools can be customized, managed dynamically and easily integrated into your sof
 
 pkg_file="threadpool-0_2_5-src.zip"
 pkg_urls="http://sourceforge.net/projects/threadpool/files/threadpool/0.2.5%20%28Stable%29/$pkg_file"
-pkg_opts="configure force-static skip-compile keep"
+pkg_opts="configure force-static skip-compile use-base-dir=threadpool-0_2_5-src"
 pkg_reqs="zlib/latest bzip2/latest libicu/latest boost/latest"
 pkg_uses="$pkg_reqs"
 pkg_cflags=""
 pkg_ldflags=""
 pkg_cfg=""
-pkg_cfg_path="threadpool"
+pkg_cfg_path="threadpool-0_2_5-src/threadpool"
 
 ####################################################################################################
 
@@ -126,4 +126,3 @@ bldr_build_pkg --category    "$pkg_ctry"    \
                --ldflags     "$pkg_ldflags" \
                --config      "$pkg_cfg"     \
                --config-path "$pkg_cfg_path"
-

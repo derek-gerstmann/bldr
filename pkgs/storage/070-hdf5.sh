@@ -11,7 +11,7 @@ source "bldr.sh"
 ####################################################################################################
 
 pkg_vers="1.8.9"
-pkg_ver_list=("$pkg_vers" "1.8.2" "1.6.10")
+pkg_vers_list=("1.6.10" "1.8.2" "$pkg_vers")
 pkg_ctry="storage"
 pkg_name="hdf5"
 
@@ -30,7 +30,7 @@ The HDF5 technology suite includes:
 pkg_file="hdf5-$pkg_vers.tar.gz"
 pkg_urls="http://www.hdfgroup.org/ftp/HDF5/releases/$pkg_name-$pkg_vers/src/$pkg_file"
 pkg_opts="configure keep-build-ctry disable-xcode-cflags disable-xcode-ldflags"
-pkg_reqs="szip/latest zlib/latest gfortran/latest"
+pkg_reqs="szip/latest zlib/latest"
 pkg_uses="$pkg_reqs"
 
 ####################################################################################################
@@ -53,18 +53,19 @@ pkg_ldflags=""
 pkg_cfg=""
 pkg_cfg="$pkg_cfg --enable-hl"
 pkg_cfg="$pkg_cfg --enable-filters=all"
-if [[ $BLDR_SYSTEM_IS_OSX == false ]]
-then
+pkg_cfg="$pkg_cfg --enable-static-exec"
+pkg_cfg="$pkg_cfg --with-pthread=\"/usr\""
+
+if [[ $BLDR_SYSTEM_IS_LINUX == true ]]; then
     pkg_cfg="$pkg_cfg --enable-linux-lfs"
-    pkg_cfg="$pkg_cfg --with-pthread=/usr"
-else
-    pkg_cfg="$pkg_cfg --enable-static-exec"
-    pkg_cfg="$pkg_cfg --with-pthread=/usr"
+    pkg_cflags="$pkg_cflags -fPIC"
 fi
+
 pkg_cfg="$pkg_cfg --with-szlib=\"$BLDR_SZIP_BASE_PATH\""
 pkg_cfg="$pkg_cfg --with-zlib=\"$BLDR_ZLIB_BASE_PATH\""
 
 hdf5_cfg="$pkg_cfg"
+hdf5_reqs="$pkg_reqs"
 
 ####################################################################################################
 
@@ -155,7 +156,7 @@ function bldr_pkg_install_method()
 # build and install each pkg version as local module
 ####################################################################################################
 
-for pkg_vers in "${pkg_ver_list[@]}"
+for pkg_vers in ${pkg_vers_list[@]}
 do
     pkg_name="hdf5"
     pkg_file="hdf5-$pkg_vers.tar.gz"
@@ -170,6 +171,9 @@ do
     then
         pkg_cfg="$pkg_cfg FC=gfortran"
         pkg_cfg="$pkg_cfg --enable-fortran"
+        pkg_reqs="$hdf5_reqs gfortran/latest"
+    else
+        pkg_reqs="$hdf5_reqs"      
     fi
 
     bldr_build_pkg                 \
@@ -197,6 +201,7 @@ do
         pkg_cfg="$pkg_cfg --with-default-api-version=v16"
         pkg_cfg="$pkg_cfg FC=gfortran"
         pkg_cfg="$pkg_cfg --enable-fortran"
+        pkg_reqs="$hdf5_reqs gfortran/latest"
 
         bldr_build_pkg                 \
           --category    "$pkg_ctry"    \
@@ -220,6 +225,7 @@ do
     #
     pkg_name="hdf5-threadsafe"
     pkg_cfg="$hdf5_cfg --enable-threadsafe"
+    pkg_reqs="$hdf5_reqs"      
 
     bldr_build_pkg                 \
       --category    "$pkg_ctry"    \
@@ -244,6 +250,7 @@ do
         pkg_name="hdf5-threadsafe-16"
         pkg_cfg="$hdf5_cfg --enable-threadsafe"
         pkg_cfg="$hdf5_cfg --with-default-api-version=v16"
+        pkg_reqs="$hdf5_reqs"      
 
         bldr_build_pkg                 \
           --category    "$pkg_ctry"    \

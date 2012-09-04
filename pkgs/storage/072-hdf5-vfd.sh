@@ -11,7 +11,7 @@ source "bldr.sh"
 ####################################################################################################
 
 pkg_vers="1.8.8"
-pkg_ver_list=("$pkg_vers" "1.8.9")
+pkg_vers_list=("$pkg_vers" "1.8.9")
 pkg_ctry="storage"
 pkg_name="hdf5-vfd"
 
@@ -151,7 +151,7 @@ function bldr_pkg_install_method()
 # build and install each pkg version as local module
 ####################################################################################################
 
-for pkg_vers in "${pkg_ver_list[@]}"
+for pkg_vers in ${pkg_vers_list[@]}
 do
     #
     # hdf5 - standard
