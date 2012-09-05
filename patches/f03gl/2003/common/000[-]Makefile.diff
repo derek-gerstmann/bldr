@@ -1,0 +1,42 @@
+--- Makefile	2010-07-30 10:42:12.000000000 +0000
++++ Makefile.alessio	2012-09-05 02:20:17.816290219 +0000
+@@ -3,19 +3,19 @@
+ BITS      := 64
+ 
+ #  The directories containing the OpenGL libraries and GLUT libraries
+-OGLLIBDIR := -L/usr/lib${BITS}
++OGLLIBDIR := -L/usr/lib${BITS} -L${BLDR_FREEGLUT_LIB_PATH}
+ 
+ #  The directory containing the X11 libraries
+ X11LIBDIR := -L/usr/X11R6/lib${BITS}
+ 
+ #  Libraries for OpenGL, including GLUT, GLU and OpenGL
+-F90GLUTLIB := -lglut -lGL -lGLU
++F90GLUTLIB := -lglut -lGL -lGLU -L${BLDR_FREEGLUT_LIB_PATH}
+ 
+ #  The X11 libraries
+ X11LIB := -lXaw -lXt -lXmu -lXi -lXext -lX11 -lm -lXxf86vm
+ 
+ ifndef COMPILER
+-  COMPILER := nagfor
++  COMPILER := gfortran
+ endif
+ FC=${COMPILER}
+ ifeq (${COMPILER},nagfor)
+@@ -27,7 +27,7 @@
+ ifeq (${COMPILER},gfortran)
+ #  Gfortran version 4.5.0
+   FFLAGS    := $(DEBUG) -DOPENGL -fno-range-check
+-  LIBRARIES := ${OGLLIBDIR} ${X11LIBDIR} -L/usr/local/lib${BITS} -L/home/ajs1/gcc-20090906/lib${BITS}
++  LIBRARIES := ${OGLLIBDIR} ${X11LIBDIR} -L/usr/local/lib${BITS} 
+   LIBS      := ${F90GLUTLIB} ${X11LIB} -lpthread -ldl -lgfortran
+ endif
+ ifeq (${COMPILER},ifort)
+@@ -55,7 +55,6 @@
+ blender modview plotfunc scube sphere stars : %: %.f90 ${MODULES} force
+ 	${FC} ${FFLAGS} -c $<
+ 	${FC} $@.o ${MODULES} ${LIBRARIES} ${LIBS} -o $@
+-	./$@
+ 
+ OpenGL%.mod: OpenGL%.f90
+ 	${FC} ${FFLAGS} -c $<
