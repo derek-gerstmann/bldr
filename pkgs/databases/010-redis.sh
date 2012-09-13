@@ -55,7 +55,7 @@ fi
 # build and install each pkg version as local module
 ####################################################################################################
 
-for pkg_vers in "${pkg_ver_list[@]}"
+for pkg_vers in "${pkg_vers_list[@]}"
 do
      pkg_file="$pkg_name-$pkg_vers.tar.gz"
      pkg_opts="configure -MPREFIX=$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"

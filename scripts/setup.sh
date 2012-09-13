@@ -31,12 +31,11 @@ export PATH="./scripts:../scripts:./system:../system:$PATH"
 ####################################################################################################
 
 # determine abs path
-pushd . > /dev/null
-BLDR_SCRIPT_PATH="$( cd -P "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-popd    > /dev/null
+BLDR_SCRIPT_PATH="$( cd -P "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )"
 
 # setup project paths
-BLDR_ABS_PWD="$( dirname "$BLDR_SCRIPT_PATH/../.." )"
+BLDR_SCRIPT_PATH="$( dirname "$BLDR_SCRIPT_PATH/.." )"
+BLDR_ABS_PWD="$( dirname "$BLDR_SCRIPT_PATH/.." )"
 BLDR_ROOT_PATH="$( dirname "$BLDR_ABS_PWD/.." )"
 BLDR_BASE_PATH="$( basename "$BLDR_ABS_PWD" )"
 
