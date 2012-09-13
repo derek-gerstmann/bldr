@@ -12,7 +12,7 @@ source "bldr.sh"
 
 pkg_ctry="concurrent"
 pkg_name="ck"
-pkg_vers="0.2.8"
+pkg_vers="0.2.9"
 pkg_info="Concurrency Kit provides a plethora of concurrency primitives for high-performance concurrent systems."
 
 pkg_desc="Concurrency Kit provides a plethora of concurrency primitives, safe memory reclamation 
