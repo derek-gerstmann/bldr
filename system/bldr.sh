@@ -815,7 +815,8 @@ BLDR_MAKE_SEARCH_PATH=". build ../build source src .. ../source ../src"
 BLDR_BOOT_FILE_SEARCH_LIST="bootstrap bootstrap.sh autogen.sh"
 BLDR_AUTOCONF_FILE_SEARCH_LIST="configure configure.sh config Configure"
 BLDR_CMAKE_FILE_SEARCH_LIST="CMakeLists.txt cmakelists.txt"
-BLDR_MAKE_FILE_SEARCH_LIST="Makefile makefile"
+BLDR_MAKE_FILE_SEARCH_LIST="Makefile GNUmakefile makefile"
+BLDR_RUBY_FILE_SEARCH_LIST="extconf.rb Rakefile *.gemspec"
 BLDR_MAVEN_FILE_SEARCH_LIST="pom.xml project.xml"
 BLDR_PYTHON_FILE_SEARCH_LIST="setup.py install.py"
 
@@ -829,11 +830,13 @@ function bldr_locate_build_path
     local mk_files=$BLDR_MAKE_FILE_SEARCH_LIST
     local cm_files=$BLDR_CMAKE_FILE_SEARCH_LIST
     local ac_files=$BLDR_AUTOCONF_FILE_SEARCH_LIST
+    local rb_files=$BLDR_RUBY_FILE_SEARCH_LIST
 
     local use_cmake=false
     local use_autocfg=false
     local use_maven=false
     local use_python=false
+    local use_ruby=false
 
     if [[ $(bldr_has_cfg_option "$pkg_opts" "cmake" ) == "true" ]]
     then
@@ -846,6 +849,10 @@ function bldr_locate_build_path
     elif [[ $(bldr_has_cfg_option "$pkg_opts" "maven" ) == "true" ]]
     then
         use_maven=true
+
+    elif [[ $(bldr_has_cfg_option "$pkg_opts" "ruby" ) == "true" ]]
+    then
+        use_ruby=true
 
     elif [[ $(bldr_has_cfg_option "$pkg_opts" "python" ) == "true" ]]
     then
@@ -879,6 +886,7 @@ function bldr_locate_build_path
     local tst_mk=""
     local tst_cm=""
     local tst_ac=""
+    local tst_rb=""
 
     for tst_path in ${mk_paths}
     do
@@ -944,6 +952,18 @@ function bldr_locate_build_path
             done
         fi
 
+        if [[ $use_ruby == true ]]
+        then
+            for tst_rb in ${rb_files}
+            do
+                if [[ -f "$tst_path/$tst_rb" ]]
+                then 
+                    build_path="$tst_path"
+                    break
+                fi
+            done
+        fi
+
         for tst_file in ${mk_files}
         do
             if [ -f "$tst_path/$tst_file" ]
@@ -969,10 +989,12 @@ function bldr_locate_make_file
     local cm_files=$BLDR_CMAKE_FILE_SEARCH_LIST
     local ac_files=$BLDR_AUTOCONF_FILE_SEARCH_LIST
     local py_files=$BLDR_PYTHON_FILE_SEARCH_LIST
+    local rb_files=$BLDR_RUBY_FILE_SEARCH_LIST
 
     local use_cmake=false
     local use_autocfg=false
     local use_maven=false
+    local use_ruby=false
     local use_python=false
 
     if [[ $(bldr_has_cfg_option "$pkg_opts" "cmake" ) == "true" ]]
@@ -986,6 +1008,10 @@ function bldr_locate_make_file
     elif [[ $(bldr_has_cfg_option "$pkg_opts" "maven" ) == "true" ]]
     then
         use_maven=true
+
+    elif [[ $(bldr_has_cfg_option "$pkg_opts" "ruby" ) == "true" ]]
+    then
+        use_ruby=true
 
     elif [[ $(bldr_has_cfg_option "$pkg_opts" "python" ) == "true" ]]
     then
@@ -1094,7 +1120,6 @@ function bldr_locate_make_file
             done
         fi
 
-
         if [[ $use_python == true ]]
         then
             for tst_py in ${py_files}
@@ -1194,6 +1219,36 @@ function bldr_is_autoconf_file
 }
 
 
+function bldr_is_ruby_file
+{
+    local rb_srch=$(bldr_trim_str "$1")
+    local rb_files=$BLDR_RUBY_FILE_SEARCH_LIST
+    local tst_file=""
+
+    if [[ $(echo "$rb_srch" | grep -m1 -c ".rb") > 0 ]]
+    then
+        echo "true"
+        return
+    fi
+
+    if [[ $(echo "$rb_srch" | grep -m1 -c ".gemspec") > 0 ]]
+    then
+        echo "true"
+        return
+    fi
+
+    for tst_file in ${rb_files}
+    do
+        if [[ $(echo "$rb_srch" | grep -m1 -c "$tst_file") > 0 ]]
+        then
+            echo "true"
+            return
+        fi
+    done
+    echo "false"
+}
+
+
 function bldr_is_python_file
 {
     local py_srch=$(bldr_trim_str "$1")
@@ -1270,10 +1325,12 @@ function bldr_locate_config_script
     local autocfg_files=$BLDR_AUTOCONF_FILE_SEARCH_LIST
     local maven_files=$BLDR_MAVEN_FILE_SEARCH_LIST
     local python_files=$BLDR_PYTHON_FILE_SEARCH_LIST
+    local ruby_files=$BLDR_RUBY_FILE_SEARCH_LIST
 
     local use_cmake=false
     local use_autocfg=false
     local use_maven=false
+    local use_ruby=false
     local use_python=false
 
     if [[ $(echo "$cfg_opts" | grep -m1 -c 'use-config-script') > 0 ]]
@@ -1297,6 +1354,10 @@ function bldr_locate_config_script
     elif [[ $(echo "$cfg_opts" | grep -m1 -c "maven" ) > 0 ]]
     then
         use_maven=true
+
+    elif [[ $(echo "$cfg_opts" | grep -m1 -c "ruby" ) > 0 ]]
+    then
+        use_ruby=true
 
     elif [[ $(echo "$cfg_opts" | grep -m1 -c "python" ) > 0 ]]
     then
@@ -1354,6 +1415,19 @@ function bldr_locate_config_script
                 fi
             done
         fi
+
+        if [[ $use_ruby == true ]]
+        then
+            for tst_file in ${ruby_files}
+            do
+                if [ -f "$tst_path/$tst_file" ]
+                then
+                    found_path="$tst_path/$tst_file"
+                    break
+                fi
+            done
+        fi
+
         if [[ $use_python == true ]]
         then
             for tst_file in ${python_files}
@@ -1493,6 +1567,7 @@ function bldr_is_library()
         *.so)       is="true";;
         *.la)       is="true";;
         *.dylib)    is="true";;
+        *.bundle)   is="true";;
         *.so.*)     is="true";;
         *)          is="false";;
        esac    
@@ -1512,11 +1587,13 @@ function bldr_strip_archive_ext()
         *.tar.gz)   result=$(echo ${archive%.tar.gz} );;
         *.tar.xz)   result=$(echo ${archive%.tar.xz} );;
         *.bz2)      result=$(echo ${archive%.bz2} );;
+        *.gem)      result=$(echo ${archive%.gem} );;
         *.rar)      result=$(echo ${archive%.rar} );;
         *.gz)       result=$(echo ${archive%.gz} );;
         *.tar)      result=$(echo ${archive%.tar} );;
         *.tbz2)     result=$(echo ${archive%.tbz2} );;
         *.tgz)      result=$(echo ${archive%.tgz} );;
+        *.jar)      result=$(echo ${archive%.jar} );;
         *.zip)      result=$(echo ${archive%.zip} );;
         *.Z)        result=$(echo ${archive%.Z} );;
         *.7z)       result=$(echo ${archive%.7z} );;
@@ -1560,6 +1637,7 @@ function bldr_is_valid_archive()
         *.tar)      is=1;;
         *.tbz2)     is=1;;
         *.tgz)      is=1;;
+        *.jar)      is=1;;
         *.zip)      is=1;;
         *.Z)        is=1;;
         *.7z)       is=1;;
@@ -1590,8 +1668,10 @@ function bldr_list_archive()
         *.tar.gz)   result=$(eval $extr tzf ${archive} ) || bad_archive=true;;
         *.tar.xz)   result=$(eval $extr Jtf ${archive} ) || bad_archive=true;;
         *.tar)      result=$(eval $extr tf ${archive} ) || bad_archive=true;;
+        *.gem)      result="$archive";;
         *.tbz2)     result=$(eval $extr tjf ${archive} ) || bad_archive=true;;
         *.tgz)      result=$(eval $extr tzf ${archive} ) || bad_archive=true;;
+        *.jar)      result=$(eval unzip -l ${archive} | awk '/-----/ {p = ++p % 2; next} p {print "./"$NF}' ) || bad_archive=true;;
         *.zip)      result=$(eval unzip -l ${archive} | awk '/-----/ {p = ++p % 2; next} p {print "./"$NF}' ) || bad_archive=true;;
         *)          bad_archive=true;;
        esac    
@@ -1601,6 +1681,10 @@ function bldr_list_archive()
     if [[ $bad_archive == true ]]
     then
         listing="error"
+
+    elif [[ "$result" == "$archive" ]]
+    then
+        listing="$base_dir"
 
     elif [[ "$result" == "$base_dir" ]]
     then
@@ -1647,6 +1731,7 @@ function bldr_extract_archive()
         *.tar)      bldr_run_cmd "$extr xvf ${archive}" || bldr_bail "Failed to extract archive '${archive}'";;
         *.tbz2)     bldr_run_cmd "$extr xvjf ${archive}" || bldr_bail "Failed to extract archive '${archive}'";;
         *.tgz)      bldr_run_cmd "$extr xvzf ${archive}" || bldr_bail "Failed to extract archive '${archive}'";;
+        *.jar)      bldr_run_cmd "unzip -uo -d ${base_dir} ${archive}" || bldr_bail "Failed to extract archive '${archive}'";;
         *.zip)      bldr_run_cmd "unzip -uo -d ${base_dir} ${archive}" || bldr_bail "Failed to extract archive '${archive}'";;
         *.Z)        bldr_run_cmd "uncompress ${archive}" || bldr_bail "Failed to extract archive '${archive}'";;
         *.7z)       bldr_run_cmd "7z x ${archive}" || bldr_bail "Failed to extract archive '${archive}'";;
@@ -1928,6 +2013,12 @@ function bldr_has_pkg()
         pkg_vers="latest"
     fi
 
+    local newer_scan=false
+    if [[ $(bldr_has_cfg_option "$pkg_opts" "pkg-update" ) == "true" ]]
+    then
+        newer_scan=true
+    fi
+
     if [ -d "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers" ]
     then
         if [ "$pkg_name" == "modules" ]
@@ -1944,13 +2035,12 @@ function bldr_has_pkg()
         fi        
     fi
 
-    if [ "$pkg_name" != "modules" ] && [ "$has_existing" == "true" ]
+    if [ "$pkg_name" != "modules" ] && [ "$has_existing" == "true" ] && [ $newer_scan == true ]
     then
         if [ -d "$BLDR_PKGS_PATH/$pkg_ctry" ]
         then
             local found=""
-            local fnd_list=""
-            local fnd_list=$(find "$BLDR_PKGS_PATH/$pkg_ctry"/* -newer "$BLDR_MODULE_PATH/$pkg_ctry/$pkg_name/$pkg_vers" -iname "*$pkg_name.sh" -print 2>/dev/null )
+            local fnd_list=fnd_list=$(find "$BLDR_PKGS_PATH/$pkg_ctry"/* -newer "$BLDR_MODULE_PATH/$pkg_ctry/$pkg_name/$pkg_vers" -iname "*$pkg_name.sh" -print 2>/dev/null )
             for found in ${fnd_list}
             do
                 if [[ $(echo "$found" | grep -m1 -c "[0-9][0-9][0-9]*[0-9]*-$pkg_name") > 0 ]]                    
@@ -2708,6 +2798,7 @@ function bldr_boot_pkg()
     local prefix="$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
 
     bldr_log_status "Booting package '$pkg_name/$pkg_vers' for '$pkg_ctry' ... "
+    bldr_log_split
 
     if [ ! -d "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers" ]
     then
@@ -2890,6 +2981,95 @@ function bldr_boot_pkg()
         bldr_pop_dir
     fi
 }
+
+function bldr_ruby_pkg()
+{
+    local use_verbose="false"
+    local pkg_ctry=""
+    local pkg_name="" 
+    local pkg_vers=""
+    local pkg_info=""
+    local pkg_desc=""
+    local pkg_file=""
+    local pkg_urls=""
+    local pkg_uses=""
+    local pkg_reqs=""
+    local pkg_opts=""
+    local pkg_cflags=""
+    local pkg_ldflags=""
+    local pkg_cfg=""
+    local pkg_cfg_path=""
+
+    while true ; do
+        case "$1" in
+           --verbose)       use_verbose="$2"; shift 2;;
+           --name)          pkg_name="$2"; shift 2;;
+           --version)       pkg_vers="$2"; shift 2;;
+           --info)          pkg_info="$2"; shift 2;;
+           --description)   pkg_desc="$2"; shift 2;;
+           --category)      pkg_ctry="$2"; shift 2;;
+           --options)       pkg_opts="$2"; shift 2;;
+           --file)          pkg_file="$2"; shift 2;;
+           --config)        pkg_cfg="$pkg_cfg:$2"; shift 2;;
+           --config-path)   pkg_cfg_path="$2"; shift 2;;
+           --cflags)        pkg_cflags="$pkg_cflags:$2"; shift 2;;
+           --ldflags)       pkg_ldflags="$pkg_ldflags:$2"; shift 2;;
+           --patch)         pkg_patches="$2"; shift 2;;
+           --uses)          pkg_uses="$pkg_uses:$2"; shift 2;;
+           --requires)      pkg_reqs="$pkg_reqs:$2"; shift 2;;
+           --url)           pkg_urls="$pkg_urls;$2"; shift 2;;
+           * )              break ;;
+        esac
+    done
+
+    if [ "$use_verbose" == "true" ]
+    then
+        BLDR_VERBOSE=true
+    fi
+
+    if [[ $(bldr_has_cfg_option "$pkg_opts" "skip-config" ) == "true" ]]
+    then
+        return
+    fi
+
+    bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
+    local cfg_path=$(bldr_locate_config_path "$pkg_cfg_path" "$pkg_opts")
+    bldr_pop_dir
+
+  
+    local prefix="$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
+    local env_mpath=""
+    local env_flags=" "
+
+    pkg_cfg=$(bldr_trim_list_str "$pkg_cfg")
+    if [ "$pkg_cfg" != "" ] && [ "$pkg_cfg" != " " ] && [ "$pkg_cfg" != ":" ]
+    then
+        pkg_cfg=$(echo $pkg_cfg | bldr_split_str ":" | bldr_join_str " ")
+    else
+        pkg_cfg=""
+    fi
+
+    bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$cfg_path"
+
+    if [[ $(bldr_has_cfg_option "$pkg_opts" "use-gem" ) == "true" ]]
+    then
+        bldr_log_status "Launching 'gem' for '$pkg_name/$pkg_vers' from '$cfg_path' ..."
+        bldr_log_split
+
+        bldr_run_cmd "gem install $BLDR_CACHE_PATH/$pkg_file --install-dir $prefix ${pkg_cfg}"
+    else
+        bldr_log_status "Launching 'ruby' for '$pkg_name/$pkg_vers' from '$cfg_path' ..."
+        bldr_log_split
+
+        bldr_run_cmd "ruby extconf.rb ${pkg_cfg}"
+    fi
+
+    bldr_log_info "Done configuring package '$pkg_name/$pkg_vers'"
+    bldr_log_split
+
+    bldr_pop_dir
+}
+
 
 function bldr_pysetup_pkg()
 {
@@ -3519,6 +3699,9 @@ function bldr_config_pkg()
     local use_maven=false
     local has_maven=false
 
+    local use_ruby=false
+    local has_ruby=false
+
     local use_python=false
     local has_python=false
 
@@ -3533,6 +3716,10 @@ function bldr_config_pkg()
     elif [[ $(bldr_is_maven_file "$cfg_cmd") == "true" ]]
     then
         has_maven=true
+
+    elif [[ $(bldr_is_ruby_file "$cfg_cmd") == "true" ]]
+    then
+        has_ruby=true
 
     elif [[ $(bldr_is_python_file "$cfg_cmd") == "true" ]]
     then
@@ -3554,6 +3741,15 @@ function bldr_config_pkg()
     elif [[ $(bldr_has_cfg_option "$pkg_opts" "maven" ) == "true" ]]
     then
         use_maven=true
+        use_cmake=false
+        has_cmake=false
+        use_autocfg=false
+        has_autocfg=false
+
+    elif [[ $(bldr_has_cfg_option "$pkg_opts" "ruby" ) == "true" ]]
+    then
+        use_ruby=true
+        use_maven=false
         use_cmake=false
         has_cmake=false
         use_autocfg=false
@@ -3585,6 +3781,16 @@ function bldr_config_pkg()
     if [[ $use_maven == true ]]; then
         if [[ $has_maven == false ]]; then
             use_maven=false
+        fi
+    fi
+
+    if [[ $use_ruby == true ]]; then
+        if [[ $(bldr_has_cfg_option "$pkg_opts" "use-gem" ) == "true" ]]
+        then
+            has_ruby=true
+        fi
+        if [[ $has_ruby == false ]]; then
+            use_ruby=false
         fi
     fi
 
@@ -3644,6 +3850,28 @@ function bldr_config_pkg()
         bldr_log_split
 
         bldr_maven_pkg                    \
+            --category    "$pkg_ctry"     \
+            --name        "$pkg_name"     \
+            --version     "$pkg_vers"     \
+            --file        "$pkg_file"     \
+            --url         "$pkg_urls"     \
+            --uses        "$pkg_uses"     \
+            --requires    "$pkg_reqs"     \
+            --options     "$pkg_opts"     \
+            --cflags      "$pkg_cflags"   \
+            --ldflags     "$pkg_ldflags"  \
+            --patch       "$pkg_patches"  \
+            --config      "$pkg_cfg"      \
+            --config-path "$pkg_cfg_path" \
+            --verbose     "$use_verbose"
+    fi
+
+    if [[ $use_ruby == true ]]
+    then
+        bldr_log_info "Using ruby for '$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$cfg_path' ..."
+        bldr_log_split
+
+        bldr_ruby_pkg                      \
             --category    "$pkg_ctry"     \
             --name        "$pkg_name"     \
             --version     "$pkg_vers"     \
@@ -3963,6 +4191,11 @@ function bldr_install_pkg()
     fi
 
     if [[ $(bldr_has_cfg_option "$pkg_opts" "python" ) == "true" ]]
+    then
+        return
+    fi
+
+    if [[ $(bldr_has_cfg_option "$pkg_opts" "ruby" ) == "true" ]]
     then
         return
     fi
@@ -4557,7 +4790,7 @@ function bldr_modulate_pkg()
     local module_file="$BLDR_MODULE_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
 
     bldr_log_subsection "Modulating package '$pkg_name/$pkg_vers' for '$pkg_ctry' ..."
-    
+
     if [ ! -d $module_dir ]
     then 
         bldr_make_dir "$module_dir"
@@ -4568,7 +4801,7 @@ function bldr_modulate_pkg()
     then
         bldr_remove_file $module_file
         bldr_log_split
-    fi
+    fi    
 
     # Replace non-alpha chars with underscore (to avoid invalid ENV var names)
     #
@@ -4823,8 +5056,6 @@ function bldr_modulate_pkg()
         echo "" >> $module_file
     fi
 
-    bldr_push_dir $prefix
-
     echo ""                                                                          >> $module_file
     echo "# =======================================================================" >> $module_file
     echo ""                                                                          >> $module_file
@@ -4833,6 +5064,8 @@ function bldr_modulate_pkg()
     local found=""
     local subdir=""
     local src_path=""
+
+    bldr_push_dir $prefix
 
     for srch_path in ${BLDR_MODULE_EXPORT_PATHS[@]}
     do
@@ -4909,6 +5142,18 @@ function bldr_modulate_pkg()
             printf $fmt_lc "append-path" "PYTHONPATH" "\"$found\""                   >> $module_file
         done
 
+        for fnd in $(find . -type d -iname "gems")
+        do
+            local sub_path=$(dirname $fnd)
+            if [[ $sub_path != "." ]]
+            then
+                found="$local_path/$pkg_ctry/$pkg_name/$pkg_vers/$sub_path"
+            else
+                found="$local_path/$pkg_ctry/$pkg_name/$pkg_vers"
+            fi
+            printf $fmt_lc "append-path" "GEM_PATH" "\"$found\""                     >> $module_file
+        done
+
         for fnd in $(find . -type d -iname "lib")
         do
             local sub_path=$(basename $fnd)
@@ -4918,6 +5163,13 @@ function bldr_modulate_pkg()
                 printf $fmt_lc "prepend-path" "DYLD_LIBRARY_PATH" "\"$found\""       >> $module_file
             fi
             printf $fmt_lc "prepend-path" "LD_LIBRARY_PATH" "\"$found\""             >> $module_file
+
+            local bnd_fnd=""
+            for bnd_fnd in $(find ./lib -type f -iname "*.bundle")
+            do
+                printf $fmt_lc "append-path" "RUBYLIB" "\"$found\""               >> $module_file
+                break
+            done
         done
 
         for fnd in $(find . -type d -iname "lib32")
