@@ -512,6 +512,7 @@ function bldr_find_latest_version_file()
 BLDR_SCRIPT_PATH="$( cd -P "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )"
 
 # setup project paths
+BLDR_SCRIPT_PATH="$( dirname "$BLDR_SCRIPT_PATH/.." )"
 BLDR_ABS_PWD="$( dirname "$BLDR_SCRIPT_PATH/.." )"
 BLDR_ROOT_PATH="$( dirname "$BLDR_ABS_PWD/.." )"
 BLDR_BASE_PATH="$( basename "$BLDR_ABS_PWD" )"
