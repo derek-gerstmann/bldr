@@ -41,15 +41,6 @@ BLDR_BASE_PATH="$( basename "$BLDR_ABS_PWD" )"
 
 ####################################################################################################
 
-# ensure we are run inside of the root dir
-if [ ! -f "$BLDR_ROOT_PATH/system/bldr.sh" ]
-then
-    echo "Please execute package build script from within the 'bldr' subfolder: '$BLDR_ABS_PWD' '$BLDR_ROOT_PATH'!"
-    exit 0
-fi 
-
-####################################################################################################
-
 # setup system paths
 BLDR_CONFIG_PATH=${BLDR_CONFIG_PATH:=$BLDR_ROOT_PATH}
 export BLDR_SCRIPTS_PATH="$BLDR_CONFIG_PATH/scripts"
@@ -70,20 +61,6 @@ export BLDR_OS_LIB_EXT="a"
 export BLDR_SYSTEM_IS_LINUX=$( uname -s | grep -m1 -c Linux )
 export BLDR_SYSTEM_IS_OSX=$( uname -s | grep -m1 -c Darwin )
 export BLDR_MODULE_CMD=$(which 'modulecmd')
-
-if [ "$(type -t module)" != "function" ]
-then
-	BLDR_MODULE_CMD_INIT=$(find $BLDR_ROOT_PATH/local/internal/modules/latest/* -depth +2 -type f -iname "bash")
-	if [[ -f "$BLDR_MODULE_CMD_INIT" ]]; then	
-		source "$BLDR_MODULE_CMD_INIT"
-	fi
-	export BLDR_MODULE_CMD=$(which 'modulecmd')
-fi
-
-if [ "$(type -t module)" != "function" ]
-then
-	bldr_bail "Failed to locate module environment!  Exiting!"
-fi	
 
 ####################################################################################################
 
@@ -141,6 +118,32 @@ function bldr_unload()
 ####################################################################################################
 # load the local BLDR package repository
 ####################################################################################################
-bldr_load
+
+# ensure we are run inside of the root dir
+if [ ! -f "$BLDR_ROOT_PATH/system/bldr.sh" ]
+then
+    echo "Please execute package build script from within the 'bldr' subfolder: '$BLDR_ROOT_PATH'!"
+
+else
+	
+	if [ "$(type -t module)" != "function" ]
+	then
+		BLDR_MODULE_CMD_INIT=$(find $BLDR_ROOT_PATH/local/internal/modules/latest/* -depth +2 -type f -iname "bash")
+		if [[ -f "$BLDR_MODULE_CMD_INIT" ]]; then	
+			source "$BLDR_MODULE_CMD_INIT"
+		fi
+		export BLDR_MODULE_CMD=$(which 'modulecmd')
+	fi
+
+	if [ "$(type -t module)" != "function" ]
+	then
+		bldr_bail "Failed to locate module environment!  Exiting!"
+	fi	
+
+	bldr_load
+fi 
+
+####################################################################################################
+
 
 
