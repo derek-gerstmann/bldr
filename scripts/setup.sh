@@ -30,26 +30,15 @@ export PATH="./scripts:../scripts:./system:../system:$PATH"
 
 ####################################################################################################
 
+# determine abs path
+pushd . > /dev/null
+BLDR_SCRIPT_PATH="$( cd -P "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+popd    > /dev/null
+
 # setup project paths
-BLDR_ABS_PWD="$( cd "$( dirname ".$0" )" && pwd )"
+BLDR_ABS_PWD="$( dirname "$BLDR_SCRIPT_PATH/../.." )"
 BLDR_ROOT_PATH="$( dirname "$BLDR_ABS_PWD/.." )"
 BLDR_BASE_PATH="$( basename "$BLDR_ABS_PWD" )"
-
-# try one level up if we aren't resolving the root dir
-if [ ! -f "$BLDR_ROOT_PATH/system/bldr.sh" ]
-then
-    BLDR_ABS_PWD="$( cd "$( dirname ".$0" )/.." && pwd )"
-    BLDR_ROOT_PATH="$( dirname "$BLDR_ABS_PWD/.." )"
-    BLDR_BASE_PATH="$( basename "$BLDR_ABS_PWD" )"
-fi
-
-# try one level up if we aren't resolving the root dir
-if [ ! -f "$BLDR_ROOT_PATH/system/bldr.sh" ]
-then
-    BLDR_ABS_PWD="$( cd "$( dirname ".$0" )/../.." && pwd )"
-    BLDR_ROOT_PATH="$( dirname "$BLDR_ABS_PWD/.." )"
-    BLDR_BASE_PATH="$( basename "$BLDR_ABS_PWD" )"
-fi
 
 ####################################################################################################
 
