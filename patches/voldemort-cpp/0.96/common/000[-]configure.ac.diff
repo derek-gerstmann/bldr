@@ -1,0 +1,13 @@
+--- /Users/dg/Downloads/voldemort-0.96/clients/cpp/configure.ac	2012-09-07 15:52:00.000000000 +0800
++++ configure.ac	2012-09-14 15:10:10.000000000 +0800
+@@ -174,10 +174,7 @@
+         Makefile \
+         src/Makefile \
+         utils/Makefile \
+-        test/Makefile \
+         voldemort.pc \
+-        doc/Doxyfile \
+-        doc/Doxyfile-internal \
+ ])
+ AC_OUTPUT
+ 

@@ -1,0 +1,43 @@
+--- /Users/dg/Downloads/voldemort-0.96/clients/cpp/Makefile.am	2012-09-07 15:52:00.000000000 +0800
++++ Makefile.am	2012-09-14 15:12:28.000000000 +0800
+@@ -16,7 +16,7 @@
+ #
+ # Process this file with automake to produce a Makefile.in
+ 
+-SUBDIRS = src utils test
++SUBDIRS = src utils 
+ 
+ library_includedir=$(includedir)/$(PACKAGE)
+ library_include_HEADERS = \
+@@ -56,21 +56,18 @@
+ 	doc/html
+ endif
+ 
+-doc/html: $(library_include_HEADERS) doc/Doxyfile 
+-	cd doc && ${DOXYGEN} Doxyfile
+-doc: doc/html
+-doc/html-internal: clean-doc-internal $(library_include_HEADERS) doc/Doxyfile-internal
+-	cd doc && ${DOXYGEN} Doxyfile-internal
+-doc-internal: doc/html-internal
++doc/html: 
++	echo "Done"
++doc: 
++	echo "Done"
++doc/html-internal: 
++	echo "Done"
++doc-internal: 
++	echo "Done"
+ install-data-local: doc
+-	@$(NORMAL_INSTALL)
+-	test -z "${DESTDIR}/${docdir}/html" || $(mkdir_p) "${DESTDIR}/${docdir}/html"
+-	for i in `ls $(srcdir)/doc/html`; do \
+-	  $(INSTALL) -m 0644 $(srcdir)/doc/html/$$i "${DESTDIR}/${docdir}/html"; \
+-	done
++	echo "Done"
+ uninstall-local: 
+-	@$(NORMAL_UNINSTALL)
+-	rm -rf "${DESTDIR}/${docdir}/html"
++	echo "Done"
+ 
+ clean-doc:
+ 	rm -rf doc/html doc/latex

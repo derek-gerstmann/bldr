@@ -2949,8 +2949,13 @@ function bldr_boot_pkg()
         local boot_cmd=$(bldr_locate_boot_script $pkg_cfg_path $pkg_opts )
         local output=$(bldr_get_stdout)
 
-        if [ -x "$boot_cmd" ] && [ "$boot_cmd" != "." ]
+        if [ -f "$boot_cmd" ] && [ "$boot_cmd" != "." ]
         then
+            if [ ! -x "$boot_cmd" ]
+            then
+                chmod +x $boot_cmd
+            fi
+            
             if [[ $(bldr_has_cfg_option "$pkg_opts" "no-bootstrap-prefix" ) == "true" ]]
             then
                 bldr_run_cmd "$boot_cmd"
