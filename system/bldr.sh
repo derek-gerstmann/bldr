@@ -5129,6 +5129,13 @@ function bldr_modulate_pkg()
             printf $fmt_lc "append-path" "PYTHONPATH" "\"$found\""                   >> $module_file
         done
 
+        for fnd in $(find . -type d -iname "aclocal*")
+        do
+            local sub_path="${fnd:2}"
+            found="$local_path/$pkg_ctry/$pkg_name/$pkg_vers/$sub_path"
+            printf $fmt_lc "append-path" "ACLOCAL_PATH" "\"$found\""                  >> $module_file
+        done
+
         for fnd in $(find . -type d -iname "gems")
         do
             local sub_path="${fnd:2}"

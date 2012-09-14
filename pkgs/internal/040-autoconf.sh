@@ -13,7 +13,7 @@ source "bldr.sh"
 pkg_ctry="internal"
 pkg_name="autoconf"
 pkg_vers="2.69"
-pkg_vers_list=("2.66" "$pkg_vers")
+pkg_vers_list=("2.66" "2.68" "$pkg_vers")
 
 pkg_info="Autoconf is an extensible system to automatically configure software source code packages. "
 

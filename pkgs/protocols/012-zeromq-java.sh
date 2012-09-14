@@ -20,9 +20,9 @@ pkg_desc="Java Bindings for ZeroMQ -- a set of components for building scalable 
 
 pkg_file="$pkg_name-$pkg_vers.tar.gz"
 pkg_urls="git://github.com/zeromq/jzmq.git"
-pkg_opts="configure force-bootstrap"
-pkg_reqs="pkg-config/latest libtool/latest gettext/latest autoconf/latest automake/latest m4/latest zeromq/2.1.7"
-pkg_uses="$pkg_req"
+pkg_opts="configure force-bootstrap force-serial-build"
+pkg_reqs="pkg-config/latest gettext/latest zeromq/2.1.7"
+pkg_uses="autoconf/latest automake/latest m4/latest libtool/latest"
 
 ####################################################################################################
 # satisfy pkg dependencies and load their environment settings
