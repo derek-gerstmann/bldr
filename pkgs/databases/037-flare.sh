@@ -20,14 +20,35 @@ pkg_desc="Flare is a distributed, and persistent key-value storage."
 
 pkg_file="$pkg_name-$pkg_vers.tar.gz"
 pkg_urls="git://github.com/gree/flare.git"
-pkg_opts="configure"
+pkg_opts="configure force-bootstrap"
 pkg_uses="zlib/latest"
 pkg_uses="$pkg_uses tokyo-cabinet/latest"
-pkg_uese="$pkg_uses openssl/latest"
+pkg_uses="$pkg_uses boost/latest"
+pkg_uses="$pkg_uses openssl/latest"
 pkg_reqs="$pkg_uses"
+
+####################################################################################################
+# satisfy pkg dependencies and load their environment settings
+####################################################################################################
+
+bldr_satisfy_pkg --category    "$pkg_ctry"    \
+                 --name        "$pkg_name"    \
+                 --version     "$pkg_vers"    \
+                 --requires    "$pkg_reqs"    \
+                 --uses        "$pkg_uses"    \
+                 --options     "$pkg_opts"
+
+####################################################################################################
+
 pkg_cflags=""
 pkg_ldflags=""
 pkg_cfg=""
+pkg_cfg="$pkg_cfg --with-tokyocabinet=$BLDR_TOKYO_CABINET_BASE_PATH"
+pkg_cfg="$pkg_cfg --with-boost=$BLDR_BOOST_BASE_PATH"
+
+if [[ $BLDR_SYSTEM_IS_LINUX == true ]]; then
+    pkg_cflags="$pkg_cflags -fPIC"
+fi
 
 ####################################################################################################
 # build and install pkg as local module
