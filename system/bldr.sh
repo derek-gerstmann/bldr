@@ -5060,7 +5060,8 @@ function bldr_modulate_pkg()
             local sub_path=$(basename $fnd)
             local fnd_sub=$(echo "$sub_path" | sed 's/[^a-zA-Z0-9\-]/_/g' | sed 's/-/_/g' | sed 's/__/_/g' )
             local fnd_name=$(bldr_make_uppercase "${pkg_title}_${fnd_sub}_PATH")
-            local fnd_value="$local_path/$pkg_ctry/$pkg_name/$pkg_vers/$sub_path"
+            local fnd_rel="${fnd:2}"
+            local fnd_value="$local_path/$pkg_ctry/$pkg_name/$pkg_vers/$fnd_rel"
             printf $fmt_lc "setenv" "$fnd_name" "\"$fnd_value\""                     >> $module_file
         done
     done
@@ -5073,7 +5074,7 @@ function bldr_modulate_pkg()
     then
         for fnd in $(find . -type d -iname "include")
         do
-            local sub_path=$(basename $fnd)
+            local sub_path="${fnd:2}"
             found="$local_path/$pkg_ctry/$pkg_name/$pkg_vers/$sub_path"
             printf $fmt_lc "prepend-path" "C_INCLUDE_PATH" "\"$found\""              >> $module_file
             printf $fmt_lc "prepend-path" "CPLUS_INCLUDE_PATH" "\"$found\""          >> $module_file
@@ -5083,7 +5084,7 @@ function bldr_modulate_pkg()
 
         for fnd in $(find . -type d -iname "inc")
         do
-            local sub_path=$(basename $fnd)
+            local sub_path="${fnd:2}"
             found="$local_path/$pkg_ctry/$pkg_name/$pkg_vers/$sub_path"
             printf $fmt_lc "prepend-path" "C_INCLUDE_PATH" "\"$found\""              >> $module_file
             printf $fmt_lc "prepend-path" "CPLUS_INCLUDE_PATH" "\"$found\""          >> $module_file
@@ -5093,7 +5094,7 @@ function bldr_modulate_pkg()
 
         for fnd in $(find . -type d -iname "bin")
         do
-            local sub_path=$(basename $fnd)
+            local sub_path="${fnd:2}"
             found="$local_path/$pkg_ctry/$pkg_name/$pkg_vers/$sub_path"
             printf $fmt_lc "prepend-path" "PATH" "\"$found\""                        >> $module_file
             for sub_dir in $found/*
@@ -5108,7 +5109,7 @@ function bldr_modulate_pkg()
 
         for fnd in $(find . -type d -iname "sbin")
         do
-            local sub_path=$(basename $fnd)
+            local sub_path="${fnd:2}"
             found="$local_path/$pkg_ctry/$pkg_name/$pkg_vers/$sub_path"
             printf $fmt_lc  "prepend-path" "PATH" "\"$found\""                       >> $module_file
             for sub_dir in $found/*
@@ -5123,14 +5124,14 @@ function bldr_modulate_pkg()
 
         for fnd in $(find . -type d -iname "site-packages")
         do
-            local sub_path=$(basename $fnd)
+            local sub_path="${fnd:2}"
             found="$local_path/$pkg_ctry/$pkg_name/$pkg_vers/$sub_path"
             printf $fmt_lc "append-path" "PYTHONPATH" "\"$found\""                   >> $module_file
         done
 
         for fnd in $(find . -type d -iname "gems")
         do
-            local sub_path=$(dirname $fnd)
+            local sub_path="${fnd:2}"
             if [[ $sub_path != "." ]]
             then
                 found="$local_path/$pkg_ctry/$pkg_name/$pkg_vers/$sub_path"
@@ -5142,7 +5143,7 @@ function bldr_modulate_pkg()
 
         for fnd in $(find . -type d -iname "lib")
         do
-            local sub_path=$(basename $fnd)
+            local sub_path="${fnd:2}"
             found="$local_path/$pkg_ctry/$pkg_name/$pkg_vers/$sub_path"
             if [[ $BLDR_SYSTEM_IS_OSX == true ]]
             then
@@ -5160,7 +5161,7 @@ function bldr_modulate_pkg()
 
         for fnd in $(find . -type d -iname "lib32")
         do
-            local sub_path=$(basename $fnd)
+            local sub_path="${fnd:2}"
             found="$local_path/$pkg_ctry/$pkg_name/$pkg_vers/$sub_path"
             if [[ $BLDR_SYSTEM_IS_OSX == true ]]
             then
@@ -5171,7 +5172,7 @@ function bldr_modulate_pkg()
 
         for fnd in $(find . -type d -iname "lib64")
         do
-            local sub_path=$(basename $fnd)
+            local sub_path="${fnd:2}"
             found="$local_path/$pkg_ctry/$pkg_name/$pkg_vers/$sub_path"
             if [[ $BLDR_SYSTEM_IS_OSX == true ]]
             then
@@ -5182,21 +5183,21 @@ function bldr_modulate_pkg()
 
         for fnd in $(find . -type d -iname "man")
         do
-            local sub_path=$(basename $fnd)
+            local sub_path="${fnd:2}"
             found="$local_path/$pkg_ctry/$pkg_name/$pkg_vers/$sub_path"
             printf $fmt_lc "prepend-path" "MANPATH" "\"$found\""                     >> $module_file
         done
 
         for fnd in $(find . -type d -iname "locale")
         do
-            local sub_path=$(basename $fnd)
+            local sub_path="${fnd:2}"
             found="$local_path/$pkg_ctry/$pkg_name/$pkg_vers/$sub_path"
             printf $fmt_lc "prepend-path" "NLSPATH" "\"$found\""                     >> $module_file
         done
 
         for fnd in $(find . -type d -iname "info")
         do
-            local sub_path=$(basename $fnd)
+            local sub_path="${fnd:2}"
             found="$local_path/$pkg_ctry/$pkg_name/$pkg_vers/$sub_path"
             printf $fmt_lc "prepend-path" "INFOPATH" "\"$found\""                    >> $module_file
         done

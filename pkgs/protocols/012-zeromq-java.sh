@@ -41,6 +41,20 @@ pkg_cflags=""
 pkg_ldflags=""
 pkg_cfg="--with-zeromq=$BLDR_ZEROMQ_BASE_PATH" 
 
+
+####################################################################################################
+
+if [[ $BLDR_SYSTEM_IS_OSX == true ]]
+then
+    export JAVA_HEADERS="/System/Library/Frameworks/JavaVM.framework/Versions/A/Headers"
+    export JAVA_CPPFLAGS="-I/System/Library/Frameworks/JavaVM.framework/Headers"
+else
+    if [[ -d "/usr/java/default" ]]
+    then
+        pkg_cfg="$pkg_cfg JAVA_HOME=\"/usr/java/default\""
+    fi
+fi
+
 ####################################################################################################
 # build and install pkg as local module
 ####################################################################################################

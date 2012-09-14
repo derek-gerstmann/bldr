@@ -20,7 +20,7 @@ pkg_desc="Ruby bindings for MessagePack -- an efficient binary serialization for
 pkg_file="msgpack-$pkg_vers.gem"
 pkg_urls="http://rubygems.org/downloads/$pkg_file"
 pkg_opts="ruby use-gem"
-pkg_reqs=""
+pkg_reqs="ruby/latest"
 pkg_uses="$pkg_reqs"
 
 pkg_cflags=""
