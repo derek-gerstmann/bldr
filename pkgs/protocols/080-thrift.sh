@@ -23,7 +23,7 @@ Haskell, C#, Cocoa, JavaScript, Node.js, Smalltalk, OCaml and Delphi and other l
 
 pkg_file="$pkg_name-$pkg_vers.tar.gz"
 pkg_urls="https://dist.apache.org/repos/dist/release/$pkg_name/$pkg_vers/$pkg_file"
-pkg_opts="configure force-serial-build -EPYTHONPATH+=$BLDR_LOCAL_ENV_PATH/$pkg_ctry/$pkg_name/$pkg_vers/bindings/python/lib/python2.7/site-packages"
+pkg_opts="configure force-serial-build use-build-makefile=Makefile -EPYTHONPATH+=$BLDR_LOCAL_ENV_PATH/$pkg_ctry/$pkg_name/$pkg_vers/bindings/python/lib/python2.7/site-packages"
 pkg_reqs="pkg-config/latest"
 pkg_reqs="$pkg_reqs bison/latest"
 pkg_reqs="$pkg_reqs flex/latest"
@@ -78,5 +78,6 @@ bldr_build_pkg --category    "$pkg_ctry"    \
                --options     "$pkg_opts"    \
                --cflags      "$pkg_cflags"  \
                --ldflags     "$pkg_ldflags" \
-               --config      "$pkg_cfg"
+               --config      "$pkg_cfg"	    \
+	       --config-path "."
 

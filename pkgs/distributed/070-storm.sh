@@ -51,9 +51,12 @@ then
     export JAVA_HEADERS="/System/Library/Frameworks/JavaVM.framework/Versions/A/Headers"
     export JAVA_CPPFLAGS="-I/System/Library/Frameworks/JavaVM.framework/Headers"
 else
-    if [[ -d "/usr/java/default" ]]
+    if [[ ! -d $JAVA_HOME ]]
     then
-        pkg_cfg="$pkg_cfg JAVA_HOME=\"/usr/java/default\""
+        if [[ -d "/usr/java/default" ]]
+        then
+            pkg_cfg="$pkg_cfg JAVA_HOME=\"/usr/java/default\""
+        fi
     fi
 fi
 
@@ -61,7 +64,7 @@ fi
 # build and install each pkg version as local module
 ####################################################################################################
 
-pkg_file="$pkg_name-$pkg_vers.tar.gz"
+pkg_file="$pkg_name-$pkg_vers.zip"
 pkg_urls="https://github.com/downloads/nathanmarz/storm/$pkg_file"
 bldr_build_pkg                   \
     --category    "$pkg_ctry"    \

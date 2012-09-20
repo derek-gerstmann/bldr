@@ -29,7 +29,7 @@ The HDF5 technology suite includes:
 
 pkg_file="hdf5-$pkg_vers.tar.gz"
 pkg_urls="http://www.hdfgroup.org/ftp/HDF5/releases/$pkg_name-$pkg_vers/src/$pkg_file"
-pkg_opts="configure keep-build-ctry disable-xcode-cflags disable-xcode-ldflags"
+pkg_opts="configure keep-build-ctry disable-xcode-cflags disable-xcode-ldflags force-serial-build"
 pkg_reqs="szip/latest zlib/latest"
 pkg_uses="$pkg_reqs"
 
@@ -169,9 +169,12 @@ do
     pkg_cfg="$hdf5_cfg --enable-cxx"
     if [[ $(echo $pkg_vers | grep -m1 -c '^1.8' ) > 0 ]]
     then
-        pkg_cfg="$pkg_cfg FC=gfortran"
-        pkg_cfg="$pkg_cfg --enable-fortran"
-        pkg_reqs="$hdf5_reqs gfortran/latest"
+	if [[ $(echo $pkg_vers | grep -m1 -c '^1.8.2' ) < 1 ]]
+        then
+            pkg_cfg="$pkg_cfg FC=gfortran"
+            pkg_cfg="$pkg_cfg --enable-fortran"
+            pkg_reqs="$hdf5_reqs gfortran/latest"
+        fi
     else
         pkg_reqs="$hdf5_reqs"      
     fi
@@ -199,9 +202,12 @@ do
         pkg_name="hdf5-16"
         pkg_cfg="$hdf5_cfg --enable-cxx"
         pkg_cfg="$pkg_cfg --with-default-api-version=v16"
-        pkg_cfg="$pkg_cfg FC=gfortran"
-        pkg_cfg="$pkg_cfg --enable-fortran"
-        pkg_reqs="$hdf5_reqs gfortran/latest"
+	if [[ $(echo $pkg_vers | grep -m1 -c '^1.8.2' ) < 1 ]]
+        then
+            pkg_cfg="$pkg_cfg FC=gfortran"
+            pkg_cfg="$pkg_cfg --enable-fortran"
+            pkg_reqs="$hdf5_reqs gfortran/latest"
+        fi
 
         bldr_build_pkg                 \
           --category    "$pkg_ctry"    \

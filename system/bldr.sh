@@ -3952,10 +3952,10 @@ function bldr_compile_pkg()
         return
     fi
 
-    if [[ $(bldr_has_cfg_option "$pkg_opts" "python" ) == "true" ]]
-    then
-        return
-    fi
+#    if [[ $(bldr_has_cfg_option "$pkg_opts" "python" ) == "true" ]]
+#    then
+#        return
+#    fi
 
     if [ ! -d "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers" ]
     then
@@ -4181,15 +4181,15 @@ function bldr_install_pkg()
         return
     fi
 
-    if [[ $(bldr_has_cfg_option "$pkg_opts" "python" ) == "true" ]]
-    then
-        return
-    fi
+#    if [[ $(bldr_has_cfg_option "$pkg_opts" "python" ) == "true" ]]
+#    then
+#        return
+#    fi
 
-    if [[ $(bldr_has_cfg_option "$pkg_opts" "ruby" ) == "true" ]]
-    then
-        return
-    fi
+#    if [[ $(bldr_has_cfg_option "$pkg_opts" "ruby" ) == "true" ]]
+#    then
+#        return
+#    fi
 
     if [ ! -d "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers" ]
     then
