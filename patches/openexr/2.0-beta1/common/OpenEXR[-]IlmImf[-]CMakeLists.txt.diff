@@ -1,0 +1,186 @@
+--- CMakeLists.txt	2012-08-29 10:46:42.000000000 +0800
++++ ./build/imaging/openexr/2.0-beta1/openexr-openexr-93484b1/OpenEXR/IlmImf/CMakeLists.txt	2012-09-20 13:34:56.000000000 +0800
+@@ -167,86 +167,103 @@
+ # Headers
+ INSTALL ( FILES
+   ${CMAKE_SOURCE_DIR}/config/OpenEXRConfig.h
+-  ImfForward.h
+-  ImfAttribute.h
+-  ImfBoxAttribute.h
+-  ImfCRgbaFile.h
+-  ImfChannelList.h
+-  ImfChannelListAttribute.h
+-  ImfCompressionAttribute.h
+-  ImfDoubleAttribute.h
+-  ImfFloatAttribute.h
+-  ImfFrameBuffer.h
+-  ImfHeader.h
+-  ImfIO.h
+-  ImfInputFile.h
+-  ImfIntAttribute.h
+-  ImfLineOrderAttribute.h
+-  ImfMatrixAttribute.h
+-  ImfOpaqueAttribute.h
+-  ImfOutputFile.h
+-  ImfRgbaFile.h
+-  ImfStringAttribute.h
+-  ImfVecAttribute.h
+-  ImfHuf.h
+-  ImfWav.h
+-  ImfLut.h
+-  ImfArray.h
+-  ImfCompression.h
+-  ImfLineOrder.h
+-  ImfName.h
+-  ImfPixelType.h
+-  ImfVersion.h
+-  ImfXdr.h
+-  ImfConvert.h
+-  ImfPreviewImage.h
+-  ImfPreviewImageAttribute.h
+-  ImfChromaticities.h
+-  ImfChromaticitiesAttribute.h
+-  ImfKeyCode.h
+-  ImfKeyCodeAttribute.h
+-  ImfTimeCode.h
+-  ImfTimeCodeAttribute.h
+-  ImfRational.h
+-  ImfRationalAttribute.h
+-  ImfFramesPerSecond.h
+-  ImfStandardAttributes.h
+-  ImfEnvmap.h
+-  ImfEnvmapAttribute.h
+-  ImfInt64.h
+-  ImfRgba.h
+-  ImfTileDescription.h
+-  ImfTileDescriptionAttribute.h
+-  ImfTiledInputFile.h
+-  ImfTiledOutputFile.h
+-  ImfTiledRgbaFile.h
+-  ImfRgbaYca.h
+-  ImfTestFile.h
+-  ImfThreading.h
+-  ImfB44Compressor.h
+-  ImfStringVectorAttribute.h
+-  ImfMultiView.h
+-  ImfAcesFile.h
+-  ImfMultiPartOutputFile.h
+-  ImfGenericOutputFile.h
+-  ImfMultiPartInputFile.h
+-  ImfGenericInputFile.h
+-  ImfPartType.h
+-  ImfOutputPart.h
+-  ImfTiledOutputPart.h
+-  ImfInputPart.h
+-  ImfTiledInputPart.h
+-  ImfDeepScanLineOutputFile.h
+-  ImfDeepScanLineOutputPart.h
+-  ImfDeepScanLineInputFile.h
+-  ImfDeepScanLineInputPart.h
+-  ImfDeepTiledInputFile.h
+-  ImfDeepTiledInputPart.h
+-  ImfDeepTiledOutputFile.h
+-  ImfDeepTiledOutputPart.h
+-  ImfDeepFrameBuffer.h
+-  ImfDeepCompositing.h
+-  ImfCompositeDeepScanLine.h
++ImfAcesFile.h
++ImfArray.h
++ImfAttribute.h
++ImfAutoArray.h
++ImfB44Compressor.h
++ImfBoxAttribute.h
++ImfCRgbaFile.h
++ImfChannelList.h
++ImfChannelListAttribute.h
++ImfCheckedArithmetic.h
++ImfChromaticities.h
++ImfChromaticitiesAttribute.h
++ImfCompositeDeepScanLine.h
++ImfCompression.h
++ImfCompressionAttribute.h
++ImfCompressor.h
++ImfConvert.h
++ImfDeepCompositing.h
++ImfDeepFrameBuffer.h
++ImfDeepScanLineInputFile.h
++ImfDeepScanLineInputPart.h
++ImfDeepScanLineOutputFile.h
++ImfDeepScanLineOutputPart.h
++ImfDeepTiledInputFile.h
++ImfDeepTiledInputPart.h
++ImfDeepTiledOutputFile.h
++ImfDeepTiledOutputPart.h
++ImfDoubleAttribute.h
++ImfEnvmap.h
++ImfEnvmapAttribute.h
++ImfFloatAttribute.h
++ImfForward.h
++ImfFrameBuffer.h
++ImfFramesPerSecond.h
++ImfGenericInputFile.h
++ImfGenericOutputFile.h
++ImfHeader.h
++ImfHuf.h
++ImfIO.h
++ImfInputFile.h
++ImfInputPart.h
++ImfInputPartData.h
++ImfInputStreamMutex.h
++ImfInt64.h
++ImfIntAttribute.h
++ImfKeyCode.h
++ImfKeyCodeAttribute.h
++ImfLineOrder.h
++ImfLineOrderAttribute.h
++ImfLut.h
++ImfMatrixAttribute.h
++ImfMisc.h
++ImfMultiPartInputFile.h
++ImfMultiPartOutputFile.h
++ImfMultiView.h
++ImfName.h
++ImfNamespace.h
++ImfOpaqueAttribute.h
++ImfOutputFile.h
++ImfOutputPart.h
++ImfOutputPartData.h
++ImfOutputStreamMutex.h
++ImfPartType.h
++ImfPixelType.h
++ImfPizCompressor.h
++ImfPreviewImage.h
++ImfPreviewImageAttribute.h
++ImfPxr24Compressor.h
++ImfRational.h
++ImfRationalAttribute.h
++ImfRgba.h
++ImfRgbaFile.h
++ImfRgbaYca.h
++ImfRleCompressor.h
++ImfScanLineInputFile.h
++ImfStandardAttributes.h
++ImfStdIO.h
++ImfStringAttribute.h
++ImfStringVectorAttribute.h
++ImfTestFile.h
++ImfThreading.h
++ImfTileDescription.h
++ImfTileDescriptionAttribute.h
++ImfTileOffsets.h
++ImfTiledInputFile.h
++ImfTiledInputPart.h
++ImfTiledMisc.h
++ImfTiledOutputFile.h
++ImfTiledOutputPart.h
++ImfTiledRgbaFile.h
++ImfTimeCode.h
++ImfTimeCodeAttribute.h
++ImfVecAttribute.h
++ImfVersion.h
++ImfWav.h
++ImfXdr.h
++ImfZipCompressor.h
+   DESTINATION
+   ${CMAKE_INSTALL_PREFIX}/include/OpenEXR
+   )

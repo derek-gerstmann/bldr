@@ -10,27 +10,33 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_ctry="spatial"
-pkg_name="flann"
-pkg_vers="1.7.x"
+pkg_ctry="numerics"
+pkg_name="numpy"
+pkg_vers="1.7.0b1"
+pkg_info="NumPy is the fundamental package for scientific computing with Python."
 
-pkg_info="FLANN is a library for performing fast approximate nearest neighbor searches in high dimensional spaces."
+pkg_desc="NumPy is the fundamental package for scientific computing with Python.
 
-pkg_desc="FLANN is a library for performing fast approximate nearest neighbor searches in 
-high dimensional spaces. It contains a collection of algorithms we found to work best for 
-nearest neighbor search and a system for automatically choosing the best algorithm and 
-optimum parameters depending on the dataset. FLANN is written in C++ and contains bindings 
-for the following languages: C, MATLAB and Python."
+It contains among other things:
 
-pkg_file="$pkg_name-$pkg_vers.tar.bz2"
-pkg_urls="git://github.com/mariusmuja/flann.git"
-pkg_opts="cmake"
-pkg_uses="python/2.7.3"
-pkg_reqs="$pkg_reqs"
-pkg_cfg="-DBUILD_MATLAB_BINDINGS=OFF"
+- a powerful N-dimensional array object
+- sophisticated (broadcasting) functions
+- tools for integrating C/C++ and Fortran code
+- useful linear algebra, Fourier transform, and random number capabilities
+- Besides its obvious scientific uses, NumPy can also be used as an efficient multi-dimensional container of generic data. Arbitrary data-types can be defined. 
+
+This allows NumPy to seamlessly and speedily integrate with a wide variety of databases.
+
+Numpy is licensed under the BSD license, enabling reuse with few restrictions."
+
+pkg_file="$pkg_name-$pkg_vers.tar.gz"
+pkg_urls="http://downloads.sourceforge.net/project/$pkg_name/NumPy/$pkg_vers/$pkg_file"
+pkg_opts="python"
+pkg_reqs="lapack/latest atlas/latest python/2.7.3 gfortran/latest"
+pkg_uses=""
 pkg_cflags=""
 pkg_ldflags=""
-pkg_cfg_path="build"
+pkg_cfg="" 
 
 ####################################################################################################
 # build and install pkg as local module
@@ -48,7 +54,6 @@ bldr_build_pkg --category    "$pkg_ctry"    \
                --options     "$pkg_opts"    \
                --cflags      "$pkg_cflags"  \
                --ldflags     "$pkg_ldflags" \
-               --config      "$pkg_cfg"     \
-               --config-path "$pkg_cfg_path"
+               --config      "$pkg_cfg"
 
 

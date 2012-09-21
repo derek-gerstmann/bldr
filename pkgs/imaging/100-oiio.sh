@@ -23,34 +23,59 @@ and is also incorporated into several commercial products."
 
 pkg_file="$pkg_name-$pkg_vers.zip"
 pkg_urls="http://nodeload.github.com/OpenImageIO/oiio/zipball/RB-1.0"
-pkg_opts="cmake force-bootstrap"
+pkg_base="OpenImageIO-oiio-187bb9b"
+pkg_opts="cmake force-bootstrap use-base-dir=$pkg_base"
+pkg_cfg_path="$pkg_base/src"
 pkg_reqs=""
-pkg_uses=""
-pkg_reqs=""
-pkg_cflags=""
-pkg_ldflags=""
-
-dep_list="compression/zlib internal/bzip2 formats/libxml2"
-dep_list="$dep_list imaging/lcms2 imaging/libpng imaging/libjpeg imaging/libtiff imaging/openjpeg"
-dep_list="$dep_list storage/hdf5 storage/netcdf imaging/field3d"
-
-for dep_pkg in $dep_list
-do
-     pkg_req_name=$(echo "$dep_pkg" | sed 's/.*\///g' )
-     pkg_reqs="$pkg_reqs $pkg_req_name/latest"
-     pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/$dep_pkg/latest/include"
-     pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/$dep_pkg/latest/lib"
-done
-
+pkg_reqs="$pkg_reqs zlib/latest"
+pkg_reqs="$pkg_reqs bzip2/latest"
+pkg_reqs="$pkg_reqs libxml2/latest"
+pkg_reqs="$pkg_reqs szip/latest"
+pkg_reqs="$pkg_reqs hdf5/latest"
+pkg_reqs="$pkg_reqs boost/latest"
+pkg_reqs="$pkg_reqs glew/latest"
+pkg_reqs="$pkg_reqs lcms2/latest"
+pkg_reqs="$pkg_reqs ilmbase/latest"
+pkg_reqs="$pkg_reqs openexr/latest"
+pkg_reqs="$pkg_reqs libpng/latest"
+pkg_reqs="$pkg_reqs libjpeg/latest"
+pkg_reqs="$pkg_reqs libtiff/latest"
+pkg_reqs="$pkg_reqs field3d/latest"
 pkg_uses="$pkg_reqs"
 
-pkg_cfg="--disable-dependency-tracking --enable-tiff "
-pkg_cfg="$pkg_cfg Z_CFLAGS=-I$BLDR_LOCAL_PATH/compression/zlib/latest/include"
+####################################################################################################
+# satisfy pkg dependencies and load their environment settings
+####################################################################################################
+
+bldr_satisfy_pkg --category    "$pkg_ctry"    \
+                 --name        "$pkg_name"    \
+                 --version     "$pkg_vers"    \
+                 --requires    "$pkg_reqs"    \
+                 --uses        "$pkg_uses"    \
+                 --options     "$pkg_opts"
+
+####################################################################################################
+
+pkg_cfg="$pkg_cfg --disable-dependency-tracking --enable-tiff "
+pkg_cfg="$pkg_cfg LINKSTATIC=ON"
+pkg_cfg="$pkg_cfg Z_CFLAGS=-I$BLDR_ZLIB_INCLUDE_PATH"
 pkg_cfg="$pkg_cfg Z_LIBS=-lz"
-pkg_cfg="$pkg_cfg PNG_CFLAGS=-I$BLDR_LOCAL_PATH/imaging/libpng/latest/include"
+pkg_cfg="$pkg_cfg PNG_CFLAGS=-I$BLDR_LIBPNG_INCLUDE_PATH"
 pkg_cfg="$pkg_cfg PNG_LIBS=-lpng"
-pkg_cfg="$pkg_cfg TIFF_CFLAGS=-I$BLDR_LOCAL_PATH/imaging/libtiff/latest/include"
+pkg_cfg="$pkg_cfg TIFF_CFLAGS=-I$BLDR_LIBTIFF_INCLUDE_PATH"
 pkg_cfg="$pkg_cfg TIFF_LIBS=-ltiff"
+
+pkg_cfg="$pkg_cfg -DMAKESTATIC=1:-DLINKSTATIC=1"
+pkg_cfg="$pkg_cfg -DIlmbase_Base_Dir=\"$BLDR_ILMBASE_BASE_PATH\""
+pkg_cfg="$pkg_cfg -DILMBASE_INCLUDE_DIR=\"$BLDR_ILMBASE_INCLUDE_PATH\""
+pkg_cfg="$pkg_cfg -DILMBASE_HALF_LIBRARIES=\"$BLDR_ILMBASE_LIB_PATH/libHalf.a\""
+pkg_cfg="$pkg_cfg -DILMBASE_IEX_LIBRARIES=\"$BLDR_ILMBASE_LIB_PATH/libIex.a\""
+pkg_cfg="$pkg_cfg -DILMBASE_IMATH_LIBRARIES=\"$BLDR_ILMBASE_LIB_PATH/libImath.a\""
+pkg_cfg="$pkg_cfg -DILMBASE_ILMTHREAD_LIBRARIES=\"$BLDR_ILMBASE_LIB_PATH/libIlmThread.a\""
+
+pkg_cfg="$pkg_cfg -DOpenEXR_Base_Dir=\"$BLDR_OPENEXR_BASE_PATH\""
+pkg_cfg="$pkg_cfg -DOPENEXR_INCLUDE_DIR=\"$BLDR_OPENEXR_INCLUDE_PATH\""
+pkg_cfg="$pkg_cfg -DOPENEXR_ILMIMF_LIBRARIES=\"$BLDR_OPENEXR_LIB_PATH/libIlmImf.a\""
 
 ####################################################################################################
 # build and install pkg as local module
@@ -68,4 +93,5 @@ bldr_build_pkg --category    "$pkg_ctry"    \
                --options     "$pkg_opts"    \
                --cflags      "$pkg_cflags"  \
                --ldflags     "$pkg_ldflags" \
-               --config      "$pkg_cfg"
+               --config      "$pkg_cfg"     \
+               --config-path "$pkg_cfg_path"

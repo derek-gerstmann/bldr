@@ -25,7 +25,7 @@ Men in Black II, Gangs of New York, and Signs. Since then, OpenEXR has become
 ILM's main image file format."
 
 pkg_file="$pkg_name-$pkg_vers.zip"
-pkg_base="openexr-openexr-27b2bf9"
+pkg_base="openexr-openexr-93484b1"
 pkg_urls="http://github.com/openexr/openexr/zipball/v2_beta.1"
 pkg_opts="cmake skip-boot force-serial-build use-base-dir=$pkg_base"
 pkg_cfg_path="$pkg_base/OpenEXR"

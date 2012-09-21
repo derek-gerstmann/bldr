@@ -53,7 +53,8 @@ BLDR_CATEGORIES=(
     "imaging" 
     "databases" 
     "toolkits" 
-    "compilers")
+    "compilers"
+    "spatial")
 
 BLDR_MODULE_EXPORT_PATHS=(
     "bin" "sbin" 
@@ -2001,6 +2002,10 @@ function bldr_has_pkg()
 
     local newer_scan=false
     if [[ $(bldr_has_cfg_option "$pkg_opts" "pkg-update" ) == "true" ]]
+    then
+        newer_scan=true
+    fi
+    if [[ $(bldr_has_cfg_option "$pkg_opts" "force-rebuild" ) == "true" ]]
     then
         newer_scan=true
     fi
@@ -5068,6 +5073,7 @@ function bldr_modulate_pkg()
             local fnd_rel="${fnd:2}"
             local fnd_value="$local_path/$pkg_ctry/$pkg_name/$pkg_vers/$fnd_rel"
             printf $fmt_lc "setenv" "$fnd_name" "\"$fnd_value\""                     >> $module_file
+            break
         done
     done
 
@@ -5160,8 +5166,9 @@ function bldr_modulate_pkg()
             if [[ $BLDR_SYSTEM_IS_OSX == true ]]
             then
                 printf $fmt_lc "prepend-path" "DYLD_LIBRARY_PATH" "\"$found\""       >> $module_file
+            else
+                printf $fmt_lc "prepend-path" "LD_LIBRARY_PATH" "\"$found\""         >> $module_file
             fi
-            printf $fmt_lc "prepend-path" "LD_LIBRARY_PATH" "\"$found\""             >> $module_file
 
             local bnd_fnd=""
             for bnd_fnd in $(find ./lib -type f -iname "*.bundle")
@@ -5178,8 +5185,9 @@ function bldr_modulate_pkg()
             if [[ $BLDR_SYSTEM_IS_OSX == true ]]
             then
                 printf $fmt_lc "prepend-path" "DYLD_LIBRARY_PATH" "\"$found\""       >> $module_file
+            else
+                printf $fmt_lc "prepend-path" "LD_LIBRARY_PATH" "\"$found\""         >> $module_file
             fi
-            printf $fmt_lc "prepend-path" "LD_LIBRARY_PATH" "\"$found\""             >> $module_file
         done
 
         for fnd in $(find . -type d -iname "lib64")

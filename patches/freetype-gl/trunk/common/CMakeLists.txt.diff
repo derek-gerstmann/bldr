@@ -1,0 +1,30 @@
+--- ./build/graphics/freetype-gl/trunk/CMakeLists.txt	2012-05-24 01:36:29.000000000 +0800
++++ CMakeLists.txt	2012-09-20 13:59:28.000000000 +0800
+@@ -86,6 +86,27 @@
+ #ADD_LIBRARY( ${FREETYPE_GL_LIBRARY} STATIC ${FREETYPE_GL_SRC} )
+ ADD_LIBRARY( freetype-gl STATIC ${FREETYPE_GL_SRC} )
+ 
++# Headers
++INSTALL ( FILES
++	arial-16.h
++	edtaa3func.h
++	font-manager.h
++	freetype-gl.h
++	markup.h
++	opengl.h
++	platform.h
++	shader.h
++	text-buffer.h
++	texture-atlas.h
++	texture-font.h
++	vec234.h
++	vector.h
++	vertex-attribute.h
++	vertex-buffer.h
++  DESTINATION
++  ${CMAKE_INSTALL_PREFIX}/include  )
++
++
+ LINK_DIRECTORIES(${PROJECT_SOURCE_DIR})
+ 
+ MACRO( DEMO _target _sources)

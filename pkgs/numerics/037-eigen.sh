@@ -43,7 +43,7 @@ Implementing an algorithm on top of Eigen feels like just copying pseudocode.
 
 Eigen has good compiler support as we run our test suite against many compilers to guarantee reliability and work around any compiler bugs. Eigen also is standard C++98 and maintains very reasonable compilation times."
 
-pkg_file="$pkg_name-$pkg_vers.tar.bz2"
+pkg_file="$pkg_vers.tar.bz2"
 pkg_urls="http://bitbucket.org/$pkg_name/$pkg_name/get/$pkg_file"
 pkg_opts="cmake migrate-build-headers"
 pkg_uses=""

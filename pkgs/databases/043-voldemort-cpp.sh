@@ -21,7 +21,7 @@ pkg_file="voldemort-$pkg_vers.tar.gz"
 pkg_urls="https://github.com/downloads/voldemort/voldemort/$pkg_file"
 pkg_opts="configure force-bootstrap"
 pkg_opts="$pkg_opts use-build-tree=clients/cpp use-base-dir=clients/cpp"
-pkg_reqs="voldemort/0.96 boost/latest protobuf/latest"
+pkg_reqs="voldemort/0.96 boost/latest protobuf/latest expat/latest"
 pkg_uses=""
 
 ####################################################################################################
