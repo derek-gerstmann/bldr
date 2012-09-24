@@ -20,8 +20,8 @@ pkg_desc="Qt is a cross-platform application and UI framework for developers usi
 a CSS & JavaScript like language"
 
 pkg_file="$pkg_name-everywhere-opensource-src-$pkg_vers.tar.gz"
-pkg_urls="http://releases.qt-project.org/qt5.0-beta-snapshots/src_snapshot/$pkg_file"
-pkg_opts="configure skip-auto-compile-flags"
+pkg_urls="http://releases.qt-project.org/qt5.0/beta1/$pkg_file"
+pkg_opts="configure skip-auto-compile-flags use-build-script=build"
 
 pkg_reqs=""
 pkg_reqs="$pkg_reqs zlib/latest"
@@ -65,10 +65,10 @@ fi
 
 pkg_cfg="$pkg_cfg -make libs"
 pkg_cfg="$pkg_cfg -make tools"
-pkg_cfg="$pkg_cfg -no-webkit"
-pkg_cfg="$pkg_cfg -no-libmng"
+# pkg_cfg="$pkg_cfg -no-webkit"
+# pkg_cfg="$pkg_cfg -no-libmng"
 pkg_cfg="$pkg_cfg -system-libjpeg"
-pkg_cfg="$pkg_cfg -system-libtiff"
+# pkg_cfg="$pkg_cfg -system-libtiff"
 pkg_cfg="$pkg_cfg -system-libpng"
 pkg_cfg="$pkg_cfg -qt-zlib"
 pkg_cfg="$pkg_cfg -openssl-linked"

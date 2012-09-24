@@ -3472,28 +3472,34 @@ function bldr_autocfg_pkg()
 
     if [[ $BLDR_SYSTEM_IS_OSX == true ]]
     then
-        if [[ $(bldr_has_cfg_option "$pkg_opts" "skip-auto-compile-flags" ) == "false" ]]
+        if [[ $(bldr_has_cfg_option "$pkg_opts" "skip-system-flags" ) == "true" ]]
         then
-            if [[ $(bldr_has_cfg_option "$pkg_opts" "skip-xcode-config" ) == "false" ]]
+            bldr_log_info "Skipping system flags ..."
+            bldr_log_split                
+        else
+            if [[ $(bldr_has_cfg_option "$pkg_opts" "skip-auto-compile-flags" ) == "false" ]]
             then
-                if [[ $(bldr_has_cfg_option "$pkg_opts" "disable-xcode-cflags" ) == "true" ]]
+                if [[ $(bldr_has_cfg_option "$pkg_opts" "skip-xcode-config" ) == "false" ]]
                 then
-                    bldr_log_info "Disabling XCode Compile FLAGS ..."
-                    bldr_log_split
-                else
-                    pkg_cflags="$pkg_cflags:$BLDR_XCODE_CFLAGS"
-                fi
+                    if [[ $(bldr_has_cfg_option "$pkg_opts" "disable-xcode-cflags" ) == "true" ]]
+                    then
+                        bldr_log_info "Disabling XCode Compile FLAGS ..."
+                        bldr_log_split
+                    else
+                        pkg_cflags="$pkg_cflags:$BLDR_XCODE_CFLAGS"
+                    fi
 
-                if [[ $(bldr_has_cfg_option "$pkg_opts" "disable-xcode-ldflags" ) == "true" ]]
-                then
-                    bldr_log_info "Disabling XCode Linker FLAGS ..."
-                    bldr_log_split
+                    if [[ $(bldr_has_cfg_option "$pkg_opts" "disable-xcode-ldflags" ) == "true" ]]
+                    then
+                        bldr_log_info "Disabling XCode Linker FLAGS ..."
+                        bldr_log_split
+                    else
+                        pkg_ldflags="$pkg_ldflags:$BLDR_XCODE_LDFLAGS"
+                    fi
                 else
-                    pkg_ldflags="$pkg_ldflags:$BLDR_XCODE_LDFLAGS"
+                    bldr_log_info "Disabling XCode Configuration ..."
+                    bldr_log_split                
                 fi
-            else
-                bldr_log_info "Disabling XCode Configuration ..."
-                bldr_log_split                
             fi
         fi
     fi
@@ -3502,9 +3508,12 @@ function bldr_autocfg_pkg()
     if [ "$pkg_cflags" != "" ] && [ "$pkg_cflags" != " " ]  && [ "$pkg_cflags" != ":" ]
     then
         pkg_cflags=$(echo $pkg_cflags | bldr_split_str ":" | bldr_join_str " ")
-        if [[ $BLDR_SYSTEM_IS_CENTOS == true ]]
+        if [[ $(bldr_has_cfg_option "$pkg_opts" "skip-system-flags" ) == "false" ]]
         then
-            pkg_cflags="$pkg_cflags -I/usr/include"
+            if [[ $BLDR_SYSTEM_IS_CENTOS == true ]]
+            then
+                pkg_cflags="$pkg_cflags -I/usr/include"
+            fi
         fi
     else
         pkg_cflags=""
@@ -3532,9 +3541,12 @@ function bldr_autocfg_pkg()
     if [ "$pkg_ldflags" != "" ] && [ "$pkg_ldflags" != " " ] && [ "$pkg_ldflags" != ":" ]
     then
         pkg_ldflags=$(echo $pkg_ldflags | bldr_split_str ":" | bldr_join_str " ")
-        if [[ $BLDR_SYSTEM_IS_CENTOS == true ]]
+        if [[ $(bldr_has_cfg_option "$pkg_opts" "skip-system-flags" ) == "false" ]]
         then
-            pkg_ldflags="$pkg_ldflags -L/usr/lib64 -L/usr/lib"
+            if [[ $BLDR_SYSTEM_IS_CENTOS == true ]]
+            then
+                pkg_ldflags="$pkg_ldflags -L/usr/lib64 -L/usr/lib"
+            fi
         fi
     else
         pkg_ldflags=""
@@ -4066,7 +4078,7 @@ function bldr_compile_pkg()
         if [ "$pkg_cflags" != "" ] && [ "$pkg_cflags" != " " ]  && [ "$pkg_cflags" != ":" ]
         then
             pkg_cflags=$(echo $pkg_cflags | bldr_split_str ":" | bldr_join_str " ")
-            if [[ $(bldr_has_cfg_option "$pkg_opts" "skip-auto-compile-flags" ) == "false" ]]
+            if [[ $(bldr_has_cfg_option "$pkg_opts" "skip-system-flags" ) == "false" ]]
             then
                 if [[ $BLDR_SYSTEM_IS_CENTOS == true ]]
                 then
@@ -4099,7 +4111,7 @@ function bldr_compile_pkg()
         if [ "$pkg_ldflags" != "" ] && [ "$pkg_ldflags" != " " ] && [ "$pkg_ldflags" != ":" ]
         then
             pkg_ldflags=$(echo $pkg_ldflags | bldr_split_str ":" | bldr_join_str " ")
-            if [[ $(bldr_has_cfg_option "$pkg_opts" "skip-auto-compile-flags" ) == "false" ]]
+            if [[ $(bldr_has_cfg_option "$pkg_opts" "skip-system-flags" ) == "false" ]]
             then
                 if [[ $BLDR_SYSTEM_IS_CENTOS == true ]]
                 then
@@ -4131,6 +4143,15 @@ function bldr_compile_pkg()
     if [ -f "$mk_file" ]
     then
         bldr_run_cmd "make -f $mk_file $options" || bldr_bail "Failed to build package: '$prefix'"
+    fi
+
+    if [[ $(echo "$pkg_opts" | grep -m1 -c 'use-build-script') > 0 ]]
+    then
+        local user_mk=$(echo $pkg_opts | grep -E -o 'use-build-script=(\S+)' | sed 's/.*=//g' )
+        if [[ "$user_mk" != "" ]]
+        then
+            bldr_run_cmd "./$user_mk" || bldr_bail "Failed to build package: '$prefix'"
+        fi
     fi
 
     bldr_pop_dir
@@ -4294,9 +4315,12 @@ function bldr_install_pkg()
         if [ "$pkg_cflags" != "" ] && [ "$pkg_cflags" != " " ]  && [ "$pkg_cflags" != ":" ]
         then
             pkg_cflags=$(echo $pkg_cflags | bldr_split_str ":" | bldr_join_str " ")
-            if [[ $BLDR_SYSTEM_IS_CENTOS == true ]]
+            if [[ $(bldr_has_cfg_option "$pkg_opts" "skip-system-flags" ) == "false" ]]
             then
-                pkg_cflags="$pkg_cflags -I/usr/include"
+                if [[ $BLDR_SYSTEM_IS_CENTOS == true ]]
+                then
+                    pkg_cflags="$pkg_cflags -I/usr/include"
+                fi
             fi
         else
             pkg_cflags=""
@@ -4324,9 +4348,12 @@ function bldr_install_pkg()
         if [ "$pkg_ldflags" != "" ] && [ "$pkg_ldflags" != " " ] && [ "$pkg_ldflags" != ":" ]
         then
             pkg_ldflags=$(echo $pkg_ldflags | bldr_split_str ":" | bldr_join_str " ")
-            if [[ $BLDR_SYSTEM_IS_CENTOS == true ]]
+            if [[ $(bldr_has_cfg_option "$pkg_opts" "skip-system-flags" ) == "false" ]]
             then
-                pkg_ldflags="$pkg_ldflags -L/usr/lib64 -L/usr/lib"
+                if [[ $BLDR_SYSTEM_IS_CENTOS == true ]]
+                then
+                    pkg_ldflags="$pkg_ldflags -L/usr/lib64 -L/usr/lib"
+                fi
             fi
         else
             pkg_ldflags=""
