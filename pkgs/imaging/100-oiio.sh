@@ -58,6 +58,7 @@ bldr_satisfy_pkg --category    "$pkg_ctry"    \
 
 pkg_cfg="$pkg_cfg --disable-dependency-tracking --enable-tiff "
 pkg_cfg="$pkg_cfg LINKSTATIC=ON"
+pkg_cfg="$pkg_cfg BUILDSTATIC=ON"
 pkg_cfg="$pkg_cfg Z_CFLAGS=-I$BLDR_ZLIB_INCLUDE_PATH"
 pkg_cfg="$pkg_cfg Z_LIBS=-lz"
 pkg_cfg="$pkg_cfg PNG_CFLAGS=-I$BLDR_LIBPNG_INCLUDE_PATH"
@@ -65,7 +66,7 @@ pkg_cfg="$pkg_cfg PNG_LIBS=-lpng"
 pkg_cfg="$pkg_cfg TIFF_CFLAGS=-I$BLDR_LIBTIFF_INCLUDE_PATH"
 pkg_cfg="$pkg_cfg TIFF_LIBS=-ltiff"
 
-pkg_cfg="$pkg_cfg -DMAKESTATIC=1:-DLINKSTATIC=1"
+pkg_cfg="$pkg_cfg -DBUILDSTATIC=ON:-DLINKSTATIC=ON"
 pkg_cfg="$pkg_cfg -DIlmbase_Base_Dir=\"$BLDR_ILMBASE_BASE_PATH\""
 pkg_cfg="$pkg_cfg -DILMBASE_INCLUDE_DIR=\"$BLDR_ILMBASE_INCLUDE_PATH\""
 pkg_cfg="$pkg_cfg -DILMBASE_HALF_LIBRARIES=\"$BLDR_ILMBASE_LIB_PATH/libHalf.a\""
