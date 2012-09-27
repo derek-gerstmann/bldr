@@ -22,12 +22,16 @@ and Fortran77 interfaces for the entire BLAS API, and a small portion of the LAP
 
 pkg_file="$pkg_name$pkg_vers.tar.bz2"
 pkg_urls="http://downloads.sourceforge.net/project/math-atlas/Stable/$pkg_vers/$pkg_file?use_mirror=aarnet"
-pkg_opts="configure use-build-dir skip-system-flags force-serial-build skip-install"
+pkg_opts="configure use-build-dir skip-system-flags skip-auto-compile-flags force-serial-build skip-install"
 pkg_uses=""
 pkg_reqs="gfortran/latest"
-pkg_cfg="-b 64 --with-netlib-lapack-tarfile=$BLDR_CACHE_PATH/lapack-3.4.1.tgz"
+pkg_cfg="-b 64 --with-netlib-lapack-tarfile=$BLDR_CACHE_PATH/lapack-3.4.1.tgz --shared"
 pkg_cflags=""
 pkg_ldflags=""
+
+if [[ $BLDR_SYSTEM_IS_LINUX == true ]]; then
+    pkg_cfg="$pkg_cfg -Fa al '-fPIC'"
+fi
 
 ####################################################################################################
 
