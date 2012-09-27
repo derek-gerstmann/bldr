@@ -11,7 +11,7 @@ source "bldr.sh"
 ####################################################################################################
 
 pkg_vers="1.6"
-pkg_vers_list=("$pkg_vers" "1.6.1")
+pkg_vers_list=("$pkg_vers" "1.6.1" "1.6.2")
 pkg_ctry="distributed"
 pkg_name="openmpi"
 
