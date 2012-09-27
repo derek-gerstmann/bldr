@@ -27,9 +27,27 @@ scientists and engineers."
 
 pkg_file="$pkg_name-$pkg_vers.tar.gz"
 pkg_urls="http://downloads.sourceforge.net/project/$pkg_name/scipy/$pkg_vers/$pkg_file"
-pkg_opts="python"
+pkg_opts="python skip-compile skip-install"
 pkg_reqs="lapack/latest atlas/latest python/2.7.3 gfortran/latest numpy/latest"
-pkg_uses=""
+pkg_uses="$pkg_reqs"
+
+####################################################################################################
+# satisfy pkg dependencies and load their environment settings
+####################################################################################################
+
+bldr_satisfy_pkg --category    "$pkg_ctry"    \
+                 --name        "$pkg_name"    \
+                 --version     "$pkg_vers"    \
+                 --requires    "$pkg_reqs"    \
+                 --uses        "$pkg_uses"    \
+                 --options     "$pkg_opts"
+
+####################################################################################################
+
+export ATLAS=$BLDR_ATLAS_LIB_PATH/libatlas.a 
+export LAPACK=$BLDR_ATLAS_LIB_PATH/liblapack.a
+export BLAS=$BLDR_ATLAS_LIB_PATH/libptcblas.a
+
 pkg_cflags=""
 pkg_ldflags=""
 pkg_cfg="" 

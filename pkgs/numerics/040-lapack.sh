@@ -56,6 +56,10 @@ pkg_cfg="$pkg_cfg:-DBUILD_SHARED_LIBS=ON"
 pkg_cfg="$pkg_cfg:-DBUILD_STATIC_LIBS=ON"
 pkg_cfg_path="build"
 
+if [[ $BLDR_SYSTEM_IS_LINUX == true ]]; then
+    pkg_cflags="$pkg_cflags -fPIC"
+fi
+
 ####################################################################################################
 # build and install pkg as local module
 ####################################################################################################

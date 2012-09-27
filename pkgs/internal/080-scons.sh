@@ -25,7 +25,7 @@ In short, SCons is an easier, more reliable and faster way to build software."
 
 pkg_file="$pkg_name-$pkg_vers.tar.gz"
 pkg_urls="http://downloads.sourceforge.net/project/scons/$pkg_name/$pkg_vers/$pkg_file"
-pkg_opts="python"
+pkg_opts="python skip-compile skip-install" 
 pkg_uses=""
 pkg_uses="$pkg_uses coreutils/latest"
 pkg_uses="$pkg_uses findutils/latest"
