@@ -50,7 +50,7 @@ bldr_satisfy_pkg --category    "$pkg_ctry"    \
 ####################################################################################################
 
 pkg_cfg=""
-pkg_cfg="variant=release link=static threading=multi runtime-link=static --with-mpi"
+pkg_cfg="variant=release link=static threading=single,multi runtime-link=static --with-mpi"
 pkg_cfg="$pkg_cfg -s ICU_PATH=\"$BLDR_LIBICU_BASE_PATH\""
 pkg_cfg="$pkg_cfg -s BZIP2_INCLUDE=\"$BLDR_BZIP2_INCLUDE_PATH\""
 pkg_cfg="$pkg_cfg -s BZIP2_LIBPATH=\"$BLDR_BZIP2_LIB_PATH\""
@@ -59,6 +59,11 @@ pkg_cfg="$pkg_cfg -s ZLIB_LIBPATH=\"$BLDR_ZLIB_LIB_PATH\""
 
 pkg_cflags=""
 pkg_ldflags=""
+
+if [[ $BLDR_SYSTEM_IS_LINUX == true ]]
+then
+     pkg_cfg="$pkg_cfg cxxflags=-fPIC cflags=-fPIC linkflags=-fPIC"
+fi
 
 ####################################################################################################
 

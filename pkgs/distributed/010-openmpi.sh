@@ -29,7 +29,7 @@ science researchers."
 pkg_file="$pkg_name-$pkg_vers.tar.bz2"
 pkg_urls="http://www.open-mpi.org/software/ompi/v1.6/downloads/$pkg_file"
 pkg_opts="configure skip-xcode-config"
-pkg_reqs="zlib/latest papi/latest"
+pkg_reqs="zlib/latest papi/latest gfortran/latest"
 if [[ $BLDR_SYSTEM_IS_OSX == false ]]
 then
     pkg_reqs="$pkg_reqs ftb/latest valgrind/latest"
@@ -61,6 +61,8 @@ pkg_cfg="$pkg_cfg --enable-shared"
 pkg_cfg="$pkg_cfg --enable-heterogeneous"
 pkg_cfg="$pkg_cfg --enable-mpi-thread-multiple"
 pkg_cfg="$pkg_cfg --with-tm=\"$BLDR_TORQUE_BASE_PATH\""
+pkg_cfg="$pkg_cfg --enable-mpi-f77"
+pkg_cfg="$pkg_cfg --enable-mpi-f90"
 
 #
 # Disable vampire trace avoids build errors on OSX:
@@ -91,6 +93,11 @@ then
      pkg_cfg="$pkg_cfg --enable-mca-no-build=psm"
      pkg_cfg="$pkg_cfg --disable-mmap-shmem"
      pkg_cfg="$pkg_cfg --with-openib=/usr"
+
+     if [[ -d "/usr/local/cuda" ]]
+     then
+         pkg_cfg="$pkg_cfg -with-cuda"
+     fi
 
 #     if [[ -d "/opt/mellanox/mxm/lib" ]]
 #     then

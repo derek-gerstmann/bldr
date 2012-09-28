@@ -57,6 +57,11 @@ done
 pkg_cflags="$pkg_cflags:-I$BLDR_ILMBASE_INCLUDE_PATH/OpenEXR"
 pkg_cflags="$pkg_cflags:-I$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$pkg_base/OpenEXR/IlmImf"
 
+if [[ $BLDR_SYSTEM_IS_LINUX == true ]]
+then
+     pkg_cflags="$pkg_cflags -fPIC"
+fi
+
 pkg_uses="$pkg_reqs"
 
 pkg_cfg="--disable-dependency-tracking "

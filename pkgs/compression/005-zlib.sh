@@ -28,7 +28,7 @@ points is available on another page."
 
 pkg_file="$pkg_name-$pkg_vers.tar.gz"
 pkg_urls="http://zlib.net/$pkg_file"
-pkg_opts="configure --enable-shared skip-auto-compile-flags"
+pkg_opts="configure --enable-shared skip-auto-compile-flags config-prepend-env"
 pkg_uses="m4/latest autoconf/latest automake/latest"
 pkg_reqs=""
 pkg_cflags=""
@@ -37,7 +37,13 @@ pkg_cfg="-t"
 
 if [[ $BLDR_SYSTEM_IS_64BIT == true ]]
 then
-     pkg_cfg="$pkg_cfg -64"
+    pkg_cfg="$pkg_cfg -64"
+fi
+
+
+if [[ $BLDR_SYSTEM_IS_LINUX == true ]]
+then
+    export CFLAGS="-fPIC"
 fi
 
 ####################################################################################################

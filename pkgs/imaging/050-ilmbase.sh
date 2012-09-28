@@ -50,6 +50,11 @@ do
      pkg_cflags="$pkg_cflags:-I$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$pkg_base/IlmBase/$sub_inc"
 done
 
+if [[ $BLDR_SYSTEM_IS_LINUX == true ]]
+then
+     pkg_cflags="$pkg_cflags -fPIC"
+fi
+
 pkg_cfg="--disable-dependency-tracking "
 pkg_cfg="$pkg_cfg Z_CFLAGS=-I\"$BLDR_ZLIB_INCLUDE_PATH\""
 pkg_cfg="$pkg_cfg Z_LIBS=-lz"
