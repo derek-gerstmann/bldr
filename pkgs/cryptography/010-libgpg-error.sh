@@ -12,38 +12,51 @@ source "bldr.sh"
 
 pkg_ctry="cryptography"
 pkg_name="libgpg-error"
-pkg_vers="1.10"
+
 pkg_info="The libgpg-error package contains a library that defines common error values for all GnuPG components."
 
 pkg_desc="The libgpg-error package contains a library that defines common error values for all GnuPG 
 components. Among these are GPG, GPGSM, GPGME, GPG-Agent, libgcrypt, Libksba, DirMngr, Pinentry, 
 SmartCard Daemon and more. "
 
-pkg_file="$pkg_name-$pkg_vers.tar.bz2"
-pkg_urls="ftp://ftp.gnupg.org/gcrypt/$pkg_name/$pkg_file"
-pkg_opts="configure"
-pkg_reqs="coreutils/latest"
-pkg_uses=""
+pkg_vers_dft="1.10"
+pkg_vers_list=("$pkg_vers_dft")
+
+pkg_opts="configure enable-static enable-shared"
+pkg_reqs="coreutils"
+pkg_uses="bzip2 tar"
+
 pkg_cflags=""
 pkg_ldflags=""
 pkg_cfg="" 
 
 ####################################################################################################
-# build and install pkg as local module
+# register each pkg version with bldr
 ####################################################################################################
 
-bldr_build_pkg --category    "$pkg_ctry"    \
-               --name        "$pkg_name"    \
-               --version     "$pkg_vers"    \
-               --info        "$pkg_info"    \
-               --description "$pkg_desc"    \
-               --file        "$pkg_file"    \
-               --url         "$pkg_urls"    \
-               --uses        "$pkg_uses"    \
-               --requires    "$pkg_reqs"    \
-               --options     "$pkg_opts"    \
-               --cflags      "$pkg_cflags"  \
-               --ldflags     "$pkg_ldflags" \
-               --config      "$pkg_cfg"
+for pkg_vers in ${pkg_vers_list[@]}
+do
+     pkg_file="$pkg_name-$pkg_vers.tar.bz2"
+     pkg_urls="ftp://ftp.gnupg.org/gcrypt/$pkg_name/$pkg_file"
+
+     bldr_register_pkg                \
+         --category    "$pkg_ctry"    \
+         --name        "$pkg_name"    \
+         --version     "$pkg_vers"    \
+         --default     "$pkg_vers_dft"\
+         --info        "$pkg_info"    \
+         --description "$pkg_desc"    \
+         --file        "$pkg_file"    \
+         --url         "$pkg_urls"    \
+         --uses        "$pkg_uses"    \
+         --requires    "$pkg_reqs"    \
+         --options     "$pkg_opts"    \
+         --cflags      "$pkg_cflags"  \
+         --ldflags     "$pkg_ldflags" \
+         --config      "$pkg_cfg"     \
+         --config-path "$pkg_cfg_path"
+done
+
+####################################################################################################
 
 

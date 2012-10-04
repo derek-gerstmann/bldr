@@ -12,7 +12,7 @@ source "bldr.sh"
 
 pkg_ctry="text"
 pkg_name="docbook-xsl"
-pkg_vers="1.77.1"
+
 pkg_info="DocBook is an XML vocabulary that lets you create documents in a presentation-neutral form that captures the logical structure of your content."
 
 pkg_desc="DocBook is an XML vocabulary that lets you create documents in a 
@@ -21,10 +21,11 @@ presentation-neutral form that captures the logical structure of your content.
 Using free tools along with the DocBook XSL stylesheets, you can publish your 
 content as HTML pages and PDF files, and in many other formats."
 
-pkg_file="$pkg_name-$pkg_vers.tar.bz2"
-pkg_urls="http://downloads.sourceforge.net/project/docbook/$pkg_name/$pkg_vers/$pkg_file"
+pkg_vers_dft="1.77.1"
+pkg_vers_list=("$pkg_vers_dft")
+
 pkg_opts="configure skip-compile skip-boot skip-config"
-pkg_reqs="pkg-config/latest coreutils/latest zlib/latest gzip/latest libxml2/latest"
+pkg_reqs="pkg-config coreutils zlib gzip libxml2"
 pkg_uses="$pkg_reqs"
 pkg_cflags=""
 pkg_ldflags=""
@@ -109,22 +110,32 @@ function bldr_pkg_install_method()
 }
 
 ####################################################################################################
-# build and install pkg as local module
+# register each pkg version with bldr
 ####################################################################################################
 
-bldr_build_pkg                    \
-     --category    "$pkg_ctry"    \
-     --name        "$pkg_name"    \
-     --version     "$pkg_vers"    \
-     --info        "$pkg_info"    \
-     --description "$pkg_desc"    \
-     --file        "$pkg_file"    \
-     --url         "$pkg_urls"    \
-     --uses        "$pkg_uses"    \
-     --requires    "$pkg_reqs"    \
-     --options     "$pkg_opts"    \
-     --patch       "$pkg_patch"   \
-     --cflags      "$pkg_cflags"  \
-     --ldflags     "$pkg_ldflags" \
-     --config      "$pkg_cfg"
+for pkg_vers in ${pkg_vers_list[@]}
+do
+    pkg_file="$pkg_name-$pkg_vers.tar.bz2"
+    pkg_urls="http://downloads.sourceforge.net/project/docbook/$pkg_name/$pkg_vers/$pkg_file"
+
+    bldr_register_pkg                \
+        --category    "$pkg_ctry"    \
+        --name        "$pkg_name"    \
+        --version     "$pkg_vers"    \
+        --default     "$pkg_vers_dft"\
+        --info        "$pkg_info"    \
+        --description "$pkg_desc"    \
+        --file        "$pkg_file"    \
+        --url         "$pkg_urls"    \
+        --uses        "$pkg_uses"    \
+        --requires    "$pkg_reqs"    \
+        --options     "$pkg_opts"    \
+        --cflags      "$pkg_cflags"  \
+        --ldflags     "$pkg_ldflags" \
+        --config      "$pkg_cfg"     \
+        --config-path "$pkg_cfg_path"
+done
+
+####################################################################################################
+
 

@@ -12,7 +12,6 @@ source "bldr.sh"
 
 pkg_ctry="numerics"
 pkg_name="gmp"
-pkg_vers="5.0.5"
 pkg_info="GMP is a free library for arbitrary precision arithmetic, operating on signed integers, rational numbers, and floating point numbers."
 
 pkg_desc="GMP is a free library for arbitrary precision arithmetic, operating on 
@@ -35,10 +34,11 @@ the operand sizes for many operations, since GMP uses asymptotically faster algo
 The first GMP release was made in 1991. It is continually developed and maintained, 
 with a new release about once a year."
 
-pkg_file="$pkg_name-$pkg_vers.tar.bz2"
-pkg_urls="ftp://ftp.gmplib.org/pub/$pkg_name-$pkg_vers/$pkg_file"
-pkg_opts="configure"
-pkg_reqs="pkg-config/latest zlib/latest"
+pkg_vers_dft="5.0.5"
+pkg_vers_list=("$pkg_vers_dft")
+
+pkg_opts="configure enable-static enable-shared"
+pkg_reqs="pkg-config zlib"
 pkg_uses="$pkg_reqs"
 pkg_cfg="--enable-cxx"
 pkg_patch=""
@@ -49,18 +49,28 @@ pkg_ldflags=""
 # build and install pkg as local module
 ####################################################################################################
 
-bldr_build_pkg --category    "$pkg_ctry"    \
-               --name        "$pkg_name"    \
-               --version     "$pkg_vers"    \
-               --info        "$pkg_info"    \
-               --description "$pkg_desc"    \
-               --file        "$pkg_file"    \
-               --url         "$pkg_urls"    \
-               --uses        "$pkg_uses"    \
-               --requires    "$pkg_reqs"    \
-               --options     "$pkg_opts"    \
-               --patch       "$pkg_patch"   \
-               --cflags      "$pkg_cflags"  \
-               --ldflags     "$pkg_ldflags" \
-               --config      "$pkg_cfg"
+for pkg_vers in ${pkg_vers_list[@]}
+do
+     pkg_file="$pkg_name-$pkg_vers.tar.bz2"
+     pkg_urls="ftp://ftp.gmplib.org/pub/$pkg_name-$pkg_vers/$pkg_file"
+
+     bldr_register_pkg                 \
+          --category    "$pkg_ctry"    \
+          --name        "$pkg_name"    \
+          --version     "$pkg_vers"    \
+          --default     "$pkg_vers_dft"\
+          --info        "$pkg_info"    \
+          --description "$pkg_desc"    \
+          --file        "$pkg_file"    \
+          --url         "$pkg_urls"    \
+          --uses        "$pkg_uses"    \
+          --requires    "$pkg_reqs"    \
+          --options     "$pkg_opts"    \
+          --cflags      "$pkg_cflags"  \
+          --ldflags     "$pkg_ldflags" \
+          --config      "$pkg_cfg"     \
+          --config-path "$pkg_cfg_path"
+done
+
+####################################################################################################
 

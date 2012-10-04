@@ -22,7 +22,7 @@ pkg_desc="HDF5-VFD is a modified HDF5 source package that provides additional in
 pkg_file="$pkg_name-$pkg_vers.tar.bz2"
 pkg_urls="https://hpcforge.org/frs/download.php/41/$pkg_file"
 pkg_opts="cmake migrate-build-bin migrate-build-doc migrate-build-headers"
-pkg_reqs="szip/latest zlib/latest openmpi/1.6"
+pkg_reqs="szip zlib openmpi"
 pkg_uses="$pkg_reqs"
 
 ####################################################################################################
@@ -158,7 +158,7 @@ do
     #
     pkg_file="$pkg_name-$pkg_vers.tar.bz2"
     pkg_urls="https://hpcforge.org/frs/download.php/57/$pkg_file"
-    bldr_build_pkg                 \
+    bldr_register_pkg                 \
       --category    "$pkg_ctry"    \
       --name        "$pkg_name"    \
       --version     "$pkg_vers"    \
@@ -178,7 +178,7 @@ do
     #
     ts_name="$pkg_name-threadsafe"
     pkg_cfg="$hdf5_cfg:-DHDF5_ENABLE_THREADSAFE=ON"
-    bldr_build_pkg                 \
+    bldr_register_pkg                 \
       --category    "$pkg_ctry"    \
       --name        "$ts_name"     \
       --version     "$pkg_vers"    \

@@ -23,31 +23,30 @@ code XML file describing the various elements, their types, and how you wish
 to process them this run, the routines in the host code (either Fortran or C) 
 can transparently change how they process the data."
 
-pkg_file="$pkg_name-$pkg_vers.tar.gz"
-pkg_urls="http://users.nccs.gov/~pnorbert/$pkg_file"
-pkg_opts="configure"
-pkg_reqs="$pkg_reqs szip/latest"
-pkg_reqs="$pkg_reqs zlib/latest"
-pkg_reqs="$pkg_reqs python/2.7.3"
-pkg_reqs="$pkg_reqs mxml/latest"
-pkg_reqs="$pkg_reqs openmpi/1.6"
-pkg_reqs="$pkg_reqs hdf5/latest" 
-pkg_reqs="$pkg_reqs phdf5/latest"
-pkg_reqs="$pkg_reqs netcdf/latest"
-pkg_reqs="$pkg_reqs pnetcdf/latest"
-pkg_reqs="$pkg_reqs gfortran/latest"
+pkg_opts="configure enable-static enable-shared"
+pkg_reqs="$pkg_reqs szip"
+pkg_reqs="$pkg_reqs zlib"
+pkg_reqs="$pkg_reqs python"
+pkg_reqs="$pkg_reqs mxml"
+pkg_reqs="$pkg_reqs openmpi"
+pkg_reqs="$pkg_reqs hdf5" 
+pkg_reqs="$pkg_reqs phdf5"
+pkg_reqs="$pkg_reqs netcdf"
+pkg_reqs="$pkg_reqs pnetcdf"
+pkg_reqs="$pkg_reqs gfortran"
 pkg_uses="$pkg_reqs"
 
 ####################################################################################################
 # satisfy pkg dependencies and load their environment settings
 ####################################################################################################
 
-bldr_satisfy_pkg --category    "$pkg_ctry"    \
-                 --name        "$pkg_name"    \
-                 --version     "$pkg_vers"    \
-                 --requires    "$pkg_reqs"    \
-                 --uses        "$pkg_uses"    \
-                 --options     "$pkg_opts"
+bldr_satisfy_pkg                  \
+  --category    "$pkg_ctry"       \
+  --name        "$pkg_name"       \
+  --version     "$pkg_vers_dft"   \
+  --requires    "$pkg_reqs"       \
+  --uses        "$pkg_uses"       \
+  --options     "$pkg_opts"
 
 ####################################################################################################
 
@@ -82,7 +81,6 @@ pkg_cfg="$pkg_cfg --with-nc4par-libdir=\"$BLDR_PNETCDF_LIB_PATH\""
 
 if [[ $BLDR_SYSTEM_IS_LINUX == true ]]
 then
-    pkg_cflags="$pkg_cflags -fPIC"
     if [[ -f "/usr/lib64/libibverbs.so" ]]
     then
         pkg_cfg="$pkg_cfg --with-infiniband=/usr/lib64"
@@ -90,22 +88,30 @@ then
 fi
 
 ####################################################################################################
-# build and install pkg as local module
+# register each pkg version with bldr
 ####################################################################################################
 
-bldr_build_pkg --category    "$pkg_ctry"    \
-               --name        "$pkg_name"    \
-               --version     "$pkg_vers"    \
-               --info        "$pkg_info"    \
-               --description "$pkg_desc"    \
-               --file        "$pkg_file"    \
-               --url         "$pkg_urls"    \
-               --uses        "$pkg_uses"    \
-               --requires    "$pkg_reqs"    \
-               --options     "$pkg_opts"    \
-               --cflags      "$pkg_cflags"  \
-               --ldflags     "$pkg_ldflags" \
-               --config      "$pkg_cfg"
+for pkg_vers in ${pkg_vers_list[@]}
+do
+    pkg_file="$pkg_name-$pkg_vers.tar.gz"
+    pkg_urls="http://users.nccs.gov/~pnorbert/$pkg_file"
+
+    bldr_register_pkg                \
+        --category    "$pkg_ctry"    \
+        --name        "$pkg_name"    \
+        --version     "$pkg_vers"    \
+        --default     "$pkg_vers_dft"\
+        --info        "$pkg_info"    \
+        --description "$pkg_desc"    \
+        --file        "$pkg_file"    \
+        --url         "$pkg_urls"    \
+        --uses        "$pkg_uses"    \
+        --requires    "$pkg_reqs"    \
+        --options     "$pkg_opts"    \
+        --cflags      "$pkg_cflags"  \
+        --ldflags     "$pkg_ldflags" \
+        --config      "$pkg_cfg"     \
+        --config-path "$pkg_cfg_path"
+done
 
 ####################################################################################################
-

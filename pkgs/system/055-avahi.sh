@@ -12,7 +12,6 @@ source "bldr.sh"
 
 pkg_ctry="system"
 pkg_name="avahi"
-pkg_vers="0.6.31"
 
 pkg_info="Avahi is a system which facilitates service discovery on a local network via the mDNS/DNS-SD protocol suite."
 
@@ -22,32 +21,42 @@ and instantly be able to view other people who you can chat with, find printers 
 to or find files being shared. Compatible technology is found in Apple MacOS X (branded  
 Bonjour and sometimes Zeroconf)."
 
-pkg_file="$pkg_name-$pkg_vers.tar.gz"
-pkg_urls="http://avahi.org/download/$pkg_file"
+pkg_vers_dft="0.6.31"
+pkg_vers_list=("$pkg_vers")
+
 pkg_opts="configure"
-pkg_uses=""
-pkg_reqs=""
-pkg_uses="coreutils/latest tar/latest qt4/latest glib/latest"
-pkg_reqs="$pkg_uses"
+pkg_uses="coreutils tar qt4 glib"
+pkg_reqs="qt4 glib"
+
 pkg_cflags=""
 pkg_ldflags=""
 pkg_cfg=""
 
 ####################################################################################################
-# build and install pkg as local module
+# register each pkg version with bldr
 ####################################################################################################
 
-bldr_build_pkg --category    "$pkg_ctry"    \
-               --name        "$pkg_name"    \
-               --version     "$pkg_vers"    \
-               --info        "$pkg_info"    \
-               --description "$pkg_desc"    \
-               --file        "$pkg_file"    \
-               --url         "$pkg_urls"    \
-               --uses        "$pkg_uses"    \
-               --requires    "$pkg_reqs"    \
-               --options     "$pkg_opts"    \
-               --cflags      "$pkg_cflags"  \
-               --ldflags     "$pkg_ldflags" \
-               --config      "$pkg_cfg"     
+for pkg_vers in ${pkg_vers_list[@]}
+do
+    pkg_file="$pkg_name-$pkg_vers.tar.gz"
+    pkg_urls="http://avahi.org/download/$pkg_file"
 
+    bldr_register_pkg                  \
+          --category    "$pkg_ctry"    \
+          --name        "$pkg_name"    \
+          --version     "$pkg_vers"    \
+          --default     "$pkg_vers_dft"\
+          --info        "$pkg_info"    \
+          --description "$pkg_desc"    \
+          --file        "$pkg_file"    \
+          --url         "$pkg_urls"    \
+          --uses        "$pkg_uses"    \
+          --requires    "$pkg_reqs"    \
+          --options     "$pkg_opts"    \
+          --cflags      "$pkg_cflags"  \
+          --ldflags     "$pkg_ldflags" \
+          --config      "$pkg_cfg"     \
+          --config-path "$pkg_cfg_path"
+done
+
+####################################################################################################

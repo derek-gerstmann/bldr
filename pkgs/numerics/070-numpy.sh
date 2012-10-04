@@ -12,7 +12,7 @@ source "bldr.sh"
 
 pkg_ctry="numerics"
 pkg_name="numpy"
-pkg_vers="1.7.0b1"
+
 pkg_info="NumPy is the fundamental package for scientific computing with Python."
 
 pkg_desc="NumPy is the fundamental package for scientific computing with Python.
@@ -29,22 +29,24 @@ This allows NumPy to seamlessly and speedily integrate with a wide variety of da
 
 Numpy is licensed under the BSD license, enabling reuse with few restrictions."
 
-pkg_file="$pkg_name-$pkg_vers.tar.gz"
-pkg_urls="http://downloads.sourceforge.net/project/$pkg_name/NumPy/$pkg_vers/$pkg_file"
+pkg_vers_dft="1.7.0b2"
+pkg_vers_list=("1.6.2" "$pkg_vers_dft")
+
 pkg_opts="python skip-compile skip-install"
-pkg_reqs="lapack/latest atlas/latest python/2.7.3 gfortran/latest"
-pkg_uses=""
+pkg_reqs="python lapack atlas gfortran"
+pkg_uses="$pkg_reqs"
 
 ####################################################################################################
 # satisfy pkg dependencies and load their environment settings
 ####################################################################################################
 
-bldr_satisfy_pkg --category    "$pkg_ctry"    \
-                 --name        "$pkg_name"    \
-                 --version     "$pkg_vers"    \
-                 --requires    "$pkg_reqs"    \
-                 --uses        "$pkg_uses"    \
-                 --options     "$pkg_opts"
+bldr_satisfy_pkg                     \
+    --category    "$pkg_ctry"        \
+    --name        "$pkg_name"        \
+    --version     "$pkg_vers_dft"    \
+    --requires    "$pkg_reqs"        \
+    --uses        "$pkg_uses"        \
+    --options     "$pkg_opts"
 
 ####################################################################################################
 
@@ -60,18 +62,27 @@ pkg_cfg=""
 # build and install pkg as local module
 ####################################################################################################
 
-bldr_build_pkg --category    "$pkg_ctry"    \
-               --name        "$pkg_name"    \
-               --version     "$pkg_vers"    \
-               --info        "$pkg_info"    \
-               --description "$pkg_desc"    \
-               --file        "$pkg_file"    \
-               --url         "$pkg_urls"    \
-               --uses        "$pkg_uses"    \
-               --requires    "$pkg_reqs"    \
-               --options     "$pkg_opts"    \
-               --cflags      "$pkg_cflags"  \
-               --ldflags     "$pkg_ldflags" \
-               --config      "$pkg_cfg"
+for pkg_vers in ${pkg_vers_list[@]}
+do
+    pkg_file="$pkg_name-$pkg_vers.tar.gz"
+    pkg_urls="http://downloads.sourceforge.net/project/$pkg_name/NumPy/$pkg_vers/$pkg_file"
 
+    bldr_register_pkg                  \
+          --category    "$pkg_ctry"    \
+          --name        "$pkg_name"    \
+          --version     "$pkg_vers"    \
+          --default     "$pkg_vers_dft"\
+          --info        "$pkg_info"    \
+          --description "$pkg_desc"    \
+          --file        "$pkg_file"    \
+          --url         "$pkg_urls"    \
+          --uses        "$pkg_uses"    \
+          --requires    "$pkg_reqs"    \
+          --options     "$pkg_opts"    \
+          --cflags      "$pkg_cflags"  \
+          --ldflags     "$pkg_ldflags" \
+          --config      "$pkg_cfg"     \
+          --config-path "$pkg_cfg_path"
+done
 
+####################################################################################################

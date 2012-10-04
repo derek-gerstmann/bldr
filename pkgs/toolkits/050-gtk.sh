@@ -12,7 +12,6 @@ source "bldr.sh"
 
 pkg_ctry="toolkits"
 pkg_name="gtk"
-pkg_vers="3.4.4"
 
 pkg_info="GTK+ is a multi-platform toolkit for creating graphical user interfaces."
 
@@ -39,31 +38,33 @@ GTK+ is free software and part of the GNU Project. However, the licensing terms
 for GTK+, the GNU LGPL, allow it to be used by all developers, including those 
 developing proprietary software, without any license fees or royalties."
 
-pkg_file="gtk+-$pkg_vers.tar.xz"
-pkg_urls="http://ftp.gnome.org/pub/gnome/sources/gtk+/3.4/$pkg_file"
+pkg_vers_dft="3.4.4"
+pkg_vers_list=("$pkg_vers")
+
 pkg_opts="configure"
-pkg_reqs="$pkg_reqs zlib/latest"
-pkg_reqs="$pkg_reqs libxml2/latest"
-pkg_reqs="$pkg_reqs libicu/latest"
-pkg_reqs="$pkg_reqs libiconv/latest"
-pkg_reqs="$pkg_reqs glib/latest"
-pkg_reqs="$pkg_reqs libpng/latest"
-pkg_reqs="$pkg_reqs pango/latest"
-pkg_reqs="$pkg_reqs cairo/latest"
-pkg_reqs="$pkg_reqs atk/latest"
-pkg_reqs="$pkg_reqs gdk-pixbuf/latest"
+pkg_reqs="$pkg_reqs zlib"
+pkg_reqs="$pkg_reqs libxml2"
+pkg_reqs="$pkg_reqs libicu"
+pkg_reqs="$pkg_reqs libiconv"
+pkg_reqs="$pkg_reqs glib"
+pkg_reqs="$pkg_reqs libpng"
+pkg_reqs="$pkg_reqs pango"
+pkg_reqs="$pkg_reqs cairo"
+pkg_reqs="$pkg_reqs atk"
+pkg_reqs="$pkg_reqs gdk-pixbuf"
 pkg_uses="$pkg_reqs"
 
 ####################################################################################################
 # satisfy pkg dependencies and load their environment settings
 ####################################################################################################
 
-bldr_satisfy_pkg --category    "$pkg_ctry"    \
-                 --name        "$pkg_name"    \
-                 --version     "$pkg_vers"    \
-                 --requires    "$pkg_reqs"    \
-                 --uses        "$pkg_uses"    \
-                 --options     "$pkg_opts"
+bldr_satisfy_pkg                    \
+    --category    "$pkg_ctry"       \
+    --name        "$pkg_name"       \
+    --version     "$pkg_vers_dft"   \
+    --requires    "$pkg_reqs"       \
+    --uses        "$pkg_uses"       \
+    --options     "$pkg_opts"
 
 ####################################################################################################
 
@@ -78,22 +79,30 @@ then
 fi
 
 ####################################################################################################
-# build and install pkg as local module
+# register each pkg version with bldr
 ####################################################################################################
 
-bldr_build_pkg --category    "$pkg_ctry"    \
-               --name        "$pkg_name"    \
-               --version     "$pkg_vers"    \
-               --info        "$pkg_info"    \
-               --description "$pkg_desc"    \
-               --file        "$pkg_file"    \
-               --url         "$pkg_urls"    \
-               --uses        "$pkg_uses"    \
-               --requires    "$pkg_reqs"    \
-               --options     "$pkg_opts"    \
-               --cflags      "$pkg_cflags"  \
-               --ldflags     "$pkg_ldflags" \
-               --config      "$pkg_cfg"     \
-               --config-path "$pkg_cfg_path"
+for pkg_vers in ${pkg_vers_list[@]}
+do
+    pkg_file="gtk+-$pkg_vers.tar.xz"
+    pkg_urls="http://ftp.gnome.org/pub/gnome/sources/gtk+/3.4/$pkg_file"
 
+    bldr_register_pkg                \
+        --category    "$pkg_ctry"    \
+        --name        "$pkg_name"    \
+        --version     "$pkg_vers"    \
+        --default     "$pkg_vers_dft"\
+        --info        "$pkg_info"    \
+        --description "$pkg_desc"    \
+        --file        "$pkg_file"    \
+        --url         "$pkg_urls"    \
+        --uses        "$pkg_uses"    \
+        --requires    "$pkg_reqs"    \
+        --options     "$pkg_opts"    \
+        --cflags      "$pkg_cflags"  \
+        --ldflags     "$pkg_ldflags" \
+        --config      "$pkg_cfg"     \
+        --config-path "$pkg_cfg_path"
+done
 
+####################################################################################################

@@ -10,11 +10,9 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_vers="4.7.1"
-pkg_ver_list="4.7.1"
-
 pkg_ctry="compilers"
 pkg_name="gfortran"
+
 pkg_info="The GNU Compiler Collection includes front ends for C, C++, Objective-C, Fortran, Java, Ada, and Go, as well as libraries for these languages (libstdc++, libgcj,...)."
 
 pkg_desc="The GNU Compiler Collection includes front ends for C, C++, Objective-C, 
@@ -29,31 +27,33 @@ or help testing GCC. Our sources are readily and freely available via SVN and we
 
 Major decisions about GCC are made by the steering committee, guided by the mission statement."
 
-pkg_file="gcc-$pkg_vers.tar.bz2"
-pkg_urls="http://ftp.tsukuba.wide.ad.jp/software/gcc/releases/gcc-$pkg_vers/$pkg_file"
+pkg_vers_dft="4.7.1"
+pkg_vers_list=("$pkg_vers_dft")
+
 pkg_opts="configure skip-xcode-config"
 
-pkg_reqs="$pkg_reqs zlib/latest"
-pkg_reqs="$pkg_reqs gmp/latest"
-pkg_reqs="$pkg_reqs ppl/latest"
-pkg_reqs="$pkg_reqs mpfr/latest"
-pkg_reqs="$pkg_reqs mpc/latest"
-pkg_reqs="$pkg_reqs isl/latest"
-pkg_reqs="$pkg_reqs osl/latest"
-pkg_reqs="$pkg_reqs cloog/latest"
-pkg_reqs="$pkg_reqs perl/latest"
+pkg_reqs="$pkg_reqs zlib"
+pkg_reqs="$pkg_reqs gmp"
+pkg_reqs="$pkg_reqs ppl"
+pkg_reqs="$pkg_reqs mpfr"
+pkg_reqs="$pkg_reqs mpc"
+pkg_reqs="$pkg_reqs isl"
+pkg_reqs="$pkg_reqs osl"
+pkg_reqs="$pkg_reqs cloog"
+pkg_reqs="$pkg_reqs perl"
 pkg_uses="$pkg_reqs"
 
 ####################################################################################################
 # satisfy pkg dependencies and load their environment settings
 ####################################################################################################
 
-bldr_satisfy_pkg --category    "$pkg_ctry"    \
-                 --name        "$pkg_name"    \
-                 --version     "$pkg_vers"    \
-                 --requires    "$pkg_reqs"    \
-                 --uses        "$pkg_uses"    \
-                 --options     "$pkg_opts"
+bldr_satisfy_pkg                    \
+    --category    "$pkg_ctry"       \
+    --name        "$pkg_name"       \
+    --version     "$pkg_vers_dft"   \
+    --requires    "$pkg_reqs"       \
+    --uses        "$pkg_uses"       \
+    --options     "$pkg_opts"
 
 ####################################################################################################
 
@@ -81,17 +81,19 @@ pkg_ldflags=""
 pkg_patch=""
 
 ####################################################################################################
-# build and install each pkg version as local module
+# register each pkg version with bldr
 ####################################################################################################
 
-for pkg_vers in ${pkg_ver_list}
+for pkg_vers in ${pkg_vers_list}
 do
     pkg_file="gcc-$pkg_vers.tar.bz2"
     pkg_urls="http://ftp.tsukuba.wide.ad.jp/software/gcc/releases/gcc-$pkg_vers/$pkg_file"
-    bldr_build_pkg                   \
+
+    bldr_register_pkg                \
         --category    "$pkg_ctry"    \
         --name        "$pkg_name"    \
         --version     "$pkg_vers"    \
+        --default     "$pkg_vers_dft"\
         --info        "$pkg_info"    \
         --description "$pkg_desc"    \
         --file        "$pkg_file"    \
@@ -99,8 +101,8 @@ do
         --uses        "$pkg_uses"    \
         --requires    "$pkg_reqs"    \
         --options     "$pkg_opts"    \
-        --patch       "$pkg_patch"   \
         --cflags      "$pkg_cflags"  \
         --ldflags     "$pkg_ldflags" \
-        --config      "$pkg_cfg"
+        --config      "$pkg_cfg"     \
+        --config-path "$pkg_cfg_path"
 done

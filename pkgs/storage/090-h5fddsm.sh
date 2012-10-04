@@ -12,7 +12,6 @@ source "bldr.sh"
 
 pkg_ctry="storage"
 pkg_name="h5fddsm"
-pkg_vers="0.9.8"
 
 pkg_info="H5F-DDSM is a Virtual File Driver for HDF5 which uses parallel communication to transfer data between applications using the HDF5 IO API and a distributed shared memory (DSM) buffer."
 
@@ -20,22 +19,24 @@ pkg_desc="H5F-DDSM is a Virtual File Driver for HDF5 which uses parallel communi
 to transfer data between applications using the HDF5 IO API and a distributed shared 
 memory (DSM) buffer."
 
-pkg_file="$pkg_name-$pkg_vers.tar.bz2"
-pkg_urls="http://hpcforge.org/frs/download.php/43/$pkg_file"
+pkg_vers_dft="0.9.9"
+pkg_vers_list=("$pkg_vers_dft")
+
 pkg_opts="cmake"
-pkg_reqs="szip/latest zlib/latest szip/latest openmpi/1.6 hdf5-vfd/latest"
+pkg_reqs="szip zlib szip openmpi hdf5-vfd"
 pkg_uses="$pkg_reqs"
 
 ####################################################################################################
 # satisfy pkg dependencies and load their environment settings
 ####################################################################################################
 
-bldr_satisfy_pkg --category    "$pkg_ctry"    \
-                 --name        "$pkg_name"    \
-                 --version     "$pkg_vers"    \
-                 --requires    "$pkg_reqs"    \
-                 --uses        "$pkg_uses"    \
-                 --options     "$pkg_opts"
+bldr_satisfy_pkg                \
+  --category    "$pkg_ctry"     \
+  --name        "$pkg_name"     \
+  --version     "$pkg_vers_dft" \
+  --requires    "$pkg_reqs"     \
+  --uses        "$pkg_uses"     \
+  --options     "$pkg_opts"
 
 ####################################################################################################
 
@@ -51,22 +52,30 @@ pkg_cfg="$pkg_cfg:-H5FD_DSM_BUILD_STEERING=ON"
 pkg_cfg="$pkg_cfg:-HDF5_DIR=$BLDR_HDF5_VFD_SHARE_PATH/cmake/hdf5-version"
 
 ####################################################################################################
-# build and install pkg as local module
+# register each pkg version with bldr
 ####################################################################################################
 
-bldr_build_pkg --category    "$pkg_ctry"    \
-               --name        "$pkg_name"    \
-               --version     "$pkg_vers"    \
-               --info        "$pkg_info"    \
-               --description "$pkg_desc"    \
-               --file        "$pkg_file"    \
-               --url         "$pkg_urls"    \
-               --uses        "$pkg_uses"    \
-               --requires    "$pkg_reqs"    \
-               --options     "$pkg_opts"    \
-               --cflags      "$pkg_cflags"  \
-               --ldflags     "$pkg_ldflags" \
-               --config      "$pkg_cfg"
+for pkg_vers in ${pkg_vers_list[@]}
+do
+    pkg_file="$pkg_name-$pkg_vers.tar.bz2"
+    pkg_urls="https://hpcforge.org/frs/download.php/59/$pkg_file"
+
+    bldr_register_pkg                \
+        --category    "$pkg_ctry"    \
+        --name        "$pkg_name"    \
+        --version     "$pkg_vers"    \
+        --default     "$pkg_vers_dft"\
+        --info        "$pkg_info"    \
+        --description "$pkg_desc"    \
+        --file        "$pkg_file"    \
+        --url         "$pkg_urls"    \
+        --uses        "$pkg_uses"    \
+        --requires    "$pkg_reqs"    \
+        --options     "$pkg_opts"    \
+        --cflags      "$pkg_cflags"  \
+        --ldflags     "$pkg_ldflags" \
+        --config      "$pkg_cfg"     \
+        --config-path "$pkg_cfg_path"
+done
 
 ####################################################################################################
-

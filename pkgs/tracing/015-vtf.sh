@@ -12,13 +12,14 @@ source "bldr.sh"
 
 pkg_ctry="tracing"
 pkg_name="vtf"
-pkg_vers="1.43"
+
 pkg_info="The Vampire Trace Format contains tools for trace date conversion or preparation."
 
 pkg_desc="The Vampire Trace Format contains tools for trace date conversion or preparation."
 
-pkg_file="${pkg_name}3-$pkg_vers.tar.gz"
-pkg_urls="http://www.cs.uoregon.edu/research/paracomp/tau/$pkg_file"
+pkg_vers_dft="1.43"
+pkg_vers_list=("$pkg_vers_dft")
+
 pkg_opts="configure skip-config skip-boot skip-compile skip-install migrate-build-headers migrate-build-bin"
 
 ####################################################################################################
@@ -41,25 +42,36 @@ fi
 
 pkg_reqs=""
 pkg_uses=""
+
 pkg_cflags=""
 pkg_ldflags=""
 pkg_cfg=""
 
 ####################################################################################################
-# build and install pkg as local module
+# register each pkg version with bldr
 ####################################################################################################
 
-bldr_build_pkg --category    "$pkg_ctry"    \
-               --name        "$pkg_name"    \
-               --version     "$pkg_vers"    \
-               --info        "$pkg_info"    \
-               --description "$pkg_desc"    \
-               --file        "$pkg_file"    \
-               --url         "$pkg_urls"    \
-               --uses        "$pkg_uses"    \
-               --requires    "$pkg_reqs"    \
-               --options     "$pkg_opts"    \
-               --cflags      "$pkg_cflags"  \
-               --ldflags     "$pkg_ldflags" \
-               --config      "$pkg_cfg"
+for pkg_vers in ${pkg_vers_list[@]}
+do
+     pkg_file="${pkg_name}3-$pkg_vers.tar.gz"
+     pkg_urls="http://www.cs.uoregon.edu/research/paracomp/tau/$pkg_file"
 
+     bldr_register_pkg                 \
+          --category    "$pkg_ctry"    \
+          --name        "$pkg_name"    \
+          --version     "$pkg_vers"    \
+          --default     "$pkg_vers_dft"\
+          --info        "$pkg_info"    \
+          --description "$pkg_desc"    \
+          --file        "$pkg_file"    \
+          --url         "$pkg_urls"    \
+          --uses        "$pkg_uses"    \
+          --requires    "$pkg_reqs"    \
+          --options     "$pkg_opts"    \
+          --cflags      "$pkg_cflags"  \
+          --ldflags     "$pkg_ldflags" \
+          --config      "$pkg_cfg"     \
+          --config-path "$pkg_cfg_path"
+done
+
+####################################################################################################

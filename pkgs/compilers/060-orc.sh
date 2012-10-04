@@ -12,7 +12,7 @@ source "bldr.sh"
 
 pkg_ctry="compilers"
 pkg_name="orc"
-pkg_vers="0.4.16"
+
 pkg_info="Orc is a just-in-time compiler implemented as a library and set of associated tools for compiling and executing simple programs that operate on arrays of data."
 
 pkg_desc="Orc is a just-in-time compiler implemented as a library and set of 
@@ -25,31 +25,44 @@ as shuffling, saturated addition and subtraction, but only works on arrays
 of data.  This makes Orc good for applications such as image processing, 
 audio processing, array math, and signal analysis."
 
-pkg_file="$pkg_name-$pkg_vers.tar.gz"
-pkg_urls="http://code.entropywave.com/download/$pkg_name/$pkg_file"
-pkg_opts="configure"
-pkg_reqs=""
+pkg_vers_dft="0.4.16"
+pkg_vers_list=("$pkg_vers")
+
+pkg_opts="configure enable-static enable-shared"
+pkg_reqs="m4 automake autoconf tar gzip"
 pkg_uses=""
+
 pkg_cflags=""
 pkg_ldflags=""
 pkg_cfg="" 
 
 ####################################################################################################
-# build and install pkg as local module
+# register each pkg version with bldr
 ####################################################################################################
 
-bldr_build_pkg --category    "$pkg_ctry"    \
-               --name        "$pkg_name"    \
-               --version     "$pkg_vers"    \
-               --info        "$pkg_info"    \
-               --description "$pkg_desc"    \
-               --file        "$pkg_file"    \
-               --url         "$pkg_urls"    \
-               --uses        "$pkg_uses"    \
-               --requires    "$pkg_reqs"    \
-               --options     "$pkg_opts"    \
-               --cflags      "$pkg_cflags"  \
-               --ldflags     "$pkg_ldflags" \
-               --config      "$pkg_cfg"
+for pkg_vers in ${pkg_vers_list[@]}
+do
+     pkg_file="$pkg_name-$pkg_vers.tar.gz"
+     pkg_urls="http://code.entropywave.com/download/$pkg_name/$pkg_file"
+
+     bldr_register_pkg                 \
+          --category    "$pkg_ctry"    \
+          --name        "$pkg_name"    \
+          --version     "$pkg_vers"    \
+          --default     "$pkg_vers_dft"\
+          --info        "$pkg_info"    \
+          --description "$pkg_desc"    \
+          --file        "$pkg_file"    \
+          --url         "$pkg_urls"    \
+          --uses        "$pkg_uses"    \
+          --requires    "$pkg_reqs"    \
+          --options     "$pkg_opts"    \
+          --cflags      "$pkg_cflags"  \
+          --ldflags     "$pkg_ldflags" \
+          --config      "$pkg_cfg"     \
+          --config-path "$pkg_cfg_path"
+done
+
+####################################################################################################
 
 

@@ -12,7 +12,10 @@ source "bldr.sh"
 
 pkg_ctry="compilers"
 pkg_name="binutils"
-pkg_vers="2.22"
+
+pkg_vers_dft="2.22"
+pkg_vers_list=("$pkg_vers_dft")
+
 pkg_info="The GNU Binutils are a collection of binary tools (eg for linking and assembling)."
 
 pkg_desc="The GNU Binutils are a collection of binary tools. The main ones are:
@@ -44,31 +47,39 @@ Most of these programs use BFD, the Binary File Descriptor library, to do low-le
 
 The binutils have been ported to most major Unix variants as well as Wintel systems, and their main reason for existence is to give the GNU system (and GNU/Linux) the facility to compile and link programs."
 
-pkg_file="$pkg_name-$pkg_vers.tar.bz2"
-pkg_urls="http://ftp.gnu.org/gnu/$pkg_name/$pkg_file"
-pkg_opts="configure"
-pkg_reqs=""
+pkg_opts="configure enable-static enable-shared"
+pkg_reqs="m4 automake autoconf"
 pkg_uses=""
 pkg_cflags=""
 pkg_ldflags=""
 pkg_cfg="" 
 
 ####################################################################################################
-# build and install pkg as local module
+# register each pkg version with bldr
 ####################################################################################################
 
-bldr_build_pkg --category    "$pkg_ctry"    \
-               --name        "$pkg_name"    \
-               --version     "$pkg_vers"    \
-               --info        "$pkg_info"    \
-               --description "$pkg_desc"    \
-               --file        "$pkg_file"    \
-               --url         "$pkg_urls"    \
-               --uses        "$pkg_uses"    \
-               --requires    "$pkg_reqs"    \
-               --options     "$pkg_opts"    \
-               --cflags      "$pkg_cflags"  \
-               --ldflags     "$pkg_ldflags" \
-               --config      "$pkg_cfg"
+for pkg_vers in ${pkg_vers_list}
+do
+     pkg_file="$pkg_name-$pkg_vers.tar.bz2"
+     pkg_urls="http://ftp.gnu.org/gnu/$pkg_name/$pkg_file"
 
+     bldr_register_pkg                \
+        --category    "$pkg_ctry"    \
+        --name        "$pkg_name"    \
+        --version     "$pkg_vers"    \
+        --default     "$pkg_vers_dft"\
+        --info        "$pkg_info"    \
+        --description "$pkg_desc"    \
+        --file        "$pkg_file"    \
+        --url         "$pkg_urls"    \
+        --uses        "$pkg_uses"    \
+        --requires    "$pkg_reqs"    \
+        --options     "$pkg_opts"    \
+        --cflags      "$pkg_cflags"  \
+        --ldflags     "$pkg_ldflags" \
+        --config      "$pkg_cfg"     \
+        --config-path "$pkg_cfg_path"
+done
+
+####################################################################################################
 

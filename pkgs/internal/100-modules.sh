@@ -12,7 +12,6 @@ source "bldr.sh"
 
 pkg_ctry="internal"
 pkg_name="modules"
-pkg_vers="3.2.9c"
 
 pkg_info="The modules package provides for the dynamic modification of a user's environment via 'module' files."
 
@@ -31,48 +30,59 @@ scripting languages such as perl.
 Modules are useful in managing different versions of applications. Modules can also be bundled 
 into metamodules that will load an entire suite of different applications."
 
-pkg_file="$pkg_name-$pkg_vers.tar.gz"
-pkg_urls="http://aarnet.dl.sourceforge.net/project/modules/Modules/modules-3.2.9/$pkg_file"
+pkg_vers_dft="3.2.9c"
+pkg_vers_list=("$pkg_vers_dft")
+
 pkg_opts="configure force-static skip-modulate"
 pkg_uses=""
-pkg_uses="$pkg_uses coreutils/latest"
-pkg_uses="$pkg_uses findutils/latest"
-pkg_uses="$pkg_uses diffutils/latest"
-pkg_uses="$pkg_uses patch/latest"
-pkg_uses="$pkg_uses sed/latest"
-pkg_uses="$pkg_uses grep/latest"
-pkg_uses="$pkg_uses pkg-config/latest"
-pkg_uses="$pkg_uses m4/latest"
-pkg_uses="$pkg_uses gperf/latest"
-pkg_uses="$pkg_uses autoconf/latest"
-pkg_uses="$pkg_uses automake/latest"
-pkg_uses="$pkg_uses tar/latest"
-pkg_uses="$pkg_uses make/latest"
-pkg_uses="$pkg_uses cmake/latest"
-pkg_uses="$pkg_uses tcl/latest"
+pkg_uses="$pkg_uses coreutils"
+pkg_uses="$pkg_uses findutils"
+pkg_uses="$pkg_uses diffutils"
+pkg_uses="$pkg_uses patch"
+pkg_uses="$pkg_uses sed"
+pkg_uses="$pkg_uses grep"
+pkg_uses="$pkg_uses pkg-config"
+pkg_uses="$pkg_uses m4"
+pkg_uses="$pkg_uses gperf"
+pkg_uses="$pkg_uses autoconf"
+pkg_uses="$pkg_uses automake"
+pkg_uses="$pkg_uses tar"
+pkg_uses="$pkg_uses make"
+pkg_uses="$pkg_uses cmake"
+pkg_uses="$pkg_uses tcl"
 pkg_reqs="$pkg_uses"
 pkg_cflags=""
 pkg_ldflags=""
 pkg_cfg=""
-pkg_cfg="$pkg_cfg --with-tcl-lib=$BLDR_LOCAL_PATH/languages/tcl/latest/lib"
-pkg_cfg="$pkg_cfg --with-tcl-inc=$BLDR_LOCAL_PATH/languages/tcl/latest/include"
+pkg_cfg="$pkg_cfg --with-tcl-lib=$BLDR_LOCAL_PATH/languages/tcl/default/lib"
+pkg_cfg="$pkg_cfg --with-tcl-inc=$BLDR_LOCAL_PATH/languages/tcl/default/include"
 
 ####################################################################################################
-# build and install pkg as local module
+# register each pkg version with bldr
 ####################################################################################################
 
-bldr_build_pkg --category    "$pkg_ctry"    \
-               --name        "$pkg_name"    \
-               --version     "$pkg_vers"    \
-               --info        "$pkg_info"    \
-               --description "$pkg_desc"    \
-               --file        "$pkg_file"    \
-               --url         "$pkg_urls"    \
-               --uses        "$pkg_uses"    \
-               --requires    "$pkg_reqs"    \
-               --options     "$pkg_opts"    \
-               --cflags      "$pkg_cflags"  \
-               --ldflags     "$pkg_ldflags" \
-               --config      "$pkg_cfg"
+for pkg_vers in ${pkg_vers_list[@]}
+do
+     pkg_file="$pkg_name-$pkg_vers.tar.gz"
+     pkg_urls="http://aarnet.dl.sourceforge.net/project/modules/Modules/modules-3.2.9/$pkg_file"
 
+     bldr_register_pkg                \
+         --category    "$pkg_ctry"    \
+         --name        "$pkg_name"    \
+         --version     "$pkg_vers"    \
+         --default     "$pkg_vers_dft"\
+         --info        "$pkg_info"    \
+         --description "$pkg_desc"    \
+         --file        "$pkg_file"    \
+         --url         "$pkg_urls"    \
+         --uses        "$pkg_uses"    \
+         --requires    "$pkg_reqs"    \
+         --options     "$pkg_opts"    \
+         --cflags      "$pkg_cflags"  \
+         --ldflags     "$pkg_ldflags" \
+         --config      "$pkg_cfg"     \
+         --config-path "$pkg_cfg_path"
+done
+
+####################################################################################################
 

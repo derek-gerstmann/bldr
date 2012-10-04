@@ -33,6 +33,8 @@ pkg_vers="1.51.0"
 pkg_file="boost_1_51_0.tar.bz2"
 pkg_urls="http://sourceforge.net/projects/boost/files/$pkg_name/$pkg_vers/$pkg_file/download"
 pkg_opts="configure force-bootstrap skip-config force-static skip-auto-compile-flags"
+pkg_opts="$pkg_opts -EBOOST_ROOT=\"$BLDR_LOCAL_ENV_PATH/$pkg_ctry/$pkg_name/$pkg_vers\""
+pkg_opts="$pkg_opts -EBOOST_INCLUDEDIR=\"$BLDR_BOOST_INCLUDE_PATH/$pkg_ctry/$pkg_name/$pkg_vers/include\""
 pkg_reqs="zlib/latest bzip2/latest libicu/latest openmpi/latest"
 pkg_uses="$pkg_reqs"
 
@@ -175,6 +177,9 @@ function bldr_pkg_compile_method()
 # build and install pkg as local module
 ####################################################################################################
 
+pkg_vers="1.51.0"
+pkg_file="boost_1_51_0.tar.bz2"
+pkg_urls="http://sourceforge.net/projects/boost/files/$pkg_name/$pkg_vers/$pkg_file/download"
 
 bldr_build_pkg --category    "$pkg_ctry"    \
                --name        "$pkg_name"    \

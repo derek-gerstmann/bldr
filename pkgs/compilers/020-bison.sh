@@ -12,7 +12,7 @@ source "bldr.sh"
 
 pkg_ctry="compilers"
 pkg_name="bison"
-pkg_vers="2.6.1"
+
 pkg_info="Bison is a tool for generating parsers (eg for building custom compilers)."
 
 pkg_desc="Bison is a general-purpose parser generator that converts an annotated 
@@ -28,22 +28,24 @@ be able to use Bison with little trouble. You need to be fluent in C or C++
 programming in order to use Bison. Java is also supported as an experimental 
 feature. "
 
-pkg_file="$pkg_name-$pkg_vers.tar.xz"
-pkg_urls="http://ftp.gnu.org/gnu/$pkg_name/$pkg_file"
-pkg_opts="configure"
-pkg_reqs="coreutils/latest gettext/latest libiconv/latest"
+pkg_vers_dft="2.6.1"
+pkg_vers_list=("$pkg_vers")
+
+pkg_opts="configure enable-static enable-shared"
+pkg_reqs="coreutils gettext libiconv"
 pkg_uses="$pkg_reqs"
 
 ####################################################################################################
 # satisfy pkg dependencies and load their environment settings
 ####################################################################################################
 
-bldr_satisfy_pkg --category    "$pkg_ctry"    \
-                 --name        "$pkg_name"    \
-                 --version     "$pkg_vers"    \
-                 --requires    "$pkg_reqs"    \
-                 --uses        "$pkg_uses"    \
-                 --options     "$pkg_opts"
+bldr_satisfy_pkg                 \
+    --category    "$pkg_ctry"    \
+    --name        "$pkg_name"    \
+    --version     "$pkg_vers_dft"\
+    --requires    "$pkg_reqs"    \
+    --uses        "$pkg_uses"    \
+    --options     "$pkg_opts"
 
 ####################################################################################################
 
@@ -54,24 +56,32 @@ pkg_cfg=""
 pkg_cfg="$pkg_cfg --with-libiconv-prefix=\"$BLDR_LIBICONV_BASE_PATH\""
 pkg_cfg="$pkg_cfg --with-libintl-prefix=\"$BLDR_GETTEXT_BASE_PATH\""
 
-pkg_patch=""
-
 ####################################################################################################
-# build and install pkg as local module
+# register each pkg version with bldr
 ####################################################################################################
 
-bldr_build_pkg --category    "$pkg_ctry"    \
-               --name        "$pkg_name"    \
-               --version     "$pkg_vers"    \
-               --info        "$pkg_info"    \
-               --description "$pkg_desc"    \
-               --file        "$pkg_file"    \
-               --url         "$pkg_urls"    \
-               --uses        "$pkg_uses"    \
-               --requires    "$pkg_reqs"    \
-               --options     "$pkg_opts"    \
-               --cflags      "$pkg_cflags"  \
-               --ldflags     "$pkg_ldflags" \
-               --config      "$pkg_cfg"
+for pkg_vers in ${pkg_vers_list[@]}
+do
+    pkg_file="$pkg_name-$pkg_vers.tar.xz"
+    pkg_urls="http://ftp.gnu.org/gnu/$pkg_name/$pkg_file"
 
+    bldr_register_pkg                \
+        --category    "$pkg_ctry"    \
+        --name        "$pkg_name"    \
+        --version     "$pkg_vers"    \
+        --default     "$pkg_vers_dft"\
+        --info        "$pkg_info"    \
+        --description "$pkg_desc"    \
+        --file        "$pkg_file"    \
+        --url         "$pkg_urls"    \
+        --uses        "$pkg_uses"    \
+        --requires    "$pkg_reqs"    \
+        --options     "$pkg_opts"    \
+        --cflags      "$pkg_cflags"  \
+        --ldflags     "$pkg_ldflags" \
+        --config      "$pkg_cfg"     \
+        --config-path "$pkg_cfg_path"
+done
+
+####################################################################################################
 

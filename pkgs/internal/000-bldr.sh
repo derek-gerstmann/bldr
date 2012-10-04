@@ -59,21 +59,23 @@ pkg_ldflags=""
 pkg_cfg=""
 
 ####################################################################################################
-# build and install pkg as local module
+# register pkg with bldr
 ####################################################################################################
 
-bldr_build_pkg --category    "$pkg_ctry"    \
-               --name        "$pkg_name"    \
-               --version     "$pkg_vers"    \
-               --info        "$pkg_info"    \
-               --description "$pkg_desc"    \
-               --file        "$pkg_file"    \
-               --url         "$pkg_urls"    \
-               --uses        "$pkg_uses"    \
-               --requires    "$pkg_reqs"    \
-               --options     "$pkg_opts"    \
-               --cflags      "$pkg_cflags"  \
-               --ldflags     "$pkg_ldflags" \
-               --config      "$pkg_cfg"
+bldr_register_pkg                 \
+     --category    "$pkg_ctry"    \
+     --name        "$pkg_name"    \
+     --version     "$pkg_vers"    \
+     --default     "$pkg_vers"    \
+     --info        "$pkg_info"    \
+     --description "$pkg_desc"    \
+     --file        "$pkg_file"    \
+     --url         "$pkg_urls"    \
+     --uses        "$pkg_uses"    \
+     --requires    "$pkg_reqs"    \
+     --options     "$pkg_opts"    \
+     --cflags      "$pkg_cflags"  \
+     --ldflags     "$pkg_ldflags" \
+     --config      "$pkg_cfg"
 
 

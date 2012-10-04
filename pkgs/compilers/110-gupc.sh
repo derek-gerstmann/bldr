@@ -10,9 +10,9 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_vers="4.7.0.2"
 pkg_ctry="compilers"
 pkg_name="gupc"
+
 pkg_info="The GCC UPC toolset provides a compilation and execution environment for programs written in the UPC (Unified Parallel C) language."
 
 pkg_desc="The GCC UPC toolset provides a compilation and execution environment for programs 
@@ -22,20 +22,21 @@ The GNU UPC compiler extends the capabilities of the GNU GCC compiler. The GNU U
 compiler is implemented as a C Language dialect translator, in a fashion similar to 
 the implementation of the GNU Objective C compiler."
 
-pkg_file="upc-$pkg_vers.src.tar.bz2"
-pkg_urls="http://www.gccupc.org/downloads/upc/rls/upc-$pkg_vers/$pkg_file"
+pkg_vers-dft="4.7.1"
+pkg_vers_list=("$pkg_vers_dft")
+
 pkg_opts="configure skip-xcode-config"
 
-pkg_reqs="$pkg_reqs gcc/latest"
-pkg_reqs="$pkg_reqs zlib/latest"
-pkg_reqs="$pkg_reqs gmp/latest"
-pkg_reqs="$pkg_reqs ppl/latest"
-pkg_reqs="$pkg_reqs mpfr/latest"
-pkg_reqs="$pkg_reqs mpc/latest"
-pkg_reqs="$pkg_reqs isl/latest"
-pkg_reqs="$pkg_reqs osl/latest"
-pkg_reqs="$pkg_reqs cloog/latest"
-pkg_reqs="$pkg_reqs perl/latest"
+pkg_reqs="$pkg_reqs gcc"
+pkg_reqs="$pkg_reqs zlib"
+pkg_reqs="$pkg_reqs gmp"
+pkg_reqs="$pkg_reqs ppl"
+pkg_reqs="$pkg_reqs mpfr"
+pkg_reqs="$pkg_reqs mpc"
+pkg_reqs="$pkg_reqs isl"
+pkg_reqs="$pkg_reqs osl"
+pkg_reqs="$pkg_reqs cloog"
+pkg_reqs="$pkg_reqs perl"
 pkg_uses="$pkg_reqs"
 
 ####################################################################################################
@@ -78,26 +79,33 @@ pkg_ldflags=""
 pkg_patch=""
 
 ####################################################################################################
-# build and install each pkg version as local module
+# register pkg with bldr
 ####################################################################################################
+
 if [[ $BLDR_SYSTEM_IS_OSX == true ]]
 then
     bldr_log_warning "'$pkg_name/$pkg_vers' is not building on OSX.  Skipping ..."
 else
+    for pkg_vers in ${pkg_vers_list[@]}
+    do
+        pkg_file="upc-$pkg_vers.src.tar.bz2"
+        pkg_urls="http://www.gccupc.org/downloads/upc/rls/upc-$pkg_vers/$pkg_file"
 
-    bldr_build_pkg                   \
-        --category    "$pkg_ctry"    \
-        --name        "$pkg_name"    \
-        --version     "$pkg_vers"    \
-        --info        "$pkg_info"    \
-        --description "$pkg_desc"    \
-        --file        "$pkg_file"    \
-        --url         "$pkg_urls"    \
-        --uses        "$pkg_uses"    \
-        --requires    "$pkg_reqs"    \
-        --options     "$pkg_opts"    \
-        --patch       "$pkg_patch"   \
-        --cflags      "$pkg_cflags"  \
-        --ldflags     "$pkg_ldflags" \
-        --config      "$pkg_cfg"
+        bldr_register_pkg                \
+            --category    "$pkg_ctry"    \
+            --name        "$pkg_name"    \
+            --version     "$pkg_vers"    \
+            --default     "$pkg_vers_dft"\
+            --info        "$pkg_info"    \
+            --description "$pkg_desc"    \
+            --file        "$pkg_file"    \
+            --url         "$pkg_urls"    \
+            --uses        "$pkg_uses"    \
+            --requires    "$pkg_reqs"    \
+            --options     "$pkg_opts"    \
+            --cflags      "$pkg_cflags"  \
+            --ldflags     "$pkg_ldflags" \
+            --config      "$pkg_cfg"     \
+            --config-path "$pkg_cfg_path"
+    done
 fi

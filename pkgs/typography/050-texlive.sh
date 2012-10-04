@@ -12,7 +12,6 @@ source "bldr.sh"
 
 pkg_ctry="typography"
 pkg_name="texlive"
-pkg_vers="2012"
 
 pkg_info="TeX Live provides a live, up-to-date, TeX document production system."
 
@@ -22,27 +21,15 @@ GNU/Linux, and also Windows. It includes all the major TeX-related programs, mac
 packages, and fonts that are free software, including support for many languages 
 around the world. "
 
-pkg_file="install-tl-unx.tar.gz"
-pkg_urls="http://mirror.ctan.org/systems/texlive/tlnet/$pkg_file"
+pkg_vers_dft="2012"
+pkg_vers_list=("$pkg_vers_dft")
+
 pkg_opts="configure keep skip-install"
-
-if [[ $BLDR_SYSTEM_IS_OSX == true ]]
-then
-  pkg_opts="$pkg_opts -EPATH+=$BLDR_LOCAL_ENV_PATH/$pkg_ctry/$pkg_name/$pkg_vers/bin/universal-darwin"
-
-elif [[ $BLDR_SYSTEM_IS_LINUX == true ]]
-then
-  if [[ $BLDR_SYSTEM_IS_64BIT == true ]]
-  then
-    pkg_opts="$pkg_opts -EPATH+=$BLDR_LOCAL_ENV_PATH/$pkg_ctry/$pkg_name/$pkg_vers/bin/x86_64-linux"
-  else
-    pkg_opts="$pkg_opts -EPATH+=$BLDR_LOCAL_ENV_PATH/$pkg_ctry/$pkg_name/$pkg_vers/bin/i386-linux"
-  fi
-fi
-
 pkg_reqs="pkg-config/latest"
+
 pkg_uses=""
 pkg_reqs=""
+
 pkg_cfg=""
 pkg_cflags=""
 pkg_ldflags=""
@@ -136,23 +123,48 @@ function bldr_pkg_compile_method()
     bldr_pop_dir
 }
 
+####################################################################################################
+# register each pkg version with bldr
+####################################################################################################
+
+for pkg_vers in ${pkg_vers_list[@]}
+do
+    pkg_file="install-tl-unx.tar.gz"
+    pkg_urls="http://mirror.ctan.org/systems/texlive/tlnet/$pkg_file"
+
+    if [[ $BLDR_SYSTEM_IS_OSX == true ]]
+    then
+      pkg_opts="$pkg_opts -EPATH+=$BLDR_LOCAL_ENV_PATH/$pkg_ctry/$pkg_name/$pkg_vers/bin/universal-darwin"
+
+    elif [[ $BLDR_SYSTEM_IS_LINUX == true ]]
+    then
+      if [[ $BLDR_SYSTEM_IS_64BIT == true ]]
+      then
+        pkg_opts="$pkg_opts -EPATH+=$BLDR_LOCAL_ENV_PATH/$pkg_ctry/$pkg_name/$pkg_vers/bin/x86_64-linux"
+      else
+        pkg_opts="$pkg_opts -EPATH+=$BLDR_LOCAL_ENV_PATH/$pkg_ctry/$pkg_name/$pkg_vers/bin/i386-linux"
+      fi
+    fi
+
+    pkg_file="$pkg_name-$pkg_vers.tar.gz"
+    pkg_urls="http://icl.cs.utk.edu/projects/papi/downloads/$pkg_file"
+
+    bldr_register_pkg                  \
+          --category    "$pkg_ctry"    \
+          --name        "$pkg_name"    \
+          --version     "$pkg_vers"    \
+          --default     "$pkg_vers_dft"\
+          --info        "$pkg_info"    \
+          --description "$pkg_desc"    \
+          --file        "$pkg_file"    \
+          --url         "$pkg_urls"    \
+          --uses        "$pkg_uses"    \
+          --requires    "$pkg_reqs"    \
+          --options     "$pkg_opts"    \
+          --cflags      "$pkg_cflags"  \
+          --ldflags     "$pkg_ldflags" \
+          --config      "$pkg_cfg"     \
+          --config-path "$pkg_cfg_path"
+done
 
 ####################################################################################################
-# build and install pkg as local module
-####################################################################################################
-
-bldr_build_pkg --category    "$pkg_ctry"    \
-               --name        "$pkg_name"    \
-               --version     "$pkg_vers"    \
-               --info        "$pkg_info"    \
-               --description "$pkg_desc"    \
-               --file        "$pkg_file"    \
-               --url         "$pkg_urls"    \
-               --uses        "$pkg_uses"    \
-               --requires    "$pkg_reqs"    \
-               --options     "$pkg_opts"    \
-               --cflags      "$pkg_cflags"  \
-               --ldflags     "$pkg_ldflags" \
-               --config      "$pkg_cfg"
-
-

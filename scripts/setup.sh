@@ -78,7 +78,7 @@ function bldr_load()
 
 	if [[ -d "$BLDR_ROOT_PATH/modules/internal" ]]
 	then
-		module load "bldr/latest"	
+		module load "bldr/default"
 	fi
 }
 
@@ -128,7 +128,7 @@ else
 	
 	if [ "$(type -t module)" != "function" ]
 	then
-		BLDR_MODULE_CMD_INIT=$(find $BLDR_ROOT_PATH/local/internal/modules/latest/* -depth +2 -type f -iname "bash")
+		BLDR_MODULE_CMD_INIT=$(find $BLDR_ROOT_PATH/local/internal/modules/default/* -depth +2 -type f -iname "bash")
 		if [[ -f "$BLDR_MODULE_CMD_INIT" ]]; then	
 			source "$BLDR_MODULE_CMD_INIT"
 		fi

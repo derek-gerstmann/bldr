@@ -12,7 +12,6 @@ source "bldr.sh"
 
 pkg_ctry="typography"
 pkg_name="pango"
-pkg_vers="1.30.1"
 
 pkg_info="Pango is a library for laying out and rendering of text, with an emphasis on internationalization."
 
@@ -47,30 +46,32 @@ internationalized text.
 Pango depends on 2.x series of the GLib library; more information about GLib can be 
 found at http://www.gtk.org/."
 
-pkg_file="$pkg_name-$pkg_vers.tar.xz"
-pkg_urls="http://ftp.gnome.org/pub/GNOME/sources/$pkg_name/1.30/$pkg_file"
+pkg_vers_dft="1.30.1"
+pkg_vers_list=("$pkg_vers_dft")
+
 pkg_opts="configure"
-pkg_reqs="pkg-config/latest"
-pkg_reqs="$pkg_reqs zlib/latest"
-pkg_reqs="$pkg_reqs libicu/latest"
-pkg_reqs="$pkg_reqs libiconv/latest"
-pkg_reqs="$pkg_reqs libxml2/latest"
-pkg_reqs="$pkg_reqs freetype/latest"
-pkg_reqs="$pkg_reqs fontconfig/latest"
-pkg_reqs="$pkg_reqs gettext/latest"
-pkg_reqs="$pkg_reqs glib/latest"
+pkg_reqs="pkg-config"
+pkg_reqs="$pkg_reqs zlib"
+pkg_reqs="$pkg_reqs libicu"
+pkg_reqs="$pkg_reqs libiconv"
+pkg_reqs="$pkg_reqs libxml2"
+pkg_reqs="$pkg_reqs freetype"
+pkg_reqs="$pkg_reqs fontconfig"
+pkg_reqs="$pkg_reqs gettext"
+pkg_reqs="$pkg_reqs glib"
 pkg_uses="$pkg_reqs"
 
 ####################################################################################################
 # satisfy pkg dependencies and load their environment settings
 ####################################################################################################
 
-bldr_satisfy_pkg --category    "$pkg_ctry"    \
-                 --name        "$pkg_name"    \
-                 --version     "$pkg_vers"    \
-                 --requires    "$pkg_reqs"    \
-                 --uses        "$pkg_uses"    \
-                 --options     "$pkg_opts"
+bldr_satisfy_pkg                  \
+  --category    "$pkg_ctry"       \
+  --name        "$pkg_name"       \
+  --version     "$pkg_vers_dft"   \
+  --requires    "$pkg_reqs"       \
+  --uses        "$pkg_uses"       \
+  --options     "$pkg_opts"
 
 ####################################################################################################
 
@@ -81,22 +82,31 @@ pkg_cflags="$pkg_cflags:-I$BLDR_GLIB_INCLUDE_PATH/gio-unix-2.0"
 pkg_ldflags=""
 
 ####################################################################################################
-# build and install pkg as local module
+# register each pkg version with bldr
 ####################################################################################################
 
-bldr_build_pkg                 \
-  --category    "$pkg_ctry"    \
-  --name        "$pkg_name"    \
-  --version     "$pkg_vers"    \
-  --info        "$pkg_info"    \
-  --description "$pkg_desc"    \
-  --file        "$pkg_file"    \
-  --url         "$pkg_urls"    \
-  --uses        "$pkg_uses"    \
-  --requires    "$pkg_reqs"    \
-  --options     "$pkg_opts"    \
-  --cflags      "$pkg_cflags"  \
-  --ldflags     "$pkg_ldflags" \
-  --config      "$pkg_cfg"
+for pkg_vers in ${pkg_vers_list[@]}
+do
+    pkg_file="$pkg_name-$pkg_vers.tar.xz"
+    pkg_urls="http://ftp.gnome.org/pub/GNOME/sources/$pkg_name/1.30/$pkg_file"
 
+    bldr_register_pkg                 \
+         --category    "$pkg_ctry"    \
+         --name        "$pkg_name"    \
+         --version     "$pkg_vers"    \
+         --default     "$pkg_vers_dft"\
+         --info        "$pkg_info"    \
+         --description "$pkg_desc"    \
+         --file        "$pkg_file"    \
+         --url         "$pkg_urls"    \
+         --uses        "$pkg_uses"    \
+         --requires    "$pkg_reqs"    \
+         --options     "$pkg_opts"    \
+         --cflags      "$pkg_cflags"  \
+         --ldflags     "$pkg_ldflags" \
+         --config      "$pkg_cfg"     \
+         --config-path "$pkg_cfg_path"
+done
+
+####################################################################################################
 

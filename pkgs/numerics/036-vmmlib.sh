@@ -12,7 +12,7 @@ source "bldr.sh"
 
 pkg_ctry="numerics"
 pkg_name="vmmlib"
-pkg_vers="1.0"
+pkg_vers="trunk"
 pkg_info="vmmlib is a templatized C++ vector and matrix math library."
 
 pkg_desc="vmmlib is a templatized C++ vector and matrix math library. 
@@ -29,10 +29,8 @@ build and install a library, just include the headers and you’re set.
 
 The BSD license allows the usage both in open source and commercial closed source software."
 
-pkg_file="$pkg_name-$pkg_vers.tar.bz2"
-pkg_urls="git://github.com/VMML/vmmlib.git"
 pkg_opts="cmake skip-boot skip-boot skip-config skip-compile skip-install migrate-build-headers"
-pkg_reqs="tar/latest"
+pkg_reqs="tar"
 pkg_uses="$pkg_reqs"
 pkg_cfg=""
 pkg_patch=""
@@ -43,18 +41,27 @@ pkg_ldflags=""
 # build and install pkg as local module
 ####################################################################################################
 
-bldr_build_pkg --category    "$pkg_ctry"    \
-               --name        "$pkg_name"    \
-               --version     "$pkg_vers"    \
-               --info        "$pkg_info"    \
-               --description "$pkg_desc"    \
-               --file        "$pkg_file"    \
-               --url         "$pkg_urls"    \
-               --uses        "$pkg_uses"    \
-               --requires    "$pkg_reqs"    \
-               --options     "$pkg_opts"    \
-               --cflags      "$pkg_cflags"  \
-               --ldflags     "$pkg_ldflags" \
-               --config      "$pkg_cfg"
+for pkg_vers in ${pkg_vers_list[@]}
+do
+     pkg_file="$pkg_name-$pkg_vers-$BLDR_TIMESTAMP.tar.bz2"
+     pkg_urls="git://github.com/VMML/vmmlib.git"
 
+     bldr_register_pkg                 \
+          --category    "$pkg_ctry"    \
+          --name        "$pkg_name"    \
+          --version     "$pkg_vers"    \
+          --default     "$pkg_vers_dft"\
+          --info        "$pkg_info"    \
+          --description "$pkg_desc"    \
+          --file        "$pkg_file"    \
+          --url         "$pkg_urls"    \
+          --uses        "$pkg_uses"    \
+          --requires    "$pkg_reqs"    \
+          --options     "$pkg_opts"    \
+          --cflags      "$pkg_cflags"  \
+          --ldflags     "$pkg_ldflags" \
+          --config      "$pkg_cfg"     \
+          --config-path "$pkg_cfg_path"
+done
 
+####################################################################################################

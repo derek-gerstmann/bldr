@@ -13,6 +13,8 @@ source "bldr.sh"
 pkg_ctry="compilers"
 pkg_name="llvm"
 pkg_vers="3.1"
+pkg_vers_list=("$pkg_vers")
+
 pkg_info="The LLVM Core libraries provide a modern source- and target-independent optimizer, along with code generation support for many popular CPUs (as well as some less common ones!)."
 
 pkg_desc="The LLVM Core libraries provide a modern source- and target-independent optimizer, along 
@@ -46,7 +48,7 @@ pkg_cfg="--enable-optimized --enable-jit --enable-targets=all --enable-libffi"
 # build and install pkg as local module
 ####################################################################################################
 
-bldr_build_pkg --category    "$pkg_ctry"    \
+bldr_register_pkg --category    "$pkg_ctry"    \
                --name        "$pkg_name"    \
                --version     "$pkg_vers"    \
                --info        "$pkg_info"    \

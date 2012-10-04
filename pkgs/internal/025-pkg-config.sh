@@ -12,7 +12,6 @@ source "bldr.sh"
 
 pkg_ctry="internal"
 pkg_name="pkg-config"
-pkg_vers="0.23"
 
 pkg_info="Package Config is a helper tool used when compiling applications and libraries. "
 
@@ -23,29 +22,42 @@ than hard-coding values on where to find glib (or other libraries). It is
 language-agnostic, so it can be used for defining the location of documentation 
 tools, for instance."
 
-pkg_file="$pkg_name-$pkg_vers.tar.gz"
-pkg_urls="http://pkgconfig.freedesktop.org/releases/$pkg_file"
+pkg_vers_dft="0.23"
+pkg_vers_list=("$pkg_vers_dft")
+
 pkg_opts="configure force-static"
-pkg_reqs="coreutils/latest"
-pkg_uses="coreutils/latest"
-pkg_cflags=""
-pkg_ldflags=""
+pkg_reqs="coreutils"
+pkg_uses="coreutils"
 pkg_cfg="--disable-maintainer-mode --disable-dependency-tracking --disable-dtrace" 
 
+pkg_cflags=""
+pkg_ldflags=""
+
 ####################################################################################################
-# build and install pkg as local module
+# register each pkg version with bldr
 ####################################################################################################
 
-bldr_build_pkg --category    "$pkg_ctry"    \
-               --name        "$pkg_name"    \
-               --version     "$pkg_vers"    \
-               --info        "$pkg_info"    \
-               --description "$pkg_desc"    \
-               --file        "$pkg_file"    \
-               --url         "$pkg_urls"    \
-               --uses        "$pkg_uses"    \
-               --requires    "$pkg_reqs"    \
-               --options     "$pkg_opts"    \
-               --cflags      "$pkg_cflags"  \
-               --ldflags     "$pkg_ldflags" \
-               --config      "$pkg_cfg"
+for pkg_vers in ${pkg_vers_list[@]}
+do
+     pkg_file="$pkg_name-$pkg_vers.tar.gz"
+     pkg_urls="http://pkgconfig.freedesktop.org/releases/$pkg_file"
+
+     bldr_register_pkg                \
+         --category    "$pkg_ctry"    \
+         --name        "$pkg_name"    \
+         --version     "$pkg_vers"    \
+         --default     "$pkg_vers_dft"\
+         --info        "$pkg_info"    \
+         --description "$pkg_desc"    \
+         --file        "$pkg_file"    \
+         --url         "$pkg_urls"    \
+         --uses        "$pkg_uses"    \
+         --requires    "$pkg_reqs"    \
+         --options     "$pkg_opts"    \
+         --cflags      "$pkg_cflags"  \
+         --ldflags     "$pkg_ldflags" \
+         --config      "$pkg_cfg"     \
+         --config-path "$pkg_cfg_path"
+done
+
+####################################################################################################

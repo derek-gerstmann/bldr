@@ -12,7 +12,6 @@ source "bldr.sh"
 
 pkg_ctry="numerics"
 pkg_name="eigen"
-pkg_vers="3.1.1"
 
 pkg_info="Eigen is a C++ template library for linear algebra: vectors, matrices, and related algorithms. It is versatile, fast, elegant and works on many platforms (OS/Compilers)."
 
@@ -43,8 +42,9 @@ Implementing an algorithm on top of Eigen feels like just copying pseudocode.
 
 Eigen has good compiler support as we run our test suite against many compilers to guarantee reliability and work around any compiler bugs. Eigen also is standard C++98 and maintains very reasonable compilation times."
 
-pkg_file="$pkg_vers.tar.bz2"
-pkg_urls="http://bitbucket.org/$pkg_name/$pkg_name/get/$pkg_file"
+pkg_vers_dft="3.1.1"
+pkg_vers_list=("$pkg_vers_dft")
+
 pkg_opts="cmake migrate-build-headers"
 pkg_uses=""
 pkg_reqs=""
@@ -56,18 +56,27 @@ pkg_ldflags=""
 # build and install pkg as local module
 ####################################################################################################
 
-bldr_build_pkg --category    "$pkg_ctry"    \
-               --name        "$pkg_name"    \
-               --version     "$pkg_vers"    \
-               --info        "$pkg_info"    \
-               --description "$pkg_desc"    \
-               --file        "$pkg_file"    \
-               --url         "$pkg_urls"    \
-               --uses        "$pkg_uses"    \
-               --requires    "$pkg_reqs"    \
-               --options     "$pkg_opts"    \
-               --cflags      "$pkg_cflags"  \
-               --ldflags     "$pkg_ldflags" \
-               --config      "$pkg_cfg"
+for pkg_vers in ${pkg_vers_list[@]}
+do
+     pkg_file="$pkg_vers.tar.bz2"
+     pkg_urls="http://bitbucket.org/$pkg_name/$pkg_name/get/$pkg_file"
 
+     bldr_register_pkg                 \
+          --category    "$pkg_ctry"    \
+          --name        "$pkg_name"    \
+          --version     "$pkg_vers"    \
+          --default     "$pkg_vers_dft"\
+          --info        "$pkg_info"    \
+          --description "$pkg_desc"    \
+          --file        "$pkg_file"    \
+          --url         "$pkg_urls"    \
+          --uses        "$pkg_uses"    \
+          --requires    "$pkg_reqs"    \
+          --options     "$pkg_opts"    \
+          --cflags      "$pkg_cflags"  \
+          --ldflags     "$pkg_ldflags" \
+          --config      "$pkg_cfg"     \
+          --config-path "$pkg_cfg_path"
+done
 
+####################################################################################################

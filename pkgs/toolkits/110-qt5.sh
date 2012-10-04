@@ -35,7 +35,7 @@ pkg_reqs="$pkg_reqs libedit/latest"
 pkg_reqs="$pkg_reqs perl/latest"
 pkg_reqs="$pkg_reqs python/2.7.3"
 pkg_reqs="$pkg_reqs libtiff/latest"
-pkg_reqs="$pkg_reqs libjpeg/latest"
+# pkg_reqs="$pkg_reqs libjpeg/latest"
 pkg_reqs="$pkg_reqs libpng/latest"
 pkg_uses="$pkg_reqs"
 
@@ -67,6 +67,7 @@ pkg_cfg="$pkg_cfg -make libs"
 pkg_cfg="$pkg_cfg -make tools"
 # pkg_cfg="$pkg_cfg -no-webkit"
 # pkg_cfg="$pkg_cfg -no-libmng"
+pkg_cfg="$pkg_cfg -no-webkit"
 pkg_cfg="$pkg_cfg -system-libjpeg"
 # pkg_cfg="$pkg_cfg -system-libtiff"
 pkg_cfg="$pkg_cfg -system-libpng"
@@ -233,15 +234,15 @@ function bldr_pkg_compile_method()
     bldr_log_status "Building package '$pkg_name/$pkg_vers'"
     bldr_log_split    
 
-    blr_run_cmd "build -j 4"
+    bldr_run_cmd "./build -j 4"
     bldr_pop_dir
 }
 
 ####################################################################################################
-# build and install pkg as local module
+# register pkg with bldr
 ####################################################################################################
 
-bldr_build_pkg                    \
+bldr_register_pkg                 \
      --category    "$pkg_ctry"    \
      --name        "$pkg_name"    \
      --version     "$pkg_vers"    \

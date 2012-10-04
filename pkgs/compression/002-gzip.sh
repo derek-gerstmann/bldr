@@ -12,7 +12,6 @@ source "bldr.sh"
 
 pkg_ctry="compression"
 pkg_name="gzip"
-pkg_vers="1.5"
 
 pkg_info="GNU zip is a compression utility designed to be a replacement for compress."
 
@@ -20,35 +19,42 @@ pkg_desc="GNU zip is a compression utility designed to be a replacement for comp
 main advantages over compress are much better compression and freedom from patented algorithms. 
 It has been adopted by the GNU project and is now relatively popular on the Internet."
 
-pkg_file="$pkg_name-$pkg_vers.tar.gz"
-pkg_urls="http://ftp.gnu.org/gnu/gzip/$pkg_file"
-pkg_opts="configure"
-pkg_uses="m4/latest autoconf/latest automake/latest"
+pkg_vers_dft="1.5"
+pkg_vers_list=("$pkg_vers_dft")
+
+pkg_opts="configure enable-static enable-shared"
+pkg_uses="m4 autoconf automake"
 pkg_reqs=""
 pkg_cflags=""
 pkg_ldflags=""
 pkg_cfg=""
 
-if [[ $BLDR_SYSTEM_IS_LINUX == true ]]
-then
-     pkg_cflags="$pkg_cflags -fPIC"
-fi
-
 ####################################################################################################
-# build and install pkg as local module
+# register each pkg version with bldr
 ####################################################################################################
 
-bldr_build_pkg --category    "$pkg_ctry"    \
-               --name        "$pkg_name"    \
-               --version     "$pkg_vers"    \
-               --info        "$pkg_info"    \
-               --description "$pkg_desc"    \
-               --file        "$pkg_file"    \
-               --url         "$pkg_urls"    \
-               --uses        "$pkg_uses"    \
-               --requires    "$pkg_reqs"    \
-               --options     "$pkg_opts"    \
-               --cflags      "$pkg_cflags"  \
-               --ldflags     "$pkg_ldflags" \
-               --config      "$pkg_cfg"
+for pkg_vers in ${pkg_vers_list[@]}
+do
+     pkg_file="$pkg_name-$pkg_vers.tar.gz"
+     pkg_urls="http://ftp.gnu.org/gnu/gzip/$pkg_file"
+
+     bldr_register_pkg                \
+         --category    "$pkg_ctry"    \
+         --name        "$pkg_name"    \
+         --version     "$pkg_vers"    \
+         --default     "$pkg_vers_dft"\
+         --info        "$pkg_info"    \
+         --description "$pkg_desc"    \
+         --file        "$pkg_file"    \
+         --url         "$pkg_urls"    \
+         --uses        "$pkg_uses"    \
+         --requires    "$pkg_reqs"    \
+         --options     "$pkg_opts"    \
+         --cflags      "$pkg_cflags"  \
+         --ldflags     "$pkg_ldflags" \
+         --config      "$pkg_cfg"     \
+         --config-path "$pkg_cfg_path"
+done
+
+####################################################################################################
 

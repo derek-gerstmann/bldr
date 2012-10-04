@@ -12,7 +12,6 @@ source "bldr.sh"
 
 pkg_ctry="tracing"
 pkg_name="valgrind"
-pkg_vers="3.7.0"
 
 pkg_info="Valgrind is an instrumentation framework for building dynamic analysis tools."
 
@@ -31,30 +30,42 @@ block vector generator. It runs on the following platforms: X86/Linux, AMD64/Lin
 ARM/Linux, PPC32/Linux, PPC64/Linux, S390X/Linux, ARM/Android (2.3.x), X86/Darwin 
 and AMD64/Darwin (Mac OS X 10.6 and 10.7)."
 
-pkg_file="$pkg_name-$pkg_vers.tar.bz2"
-pkg_urls="http://www.valgrind.org/downloads/$pkg_file"
-pkg_opts="configure"
+pkg_vers_dft="3.7.0"
+pkg_vers_list=("$pkg_vers_dft")
+
+pkg_opts="configure enable-static enable-shared"
 pkg_reqs=""
 pkg_uses=""
+
 pkg_cflags=""
 pkg_ldflags=""
-pkg_cfg="--enable-static --enable-shared"
+pkg_cfg=""
 
 ####################################################################################################
-# build and install pkg as local module
+# register each pkg version with bldr
 ####################################################################################################
 
-bldr_build_pkg --category    "$pkg_ctry"    \
-               --name        "$pkg_name"    \
-               --version     "$pkg_vers"    \
-               --info        "$pkg_info"    \
-               --description "$pkg_desc"    \
-               --file        "$pkg_file"    \
-               --url         "$pkg_urls"    \
-               --uses        "$pkg_uses"    \
-               --requires    "$pkg_reqs"    \
-               --options     "$pkg_opts"    \
-               --cflags      "$pkg_cflags"  \
-               --ldflags     "$pkg_ldflags" \
-               --config      "$pkg_cfg"
+for pkg_vers in ${pkg_vers_list[@]}
+do
+     pkg_file="$pkg_name-$pkg_vers.tar.bz2"
+     pkg_urls="http://www.valgrind.org/downloads/$pkg_file"
 
+     bldr_register_pkg                 \
+          --category    "$pkg_ctry"    \
+          --name        "$pkg_name"    \
+          --version     "$pkg_vers"    \
+          --default     "$pkg_vers_dft"\
+          --info        "$pkg_info"    \
+          --description "$pkg_desc"    \
+          --file        "$pkg_file"    \
+          --url         "$pkg_urls"    \
+          --uses        "$pkg_uses"    \
+          --requires    "$pkg_reqs"    \
+          --options     "$pkg_opts"    \
+          --cflags      "$pkg_cflags"  \
+          --ldflags     "$pkg_ldflags" \
+          --config      "$pkg_cfg"     \
+          --config-path "$pkg_cfg_path"
+done
+
+####################################################################################################

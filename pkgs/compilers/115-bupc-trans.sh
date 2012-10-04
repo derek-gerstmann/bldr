@@ -10,9 +10,12 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_vers="2.14.2"
 pkg_ctry="compilers"
 pkg_name="bupc-trans"
+
+pkg_vers_dft="2.14.2"
+pkg_vers_list=("$pkg_vers_dft")
+
 pkg_info="The Berkeley UPC-to-C translator provides a source-to-source compiler for translating Unified Parallel C (UPC) to ANSI-C99."
 
 pkg_desc="The Berkeley UPC-to-C translator provides a source-to-source compiler for translating Unified Parallel C (UPC) to ANSI-C99.
@@ -44,7 +47,7 @@ of the message passing programming paradigm."
 
 pkg_file="berkeley_upc_translator-$pkg_vers.tar.gz"
 pkg_urls="http://upc.lbl.gov/download/release/$pkg_file"
-pkg_opts="configure force-serial-build skip-config -MPREFIX=\"$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers\""
+base_opts="configure force-serial-build skip-config"
 pkg_reqs=""
 pkg_uses="$pkg_reqs"
 
@@ -56,21 +59,32 @@ pkg_ldflags=""
 pkg_patch=""
 
 ####################################################################################################
-# build and install each pkg version as local module
+# register each pkg version with bldr
 ####################################################################################################
 
-bldr_build_pkg                   \
-    --category    "$pkg_ctry"    \
-    --name        "$pkg_name"    \
-    --version     "$pkg_vers"    \
-    --info        "$pkg_info"    \
-    --description "$pkg_desc"    \
-    --file        "$pkg_file"    \
-    --url         "$pkg_urls"    \
-    --uses        "$pkg_uses"    \
-    --requires    "$pkg_reqs"    \
-    --options     "$pkg_opts"    \
-    --patch       "$pkg_patch"   \
-    --cflags      "$pkg_cflags"  \
-    --ldflags     "$pkg_ldflags" \
-    --config      "$pkg_cfg"
+for pkg_vers in ${pkg_vers_list[@]}
+do
+    pkg_file="berkeley_upc_translator-$pkg_vers.tar.gz"
+    pkg_urls="http://upc.lbl.gov/download/release/$pkg_file"
+    pkg_opts="$base_opts -MPREFIX=\"$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers\""
+
+    bldr_register_pkg                \
+        --category    "$pkg_ctry"    \
+        --name        "$pkg_name"    \
+        --version     "$pkg_vers"    \
+        --default     "$pkg_vers_dft"\
+        --info        "$pkg_info"    \
+        --description "$pkg_desc"    \
+        --file        "$pkg_file"    \
+        --url         "$pkg_urls"    \
+        --uses        "$pkg_uses"    \
+        --requires    "$pkg_reqs"    \
+        --options     "$pkg_opts"    \
+        --cflags      "$pkg_cflags"  \
+        --ldflags     "$pkg_ldflags" \
+        --config      "$pkg_cfg"     \
+        --config-path "$pkg_cfg_path"
+done
+
+####################################################################################################
+

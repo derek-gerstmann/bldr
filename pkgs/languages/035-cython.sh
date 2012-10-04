@@ -12,7 +12,7 @@ source "bldr.sh"
 
 pkg_ctry="languages"
 pkg_name="cython"
-pkg_vers="0.16"
+
 pkg_info="Cython is a language that makes writing C extensions for the Python language as easy as Python itself."
 
 pkg_desc="Cython is a language that makes writing C extensions for the Python language as easy as Python itself. 
@@ -23,31 +23,43 @@ and dynamic programming. The source code gets translated into optimized C/C++ co
 extension modules. This allows for both very fast program execution and tight integration with external C 
 libraries, while keeping up the high programmer productivity for which the Python language is well known."
 
-pkg_file="Cython-$pkg_vers.tar.gz"
-pkg_urls="http://www.cython.org/release/$pkg_file"
-pkg_opts="python"
-pkg_reqs="python/2.7.3"
+pkg_vers_dft="0.16"
+pkg_vers_list=("$pkg_vers_dft")
+
+pkg_opts="python skip-compile skip-install"
+pkg_reqs="python"
 pkg_uses="$pkg_reqs"
+
 pkg_cflags=""
 pkg_ldflags=""
 pkg_cfg="" 
 
 ####################################################################################################
-# build and install pkg as local module
+# build and install each pkg version as local module
 ####################################################################################################
 
-bldr_build_pkg --category    "$pkg_ctry"    \
-               --name        "$pkg_name"    \
-               --version     "$pkg_vers"    \
-               --info        "$pkg_info"    \
-               --description "$pkg_desc"    \
-               --file        "$pkg_file"    \
-               --url         "$pkg_urls"    \
-               --uses        "$pkg_uses"    \
-               --requires    "$pkg_reqs"    \
-               --options     "$pkg_opts"    \
-               --cflags      "$pkg_cflags"  \
-               --ldflags     "$pkg_ldflags" \
-               --config      "$pkg_cfg"
+for pkg_vers in ${pkg_ver_list}
+do
+     pkg_file="Cython-$pkg_vers.tar.gz"
+     pkg_urls="http://www.cython.org/release/$pkg_file"
 
+     bldr_register_pkg                 \
+          --category    "$pkg_ctry"    \
+          --name        "$pkg_name"    \
+          --version     "$pkg_vers"    \
+          --default     "$pkg_vers_dft"\
+          --info        "$pkg_info"    \
+          --description "$pkg_desc"    \
+          --file        "$pkg_file"    \
+          --url         "$pkg_urls"    \
+          --uses        "$pkg_uses"    \
+          --requires    "$pkg_reqs"    \
+          --options     "$pkg_opts"    \
+          --cflags      "$pkg_cflags"  \
+          --ldflags     "$pkg_ldflags" \
+          --config      "$pkg_cfg"     \
+          --config-path "$pkg_cfg_path"
 
+done
+
+####################################################################################################

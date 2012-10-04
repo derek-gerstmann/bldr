@@ -12,7 +12,6 @@ source "bldr.sh"
 
 pkg_ctry="compression"
 pkg_name="zlib"
-pkg_vers="1.2.7"
 
 pkg_info="ZLIB is a massively spiffy yet delicately unobtrusive compression library"
 
@@ -26,10 +25,11 @@ zlib's memory footprint is also independent of the input data and can be reduced
 necessary, at some cost in compression. A more precise, technical discussion of both 
 points is available on another page."
 
-pkg_file="$pkg_name-$pkg_vers.tar.gz"
-pkg_urls="http://zlib.net/$pkg_file"
+pkg_vers_dft="1.2.7"
+pkg_vers_list=("$pkg_vers_dft")
+
 pkg_opts="configure --enable-shared skip-auto-compile-flags config-prepend-env"
-pkg_uses="m4/latest autoconf/latest automake/latest"
+pkg_uses="m4 autoconf automake"
 pkg_reqs=""
 pkg_cflags=""
 pkg_ldflags=""
@@ -40,28 +40,38 @@ then
     pkg_cfg="$pkg_cfg -64"
 fi
 
-
 if [[ $BLDR_SYSTEM_IS_LINUX == true ]]
 then
     export CFLAGS="-fPIC"
 fi
 
 ####################################################################################################
-# build and install pkg as local module
+# register each pkg version with bldr
 ####################################################################################################
 
-bldr_build_pkg --category    "$pkg_ctry"    \
-               --name        "$pkg_name"    \
-               --version     "$pkg_vers"    \
-               --info        "$pkg_info"    \
-               --description "$pkg_desc"    \
-               --file        "$pkg_file"    \
-               --url         "$pkg_urls"    \
-               --uses        "$pkg_uses"    \
-               --requires    "$pkg_reqs"    \
-               --options     "$pkg_opts"    \
-               --cflags      "$pkg_cflags"  \
-               --ldflags     "$pkg_ldflags" \
-               --config      "$pkg_cfg"
+for pkg_vers in ${pkg_vers_list[@]}
+do
+      pkg_file="$pkg_name-$pkg_vers.tar.gz"
+      pkg_urls="http://zlib.net/$pkg_file"
+
+      bldr_register_pkg               \
+         --category    "$pkg_ctry"    \
+         --name        "$pkg_name"    \
+         --version     "$pkg_vers"    \
+         --default     "$pkg_vers_dft"\
+         --info        "$pkg_info"    \
+         --description "$pkg_desc"    \
+         --file        "$pkg_file"    \
+         --url         "$pkg_urls"    \
+         --uses        "$pkg_uses"    \
+         --requires    "$pkg_reqs"    \
+         --options     "$pkg_opts"    \
+         --cflags      "$pkg_cflags"  \
+         --ldflags     "$pkg_ldflags" \
+         --config      "$pkg_cfg"     \
+         --config-path "$pkg_cfg_path"
+done
+
+####################################################################################################
 
 

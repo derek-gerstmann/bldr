@@ -12,43 +12,47 @@ source "bldr.sh"
 
 pkg_ctry="system"
 pkg_name="gpusd"
-pkg_vers="1.4"
 
 pkg_info="Local and remote ZeroConf service discovery for GPU resources."
 
 pkg_desc="Local and remote ZeroConf service discovery for GPU resources."
 
-pkg_file="$pkg_name-$pkg_vers.zip"
-pkg_urls="https://github.com/Eyescale/gpusd/zipball/1.4/$pkg_file"
+pkg_vers_dft="1.4"
+pkg_vers_list=("$pkg_vers")
 pkg_opts="cmake"
+
 pkg_uses=""
 pkg_reqs=""
 
-# if [[ $BLDR_SYSTEM_IS_OSX == false ]]
-# then
-#      pkg_uses="avahi/latest"
-#fi
-
-pkg_reqs="$pkg_uses"
 pkg_cflags=""
 pkg_ldflags=""
 pkg_cfg=""
 
 ####################################################################################################
-# build and install pkg as local module
+# register each pkg version with bldr
 ####################################################################################################
 
-bldr_build_pkg --category    "$pkg_ctry"    \
-               --name        "$pkg_name"    \
-               --version     "$pkg_vers"    \
-               --info        "$pkg_info"    \
-               --description "$pkg_desc"    \
-               --file        "$pkg_file"    \
-               --url         "$pkg_urls"    \
-               --uses        "$pkg_uses"    \
-               --requires    "$pkg_reqs"    \
-               --options     "$pkg_opts"    \
-               --cflags      "$pkg_cflags"  \
-               --ldflags     "$pkg_ldflags" \
-               --config      "$pkg_cfg"     
+for pkg_vers in ${pkg_vers_list[@]}
+do
+    pkg_file="$pkg_name-$pkg_vers.zip"
+    pkg_urls="https://github.com/Eyescale/gpusd/zipball/$pkg_vers/$pkg_file"
 
+    bldr_register_pkg                  \
+          --category    "$pkg_ctry"    \
+          --name        "$pkg_name"    \
+          --version     "$pkg_vers"    \
+          --default     "$pkg_vers_dft"\
+          --info        "$pkg_info"    \
+          --description "$pkg_desc"    \
+          --file        "$pkg_file"    \
+          --url         "$pkg_urls"    \
+          --uses        "$pkg_uses"    \
+          --requires    "$pkg_reqs"    \
+          --options     "$pkg_opts"    \
+          --cflags      "$pkg_cflags"  \
+          --ldflags     "$pkg_ldflags" \
+          --config      "$pkg_cfg"     \
+          --config-path "$pkg_cfg_path"
+done
+
+####################################################################################################

@@ -12,7 +12,7 @@ source "bldr.sh"
 
 pkg_ctry="compilers"
 pkg_name="pypy"
-pkg_vers="1.9"
+
 pkg_info="PyPy is a fast, compliant alternative implementation of the Python language (2.7.2)."
 
 pkg_desc="PyPy is a fast, compliant alternative implementation of the Python language (2.7.2). 
@@ -31,31 +31,42 @@ It has several advantages and distinct features:
 
 As well as other features."
 
-pkg_file="release-$pkg_vers.tar.bz2"
-pkg_urls="http://bitbucket.org/$pkg_name/$pkg_name/get/$pkg_file"
+pkg_vers_dft="1.9"
+pkg_vers_list=("$pkg_vers_dft")
+
 pkg_opts="configure migrate-build-tree"
-pkg_reqs=""
+pkg_reqs="m4 autoconf automake"
 pkg_uses=""
+
 pkg_cflags=""
 pkg_ldflags=""
 pkg_cfg="" 
 
 ####################################################################################################
-# build and install pkg as local module
+# register each pkg version with bldr
 ####################################################################################################
 
-bldr_build_pkg --category    "$pkg_ctry"    \
-               --name        "$pkg_name"    \
-               --version     "$pkg_vers"    \
-               --info        "$pkg_info"    \
-               --description "$pkg_desc"    \
-               --file        "$pkg_file"    \
-               --url         "$pkg_urls"    \
-               --uses        "$pkg_uses"    \
-               --requires    "$pkg_reqs"    \
-               --options     "$pkg_opts"    \
-               --cflags      "$pkg_cflags"  \
-               --ldflags     "$pkg_ldflags" \
-               --config      "$pkg_cfg"
+for pkg_vers in ${pkg_vers_list[@]}
+do
+     pkg_file="release-$pkg_vers.tar.bz2"
+     pkg_urls="http://bitbucket.org/$pkg_name/$pkg_name/get/$pkg_file"
 
+     bldr_register_pkg                \
+        --category    "$pkg_ctry"     \
+        --name        "$pkg_name"     \
+        --version     "$pkg_vers"     \
+        --default     "$pkg_vers_dft" \
+        --info        "$pkg_info"     \
+        --description "$pkg_desc"     \
+        --file        "$pkg_file"     \
+        --url         "$pkg_urls"     \
+        --uses        "$pkg_uses"     \
+        --requires    "$pkg_reqs"     \
+        --options     "$pkg_opts"     \
+        --cflags      "$pkg_cflags"   \
+        --ldflags     "$pkg_ldflags"  \
+        --config      "$pkg_cfg"      \
+        --config-path "$pkg_cfg_path"
+done
 
+####################################################################################################

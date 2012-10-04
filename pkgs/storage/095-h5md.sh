@@ -12,7 +12,6 @@ source "bldr.sh"
 
 pkg_ctry="storage"
 pkg_name="h5md"
-pkg_vers="trunk"
 
 pkg_info="The H5MB library is a simple MultiBlock wrapper for HDF5 so that each process can create one or more datasets/group, write some data into it independently."
 
@@ -20,22 +19,24 @@ pkg_desc="The H5MB library is a simple MultiBlock wrapper for HDF5 so that each
 process can create one or more datasets/group, write some data into it 
 independently."
 
-pkg_file="$pkg_name-$pkg_vers.tar.bz2"
-pkg_urls="https://hpcforge.org/anonscm/git/libh5mb/libh5mb.git"
+pkg_vers_dft="trunk"
+pkg_vers_list=("$pkg_vers_dft")
+
 pkg_opts="cmake"
-pkg_reqs="szip/latest zlib/latest szip/latest openmpi/1.6 phdf5/latest"
+pkg_reqs="szip zlib szip openmpi phdf5"
 pkg_uses="$pkg_reqs"
 
 ####################################################################################################
 # satisfy pkg dependencies and load their environment settings
 ####################################################################################################
 
-bldr_satisfy_pkg --category    "$pkg_ctry"    \
-                 --name        "$pkg_name"    \
-                 --version     "$pkg_vers"    \
-                 --requires    "$pkg_reqs"    \
-                 --uses        "$pkg_uses"    \
-                 --options     "$pkg_opts"
+bldr_satisfy_pkg               \
+  --category    "$pkg_ctry"    \
+  --name        "$pkg_name"    \
+  --version     "$pkg_vers_dft"\
+  --requires    "$pkg_reqs"    \
+  --uses        "$pkg_uses"    \
+  --options     "$pkg_opts"
 
 ####################################################################################################
 
@@ -63,24 +64,31 @@ pkg_cfg="$pkg_cfg:-DHDF5_BUILD_FORTRAN=OFF"
 pkg_cfg="$pkg_cfg:-DHDF5_ENABLE_ZLIB=ON"
 pkg_cfg="$pkg_cfg:-DHDF5_ENABLE_HL_LIB=ON"
 
-
 ####################################################################################################
-# build and install pkg as local module
-####################################################################################################
-
-bldr_build_pkg --category    "$pkg_ctry"    \
-               --name        "$pkg_name"    \
-               --version     "$pkg_vers"    \
-               --info        "$pkg_info"    \
-               --description "$pkg_desc"    \
-               --file        "$pkg_file"    \
-               --url         "$pkg_urls"    \
-               --uses        "$pkg_uses"    \
-               --requires    "$pkg_reqs"    \
-               --options     "$pkg_opts"    \
-               --cflags      "$pkg_cflags"  \
-               --ldflags     "$pkg_ldflags" \
-               --config      "$pkg_cfg"
-
+# register each pkg version with bldr
 ####################################################################################################
 
+for pkg_vers in ${pkg_vers_list[@]}
+do
+    pkg_file="$pkg_name-$pkg_vers.tar.bz2"
+    pkg_urls="https://hpcforge.org/anonscm/git/libh5mb/libh5mb.git"
+
+    bldr_register_pkg                \
+        --category    "$pkg_ctry"    \
+        --name        "$pkg_name"    \
+        --version     "$pkg_vers"    \
+        --default     "$pkg_vers_dft"\
+        --info        "$pkg_info"    \
+        --description "$pkg_desc"    \
+        --file        "$pkg_file"    \
+        --url         "$pkg_urls"    \
+        --uses        "$pkg_uses"    \
+        --requires    "$pkg_reqs"    \
+        --options     "$pkg_opts"    \
+        --cflags      "$pkg_cflags"  \
+        --ldflags     "$pkg_ldflags" \
+        --config      "$pkg_cfg"     \
+        --config-path "$pkg_cfg_path"
+done
+
+####################################################################################################

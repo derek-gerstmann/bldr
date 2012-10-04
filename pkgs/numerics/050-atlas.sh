@@ -12,7 +12,6 @@ source "bldr.sh"
 
 pkg_ctry="numerics"
 pkg_name="atlas"
-pkg_vers="3.10.0"
 
 pkg_info="ATLAS provides highly optimized Linear Algebra kernels for arbitrary cache-based architectures."
 
@@ -20,11 +19,13 @@ pkg_desc="ATLAS (Automatically Tuned Linear Algebra Software) provides highly op
 Linear Algebra kernels for arbitrary cache-based architectures. ATLAS provides ANSI C 
 and Fortran77 interfaces for the entire BLAS API, and a small portion of the LAPACK API."
 
-pkg_file="$pkg_name$pkg_vers.tar.bz2"
-pkg_urls="http://downloads.sourceforge.net/project/math-atlas/Stable/$pkg_vers/$pkg_file?use_mirror=aarnet"
+pkg_vers_dft="3.10.0"
+pkg_vers_list=("$pkg_vers_dft")
+
 pkg_opts="configure use-build-dir skip-system-flags skip-auto-compile-flags force-serial-build skip-install"
+pkg_reqs="gfortran"
 pkg_uses=""
-pkg_reqs="gfortran/latest"
+
 pkg_cfg="-b 64 --with-netlib-lapack-tarfile=$BLDR_CACHE_PATH/lapack-3.4.1.tgz --shared"
 pkg_cflags=""
 pkg_ldflags=""
@@ -133,18 +134,27 @@ function bldr_pkg_compile_method()
 # build and install pkg as local module
 ####################################################################################################
 
-bldr_build_pkg --category    "$pkg_ctry"    \
-               --name        "$pkg_name"    \
-               --version     "$pkg_vers"    \
-               --info        "$pkg_info"    \
-               --description "$pkg_desc"    \
-               --file        "$pkg_file"    \
-               --url         "$pkg_urls"    \
-               --uses        "$pkg_uses"    \
-               --requires    "$pkg_reqs"    \
-               --options     "$pkg_opts"    \
-               --cflags      "$pkg_cflags"  \
-               --ldflags     "$pkg_ldflags" \
-               --config      "$pkg_cfg"
+for pkg_vers in ${pkg_vers_list[@]}
+do
+    pkg_file="$pkg_name$pkg_vers.tar.bz2"
+    pkg_urls="http://downloads.sourceforge.net/project/math-atlas/Stable/$pkg_vers/$pkg_file?use_mirror=aarnet"
 
+    bldr_register_pkg                  \
+          --category    "$pkg_ctry"    \
+          --name        "$pkg_name"    \
+          --version     "$pkg_vers"    \
+          --default     "$pkg_vers_dft"\
+          --info        "$pkg_info"    \
+          --description "$pkg_desc"    \
+          --file        "$pkg_file"    \
+          --url         "$pkg_urls"    \
+          --uses        "$pkg_uses"    \
+          --requires    "$pkg_reqs"    \
+          --options     "$pkg_opts"    \
+          --cflags      "$pkg_cflags"  \
+          --ldflags     "$pkg_ldflags" \
+          --config      "$pkg_cfg"     \
+          --config-path "$pkg_cfg_path"
+done
 
+####################################################################################################

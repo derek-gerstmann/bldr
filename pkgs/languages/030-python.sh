@@ -10,7 +10,6 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_ver_list=("2.7.3" "3.2.3")
 pkg_ctry="languages"
 pkg_name="python"
 
@@ -26,45 +25,47 @@ Java and .NET virtual machines.
 Python is free to use, even for commercial products, because of its 
 OSI-approved open source license."
 
-pkg_file="Python-$pkg_vers.tar.bz2"
-pkg_urls="http://www.python.org/ftp/python/$pkg_vers/$pkg_file"
+pkg_vers_dft="2.7.3"
+pkg_vers_list=("$pkg_vers_dft" "3.2.3")
+
 pkg_opts="configure"
-pkg_reqs="zlib/latest bzip2/latest"
+pkg_reqs="zlib bzip2"
 pkg_uses="$pkg_reqs"
 
-pkg_cflags="-I$BLDR_LOCAL_PATH/compression/zlib/latest/include"
-pkg_ldflags="-L$BLDR_LOCAL_PATH/compression/zlib/latest/lib"
+pkg_cflags="-I$BLDR_LOCAL_PATH/compression/zlib/default/include"
+pkg_ldflags="-L$BLDR_LOCAL_PATH/compression/zlib/default/lib"
 
-pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/internal/bzip2/latest/include"
-pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/internal/bzip2/latest/lib"
-
-if [[ $BLDR_SYSTEM_IS_OSX == false ]]
-then
-  pkg_cflags="$pkg_cflags:-fPIC"
-fi
+pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/internal/bzip2/default/include"
+pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/internal/bzip2/default/lib"
 
 pkg_cfg=""
 
 ####################################################################################################
-# build and install each pkg version as local module
+# register each pkg version with bldr
 ####################################################################################################
 
-for pkg_vers in ${pkg_ver_list}
+for pkg_vers in ${pkg_vers_list[@]}
 do
     pkg_file="Python-$pkg_vers.tar.bz2"
     pkg_urls="http://www.python.org/ftp/python/$pkg_vers/$pkg_file"
 
-    bldr_build_pkg --category    "$pkg_ctry"    \
-                   --name        "$pkg_name"    \
-                   --version     "$pkg_vers"    \
-                   --info        "$pkg_info"    \
-                   --description "$pkg_desc"    \
-                   --file        "$pkg_file"    \
-                   --url         "$pkg_urls"    \
-                   --uses        "$pkg_uses"    \
-                   --requires    "$pkg_reqs"    \
-                   --options     "$pkg_opts"    \
-                   --cflags      "$pkg_cflags"  \
-                   --ldflags     "$pkg_ldflags" \
-                   --config      "$pkg_cfg"
+    bldr_register_pkg                  \
+          --category    "$pkg_ctry"    \
+          --name        "$pkg_name"    \
+          --version     "$pkg_vers"    \
+          --default     "$pkg_vers_dft"\
+          --info        "$pkg_info"    \
+          --description "$pkg_desc"    \
+          --file        "$pkg_file"    \
+          --url         "$pkg_urls"    \
+          --uses        "$pkg_uses"    \
+          --requires    "$pkg_reqs"    \
+          --options     "$pkg_opts"    \
+          --cflags      "$pkg_cflags"  \
+          --ldflags     "$pkg_ldflags" \
+          --config      "$pkg_cfg"     \
+          --config-path "$pkg_cfg_path"
 done
+
+####################################################################################################
+

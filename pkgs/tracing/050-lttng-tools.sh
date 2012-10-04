@@ -12,7 +12,6 @@ source "bldr.sh"
 
 pkg_ctry="tracing"
 pkg_name="lttng-tools"
-pkg_vers="2.0.4"
 
 pkg_info="Linux Trace Toolkit next generation tools (LTTng-tools) provides efficient tracing tools for Linux."
 
@@ -26,22 +25,37 @@ The lttng command line tool from the lttng-tools package is used to control both
 and user-space tracing. Every interactions with the tracer should be done by this tool 
 or by the liblttng-ctl provided with the lttng-tools package."
 
-pkg_file="$pkg_name-$pkg_vers.tar.bz2"
-pkg_urls="http://lttng.org/files/$pkg_name/$pkg_file"
-pkg_opts="configure"
-pkg_reqs="liburcu/latest lttng-ust/latest babeltrace/latest glib/latest"
-pkg_uses=""
+pkg_vers_dft="2.0.4"
+pkg_vers_list=("$pkg_vers_dft")
 
-pkg_cflags="-I$BLDR_LOCAL_PATH/compression/zlib/latest/include"
-pkg_ldflags="-L$BLDR_LOCAL_PATH/compression/zlib/latest/lib"
-
-pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/tracing/lttng-ust/latest/include"
-pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/tracing/lttng-ust/latest/lib"
-
-pkg_cfg="--enable-static --enable-shared --with-babeltrace-bin=$BLDR_LOCAL_PATH/tracing/babeltrace/latest/bin/babeltrace"
+pkg_opts="configure enable-shared enable-static"
+pkg_reqs="liburcu lttng-ust babeltrace glib zlib"
+pkg_uses="$pkg_reqs"
 
 ####################################################################################################
-# build and install pkg as local module
+# satisfy pkg dependencies and load their environment settings
+####################################################################################################
+
+bldr_satisfy_pkg                 \
+    --category    "$pkg_ctry"    \
+    --name        "$pkg_name"    \
+    --version     "$pkg_vers_dft"\
+    --requires    "$pkg_reqs"    \
+    --uses        "$pkg_uses"    \
+    --options     "$pkg_opts"
+
+####################################################################################################
+
+pkg_cflags="-I$BLDR_ZLIB_INCLUDE_PATH"
+pkg_ldflags="-L$BLDR_ZLIB_LIB_PATH"
+
+pkg_cflags="$pkg_cflags:-I$BLDR_LTTNG_UST_INCLUDE_PATH"
+pkg_ldflags="$pkg_ldflags:-L$BLDR_LTTNG_UST_LIB_PATH"
+
+pkg_cfg="--with-babeltrace-bin=$BLDR_BABELTRACE_BIN_PATH"
+
+####################################################################################################
+# register pkg with bldr
 ####################################################################################################
 
 if [ $BLDR_SYSTEM_IS_OSX == true ]
@@ -49,18 +63,28 @@ then
      bldr_log_warning "$pkg_name isn't supported on MacOSX.  Skipping..."
      bldr_log_split
 else
-     bldr_build_pkg --category    "$pkg_ctry"    \
-                    --name        "$pkg_name"    \
-                    --version     "$pkg_vers"    \
-                    --info        "$pkg_info"    \
-                    --description "$pkg_desc"    \
-                    --file        "$pkg_file"    \
-                    --url         "$pkg_urls"    \
-                    --uses        "$pkg_uses"    \
-                    --requires    "$pkg_reqs"    \
-                    --options     "$pkg_opts"    \
-                    --cflags      "$pkg_cflags"  \
-                    --ldflags     "$pkg_ldflags" \
-                    --config      "$pkg_cfg"
+     for pkg_vers in ${pkg_vers_list[@]}
+     do
+          pkg_file="$pkg_name-$pkg_vers.tar.bz2"
+          pkg_urls="http://lttng.org/files/$pkg_name/$pkg_file"
+
+          bldr_register_pkg                 \
+               --category    "$pkg_ctry"    \
+               --name        "$pkg_name"    \
+               --version     "$pkg_vers"    \
+               --default     "$pkg_vers_dft"\
+               --info        "$pkg_info"    \
+               --description "$pkg_desc"    \
+               --file        "$pkg_file"    \
+               --url         "$pkg_urls"    \
+               --uses        "$pkg_uses"    \
+               --requires    "$pkg_reqs"    \
+               --options     "$pkg_opts"    \
+               --cflags      "$pkg_cflags"  \
+               --ldflags     "$pkg_ldflags" \
+               --config      "$pkg_cfg"     \
+               --config-path "$pkg_cfg_path"
+     done
 fi
 
+####################################################################################################

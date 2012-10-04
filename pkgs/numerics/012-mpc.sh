@@ -12,7 +12,7 @@ source "bldr.sh"
 
 pkg_ctry="numerics"
 pkg_name="mpc"
-pkg_vers="1.0"
+
 pkg_info="Gnu Mpc is a C library for the arithmetic of complex numbers with arbitrarily high precision and correct rounding of the result."
 
 pkg_desc="Gnu Mpc is a C library for the arithmetic of complex numbers with 
@@ -29,22 +29,24 @@ licence, or (at your option) any later version. The Gnu Mpc library has been reg
 in France by the Agence pour la Protection des Programmes on 2003-02-05 under the 
 number IDDN FR 001 060029 000 R P 2003 000 10000."
 
-pkg_file="$pkg_name-$pkg_vers.tar.gz"
-pkg_urls="http://www.multiprecision.org/mpc/download/$pkg_file"
-pkg_opts="configure"
-pkg_reqs="gmp/latest mpfr/latest"
+pkg_vers_dft="1.0"
+pkg_vers_list=("$pkg_vers_dft")
+
+pkg_opts="configure enable-static enable-shared"
+pkg_reqs="gmp mpfr"
 pkg_uses="$pkg_reqs"
 
 ####################################################################################################
 # satisfy pkg dependencies and load their environment settings
 ####################################################################################################
-
-bldr_satisfy_pkg --category    "$pkg_ctry"    \
-                 --name        "$pkg_name"    \
-                 --version     "$pkg_vers"    \
-                 --requires    "$pkg_reqs"    \
-                 --uses        "$pkg_uses"    \
-                 --options     "$pkg_opts"
+  
+bldr_satisfy_pkg                 \
+    --category    "$pkg_ctry"    \
+    --name        "$pkg_name"    \
+    --version     "$pkg_vers_dft"\
+    --requires    "$pkg_reqs"    \
+    --uses        "$pkg_uses"    \
+    --options     "$pkg_opts"
 
 ####################################################################################################
 
@@ -59,18 +61,29 @@ pkg_ldflags=""
 # build and install pkg as local module
 ####################################################################################################
 
-bldr_build_pkg --category    "$pkg_ctry"    \
-               --name        "$pkg_name"    \
-               --version     "$pkg_vers"    \
-               --info        "$pkg_info"    \
-               --description "$pkg_desc"    \
-               --file        "$pkg_file"    \
-               --url         "$pkg_urls"    \
-               --uses        "$pkg_uses"    \
-               --requires    "$pkg_reqs"    \
-               --options     "$pkg_opts"    \
-               --patch       "$pkg_patch"   \
-               --cflags      "$pkg_cflags"  \
-               --ldflags     "$pkg_ldflags" \
-               --config      "$pkg_cfg"
+for pkg_vers in ${pkg_vers_list[@]}
+do
+
+    pkg_file="$pkg_name-$pkg_vers.tar.gz"
+    pkg_urls="http://www.multiprecision.org/mpc/download/$pkg_file"
+
+    bldr_register_pkg                  \
+          --category    "$pkg_ctry"    \
+          --name        "$pkg_name"    \
+          --version     "$pkg_vers"    \
+          --default     "$pkg_vers_dft"\
+          --info        "$pkg_info"    \
+          --description "$pkg_desc"    \
+          --file        "$pkg_file"    \
+          --url         "$pkg_urls"    \
+          --uses        "$pkg_uses"    \
+          --requires    "$pkg_reqs"    \
+          --options     "$pkg_opts"    \
+          --cflags      "$pkg_cflags"  \
+          --ldflags     "$pkg_ldflags" \
+          --config      "$pkg_cfg"     \
+          --config-path "$pkg_cfg_path"
+done
+
+####################################################################################################
 

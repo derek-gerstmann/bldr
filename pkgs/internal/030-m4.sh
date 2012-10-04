@@ -12,7 +12,6 @@ source "bldr.sh"
 
 pkg_ctry="internal"
 pkg_name="m4"
-pkg_vers="1.4.16"
 
 pkg_info="GNU M4 is an implementation of the traditional Unix macro processor. "
 
@@ -31,31 +30,42 @@ M4 can be used either as a front-end to a compiler or as a macro processor in it
 
 One of the biggest users of GNU M4 is the GNU Autoconf project."
 
-pkg_file="$pkg_name-$pkg_vers.tar.gz"
-pkg_urls="http://gnu.mirror.iweb.com/gnu/m4/$pkg_file;http://ftp.gnu.org/gnu/m4/$pkg_file"
+pkg_vers_dft="1.4.16"
+pkg_vers_list=("$pkg_vers_dft")
+
 pkg_opts="configure force-static"
-pkg_uses="coreutils/latest"
-pkg_reqs="coreutils/latest"
+pkg_uses="coreutils"
+pkg_reqs="coreutils"
+
 pkg_cflags=""
 pkg_ldflags=""
 pkg_cfg=""
 
 ####################################################################################################
-# build and install pkg as local module
+# register each pkg version with bldr
 ####################################################################################################
 
-bldr_build_pkg --category    "$pkg_ctry"    \
-               --name        "$pkg_name"    \
-               --version     "$pkg_vers"    \
-               --info        "$pkg_info"    \
-               --description "$pkg_desc"    \
-               --file        "$pkg_file"    \
-               --url         "$pkg_urls"    \
-               --uses        "$pkg_uses"    \
-               --requires    "$pkg_reqs"    \
-               --options     "$pkg_opts"    \
-               --cflags      "$pkg_cflags"  \
-               --ldflags     "$pkg_ldflags" \
-               --config      "$pkg_cfg"
+for pkg_vers in ${pkg_vers_list[@]}
+do
+     pkg_file="$pkg_name-$pkg_vers.tar.gz"
+     pkg_urls="http://gnu.mirror.iweb.com/gnu/m4/$pkg_file;http://ftp.gnu.org/gnu/m4/$pkg_file"
 
+     bldr_register_pkg                \
+         --category    "$pkg_ctry"    \
+         --name        "$pkg_name"    \
+         --version     "$pkg_vers"    \
+         --default     "$pkg_vers_dft"\
+         --info        "$pkg_info"    \
+         --description "$pkg_desc"    \
+         --file        "$pkg_file"    \
+         --url         "$pkg_urls"    \
+         --uses        "$pkg_uses"    \
+         --requires    "$pkg_reqs"    \
+         --options     "$pkg_opts"    \
+         --cflags      "$pkg_cflags"  \
+         --ldflags     "$pkg_ldflags" \
+         --config      "$pkg_cfg"     \
+         --config-path "$pkg_cfg_path"
+done
 
+####################################################################################################

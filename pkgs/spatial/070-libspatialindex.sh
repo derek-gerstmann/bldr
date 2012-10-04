@@ -12,7 +12,9 @@ source "bldr.sh"
 
 pkg_ctry="spatial"
 pkg_name="libspatialindex"
-pkg_vers="trunk"
+
+pkg_vers_dft="trunk"
+pkg_vers_list=("$pkg_vers_dft")
 
 pkg_info="libspatialindex provides a C++ implementation various spatial data structures with a C API."
 
@@ -35,31 +37,39 @@ Features
 * Large parameterization capabilities, including dimensionality, fill factor, node capacity, etc.
 * STR packing / bulk loading.
 "
-pkg_file="$pkg_name-$pkg_vers.tar.bz2"
-pkg_urls="git://github.com/libspatialindex/libspatialindex.git"
-pkg_opts="configure skip-bootstrap"
-pkg_uses="zlib/latest"
+pkg_opts="configure enable-static enable-shared skip-bootstrap"
+pkg_uses="zlib"
 pkg_reqs="$pkg_reqs"
+
 pkg_cfg=""
 pkg_cflags=""
 pkg_ldflags=""
 
 ####################################################################################################
-# build and install pkg as local module
+# register each pkg version with bldr
 ####################################################################################################
 
-bldr_build_pkg --category    "$pkg_ctry"    \
-               --name        "$pkg_name"    \
-               --version     "$pkg_vers"    \
-               --info        "$pkg_info"    \
-               --description "$pkg_desc"    \
-               --file        "$pkg_file"    \
-               --url         "$pkg_urls"    \
-               --uses        "$pkg_uses"    \
-               --requires    "$pkg_reqs"    \
-               --options     "$pkg_opts"    \
-               --cflags      "$pkg_cflags"  \
-               --ldflags     "$pkg_ldflags" \
-               --config      "$pkg_cfg"
+for pkg_vers in ${pkg_vers_list[@]}
+do
+     pkg_file="$pkg_name-$pkg_vers.tar.bz2"
+     pkg_urls="git://github.com/libspatialindex/libspatialindex.git"
 
+     bldr_register_pkg                 \
+          --category    "$pkg_ctry"    \
+          --name        "$pkg_name"    \
+          --version     "$pkg_vers"    \
+          --default     "$pkg_vers_dft"\
+          --info        "$pkg_info"    \
+          --description "$pkg_desc"    \
+          --file        "$pkg_file"    \
+          --url         "$pkg_urls"    \
+          --uses        "$pkg_uses"    \
+          --requires    "$pkg_reqs"    \
+          --options     "$pkg_opts"    \
+          --cflags      "$pkg_cflags"  \
+          --ldflags     "$pkg_ldflags" \
+          --config      "$pkg_cfg"     \
+          --config-path "$pkg_cfg_path"
+done
 
+####################################################################################################

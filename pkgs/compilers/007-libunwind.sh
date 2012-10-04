@@ -12,7 +12,7 @@ source "bldr.sh"
 
 pkg_ctry="compilers"
 pkg_name="libunwind"
-pkg_vers="1.0.1"
+
 pkg_info="libunwind provides a portable and efficient C programming interface (API) to determine the call-chain of a program."
 
 pkg_desc="libunwind provides a portable and efficient C programming interface (API) to determine the call-chain of a program.
@@ -24,39 +24,48 @@ The source-code is released under the MIT open source license. In the normal spi
 we encourage contributions and enhancements to this library. Particularly we would like to see libunwind support 
 for other platforms (linux and non-linux, support for other processor architectures)."
 
-pkg_file="$pkg_name-$pkg_vers.tar.gz"
-pkg_urls="http://download.savannah.gnu.org/releases/$pkg_name/$pkg_file"
-pkg_opts="configure"
-pkg_reqs="coreutils/latest libelf/latest"
+pkg_vers_dft="1.0.1"
+pkg_vers_list=("$pkg_vers_dft")
+
+pkg_opts="configure enable-static enable-shared"
+pkg_reqs="coreutils libelf"
 pkg_uses=""
 pkg_cflags=""
 pkg_ldflags=""
 pkg_cfg="" 
 
-if [[ $BLDR_SYSTEM_IS_LINUX == true ]]
-then
-     pkg_cflags="$pkg_cflags -fPIC"
-fi
+####################################################################################################
+# register each pkg version with bldr
+####################################################################################################
 
-####################################################################################################
-# build and install pkg as local module
-####################################################################################################
 if [[ $BLDR_SYSTEM_IS_OSX == true ]]
 then
      bldr_log_warning "'$pkg_name/$pkg_vers' is not supported on OSX.  Skipping ..."
 else
-     bldr_build_pkg --category    "$pkg_ctry"    \
-                    --name        "$pkg_name"    \
-                    --version     "$pkg_vers"    \
-                    --info        "$pkg_info"    \
-                    --description "$pkg_desc"    \
-                    --file        "$pkg_file"    \
-                    --url         "$pkg_urls"    \
-                    --uses        "$pkg_uses"    \
-                    --requires    "$pkg_reqs"    \
-                    --options     "$pkg_opts"    \
-                    --cflags      "$pkg_cflags"  \
-                    --ldflags     "$pkg_ldflags" \
-                    --config      "$pkg_cfg"
+     for pkg_vers in ${pkg_vers_list[@]}
+     do
+          pkg_file="$pkg_name-$pkg_vers.tar.gz"
+          pkg_urls="http://download.savannah.gnu.org/releases/$pkg_name/$pkg_file"
+
+          bldr_register_pkg                 \
+               --category    "$pkg_ctry"    \
+               --name        "$pkg_name"    \
+               --version     "$pkg_vers"    \
+               --default     "$pkg_vers_dft"\
+               --info        "$pkg_info"    \
+               --description "$pkg_desc"    \
+               --file        "$pkg_file"    \
+               --url         "$pkg_urls"    \
+               --uses        "$pkg_uses"    \
+               --requires    "$pkg_reqs"    \
+               --options     "$pkg_opts"    \
+               --cflags      "$pkg_cflags"  \
+               --ldflags     "$pkg_ldflags" \
+               --config      "$pkg_cfg"     \
+               --config-path "$pkg_cfg_path"
+     done
 fi
+
+####################################################################################################
+
 

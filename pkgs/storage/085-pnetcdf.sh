@@ -12,7 +12,6 @@ source "bldr.sh"
 
 pkg_ctry="storage"
 pkg_name="pnetcdf"
-pkg_vers="4.2.1.1"
 
 pkg_info="NetCDF is a set of software libraries and self-describing, machine-independent data formats that support the creation, access, and sharing of array-oriented scientific data."
 
@@ -25,26 +24,24 @@ and other languages. The netCDF libraries support a machine-independent format f
 representing scientific data. Together, the interfaces, libraries, and format support 
 the creation, access, and sharing of scientific data."
 
-pkg_file="netcdf-$pkg_vers.tar.gz"
-pkg_urls="http://www.unidata.ucar.edu/downloads/netcdf/ftp/$pkg_file"
-pkg_opts="configure"
-pkg_reqs="szip/latest zlib/latest phdf5/latest openmpi/1.6 gfortran/latest"
-pkg_uses="$pkg_reqs"
+pkg_vers_dft="4.2.1.1"
+pkg_vers_list=("$pkg_vers_dft")
 
-if [[ $BLDR_SYSTEM_IS_LINUX == true ]]; then
-    pkg_cflags="$pkg_cflags -fPIC"
-fi
+pkg_opts="configure enable-static enable-shared"
+pkg_reqs="szip zlib phdf5 openmpi gfortran"
+pkg_uses="$pkg_reqs"
 
 ####################################################################################################
 # satisfy pkg dependencies and load their environment settings
 ####################################################################################################
 
-bldr_satisfy_pkg --category    "$pkg_ctry"    \
-                 --name        "$pkg_name"    \
-                 --version     "$pkg_vers"    \
-                 --requires    "$pkg_reqs"    \
-                 --uses        "$pkg_uses"    \
-                 --options     "$pkg_opts"
+bldr_satisfy_pkg                  \
+  --category    "$pkg_ctry"       \
+  --name        "$pkg_name"       \
+  --version     "$pkg_vers_dft"   \
+  --requires    "$pkg_reqs"       \
+  --uses        "$pkg_uses"       \
+  --options     "$pkg_opts"
 
 ####################################################################################################
 
@@ -55,22 +52,30 @@ pkg_cfg="CC=mpicc FC=mpif90"
 pkg_cfg="$pkg_cfg --enable-netcdf4 --enable-mmap"
 
 ####################################################################################################
-# build and install pkg as local module
+# register each pkg version with bldr
 ####################################################################################################
 
-bldr_build_pkg --category    "$pkg_ctry"    \
-               --name        "$pkg_name"    \
-               --version     "$pkg_vers"    \
-               --info        "$pkg_info"    \
-               --description "$pkg_desc"    \
-               --file        "$pkg_file"    \
-               --url         "$pkg_urls"    \
-               --uses        "$pkg_uses"    \
-               --requires    "$pkg_reqs"    \
-               --options     "$pkg_opts"    \
-               --cflags      "$pkg_cflags"  \
-               --ldflags     "$pkg_ldflags" \
-               --config      "$pkg_cfg"
+for pkg_vers in ${pkg_vers_list[@]}
+do
+    pkg_file="netcdf-$pkg_vers.tar.gz"
+    pkg_urls="http://www.unidata.ucar.edu/downloads/netcdf/ftp/$pkg_file"
+
+    bldr_register_pkg                \
+        --category    "$pkg_ctry"    \
+        --name        "$pkg_name"    \
+        --version     "$pkg_vers"    \
+        --default     "$pkg_vers_dft"\
+        --info        "$pkg_info"    \
+        --description "$pkg_desc"    \
+        --file        "$pkg_file"    \
+        --url         "$pkg_urls"    \
+        --uses        "$pkg_uses"    \
+        --requires    "$pkg_reqs"    \
+        --options     "$pkg_opts"    \
+        --cflags      "$pkg_cflags"  \
+        --ldflags     "$pkg_ldflags" \
+        --config      "$pkg_cfg"     \
+        --config-path "$pkg_cfg_path"
+done
 
 ####################################################################################################
-

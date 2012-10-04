@@ -13,6 +13,8 @@ source "bldr.sh"
 pkg_ctry="compilers"
 pkg_name="clang"
 pkg_vers="3.1"
+pkg_vers_list=("$pkg_vers")
+
 pkg_info="Clang is an LLVM native C/C++/Objective-C compiler."
 
 pkg_desc="Clang is an LLVM native C/C++/Objective-C compiler, which aims to deliver 
@@ -22,11 +24,6 @@ a platform for building great source level tools. The Clang Static Analyzer is a
 that automatically finds bugs in your code, and is a great example of the sort of tool 
 that can be built using the Clang frontend as a library to parse C/C++ code."
 
-clang_pkg_file="$pkg_name-$pkg_vers.src.tar.gz"
-clang_pkg_urls="http://llvm.org/releases/$pkg_vers/$clang_pkg_file"
-
-pkg_file="llvm-$pkg_vers.src.tar.gz"
-pkg_urls="http://llvm.org/releases/$pkg_vers/$pkg_file"
 pkg_opts="configure -MBUILD_EXAMPLES=0"
 pkg_reqs="libffi/latest"
 pkg_uses="$pkg_reqs"
@@ -44,6 +41,7 @@ function bldr_pkg_fetch_method()
     local pkg_ctry=""
     local pkg_name="" 
     local pkg_vers=""
+    local pkg_vers_dft=""
     local pkg_info=""
     local pkg_desc=""
     local pkg_file=""
@@ -62,6 +60,7 @@ function bldr_pkg_fetch_method()
            --verbose)       use_verbose="$2"; shift 2;;
            --name)          pkg_name="$2"; shift 2;;
            --version)       pkg_vers="$2"; shift 2;;
+           --default)       pkg_vers_dft="$2"; shift 2;;
            --info)          pkg_info="$2"; shift 2;;
            --description)   pkg_desc="$2"; shift 2;;
            --category)      pkg_ctry="$2"; shift 2;;
@@ -95,6 +94,7 @@ function bldr_pkg_fetch_method()
        --category    "$pkg_ctry"     \
        --name        "$pkg_name"     \
        --version     "$pkg_vers"     \
+       --default     "$pkg_vers_dft" \
        --file        "$pkg_file"     \
        --url         "$pkg_urls"     \
        --uses        "$pkg_uses"     \
@@ -106,6 +106,9 @@ function bldr_pkg_fetch_method()
        --config      "$pkg_cfg"      \
        --config-path "$pkg_cfg_path" \
        --verbose     "$use_verbose"
+
+    clang_pkg_file="$pkg_name-$pkg_vers.src.tar.gz"
+    clang_pkg_urls="http://llvm.org/releases/$pkg_vers/$clang_pkg_file"
 
     bldr_push_dir "$BLDR_CACHE_PATH"
     if [ ! -e "$BLDR_CACHE_PATH/$clang_pkg_file" ]
@@ -140,21 +143,32 @@ function bldr_pkg_fetch_method()
 }
 
 ####################################################################################################
-# build and install pkg as local module
+# register each pkg version with bldr
 ####################################################################################################
 
-bldr_build_pkg --category    "$pkg_ctry"    \
-               --name        "$pkg_name"    \
-               --version     "$pkg_vers"    \
-               --info        "$pkg_info"    \
-               --description "$pkg_desc"    \
-               --file        "$pkg_file"    \
-               --url         "$pkg_urls"    \
-               --uses        "$pkg_uses"    \
-               --requires    "$pkg_reqs"    \
-               --options     "$pkg_opts"    \
-               --cflags      "$pkg_cflags"  \
-               --ldflags     "$pkg_ldflags" \
-               --config      "$pkg_cfg"
+for pkg_vers in ${pkg_vers_list[@]}
+do
+     pkg_file="$pkg_name-$pkg_vers.tar.gz"
+     pkg_urls="http://code.entropywave.com/download/$pkg_name/$pkg_file"
+
+     bldr_register_pkg                 \
+          --category    "$pkg_ctry"    \
+          --name        "$pkg_name"    \
+          --version     "$pkg_vers"    \
+          --default     "$pkg_vers_dft"\
+          --info        "$pkg_info"    \
+          --description "$pkg_desc"    \
+          --file        "$pkg_file"    \
+          --url         "$pkg_urls"    \
+          --uses        "$pkg_uses"    \
+          --requires    "$pkg_reqs"    \
+          --options     "$pkg_opts"    \
+          --cflags      "$pkg_cflags"  \
+          --ldflags     "$pkg_ldflags" \
+          --config      "$pkg_cfg"     \
+          --config-path "$pkg_cfg_path"
+done
+
+####################################################################################################
 
 

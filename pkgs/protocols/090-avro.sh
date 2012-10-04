@@ -12,7 +12,6 @@ source "bldr.sh"
 
 pkg_ctry="protocols"
 pkg_name="avro"
-pkg_vers="1.7.1"
 
 pkg_info="Apache Avro is a data serialisation system."
 
@@ -37,12 +36,12 @@ can all be easily resolved.
 Avro schemas are defined with JSON . This facilitates implementation in languages 
 that already have JSON libraries."
 
-pkg_file="$pkg_name-cpp-$pkg_vers.tar.gz"
-pkg_urls="http://mirror.overthewire.com.au/pub/apache/$pkg_name/$pkg_name-$pkg_vers/cpp/$pkg_file;http://mirror.nexcess.net/apache/$pkg_name/$pkg_name-$pkg_vers/cpp/$pkg_file"
-pkg_opts="cmake"
-pkg_reqs="zlib/latest boost/latest"
-pkg_uses="$pkg_reqs"
+pkg_vers_dft="1.7.1"
+pkg_vers_list=("$pkg_vers_dft")
 
+pkg_opts="cmake"
+pkg_reqs="zlib boost"
+pkg_uses="$pkg_reqs"
 
 ####################################################################################################
 # satisfy pkg dependencies and load their environment settings
@@ -51,7 +50,7 @@ pkg_uses="$pkg_reqs"
 bldr_satisfy_pkg               \
   --category    "$pkg_ctry"    \
   --name        "$pkg_name"    \
-  --version     "$pkg_vers"    \
+  --version     "$pkg_vers_dft"\
   --requires    "$pkg_reqs"    \
   --uses        "$pkg_uses"    \
   --options     "$pkg_opts"
@@ -74,21 +73,30 @@ pkg_cfg="$pkg_cfg:-DBOOST_ROOT=\"$BLDR_BOOST_BASE_PATH\""
 pkg_cfg="$pkg_cfg:-DBOOST_INCLUDEDIR=\"$BLDR_BOOST_BASE_PATH/include\""
 
 ####################################################################################################
-# build and install pkg as local module
+# register each pkg version with bldr
 ####################################################################################################
 
-bldr_build_pkg --category    "$pkg_ctry"    \
-               --name        "$pkg_name"    \
-               --version     "$pkg_vers"    \
-               --info        "$pkg_info"    \
-               --description "$pkg_desc"    \
-               --file        "$pkg_file"    \
-               --url         "$pkg_urls"    \
-               --uses        "$pkg_uses"    \
-               --requires    "$pkg_reqs"    \
-               --options     "$pkg_opts"    \
-               --cflags      "$pkg_cflags"  \
-               --ldflags     "$pkg_ldflags" \
-               --config      "$pkg_cfg"
+for pkg_vers in ${pkg_vers_list[@]}
+do
+    pkg_file="$pkg_name-cpp-$pkg_vers.tar.gz"
+    pkg_urls="http://mirror.overthewire.com.au/pub/apache/$pkg_name/$pkg_name-$pkg_vers/cpp/$pkg_file;http://mirror.nexcess.net/apache/$pkg_name/$pkg_name-$pkg_vers/cpp/$pkg_file"
+
+    bldr_register_pkg                  \
+          --category    "$pkg_ctry"    \
+          --name        "$pkg_name"    \
+          --version     "$pkg_vers"    \
+          --default     "$pkg_vers_dft"\
+          --info        "$pkg_info"    \
+          --description "$pkg_desc"    \
+          --file        "$pkg_file"    \
+          --url         "$pkg_urls"    \
+          --uses        "$pkg_uses"    \
+          --requires    "$pkg_reqs"    \
+          --options     "$pkg_opts"    \
+          --cflags      "$pkg_cflags"  \
+          --ldflags     "$pkg_ldflags" \
+          --config      "$pkg_cfg"     \
+          --config-path "$pkg_cfg_path"
+done
 
 ####################################################################################################

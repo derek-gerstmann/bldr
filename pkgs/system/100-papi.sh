@@ -12,7 +12,6 @@ source "bldr.sh"
 
 pkg_ctry="system"
 pkg_name="papi"
-pkg_vers="4.4.0"
 
 pkg_info="The Performance API (PAPI) project specifies a standard application programming interface (API) for accessing hardware performance counters available on most modern microprocessors."
 
@@ -28,13 +27,16 @@ it is hoped that this information will prove useful in the development of new co
 as well as in steering architectural development towards alleviating commonly occurring bottlenecks 
 in high performance computing."
 
-pkg_file="$pkg_name-$pkg_vers.tar.gz"
-pkg_urls="http://icl.cs.utk.edu/projects/papi/downloads/$pkg_file"
+pkg_vers_dft="4.4.0"
+pkg_vers_list=("$pkg_vers_dft" "5.0.1")
+
 pkg_opts="configure force-serial-build"
 pkg_uses=""
 pkg_reqs=""
+
 pkg_cflags=""
 pkg_ldflags=""
+
 pkg_cfg=""
 pkg_cfg_path="src"
 
@@ -44,21 +46,30 @@ then
 fi
 
 ####################################################################################################
-# build and install pkg as local module
+# register each pkg version with bldr
 ####################################################################################################
 
-bldr_build_pkg --category    "$pkg_ctry"    \
-               --name        "$pkg_name"    \
-               --version     "$pkg_vers"    \
-               --info        "$pkg_info"    \
-               --description "$pkg_desc"    \
-               --file        "$pkg_file"    \
-               --url         "$pkg_urls"    \
-               --uses        "$pkg_uses"    \
-               --requires    "$pkg_reqs"    \
-               --options     "$pkg_opts"    \
-               --cflags      "$pkg_cflags"  \
-               --ldflags     "$pkg_ldflags" \
-               --config      "$pkg_cfg"     \
-               --config-path "$pkg_cfg_path"
+for pkg_vers in ${pkg_vers_list[@]}
+do
+    pkg_file="$pkg_name-$pkg_vers.tar.gz"
+    pkg_urls="http://icl.cs.utk.edu/projects/papi/downloads/$pkg_file"
 
+    bldr_register_pkg                  \
+          --category    "$pkg_ctry"    \
+          --name        "$pkg_name"    \
+          --version     "$pkg_vers"    \
+          --default     "$pkg_vers_dft"\
+          --info        "$pkg_info"    \
+          --description "$pkg_desc"    \
+          --file        "$pkg_file"    \
+          --url         "$pkg_urls"    \
+          --uses        "$pkg_uses"    \
+          --requires    "$pkg_reqs"    \
+          --options     "$pkg_opts"    \
+          --cflags      "$pkg_cflags"  \
+          --ldflags     "$pkg_ldflags" \
+          --config      "$pkg_cfg"     \
+          --config-path "$pkg_cfg_path"
+done
+
+####################################################################################################

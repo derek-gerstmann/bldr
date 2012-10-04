@@ -22,8 +22,6 @@ methods (MAM). By using this library, any application will be able to perform si
 and uniform platform for MAM developers which allows fair comparisons among all methods 
 implemented by this library."
 
-pkg_file="arboretum-1.0R2.tar.gz"
-pkg_urls="http://www.gbdi.icmc.usp.br/?q=system/files/arboretum-1.0R2.tar_.gz"
 pkg_opts="configure skip-config skip-compile skip-install migrate-build-tree"
 pkg_uses=""
 pkg_reqs=""
@@ -32,22 +30,30 @@ pkg_cflags=""
 pkg_ldflags=""
 
 ####################################################################################################
-# build and install pkg as local module
+# register each pkg version with bldr
 ####################################################################################################
 
-bldr_build_pkg                    \
-     --category    "$pkg_ctry"    \
-     --name        "$pkg_name"    \
-     --version     "$pkg_vers"    \
-     --info        "$pkg_info"    \
-     --description "$pkg_desc"    \
-     --file        "$pkg_file"    \
-     --url         "$pkg_urls"    \
-     --uses        "$pkg_uses"    \
-     --requires    "$pkg_reqs"    \
-     --options     "$pkg_opts"    \
-     --cflags      "$pkg_cflags"  \
-     --ldflags     "$pkg_ldflags" \
-     --config      "$pkg_cfg"
+for pkg_vers in ${pkg_vers_list[@]}
+do
+     pkg_file="arboretum-1.0R2.tar.gz"
+     pkg_urls="http://www.gbdi.icmc.usp.br/?q=system/files/arboretum-1.0R2.tar_.gz"
 
+     bldr_register_pkg                 \
+          --category    "$pkg_ctry"    \
+          --name        "$pkg_name"    \
+          --version     "$pkg_vers"    \
+          --default     "$pkg_vers_dft"\
+          --info        "$pkg_info"    \
+          --description "$pkg_desc"    \
+          --file        "$pkg_file"    \
+          --url         "$pkg_urls"    \
+          --uses        "$pkg_uses"    \
+          --requires    "$pkg_reqs"    \
+          --options     "$pkg_opts"    \
+          --cflags      "$pkg_cflags"  \
+          --ldflags     "$pkg_ldflags" \
+          --config      "$pkg_cfg"     \
+          --config-path "$pkg_cfg_path"
+done
 
+####################################################################################################

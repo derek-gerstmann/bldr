@@ -12,7 +12,6 @@ source "bldr.sh"
 
 pkg_ctry="internal"
 pkg_name="make"
-pkg_vers="3.82"
 
 pkg_info="GNU Make is a tool which controls the generation of executables and other non-source files of a program from the program's source files."
 
@@ -24,31 +23,43 @@ lists each of the non-source files and how to compute it from other files. When 
 program, you should write a makefile for it, so that it is possible to use Make to build and 
 install the program."
 
-pkg_file="$pkg_name-$pkg_vers.tar.gz"
-pkg_urls="http://ftp.gnu.org/gnu/make/$pkg_file"
+pkg_vers_dft="3.82"
+pkg_vers_list=("$pkg_vers_dft")
+
 pkg_opts="configure force-static"
-pkg_uses="m4/latest autoconf/latest automake/latest"
+pkg_uses="m4 autoconf automake"
 pkg_reqs="$pkg_uses"
+
 pkg_cflags=""
 pkg_ldflags=""
 pkg_cfg=""
 
 ####################################################################################################
-# build and install pkg as local module
+# register each pkg version with bldr
 ####################################################################################################
 
-bldr_build_pkg --category    "$pkg_ctry"    \
-               --name        "$pkg_name"    \
-               --version     "$pkg_vers"    \
-               --info        "$pkg_info"    \
-               --description "$pkg_desc"    \
-               --file        "$pkg_file"    \
-               --url         "$pkg_urls"    \
-               --uses        "$pkg_uses"    \
-               --requires    "$pkg_reqs"    \
-               --options     "$pkg_opts"    \
-               --cflags      "$pkg_cflags"  \
-               --ldflags     "$pkg_ldflags" \
-               --config      "$pkg_cfg"
+for pkg_vers in ${pkg_vers_list[@]}
+do
+     pkg_file="$pkg_name-$pkg_vers.tar.gz"
+     pkg_urls="http://ftp.gnu.org/gnu/make/$pkg_file"
 
+     bldr_register_pkg                \
+         --category    "$pkg_ctry"    \
+         --name        "$pkg_name"    \
+         --version     "$pkg_vers"    \
+         --default     "$pkg_vers_dft"\
+         --info        "$pkg_info"    \
+         --description "$pkg_desc"    \
+         --file        "$pkg_file"    \
+         --url         "$pkg_urls"    \
+         --uses        "$pkg_uses"    \
+         --requires    "$pkg_reqs"    \
+         --options     "$pkg_opts"    \
+         --cflags      "$pkg_cflags"  \
+         --ldflags     "$pkg_ldflags" \
+         --config      "$pkg_cfg"     \
+         --config-path "$pkg_cfg_path"
+done
+
+####################################################################################################
 

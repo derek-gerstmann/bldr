@@ -12,7 +12,6 @@ source "bldr.sh"
 
 pkg_ctry="protocols"
 pkg_name="thrift"
-pkg_vers="0.8.0"
 
 pkg_info="The Apache Thrift software framework provides scalable cross-language services development tools."
 
@@ -21,17 +20,21 @@ development, combines a software stack with a code generation engine to build se
 that work efficiently and seamlessly between C++, Java, Python, PHP, Ruby, Erlang, Perl, 
 Haskell, C#, Cocoa, JavaScript, Node.js, Smalltalk, OCaml and Delphi and other languages."
 
-pkg_file="$pkg_name-$pkg_vers.tar.gz"
-pkg_urls="https://dist.apache.org/repos/dist/release/$pkg_name/$pkg_vers/$pkg_file"
-pkg_opts="configure force-serial-build use-build-makefile=Makefile -EPYTHONPATH+=$BLDR_LOCAL_ENV_PATH/$pkg_ctry/$pkg_name/$pkg_vers/bindings/python/lib/python2.7/site-packages"
-pkg_reqs="pkg-config/latest"
-pkg_reqs="$pkg_reqs bison/latest"
-pkg_reqs="$pkg_reqs flex/latest"
-pkg_reqs="$pkg_reqs boost/latest"
-pkg_reqs="$pkg_reqs openssl/latest"
-pkg_reqs="$pkg_reqs libevent/latest"
-pkg_reqs="$pkg_reqs python/2.7.3"
-pkg_reqs="$pkg_reqs glib/latest"
+pkg_vers_dft="0.8.0"
+pkg_vers_list=("$pkg_vers_dft")
+
+pkg_opts="configure force-serial-build"
+pkg_opts="$pkg_opts use-build-makefile=Makefile"
+pkg_opts="$pkg_opts -EPYTHONPATH+=$BLDR_LOCAL_ENV_PATH/$pkg_ctry/$pkg_name/$pkg_vers/bindings/python/lib/python2.7/site-packages"
+
+pkg_reqs="pkg-config"
+pkg_reqs="$pkg_reqs bison"
+pkg_reqs="$pkg_reqs flex"
+pkg_reqs="$pkg_reqs boost"
+pkg_reqs="$pkg_reqs openssl"
+pkg_reqs="$pkg_reqs libevent"
+pkg_reqs="$pkg_reqs python"
+pkg_reqs="$pkg_reqs glib"
 pkg_uses="$pkg_reqs"
 
 ####################################################################################################
@@ -41,7 +44,7 @@ pkg_uses="$pkg_reqs"
 bldr_satisfy_pkg               \
   --category    "$pkg_ctry"    \
   --name        "$pkg_name"    \
-  --version     "$pkg_vers"    \
+  --version     "$pkg_vers_dft"\
   --requires    "$pkg_reqs"    \
   --uses        "$pkg_uses"    \
   --options     "$pkg_opts"
@@ -63,21 +66,30 @@ pkg_cfg="$pkg_cfg PHP_PREFIX=$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/bind
 pkg_cfg="$pkg_cfg PHP_CONFIG_PREFIX=$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/bindings/php/etc"
 
 ####################################################################################################
-# build and install pkg as local module
+# register each pkg version with bldr
 ####################################################################################################
 
-bldr_build_pkg --category    "$pkg_ctry"    \
-               --name        "$pkg_name"    \
-               --version     "$pkg_vers"    \
-               --info        "$pkg_info"    \
-               --description "$pkg_desc"    \
-               --file        "$pkg_file"    \
-               --url         "$pkg_urls"    \
-               --uses        "$pkg_uses"    \
-               --requires    "$pkg_reqs"    \
-               --options     "$pkg_opts"    \
-               --cflags      "$pkg_cflags"  \
-               --ldflags     "$pkg_ldflags" \
-               --config      "$pkg_cfg"	    \
-	       --config-path "."
+for pkg_vers in ${pkg_vers_list[@]}
+do
+    pkg_file="$pkg_name-$pkg_vers.tar.gz"
+    pkg_urls="https://dist.apache.org/repos/dist/release/$pkg_name/$pkg_vers/$pkg_file"
 
+    bldr_register_pkg                  \
+          --category    "$pkg_ctry"    \
+          --name        "$pkg_name"    \
+          --version     "$pkg_vers"    \
+          --default     "$pkg_vers_dft"\
+          --info        "$pkg_info"    \
+          --description "$pkg_desc"    \
+          --file        "$pkg_file"    \
+          --url         "$pkg_urls"    \
+          --uses        "$pkg_uses"    \
+          --requires    "$pkg_reqs"    \
+          --options     "$pkg_opts"    \
+          --cflags      "$pkg_cflags"  \
+          --ldflags     "$pkg_ldflags" \
+          --config      "$pkg_cfg"     \
+          --config-path "."
+done
+
+####################################################################################################
