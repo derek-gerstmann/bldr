@@ -13,6 +13,9 @@ source "bldr.sh"
 pkg_ctry="typography"
 pkg_name="pango"
 
+pkg_default="1.30.1"
+pkg_variants=("1.30.1")
+
 pkg_info="Pango is a library for laying out and rendering of text, with an emphasis on internationalization."
 
 pkg_desc="Pango is a library for laying out and rendering of text, with an emphasis on 
@@ -46,19 +49,19 @@ internationalized text.
 Pango depends on 2.x series of the GLib library; more information about GLib can be 
 found at http://www.gtk.org/."
 
-pkg_vers_dft="1.30.1"
-pkg_vers_list=("$pkg_vers_dft")
+pkg_opts="configure "
+pkg_opts+="enable-static "
+pkg_opts+="enable-shared "
 
-pkg_opts="configure"
-pkg_reqs="pkg-config"
-pkg_reqs="$pkg_reqs zlib"
-pkg_reqs="$pkg_reqs libicu"
-pkg_reqs="$pkg_reqs libiconv"
-pkg_reqs="$pkg_reqs libxml2"
-pkg_reqs="$pkg_reqs freetype"
-pkg_reqs="$pkg_reqs fontconfig"
-pkg_reqs="$pkg_reqs gettext"
-pkg_reqs="$pkg_reqs glib"
+pkg_reqs="pkg-config "
+pkg_reqs+="zlib "
+pkg_reqs+="libicu "
+pkg_reqs+="libiconv "
+pkg_reqs+="libxml2 "
+pkg_reqs+="freetype "
+pkg_reqs+="fontconfig "
+pkg_reqs+="gettext "
+pkg_reqs+="glib "
 pkg_uses="$pkg_reqs"
 
 ####################################################################################################
@@ -68,24 +71,24 @@ pkg_uses="$pkg_reqs"
 bldr_satisfy_pkg                  \
   --category    "$pkg_ctry"       \
   --name        "$pkg_name"       \
-  --version     "$pkg_vers_dft"   \
+  --version     "$pkg_default"    \
   --requires    "$pkg_reqs"       \
   --uses        "$pkg_uses"       \
   --options     "$pkg_opts"
 
 ####################################################################################################
 
-pkg_cfg="--enable-static --enable-shared --disable-introspection"
+pkg_cfg="--disable-introspection"
 pkg_cflags=""
-pkg_cflags="$pkg_cflags:-I$BLDR_GLIB_INCLUDE_PATH/glib-2.0"
-pkg_cflags="$pkg_cflags:-I$BLDR_GLIB_INCLUDE_PATH/gio-unix-2.0"
+pkg_cflags+=":-I$BLDR_GLIB_INCLUDE_PATH/glib-2.0"
+pkg_cflags+=":-I$BLDR_GLIB_INCLUDE_PATH/gio-unix-2.0"
 pkg_ldflags=""
 
 ####################################################################################################
 # register each pkg version with bldr
 ####################################################################################################
 
-for pkg_vers in ${pkg_vers_list[@]}
+for pkg_vers in ${pkg_variants[@]}
 do
     pkg_file="$pkg_name-$pkg_vers.tar.xz"
     pkg_urls="http://ftp.gnome.org/pub/GNOME/sources/$pkg_name/1.30/$pkg_file"
@@ -94,7 +97,7 @@ do
          --category    "$pkg_ctry"    \
          --name        "$pkg_name"    \
          --version     "$pkg_vers"    \
-         --default     "$pkg_vers_dft"\
+         --default     "$pkg_default" \
          --info        "$pkg_info"    \
          --description "$pkg_desc"    \
          --file        "$pkg_file"    \

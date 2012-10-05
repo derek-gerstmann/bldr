@@ -10,9 +10,13 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_vers="0.9.0"
 pkg_ctry="distributed"
 pkg_name="mesos"
+
+pkg_default="0.9.0"
+pkg_variants=("0.9.0")
+pkg_distribs=("mesos-0.9.0-incubating.tar.gz")
+pkg_mirrors=("http://apache.mirror.uber.com.au/incubator/mesos/mesos-0.9.0-incubating")
 
 pkg_info="Apache Mesos is a cluster manager that provides efficient resource isolation and sharing across distributed applications, or frameworks."
 
@@ -21,20 +25,23 @@ sharing across distributed applications, or frameworks. It can run Hadoop, MPI, 
 Spark (a new framework for low-latency interactive and iterative jobs), and other applications.
  Mesos is open source in the Apache Incubator."
 
-pkg_opts="configure skip-auto-compile-flags"
-pkg_reqs="python/2.7.3 cppunit/latest"
+pkg_opts="configure "
+pkg_opts+="skip-auto-compile-flags "
+
+pkg_reqs="python "
+pkg_reqs+="cppunit "
 
 if [[ $BLDR_SYSTEM_IS_OSX == true ]]
 then
-    pkg_opts="$pkg_opts use-config-script=configure.macosx"
+    pkg_opts+="use-config-script=configure.macosx "
 
 elif [[ $BLDR_SYSTEM_IS_LINUX == true ]]
 then
-    pkg_opts="$pkg_opts use-config-scripts=configure"
-    pkg_reqs="$pkg_reqs libunwind/latest"
+    pkg_opts+="use-config-scripts=configure "
+    pkg_reqs+="libunwind "
 
 else
-    pkg_opts="$pkg_opts use-config-scripts=configure"
+    pkg_opts+="use-config-scripts=configure "
 fi
 
 pkg_uses="$pkg_uses"
@@ -43,23 +50,24 @@ pkg_uses="$pkg_uses"
 # satisfy pkg dependencies and load their environment settings
 ####################################################################################################
 
-bldr_satisfy_pkg --category    "$pkg_ctry"    \
-                 --name        "$pkg_name"    \
-                 --version     "$pkg_vers"    \
-                 --requires    "$pkg_reqs"    \
-                 --uses        "$pkg_uses"    \
-                 --options     "$pkg_opts"
+bldr_satisfy_pkg                 \
+    --category    "$pkg_ctry"    \
+    --name        "$pkg_name"    \
+    --version     "$pkg_default" \
+    --requires    "$pkg_reqs"    \
+    --uses        "$pkg_uses"    \
+    --options     "$pkg_opts"
 
 ####################################################################################################
 
-
 pkg_cflags=""
 pkg_ldflags=""
+
 pkg_cfg=""
-pkg_cfg="$pkg_cfg --with-webui"
-pkg_cfg="$pkg_cfg --with-included-zookeeper"
-pkg_cfg="$pkg_cfg --with-python-headers=\"$BLDR_PYTHON_INCLUDE_PATH\""
-pkg_cfg="$pkg_cfg PYTHON=\"$BLDR_PYTHON_BIN_PATH/python\""
+pkg_cfg+="--with-webui "
+pkg_cfg+="--with-included-zookeeper "
+pkg_cfg+="--with-python-headers=\"$BLDR_PYTHON_INCLUDE_PATH\" "
+pkg_cfg+="PYTHON=\"$BLDR_PYTHON_BIN_PATH/python\" "
 
 ####################################################################################################
 
@@ -70,52 +78,39 @@ then
 else
     if [[ -d "/usr/java/default" ]]
     then
-        pkg_cfg="$pkg_cfg JAVA_HOME=\"/usr/java/default\""
+        pkg_cfg+="JAVA_HOME=\"/usr/java/default\" "
     fi
 fi
 
 ####################################################################################################
-# build and install each pkg version as local module
+# register each pkg version with bldr
 ####################################################################################################
 
-pkg_file="$pkg_name-$pkg_vers.tar.gz"
-pkg_urls="http://apache.mirror.uber.com.au/incubator/mesos/mesos-0.9.0-incubating/mesos-0.9.0-incubating.tar.gz"
-bldr_build_pkg                   \
-    --category    "$pkg_ctry"    \
-    --name        "$pkg_name"    \
-    --version     "$pkg_vers"    \
-    --info        "$pkg_info"    \
-    --description "$pkg_desc"    \
-    --file        "$pkg_file"    \
-    --url         "$pkg_urls"    \
-    --uses        "$pkg_uses"    \
-    --requires    "$pkg_reqs"    \
-    --options     "$pkg_opts"    \
-    --patch       "$pkg_patch"   \
-    --cflags      "$pkg_cflags"  \
-    --ldflags     "$pkg_ldflags" \
-    --config      "$pkg_cfg"
+let pkg_idx=0
+for pkg_vers in ${pkg_variants[@]}
+do
+    pkg_file=${pkg_distribs[$pkg_idx]}
+    pkg_host=${pkg_mirrors[$pkg_idx]}
+    pkg_urls="$pkg_host/$pkg_urls"
+
+    bldr_register_pkg                 \
+         --category    "$pkg_ctry"    \
+         --name        "$pkg_name"    \
+         --version     "$pkg_vers"    \
+         --default     "$pkg_default" \
+         --info        "$pkg_info"    \
+         --description "$pkg_desc"    \
+         --file        "$pkg_file"    \
+         --url         "$pkg_urls"    \
+         --uses        "$pkg_uses"    \
+         --requires    "$pkg_reqs"    \
+         --options     "$pkg_opts"    \
+         --cflags      "$pkg_cflags"  \
+         --ldflags     "$pkg_ldflags" \
+         --config      "$pkg_cfg"     \
+         --config-path "$pkg_cfg_path"
+    
+    let pkg_idx++
+done
 
 ####################################################################################################
-# build and install the trunk as a local module
-####################################################################################################
-
-# pkg_vers="trunk"
-# pkg_file="$pkg_name-$pkg_vers.tar.gz"
-# pkg_urls="git://git.apache.org/mesos.git"
-# pkg_opts="$pkg_opts force-bootstrap no-bootstrap-prefix"
-# bldr_build_pkg                   \
-#     --category    "$pkg_ctry"    \
-#     --name        "$pkg_name"    \
-#     --version     "$pkg_vers"    \
-#     --info        "$pkg_info"    \
-#     --description "$pkg_desc"    \
-#     --file        "$pkg_file"    \
-#     --url         "$pkg_urls"    \
-#     --uses        "$pkg_uses"    \
-#     --requires    "$pkg_reqs"    \
-#     --options     "$pkg_opts"    \
-#     --patch       "$pkg_patch"   \
-#     --cflags      "$pkg_cflags"  \
-#     --ldflags     "$pkg_ldflags" \
-#     --config      "$pkg_cfg"

@@ -12,7 +12,9 @@ source "bldr.sh"
 
 pkg_ctry="distributed"
 pkg_name="ftb"
-pkg_vers="0.6.2"
+
+pkg_default="0.6.2"
+pkg_variants=("0.6.2")
 
 pkg_info="FTB is a facility for Checkpoint-Restart and Job Pause-Migration-Restart Frameworks."
 
@@ -22,14 +24,23 @@ FTB has been developed and standardized by the CIFTS project. It enables faults 
 and holistic manner in the entire system, providing for an infrastructure which can be used by 
 different software systems to exchange fault-related information."
 
-pkg_file="$pkg_name-$pkg_vers.tgz"
-pkg_urls="http://www.mcs.anl.gov/research/cifts/software/$pkg_file"
-pkg_opts="configure force-bootstrap force-serial-build"
+pkg_opts="configure "
+pkg_opts+="enable-static "
+pkg_opts+="enable-shared "
+pkg_opts+="force-bootstrap "
+pkg_opts+="force-serial-build "
+
+pkg_cfg=""
+if [ $BLDR_SYSTEM_IS_LINUX == true ]
+then
+   pkg_cfg+="--with-platform=linux "
+fi
+
 pkg_reqs=""
 pkg_uses=""
+
 pkg_cflags=""
 pkg_ldflags=""
-pkg_cfg="--enable-static --enable-shared --with-platform=linux"
 
 ####################################################################################################
 
@@ -39,6 +50,7 @@ function bldr_pkg_boot_method()
     local pkg_ctry=""
     local pkg_name="" 
     local pkg_vers=""
+    local pkg_default=""
     local pkg_info=""
     local pkg_desc=""
     local pkg_file=""
@@ -57,6 +69,7 @@ function bldr_pkg_boot_method()
            --verbose)       use_verbose="$2"; shift 2;;
            --name)          pkg_name="$2"; shift 2;;
            --version)       pkg_vers="$2"; shift 2;;
+           --default)       pkg_default="$2"; shift 2;;
            --info)          pkg_info="$2"; shift 2;;
            --description)   pkg_desc="$2"; shift 2;;
            --category)      pkg_ctry="$2"; shift 2;;
@@ -80,6 +93,7 @@ function bldr_pkg_boot_method()
        --category    "$pkg_ctry"     \
        --name        "$pkg_name"     \
        --version     "$pkg_vers"     \
+       --default     "$pkg_default"  \
        --file        "$pkg_file"     \
        --url         "$pkg_urls"     \
        --uses        "$pkg_uses"     \
@@ -118,18 +132,27 @@ then
      bldr_log_warning "$pkg_name isn't supported on MacOSX.  Skipping..."
      bldr_log_split
 else
-     bldr_build_pkg --category    "$pkg_ctry"    \
-                    --name        "$pkg_name"    \
-                    --version     "$pkg_vers"    \
-                    --info        "$pkg_info"    \
-                    --description "$pkg_desc"    \
-                    --file        "$pkg_file"    \
-                    --url         "$pkg_urls"    \
-                    --uses        "$pkg_uses"    \
-                    --requires    "$pkg_reqs"    \
-                    --options     "$pkg_opts"    \
-                    --cflags      "$pkg_cflags"  \
-                    --ldflags     "$pkg_ldflags" \
-                    --config      "$pkg_cfg"
+    for pkg_vers in ${pkg_variants[@]}
+    do
+        pkg_file="$pkg_name-$pkg_vers.tgz"
+        pkg_urls="http://www.mcs.anl.gov/research/cifts/software/$pkg_file"
+
+        bldr_register_pkg                  \
+              --category    "$pkg_ctry"    \
+              --name        "$pkg_name"    \
+              --version     "$pkg_vers"    \
+              --default     "$pkg_default" \
+              --info        "$pkg_info"    \
+              --description "$pkg_desc"    \
+              --file        "$pkg_file"    \
+              --url         "$pkg_urls"    \
+              --uses        "$pkg_uses"    \
+              --requires    "$pkg_reqs"    \
+              --options     "$pkg_opts"    \
+              --cflags      "$pkg_cflags"  \
+              --ldflags     "$pkg_ldflags" \
+              --config      "$pkg_cfg"     \
+              --config-path "$pkg_cfg_path"
+    done
 fi
 

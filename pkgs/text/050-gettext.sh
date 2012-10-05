@@ -13,6 +13,9 @@ source "bldr.sh"
 pkg_ctry="text"
 pkg_name="gettext"
 
+pkg_default="0.18.1.1"
+pkg_variants=("0.18.1.1")
+
 pkg_info="GNU gettext is designed to minimize the impact of internationalization on program sources."
 
 pkg_desc="GNU gettext is designed to minimize the impact of internationalization on program sources, 
@@ -27,17 +30,17 @@ to know for properly doing their translating work. Also, this supplemental docum
 also help programmers, and even curious users, in understanding how GNU gettext is related to the 
 remainder of the Translation Project, and consequently, have a glimpse at the big picture."
 
-pkg_vers_dft="0.18.1.1"
-pkg_vers_list=("$pkg_vers")
+pkg_opts="configure "
+pkg_opts+="enable-static "
+pkg_opts+="enable-shared "
 
-pkg_opts="configure enable-static enable-shared"
-pkg_reqs="$pkg_reqs coreutils"
-pkg_reqs="$pkg_reqs zlib"
-pkg_reqs="$pkg_reqs libicu"
-pkg_reqs="$pkg_reqs libunistring"
-pkg_reqs="$pkg_reqs expat"
-pkg_reqs="$pkg_reqs libxml2"
-pkg_reqs="$pkg_reqs libiconv"
+pkg_reqs="coreutils "
+pkg_reqs+="zlib "
+pkg_reqs+="libicu "
+pkg_reqs+="libunistring "
+pkg_reqs+="expat "
+pkg_reqs+="libxml2 "
+pkg_reqs+="libiconv "
 pkg_uses="$pkg_reqs"
 
 ####################################################################################################
@@ -47,20 +50,22 @@ pkg_uses="$pkg_reqs"
 bldr_satisfy_pkg                 \
     --category    "$pkg_ctry"    \
     --name        "$pkg_name"    \
-    --version     "$pkg_vers_dft"\
+    --version     "$pkg_default" \
     --requires    "$pkg_reqs"    \
     --uses        "$pkg_uses"    \
     --options     "$pkg_opts"
 
 ####################################################################################################
 
-pkg_cfg="--with-gnu-ld --without-emacs --disable-rpath"
-pkg_cfg="$pkg_cfg --with-included-libunistring"
-pkg_cfg="$pkg_cfg --with-included-libcroco"
-pkg_cfg="$pkg_cfg --with-libunistring-prefix=\"$BLDR_LIBUNISTRING_BASE_PATH\""
-pkg_cfg="$pkg_cfg --with-libexpat-prefix=\"$BLDR_EXPAT_BASE_PATH\""
-pkg_cfg="$pkg_cfg --with-libxml2-prefix=\"$BLDR_LIBXML2_BASE_PATH\""
-pkg_cfg="$pkg_cfg --with-libiconv-prefix=\"$BLDR_LIBICONV_BASE_PATH\""
+pkg_cfg="--with-gnu-ld "
+pkg_cfg+="--without-emacs "
+pkg_cfg+="--disable-rpath "
+pkg_cfg+="--with-included-libunistring "
+pkg_cfg+="--with-included-libcroco "
+pkg_cfg+="--with-libunistring-prefix=\"$BLDR_LIBUNISTRING_BASE_PATH\" "
+pkg_cfg+="--with-libexpat-prefix=\"$BLDR_EXPAT_BASE_PATH\" "
+pkg_cfg+="--with-libxml2-prefix=\"$BLDR_LIBXML2_BASE_PATH\" "
+pkg_cfg+="--with-libiconv-prefix=\"$BLDR_LIBICONV_BASE_PATH\" "
 
 pkg_patch=""
 pkg_cflags=""
@@ -70,7 +75,7 @@ pkg_ldflags=""
 # register each pkg version with bldr
 ####################################################################################################
 
-for pkg_vers in ${pkg_vers_list[@]}
+for pkg_vers in ${pkg_variants[@]}
 do
     pkg_file="$pkg_name-$pkg_vers.tar.gz"
     pkg_urls="http://ftp.gnu.org/pub/gnu/gettext/$pkg_file"
@@ -79,7 +84,7 @@ do
         --category    "$pkg_ctry"    \
         --name        "$pkg_name"    \
         --version     "$pkg_vers"    \
-        --default     "$pkg_vers_dft"\
+        --default     "$pkg_default" \
         --info        "$pkg_info"    \
         --description "$pkg_desc"    \
         --file        "$pkg_file"    \

@@ -13,12 +13,12 @@ source "bldr.sh"
 pkg_ctry="network"
 pkg_name="collage"
 
+pkg_default="trunk"
+pkg_variants=("trunk")
+
 pkg_info="Cross-platform C++ library for building heterogenous, distributed applications "
 
 pkg_desc="Cross-platform C++ library for building heterogenous, distributed applications."
-
-pkg_vers_dft="trunk"
-pkg_vers_list=("$pkg_vers_dft")
 
 pkg_opts="cmake force-inplace-build"
 pkg_reqs="tar boost lunchbox"
@@ -31,7 +31,7 @@ pkg_uses="$pkg_reqs"
 bldr_satisfy_pkg               \
   --category    "$pkg_ctry"    \
   --name        "$pkg_name"    \
-  --version     "$pkg_vers_dft"\
+  --version     "$pkg_default" \
   --requires    "$pkg_reqs"    \
   --uses        "$pkg_uses"    \
   --options     "$pkg_opts"
@@ -41,12 +41,12 @@ bldr_satisfy_pkg               \
 export BOOST_ROOT=$BLDR_BOOST_BASE_PATH
 export BOOST_INCLUDEDIR=$BLDR_BOOST_INCLUDE_PATH
 
-pkg_cfg="$pkg_cfg:-DBOOST_ROOT=\"$BLDR_BOOST_BASE_PATH\""
-pkg_cfg="$pkg_cfg:-DBOOST_INCLUDEDIR=\"$BLDR_BOOST_INCLUDE_PATH\""
-pkg_cfg="$pkg_cfg:-DBoost_NO_SYSTEM_PATHS=ON"
-pkg_cfg="$pkg_cfg:-DBoost_NO_BOOST_CMAKE=ON"
-pkg_cfg="$pkg_cfg:-DBoost_DIR=\"$BLDR_BOOST_BASE_PATH\""
-pkg_cfg="$pkg_cfg:-DBoost_INCLUDE_DIR=\"$BLDR_BOOST_INCLUDE_PATH\""
+pkg_cfg="-DBOOST_ROOT=\"$BLDR_BOOST_BASE_PATH\""
+pkg_cfg+=":-DBOOST_INCLUDEDIR=\"$BLDR_BOOST_INCLUDE_PATH\""
+pkg_cfg+=":-DBoost_NO_SYSTEM_PATHS=ON"
+pkg_cfg+=":-DBoost_NO_BOOST_CMAKE=ON"
+pkg_cfg+=":-DBoost_DIR=\"$BLDR_BOOST_BASE_PATH\""
+pkg_cfg+=":-DBoost_INCLUDE_DIR=\"$BLDR_BOOST_INCLUDE_PATH\""
 
 pkg_cflags=""
 pkg_ldflags=""
@@ -55,7 +55,7 @@ pkg_ldflags=""
 # build and install pkg as local module
 ####################################################################################################
 
-for pkg_vers in ${pkg_vers_list[@]}
+for pkg_vers in ${pkg_variants[@]}
 do
       pkg_file="$pkg_name-$pkg_vers.tar.bz2"
       pkg_urls="git://github.com/Eyescale/Collage.git"
@@ -64,7 +64,7 @@ do
           --category    "$pkg_ctry"    \
           --name        "$pkg_name"    \
           --version     "$pkg_vers"    \
-          --default     "$pkg_vers_dft"\
+          --default     "$pkg_default" \
           --info        "$pkg_info"    \
           --description "$pkg_desc"    \
           --file        "$pkg_file"    \

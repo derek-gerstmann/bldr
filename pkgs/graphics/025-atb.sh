@@ -12,7 +12,10 @@ source "bldr.sh"
 
 pkg_ctry="graphics"
 pkg_name="atb"
-pkg_vers="1.1.5"
+
+pkg_default="1.1.5"
+pkg_variants=("1.1.5")
+pkg_distribs=("AntTweakBar_115.zip")
 
 pkg_info="AntTweakBar is a small and easy-to-use C/C++ library for parameter adjusting GUI interfaces."
 
@@ -29,19 +32,22 @@ The AntTweakBar library mainly targets graphical applications that need a quick 
 parameters (even in fullscreen mode) and see the result in real-time like 3D demos, games, 
 prototypes, inline editors, debug facilities of weightier graphical applications, etc."
 
-pkg_file="AntTweakBar_115.zip"
-pkg_urls="http://www.antisphere.com/Tools/AntTweakBar/$pkg_file"
-pkg_opts="configure migrate-build-headers migrate-build-source migrate-build-bin"
-pkg_opts="$pkg_opts use-base-dir=AntTweakBar use-build-tree=AntTweakBar"
+pkg_opts="configure "
+pkg_opts+="migrate-build-headers "
+pkg_opts+="migrate-build-source "
+pkg_opts+="migrate-build-bin "
+pkg_opts+="use-base-dir=AntTweakBar "
+pkg_opts+="use-build-tree=AntTweakBar "
+
 pkg_uses=""
 pkg_reqs=""
 
 if [[ $BLDR_SYSTEM_IS_OSX == true ]]
 then
-  pkg_opts="$pkg_opts use-build-makefile=Makefile.osx"
+  pkg_opts+="use-build-makefile=Makefile.osx "
 else
-  pkg_opts="$pkg_opts use-build-makefile=Makefile"
-  pkg_uses="freeglut/latest"
+  pkg_opts+="use-build-makefile=Makefile "
+  pkg_uses="freeglut"
 fi
 
 pkg_reqs="$pkg_uses"
@@ -51,23 +57,36 @@ pkg_ldflags=""
 pkg_cfg_path="AntTweakBar/src"
 
 ####################################################################################################
-# build and install pkg as local module
+# register each pkg version with bldr
 ####################################################################################################
 
-bldr_build_pkg                 \
-  --category    "$pkg_ctry"    \
-  --name        "$pkg_name"    \
-  --version     "$pkg_vers"    \
-  --info        "$pkg_info"    \
-  --description "$pkg_desc"    \
-  --file        "$pkg_file"    \
-  --url         "$pkg_urls"    \
-  --uses        "$pkg_uses"    \
-  --requires    "$pkg_reqs"    \
-  --options     "$pkg_opts"    \
-  --cflags      "$pkg_cflags"  \
-  --ldflags     "$pkg_ldflags" \
-  --config      "$pkg_cfg"     \
-  --config-path "$pkg_cfg_path"
+let pkg_idx=0
+for pkg_vers in ${pkg_variants[@]}
+do
+     pkg_file=${pkg_distribs[$pkg_idx]}
+     pkg_urls="http://www.antisphere.com/Tools/AntTweakBar/$pkg_file"
+
+     bldr_register_pkg                \
+         --category    "$pkg_ctry"    \
+         --name        "$pkg_name"    \
+         --version     "$pkg_vers"    \
+         --default     "$pkg_default"\
+         --info        "$pkg_info"    \
+         --description "$pkg_desc"    \
+         --file        "$pkg_file"    \
+         --url         "$pkg_urls"    \
+         --uses        "$pkg_uses"    \
+         --requires    "$pkg_reqs"    \
+         --options     "$pkg_opts"    \
+         --cflags      "$pkg_cflags"  \
+         --ldflags     "$pkg_ldflags" \
+         --config      "$pkg_cfg"     \
+         --config-path "$pkg_cfg_path"
+
+    let pkg_idx++
+done
+
+####################################################################################################
+
 
 

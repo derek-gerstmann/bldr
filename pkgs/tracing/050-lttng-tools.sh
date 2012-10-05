@@ -13,6 +13,9 @@ source "bldr.sh"
 pkg_ctry="tracing"
 pkg_name="lttng-tools"
 
+pkg_default="2.0.4"
+pkg_variants=("2.0.4")
+
 pkg_info="Linux Trace Toolkit next generation tools (LTTng-tools) provides efficient tracing tools for Linux."
 
 pkg_desc="Linux Trace Toolkit next generation tools (LTTng-tools) provides efficient tracing tools for Linux.
@@ -25,11 +28,15 @@ The lttng command line tool from the lttng-tools package is used to control both
 and user-space tracing. Every interactions with the tracer should be done by this tool 
 or by the liblttng-ctl provided with the lttng-tools package."
 
-pkg_vers_dft="2.0.4"
-pkg_vers_list=("$pkg_vers_dft")
+pkg_opts="configure "
+pkg_opts+="enable-shared "
+pkg_opts+="enable-static "
 
-pkg_opts="configure enable-shared enable-static"
-pkg_reqs="liburcu lttng-ust babeltrace glib zlib"
+pkg_reqs="liburcu "
+pkg_reqs+="lttng-ust "
+pkg_reqs+="babeltrace "
+pkg_reqs+="glib "
+pkg_reqs+="zlib "
 pkg_uses="$pkg_reqs"
 
 ####################################################################################################
@@ -39,7 +46,7 @@ pkg_uses="$pkg_reqs"
 bldr_satisfy_pkg                 \
     --category    "$pkg_ctry"    \
     --name        "$pkg_name"    \
-    --version     "$pkg_vers_dft"\
+    --version     "$pkg_default" \
     --requires    "$pkg_reqs"    \
     --uses        "$pkg_uses"    \
     --options     "$pkg_opts"
@@ -63,7 +70,7 @@ then
      bldr_log_warning "$pkg_name isn't supported on MacOSX.  Skipping..."
      bldr_log_split
 else
-     for pkg_vers in ${pkg_vers_list[@]}
+     for pkg_vers in ${pkg_variants[@]}
      do
           pkg_file="$pkg_name-$pkg_vers.tar.bz2"
           pkg_urls="http://lttng.org/files/$pkg_name/$pkg_file"
@@ -72,7 +79,7 @@ else
                --category    "$pkg_ctry"    \
                --name        "$pkg_name"    \
                --version     "$pkg_vers"    \
-               --default     "$pkg_vers_dft"\
+               --default     "$pkg_default" \
                --info        "$pkg_info"    \
                --description "$pkg_desc"    \
                --file        "$pkg_file"    \

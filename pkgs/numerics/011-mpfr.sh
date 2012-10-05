@@ -12,7 +12,11 @@ source "bldr.sh"
 
 pkg_ctry="numerics"
 pkg_name="mpfr"
-pkg_info="GMP is a free library for arbitrary precision arithmetic, operating on signed integers, rational numbers, and floating point numbers."
+
+pkg_default="3.1.1"
+pkg_variants=("3.1.1")
+
+pkg_info="MPFR is a free library for arbitrary precision arithmetic, operating on signed integers, rational numbers, and floating point numbers."
 
 pkg_desc="The MPFR library is a C library for multiple-precision floating-point 
 computations with correct rounding. MPFR has continuously been supported by the 
@@ -26,9 +30,6 @@ computation which is both efficient and has a well-defined semantics. It copies 
 good ideas from the ANSI/IEEE-754 standard for double-precision floating-point 
 arithmetic (53-bit significand)."
 
-pkg_vers_dft="3.1.1"
-pkg_vers_list=("$pkg_vers_dft")
-
 pkg_opts="configure enable-static enable-shared"
 pkg_reqs="gmp"
 pkg_uses="$pkg_reqs"
@@ -40,7 +41,7 @@ pkg_uses="$pkg_reqs"
 bldr_satisfy_pkg                 \
     --category    "$pkg_ctry"    \
     --name        "$pkg_name"    \
-    --version     "$pkg_vers_dft"\
+    --version     "$pkg_default" \
     --requires    "$pkg_reqs"    \
     --uses        "$pkg_uses"    \
     --options     "$pkg_opts"
@@ -56,7 +57,7 @@ pkg_ldflags=""
 # build and install pkg as local module
 ####################################################################################################
 
-for pkg_vers in ${pkg_vers_list[@]}
+for pkg_vers in ${pkg_variants[@]}
 do
     pkg_file="$pkg_name-$pkg_vers.tar.bz2"
     pkg_urls="http://www.mpfr.org/mpfr-current/$pkg_file"
@@ -65,7 +66,7 @@ do
           --category    "$pkg_ctry"    \
           --name        "$pkg_name"    \
           --version     "$pkg_vers"    \
-          --default     "$pkg_vers_dft"\
+          --default     "$pkg_default" \
           --info        "$pkg_info"    \
           --description "$pkg_desc"    \
           --file        "$pkg_file"    \

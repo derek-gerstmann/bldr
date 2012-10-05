@@ -13,6 +13,9 @@ source "bldr.sh"
 pkg_ctry="storage"
 pkg_name="h5py"
 
+pkg_default="2.0.1"
+pkg_variants=("2.0.1")
+
 pkg_info="HDF5 for Python (h5py) is a general-purpose Python interface to the Hierarchical Data Format library, version 5."
 
 pkg_desc="HDF5 for Python (h5py) is a general-purpose Python interface to the 
@@ -28,9 +31,6 @@ You can create datasets (arrays on disk) hundreds of gigabytes in size, and perf
 I/O on desired sections. Datasets are organized in a filesystem-like hierarchy using containers 
 called groups, and accessed using the tradional POSIX /path/to/resource syntax."
 
-pkg_vers_dft="2.0.1"
-pkg_vers_list=("$pkg_vers_dft")
-
 pkg_opts="python skip-compile skip-install"
 pkg_reqs="hdf5 numpy"
 pkg_uses="python"
@@ -42,7 +42,7 @@ pkg_uses="python"
 bldr_satisfy_pkg                     \
     --category    "$pkg_ctry"        \
     --name        "$pkg_name"        \
-    --version     "$pkg_vers_dft"    \
+    --version     "$pkg_default"     \
     --requires    "$pkg_reqs"        \
     --uses        "$pkg_uses"        \
     --options     "$pkg_opts"
@@ -57,7 +57,7 @@ pkg_cfg=""
 # register each pkg version with bldr
 ####################################################################################################
 
-for pkg_vers in ${pkg_vers_list[@]}
+for pkg_vers in ${pkg_variants[@]}
 do
     pkg_file="$pkg_name-$pkg_vers.tar.gz"
     pkg_urls="https://h5py.googlecode.com/files/$pkg_file"
@@ -66,7 +66,7 @@ do
         --category    "$pkg_ctry"    \
         --name        "$pkg_name"    \
         --version     "$pkg_vers"    \
-        --default     "$pkg_vers_dft"\
+        --default     "$pkg_default" \
         --info        "$pkg_info"    \
         --description "$pkg_desc"    \
         --file        "$pkg_file"    \

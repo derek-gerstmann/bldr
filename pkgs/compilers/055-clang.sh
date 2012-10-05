@@ -12,8 +12,9 @@ source "bldr.sh"
 
 pkg_ctry="compilers"
 pkg_name="clang"
-pkg_vers="3.1"
-pkg_vers_list=("$pkg_vers")
+
+pkg_default="3.1"
+pkg_variants=("3.1")
 
 pkg_info="Clang is an LLVM native C/C++/Objective-C compiler."
 
@@ -25,7 +26,7 @@ that automatically finds bugs in your code, and is a great example of the sort o
 that can be built using the Clang frontend as a library to parse C/C++ code."
 
 pkg_opts="configure -MBUILD_EXAMPLES=0"
-pkg_reqs="libffi/latest"
+pkg_reqs="libffi"
 pkg_uses="$pkg_reqs"
 
 pkg_cflags=""
@@ -41,7 +42,7 @@ function bldr_pkg_fetch_method()
     local pkg_ctry=""
     local pkg_name="" 
     local pkg_vers=""
-    local pkg_vers_dft=""
+    local pkg_default=""
     local pkg_info=""
     local pkg_desc=""
     local pkg_file=""
@@ -60,7 +61,7 @@ function bldr_pkg_fetch_method()
            --verbose)       use_verbose="$2"; shift 2;;
            --name)          pkg_name="$2"; shift 2;;
            --version)       pkg_vers="$2"; shift 2;;
-           --default)       pkg_vers_dft="$2"; shift 2;;
+           --default)       pkg_default="$2"; shift 2;;
            --info)          pkg_info="$2"; shift 2;;
            --description)   pkg_desc="$2"; shift 2;;
            --category)      pkg_ctry="$2"; shift 2;;
@@ -94,7 +95,7 @@ function bldr_pkg_fetch_method()
        --category    "$pkg_ctry"     \
        --name        "$pkg_name"     \
        --version     "$pkg_vers"     \
-       --default     "$pkg_vers_dft" \
+       --default     "$pkg_default" \
        --file        "$pkg_file"     \
        --url         "$pkg_urls"     \
        --uses        "$pkg_uses"     \
@@ -146,16 +147,16 @@ function bldr_pkg_fetch_method()
 # register each pkg version with bldr
 ####################################################################################################
 
-for pkg_vers in ${pkg_vers_list[@]}
+for pkg_vers in ${pkg_variants[@]}
 do
-     pkg_file="$pkg_name-$pkg_vers.tar.gz"
-     pkg_urls="http://code.entropywave.com/download/$pkg_name/$pkg_file"
+     pkg_file="llvm-$pkg_vers.src.tar.gz"
+     pkg_urls="http://llvm.org/releases/$pkg_vers/$pkg_file"
 
      bldr_register_pkg                 \
           --category    "$pkg_ctry"    \
           --name        "$pkg_name"    \
           --version     "$pkg_vers"    \
-          --default     "$pkg_vers_dft"\
+          --default     "$pkg_default" \
           --info        "$pkg_info"    \
           --description "$pkg_desc"    \
           --file        "$pkg_file"    \

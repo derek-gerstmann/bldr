@@ -13,14 +13,15 @@ source "bldr.sh"
 pkg_ctry="storage"
 pkg_name="h5fddsm"
 
+pkg_default="0.9.9"
+pkg_variants=("0.9.9")
+pkg_mirrors=("https://hpcforge.org/frs/download.php/59")
+
 pkg_info="H5F-DDSM is a Virtual File Driver for HDF5 which uses parallel communication to transfer data between applications using the HDF5 IO API and a distributed shared memory (DSM) buffer."
 
 pkg_desc="H5F-DDSM is a Virtual File Driver for HDF5 which uses parallel communication 
 to transfer data between applications using the HDF5 IO API and a distributed shared 
 memory (DSM) buffer."
-
-pkg_vers_dft="0.9.9"
-pkg_vers_list=("$pkg_vers_dft")
 
 pkg_opts="cmake"
 pkg_reqs="szip zlib szip openmpi hdf5-vfd"
@@ -33,7 +34,7 @@ pkg_uses="$pkg_reqs"
 bldr_satisfy_pkg                \
   --category    "$pkg_ctry"     \
   --name        "$pkg_name"     \
-  --version     "$pkg_vers_dft" \
+  --version     "$pkg_default"  \
   --requires    "$pkg_reqs"     \
   --uses        "$pkg_uses"     \
   --options     "$pkg_opts"
@@ -55,16 +56,18 @@ pkg_cfg="$pkg_cfg:-HDF5_DIR=$BLDR_HDF5_VFD_SHARE_PATH/cmake/hdf5-version"
 # register each pkg version with bldr
 ####################################################################################################
 
-for pkg_vers in ${pkg_vers_list[@]}
+let pkg_idx=0
+for pkg_vers in ${pkg_variants[@]}
 do
     pkg_file="$pkg_name-$pkg_vers.tar.bz2"
-    pkg_urls="https://hpcforge.org/frs/download.php/59/$pkg_file"
+    pkg_host=${pkg_mirrors[$pkg_idx]}
+    pkg_urls="$pkg_host/$pkg_file"
 
     bldr_register_pkg                \
         --category    "$pkg_ctry"    \
         --name        "$pkg_name"    \
         --version     "$pkg_vers"    \
-        --default     "$pkg_vers_dft"\
+        --default     "$pkg_default" \
         --info        "$pkg_info"    \
         --description "$pkg_desc"    \
         --file        "$pkg_file"    \
@@ -76,6 +79,8 @@ do
         --ldflags     "$pkg_ldflags" \
         --config      "$pkg_cfg"     \
         --config-path "$pkg_cfg_path"
+
+    let pkg_idx++
 done
 
 ####################################################################################################

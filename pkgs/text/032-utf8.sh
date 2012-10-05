@@ -13,15 +13,18 @@ source "bldr.sh"
 pkg_ctry="text"
 pkg_name="utf8"
 
-pkg_vers_dft="2.3.2"
-pkg_vers_list=("$pkg_vers_dft")
-pkg_vers_urls=("http://aarnet.dl.sourceforge.net/project/utfcpp/utf8cpp_2x/Release%202.3.2/utf8_v2_3_2.zip")
+pkg_default="2.3.2"
+pkg_variants=("2.3.2")
+pkg_distribs=("http://aarnet.dl.sourceforge.net/project/utfcpp/utf8cpp_2x/Release%202.3.2/utf8_v2_3_2.zip")
 
 pkg_info="UTF8 is a C++ + STL compatible library for handling text encoded in UTF8."
 
 pkg_desc="UTF8 is a C++ + STL compatible library for handling text encoded in UTF8."
 
-pkg_opts="configure"
+pkg_opts="configure "
+pkg_opts+="enable-static "
+pkg_opts+="enable-shared "
+
 pkg_reqs="pkg-config zlib"
 pkg_uses="$pkg_reqs"
 
@@ -35,16 +38,16 @@ pkg_patch=""
 ####################################################################################################
 
 let pkg_idx=0
-for pkg_vers in ${pkg_vers_list[@]}
+for pkg_vers in ${pkg_variants[@]}
 do
     pkg_file="$pkg_name-$pkg_vers.zip"
-    pkg_urls=${pkg_vers_urls[$pkg_idx]}
+    pkg_urls=${pkg_distribs[$pkg_idx]}
 
     bldr_register_pkg                \
         --category    "$pkg_ctry"    \
         --name        "$pkg_name"    \
         --version     "$pkg_vers"    \
-        --default     "$pkg_vers_dft"\
+        --default     "$pkg_default" \
         --info        "$pkg_info"    \
         --description "$pkg_desc"    \
         --file        "$pkg_file"    \

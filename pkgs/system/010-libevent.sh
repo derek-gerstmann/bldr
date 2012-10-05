@@ -13,6 +13,9 @@ source "bldr.sh"
 pkg_ctry="system"
 pkg_name="libevent"
 
+pkg_default="2.0.20"
+pkg_variants=("2.0.20")
+
 pkg_info="Libevent provides a sophisticated framework for buffered network IO, with support for sockets, filters, rate-limiting, SSL, zero-copy file transmission, and IOCP."
 
 pkg_desc="The libevent API provides a mechanism to execute a callback function when 
@@ -32,10 +35,10 @@ for multi-threaded applications, either by isolating each event_base so that onl
 a single thread accesses it, or by locked access to a single shared event_base. 
 Libevent should compile on Linux, *BSD, Mac OS X, Solaris, Windows, and more."
 
-pkg_vers_dft="2.0.20"
-pkg_vers_list=("$pkg_vers_dft")
+pkg_opts="configure "
+pkg_opts+="enable-static "
+pkg_opts+="enable-shared "
 
-pkg_opts="configure enable-static enable-shared"
 pkg_uses=""
 pkg_reqs=""
 pkg_cflags=""
@@ -46,7 +49,7 @@ pkg_cfg=""
 # register each pkg version with bldr
 ####################################################################################################
 
-for pkg_vers in ${pkg_vers_list[@]}
+for pkg_vers in ${pkg_variants[@]}
 do
      pkg_file="$pkg_name-$pkg_vers-stable.tar.gz"
      pkg_urls="http://github.com/downloads/libevent/libevent/$pkg_file"
@@ -55,7 +58,7 @@ do
           --category    "$pkg_ctry"    \
           --name        "$pkg_name"    \
           --version     "$pkg_vers"    \
-          --default     "$pkg_vers_dft"\
+          --default     "$pkg_default" \
           --info        "$pkg_info"    \
           --description "$pkg_desc"    \
           --file        "$pkg_file"    \

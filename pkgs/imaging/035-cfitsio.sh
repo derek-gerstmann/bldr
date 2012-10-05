@@ -12,7 +12,9 @@ source "bldr.sh"
 
 pkg_ctry="imaging"
 pkg_name="cfitsio"
-pkg_vers="3.310"
+
+pkg_default="3.310"
+pkg_variants=("3.310")
 
 pkg_info="CFITSIO is a library of C and Fortran subroutines for reading and writing data files in FITS (Flexible Image Transport System) data format. "
 
@@ -23,36 +25,46 @@ FITS files that insulate the programmer from the internal complexities
 of the FITS format. CFITSIO also provides many advanced features for 
 manipulating and filtering the information in FITS files."
 
-pkg_file="cfitsio3310.tar.gz"
-pkg_urls="ftp://heasarc.gsfc.nasa.gov/software/fitsio/c/$pkg_file"
-pkg_opts="configure force-serial-build -Mshared"
-pkg_reqs="zlib/latest"
-pkg_uses="$pkg_reqs"
+pkg_opts="configure "
+pkg_opts+="enable-static "
+pkg_opts+="enable-shared "
+pkg_opts+="force-serial-build "
+pkg_opts+="-Mshared "
+
+pkg_reqs="zlib"
+pkg_uses="zlib"
+
+pkg_cfg="--enable-reentrant --enable-sse2 --enable-ssse3"
+
 pkg_cflags=""
 pkg_ldflags=""
-pkg_cfg="--enable-reentrant --enable-sse2 --enable-ssse3 --enable-shared --enable-static"
  
-if [[ $BLDR_SYSTEM_IS_LINUX == true ]]
-then
-     pkg_cflags="$pkg_cflags -fPIC"
-fi
-
 ####################################################################################################
-# build and install pkg as local module
+# register each pkg version with bldr
 ####################################################################################################
 
-bldr_build_pkg --category    "$pkg_ctry"    \
-               --name        "$pkg_name"    \
-               --version     "$pkg_vers"    \
-               --info        "$pkg_info"    \
-               --description "$pkg_desc"    \
-               --file        "$pkg_file"    \
-               --url         "$pkg_urls"    \
-               --uses        "$pkg_uses"    \
-               --requires    "$pkg_reqs"    \
-               --options     "$pkg_opts"    \
-               --cflags      "$pkg_cflags"  \
-               --ldflags     "$pkg_ldflags" \
-               --config      "$pkg_cfg"
+for pkg_vers in ${pkg_variants[@]}
+do
+     pkg_file="cfitsio3310.tar.gz"
+     pkg_urls="ftp://heasarc.gsfc.nasa.gov/software/fitsio/c/$pkg_file"
 
+     bldr_register_pkg                \
+         --category    "$pkg_ctry"    \
+         --name        "$pkg_name"    \
+         --version     "$pkg_vers"    \
+         --default     "$pkg_default" \
+         --info        "$pkg_info"    \
+         --description "$pkg_desc"    \
+         --file        "$pkg_file"    \
+         --url         "$pkg_urls"    \
+         --uses        "$pkg_uses"    \
+         --requires    "$pkg_reqs"    \
+         --options     "$pkg_opts"    \
+         --cflags      "$pkg_cflags"  \
+         --ldflags     "$pkg_ldflags" \
+         --config      "$pkg_cfg"     \
+         --config-path "$pkg_cfg_path"
+done
+
+####################################################################################################
 

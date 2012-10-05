@@ -25,11 +25,18 @@ People can either embed the library in their application or use xsltproc the
 command line processing tool. This library is free software and can be reused 
 in commercial applications (see the docs)."
 
-pkg_vers_dft="1.1.26"
-pkg_vers_list=("$pkg_vers_dft")
+pkg_default="1.1.26"
+pkg_variants=("1.1.26")
 
-pkg_opts="configure enable-static enable-shared"
-pkg_reqs="pkg-config coreutils zlib gzip libxml2"
+pkg_opts="configure "
+pkg_opts+="enable-static "
+pkg_opts+="enable-shared "
+
+pkg_reqs="pkg-config "
+pkg_reqs+="coreutils "
+pkg_reqs+="zlib "
+pkg_reqs+="gzip "
+pkg_reqs+="libxml2 "
 pkg_uses="$pkg_reqs"
 
 pkg_cflags=""
@@ -40,7 +47,7 @@ pkg_cfg=""
 # register each pkg version with bldr
 ####################################################################################################
 
-for pkg_vers in ${pkg_vers_list[@]}
+for pkg_vers in ${pkg_variants[@]}
 do
     pkg_file="$pkg_name-$pkg_vers.tar.gz"
     pkg_urls="http://xmlsoft.org/sources/$pkg_file"
@@ -49,7 +56,7 @@ do
         --category    "$pkg_ctry"    \
         --name        "$pkg_name"    \
         --version     "$pkg_vers"    \
-        --default     "$pkg_vers_dft"\
+        --default     "$pkg_default" \
         --info        "$pkg_info"    \
         --description "$pkg_desc"    \
         --file        "$pkg_file"    \

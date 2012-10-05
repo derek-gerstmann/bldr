@@ -12,6 +12,10 @@ source "bldr.sh"
 
 pkg_ctry="numerics"
 pkg_name="pip"
+
+pkg_default="1.4.0"
+pkg_variants=("1.4.0")
+
 pkg_info="PIP is software that finds the lexicographic minimum (or maximum) in the set of integer points belonging to a convex polyhedron."
 
 pkg_desc="PIP is software that finds the lexicographic minimum (or maximum) in the set 
@@ -25,11 +29,8 @@ The PIP Library (PipLib for short) was implemented to allow the user to call PIP
 from his programs, without file accesses or system calls. The user only needs to link 
 his programs with C libraries."
 
-pkg_vers_dft="1.4.0"
-pkg_vers_list=("$pkg_vers_dft")
-
-pkg_opts="configure force-bootstrap"
-pkg_reqs="gmp/latest"
+pkg_opts="configure force-bootstrap enable-static enable-shared"
+pkg_reqs="gmp"
 pkg_uses="$pkg_reqs"
 
 ####################################################################################################
@@ -54,7 +55,7 @@ pkg_ldflags=""
 # build and install pkg as local module
 ####################################################################################################
 
-for pkg_vers in ${pkg_vers_list[@]}
+for pkg_vers in ${pkg_variants[@]}
 do
     pkg_file="piplib-$pkg_vers.tar.gz"
     pkg_urls="http://www.bastoul.net/cloog/pages/download/count.php3?url=./$pkg_file"
@@ -63,7 +64,7 @@ do
           --category    "$pkg_ctry"    \
           --name        "$pkg_name"    \
           --version     "$pkg_vers"    \
-          --default     "$pkg_vers_dft"\
+          --default     "$pkg_default "\
           --info        "$pkg_info"    \
           --description "$pkg_desc"    \
           --file        "$pkg_file"    \

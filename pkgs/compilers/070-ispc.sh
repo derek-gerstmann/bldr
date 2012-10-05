@@ -13,6 +13,9 @@ source "bldr.sh"
 pkg_ctry="compilers"
 pkg_name="ispc"
 
+pkg_default="1.3.0"
+pkg_variants=("1.3.0")
+
 pkg_info="ISPC is a compiler for a variant of the C programming language, with extensions for single program, multiple data programming."
 
 pkg_desc="ISPC is a compiler for a variant of the C programming language, with extensions 
@@ -20,12 +23,12 @@ for single program, multiple data programming. Under the SPMD model, the program
 a program that generally appears to be a regular serial program, though the execution model 
 is actually that a number of program instances execute in parallel on the hardware."
 
-pkg_vers_dft="1.3.0"
-pkg_vers_list=("$pkg_vers")
+pkg_opts="configure "
+pkg_opts+="migrate-build-binaries "
+pkg_opts+="migrate-build-tree "
 
-pkg_opts="configure migrate-build-binaries migrate-build-tree"
-pkg_reqs="bison flex clang"
-pkg_uses="$pkg_reqs"
+pkg_reqs="tar gzip"
+pkg_uses=""
 
 pkg_cflags=""
 pkg_ldflags=""
@@ -35,7 +38,7 @@ pkg_cfg=""
 # register each pkg version with bldr
 ####################################################################################################
 
-for pkg_vers in ${pkg_vers_list}
+for pkg_vers in ${pkg_variants}
 do
      if [[ $BLDR_SYSTEM_IS_OSX == true ]]
      then
@@ -48,11 +51,11 @@ do
 
      pkg_urls="https://github.com/downloads/ispc/ispc/$pkg_file"
 
-     bldr_register_pkg                \
+     bldr_register_pkg               \
         --category    "$pkg_ctry"    \
         --name        "$pkg_name"    \
         --version     "$pkg_vers"    \
-        --default     "$pkg_vers_dft"\
+        --default     "$pkg_default" \
         --info        "$pkg_info"    \
         --description "$pkg_desc"    \
         --file        "$pkg_file"    \

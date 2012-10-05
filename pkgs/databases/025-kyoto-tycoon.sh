@@ -10,9 +10,12 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_vers="0.9.56"
 pkg_ctry="databases"
 pkg_name="kyoto-tycoon"
+
+pkg_default="0.9.56"
+pkg_variants=("0.9.56")
+
 pkg_info="Kyoto Tycoon is a lightweight database server."
 
 pkg_desc="Kyoto Tycoon is a lightweight database server with auto expiration 
@@ -38,53 +41,57 @@ The server program of Kyoto Tycoon is written in the C++ language. It is availab
 on platforms which have API conforming to C++03 with the TR1 library extensions. 
 Kyoto Tycoon is a free software licensed under the GNU General Public License."
 
-pkg_reqs="kyoto-cabinet/latest lua/latest"
+cfg_opts="configure enable-static enable-shared"
+pkg_reqs="kyoto-cabinet lua"
 pkg_uses="$pkg_reqs"
 
 ####################################################################################################
 # satisfy pkg dependencies and load their environment settings
 ####################################################################################################
 
-bldr_satisfy_pkg --category    "$pkg_ctry"    \
-                 --name        "$pkg_name"    \
-                 --version     "$pkg_vers"    \
-                 --requires    "$pkg_reqs"    \
-                 --uses        "$pkg_uses"    \
-                 --options     "$pkg_opts"
+bldr_satisfy_pkg                    \
+    --category    "$pkg_ctry"       \
+    --name        "$pkg_name"       \
+    --version     "$pkg_default"    \
+    --requires    "$pkg_reqs"       \
+    --uses        "$pkg_uses"       \
+    --options     "$pkg_opts"
 
 ####################################################################################################
 
 pkg_cfg=""
-pkg_cfg="$pkg_cfg --enable-lua"
-pkg_cfg="$pkg_cfg --with-lua=\"$BLDR_LUA_BASE_PATH\""
-pkg_cfg="$pkg_cfg --with-kc=\"$BLDR_KYOTO_CABINET_BASE_PATH\""
+pkg_cfg+="--enable-lua"
+pkg_cfg+="--with-lua=\"$BLDR_LUA_BASE_PATH\" "
+pkg_cfg+="--with-kc=\"$BLDR_KYOTO_CABINET_BASE_PATH\" "
 pkg_cfg_path=""
 
-if [[ $BLDR_SYSTEM_IS_LINUX == true ]]; then
-    pkg_cflags="$pkg_cflags -fPIC"
-fi
-
 ####################################################################################################
-# build and install each pkg version as local module
+# register each pkg version with bldr
 ####################################################################################################
 
-pkg_file="kyototycoon-$pkg_vers.tar.gz"
-pkg_opts="configure -MPREFIX=$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
-pkg_urls="http://fallabs.com/kyototycoon/pkg/$pkg_file"
+for pkg_vers in ${pkg_variants[@]}
+do
+    pkg_file="kyototycoon-$pkg_vers.tar.gz"
+    pkg_opts="$cfg_opts -MPREFIX=$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
+    pkg_urls="http://fallabs.com/kyototycoon/pkg/$pkg_file"
+     
+    bldr_register_pkg                 \
+         --category    "$pkg_ctry"    \
+         --name        "$pkg_name"    \
+         --version     "$pkg_vers"    \
+         --default     "$pkg_default" \
+         --info        "$pkg_info"    \
+         --description "$pkg_desc"    \
+         --file        "$pkg_file"    \
+         --url         "$pkg_urls"    \
+         --uses        "$pkg_uses"    \
+         --requires    "$pkg_reqs"    \
+         --options     "$pkg_opts"    \
+         --cflags      "$pkg_cflags"  \
+         --ldflags     "$pkg_ldflags" \
+         --config      "$pkg_cfg"     \
+         --config-path "$pkg_cfg_path"
+done
 
-bldr_build_pkg                   \
-    --category    "$pkg_ctry"    \
-    --name        "$pkg_name"    \
-    --version     "$pkg_vers"    \
-    --info        "$pkg_info"    \
-    --description "$pkg_desc"    \
-    --file        "$pkg_file"    \
-    --url         "$pkg_urls"    \
-    --uses        "$pkg_uses"    \
-    --requires    "$pkg_reqs"    \
-    --options     "$pkg_opts"    \
-    --cflags      "$pkg_cflags"  \
-    --ldflags     "$pkg_ldflags" \
-    --config      "$pkg_cfg"     
-
+####################################################################################################
 

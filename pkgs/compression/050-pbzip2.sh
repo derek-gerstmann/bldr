@@ -13,6 +13,9 @@ source "bldr.sh"
 pkg_ctry="compression"
 pkg_name="pbzip2"
 
+pkg_default="1.1.6"
+pkg_variants=("1.1.6")
+
 pkg_info="PBZIP2 is a parallel implementation of the bzip2 block-sorting file compressor."
 
 pkg_desc="PBZIP2 is a parallel implementation of the bzip2 block-sorting file compressor 
@@ -21,9 +24,6 @@ version is fully compatible with bzip2 v1.0.2 or newer (ie: anything compressed 
 can be decompressed with bzip2). PBZIP2 should work on any system that has a pthreads 
 compatible C++ compiler (such as gcc). It has been tested on: Linux, Windows 
 (cygwin & MinGW), Solaris, Tru64/OSF1, HP-UX, OS/2, and Irix."
-
-pkg_vers_dft="1.1.6"
-pkg_vers_list=("$pkg_vers_dft")
 
 pkg_opts="configure migrate-build-binaries skip-install"
 pkg_uses="m4 autoconf automake"
@@ -37,7 +37,7 @@ pkg_cfg=""
 # register each pkg version with bldr
 ####################################################################################################
 
-for pkg_vers in ${pkg_vers_list[@]}
+for pkg_vers in ${pkg_variants[@]}
 do
      pkg_file="$pkg_name-$pkg_vers.tar.gz"
      pkg_urls="http://compression.ca/pbzip2/$pkg_file"
@@ -46,7 +46,7 @@ do
           --category    "$pkg_ctry"    \
           --name        "$pkg_name"    \
           --version     "$pkg_vers"    \
-          --default     "$pkg_vers_dft"\
+          --default     "$pkg_default"\
           --info        "$pkg_info"    \
           --description "$pkg_desc"    \
           --file        "$pkg_file"    \

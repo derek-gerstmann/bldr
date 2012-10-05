@@ -12,7 +12,9 @@ source "bldr.sh"
 
 pkg_ctry="imaging"
 pkg_name="libjpeg"
-pkg_vers="8d"
+
+pkg_default="8d"
+pkg_variants=("8d")
 
 pkg_info="JPEG is a standardized compression method for full-color and gray-scale images."
 
@@ -26,36 +28,39 @@ core compression and decompression library can easily be reused in other
 programs, such as image viewers.  The package is highly portable C code;
 we have tested it on many machines ranging from PCs to Crays."
 
-pkg_file="jpegsrc.v8d.tar.gz"
-pkg_urls="http://www.ijg.org/files/$pkg_file"
-pkg_opts="configure"
-pkg_reqs="zlib/latest"
-pkg_uses="$pkg_reqs"
+pkg_opts="configure force-static"
+pkg_reqs="zlib"
+pkg_uses="zlib"
+
 pkg_cflags=""
 pkg_ldflags=""
-
-if [[ $BLDR_SYSTEM_IS_LINUX == true ]]
-then
-     pkg_cflags="$pkg_cflags -fPIC"
-fi
 pkg_cfg=""
 
 ####################################################################################################
-# build and install pkg as local module
+# register each pkg version with bldr
 ####################################################################################################
 
-bldr_build_pkg --category    "$pkg_ctry"    \
-               --name        "$pkg_name"    \
-               --version     "$pkg_vers"    \
-               --info        "$pkg_info"    \
-               --description "$pkg_desc"    \
-               --file        "$pkg_file"    \
-               --url         "$pkg_urls"    \
-               --uses        "$pkg_uses"    \
-               --requires    "$pkg_reqs"    \
-               --options     "$pkg_opts"    \
-               --cflags      "$pkg_cflags"  \
-               --ldflags     "$pkg_ldflags" \
-               --config      "$pkg_cfg"
+for pkg_vers in ${pkg_variants[@]}
+do
+     pkg_file="jpegsrc.v$pkg_vers.tar.gz"
+     pkg_urls="http://www.ijg.org/files/$pkg_file"
 
+     bldr_register_pkg                \
+         --category    "$pkg_ctry"    \
+         --name        "$pkg_name"    \
+         --version     "$pkg_vers"    \
+         --default     "$pkg_default" \
+         --info        "$pkg_info"    \
+         --description "$pkg_desc"    \
+         --file        "$pkg_file"    \
+         --url         "$pkg_urls"    \
+         --uses        "$pkg_uses"    \
+         --requires    "$pkg_reqs"    \
+         --options     "$pkg_opts"    \
+         --cflags      "$pkg_cflags"  \
+         --ldflags     "$pkg_ldflags" \
+         --config      "$pkg_cfg"     \
+         --config-path "$pkg_cfg_path"
+done
 
+####################################################################################################

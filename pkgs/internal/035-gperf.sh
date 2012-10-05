@@ -13,6 +13,9 @@ source "bldr.sh"
 pkg_ctry="internal"
 pkg_name="gperf"
 
+pkg_default="3.0.4"
+pkg_variants=("3.0.4")
+
 pkg_info="GNU gperf is a perfect hash function generator."
 
 pkg_desc="GNU gperf is a perfect hash function generator. For a given list of strings, 
@@ -27,9 +30,6 @@ tuning the algorithm employed by gperf.
 
 Online Manual is available at www.gnu.org/software/gperf/manual/gperf.html"
 
-pkg_vers_dft="3.0.4"
-pkg_vers_list=("$pkg_vers_dft")
-
 pkg_opts="configure force-static"
 pkg_uses="coreutils"
 pkg_reqs="coreutils"
@@ -42,7 +42,7 @@ pkg_cfg=""
 # register each pkg version with bldr
 ####################################################################################################
 
-for pkg_vers in ${pkg_vers_list[@]}
+for pkg_vers in ${pkg_variants[@]}
 do
      pkg_file="$pkg_name-$pkg_vers.tar.gz"
      pkg_urls="http://ftp.gnu.org/pub/gnu/$pkg_name/$pkg_file"
@@ -51,7 +51,7 @@ do
          --category    "$pkg_ctry"    \
          --name        "$pkg_name"    \
          --version     "$pkg_vers"    \
-         --default     "$pkg_vers_dft"\
+         --default     "$pkg_default" \
          --info        "$pkg_info"    \
          --description "$pkg_desc"    \
          --file        "$pkg_file"    \

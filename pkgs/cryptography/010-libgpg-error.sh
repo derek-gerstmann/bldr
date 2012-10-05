@@ -13,14 +13,14 @@ source "bldr.sh"
 pkg_ctry="cryptography"
 pkg_name="libgpg-error"
 
+pkg_default="1.10"
+pkg_variants=("1.10")
+
 pkg_info="The libgpg-error package contains a library that defines common error values for all GnuPG components."
 
 pkg_desc="The libgpg-error package contains a library that defines common error values for all GnuPG 
 components. Among these are GPG, GPGSM, GPGME, GPG-Agent, libgcrypt, Libksba, DirMngr, Pinentry, 
 SmartCard Daemon and more. "
-
-pkg_vers_dft="1.10"
-pkg_vers_list=("$pkg_vers_dft")
 
 pkg_opts="configure enable-static enable-shared"
 pkg_reqs="coreutils"
@@ -34,7 +34,7 @@ pkg_cfg=""
 # register each pkg version with bldr
 ####################################################################################################
 
-for pkg_vers in ${pkg_vers_list[@]}
+for pkg_vers in ${pkg_variants[@]}
 do
      pkg_file="$pkg_name-$pkg_vers.tar.bz2"
      pkg_urls="ftp://ftp.gnupg.org/gcrypt/$pkg_name/$pkg_file"
@@ -43,7 +43,7 @@ do
          --category    "$pkg_ctry"    \
          --name        "$pkg_name"    \
          --version     "$pkg_vers"    \
-         --default     "$pkg_vers_dft"\
+         --default     "$pkg_default" \
          --info        "$pkg_info"    \
          --description "$pkg_desc"    \
          --file        "$pkg_file"    \

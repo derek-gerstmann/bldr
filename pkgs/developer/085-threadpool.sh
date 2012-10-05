@@ -12,7 +12,12 @@ source "bldr.sh"
 
 pkg_ctry="developer"
 pkg_name="threadpool"
-pkg_vers="0.2.5"
+
+pkg_default="0.2.5"
+pkg_variants=("$pkg_default")
+pkg_distribs=("threadpool-0_2_5-src.zip")
+pkg_bases=("threadpool-0_2_5-src")
+pkg_mirrors=("http://sourceforge.net/projects/threadpool/files/threadpool/0.2.5%20%28Stable%29")
 
 pkg_info="ThreadPool is a cross-platform C++ thread pool library using the Boost C++ libraries."
 
@@ -30,15 +35,11 @@ stability is increased.
 The threadpool library provides a convenient way for dispatching asynchronous tasks. 
 Pools can be customized, managed dynamically and easily integrated into your software."
 
-pkg_file="threadpool-0_2_5-src.zip"
-pkg_urls="http://sourceforge.net/projects/threadpool/files/threadpool/0.2.5%20%28Stable%29/$pkg_file"
-pkg_opts="configure force-static skip-compile use-base-dir=threadpool-0_2_5-src"
-pkg_reqs="zlib/latest bzip2/latest libicu/latest boost/latest"
+pkg_reqs="zlib bzip2 libicu boost"
 pkg_uses="$pkg_reqs"
 pkg_cflags=""
 pkg_ldflags=""
 pkg_cfg=""
-pkg_cfg_path="threadpool-0_2_5-src/threadpool"
 
 ####################################################################################################
 
@@ -109,20 +110,36 @@ function bldr_pkg_install_method()
 }
 
 ####################################################################################################
-# build and install pkg as local module
+# register each pkg version with bldr
 ####################################################################################################
 
-bldr_build_pkg --category    "$pkg_ctry"    \
-               --name        "$pkg_name"    \
-               --version     "$pkg_vers"    \
-               --info        "$pkg_info"    \
-               --description "$pkg_desc"    \
-               --file        "$pkg_file"    \
-               --url         "$pkg_urls"    \
-               --uses        "$pkg_uses"    \
-               --requires    "$pkg_reqs"    \
-               --options     "$pkg_opts"    \
-               --cflags      "$pkg_cflags"  \
-               --ldflags     "$pkg_ldflags" \
-               --config      "$pkg_cfg"     \
-               --config-path "$pkg_cfg_path"
+let pkg_idx=0
+for pkg_vers in ${pkg_variants[@]}
+do
+    pkg_file=${pkg_distribs[$pkg_idx]}
+    pkg_base=${pkg_bases[$pkg_idx]}
+    pkg_urls="$pkg_host/$pkg_file"
+    pkg_opts="configure force-static skip-compile use-base-dir=$pkg_base"
+    pkg_cfg_path="$pkg_base/threadpool"
+
+    bldr_register_pkg                 \
+         --category    "$pkg_ctry"    \
+         --name        "$pkg_name"    \
+         --version     "$pkg_vers"    \
+         --default     "$pkg_default" \
+         --info        "$pkg_info"    \
+         --description "$pkg_desc"    \
+         --file        "$pkg_file"    \
+         --url         "$pkg_urls"    \
+         --uses        "$pkg_uses"    \
+         --requires    "$pkg_reqs"    \
+         --options     "$pkg_opts"    \
+         --cflags      "$pkg_cflags"  \
+         --ldflags     "$pkg_ldflags" \
+         --config      "$pkg_cfg"     \
+         --config-path "$pkg_cfg_path"
+
+     let pkg_idx++
+done
+
+####################################################################################################

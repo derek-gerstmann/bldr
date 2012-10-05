@@ -39,18 +39,18 @@ flexibility and power.
 In 1998, it was also referred to as the 'duct tape that holds the Internet together', 
 in reference to its ubiquity and perceived inelegance."
 
-pkg_vers_dft="5.16.1"
-pkg_ver_list=("$pkg_vers_dft")
+pkg_default="5.16.1"
+pkg_ver_list=("$pkg_default")
 
 pkg_opts="configure force-serial-build config-disable-prefix skip-xcode-config"
 pkg_reqs="coreutils tar make"
 pkg_uses="$pkg_reqs"
 
-pkg_cfg="-des -Dusethreads"
+pkg_cfg="-des -Dusethreads "
 
 if [[ $BLDR_SYSTEM_IS_64BIT == true ]]
 then
-    pkg_cfg="$pkg_cfg -Duse64bitall"
+    pkg_cfg+="-Duse64bitall "
 fi
 
 ####################################################################################################
@@ -67,7 +67,7 @@ do
           --category    "$pkg_ctry"    \
           --name        "$pkg_name"    \
           --version     "$pkg_vers"    \
-          --default     "$pkg_vers_dft"\
+          --default     "$pkg_default" \
           --info        "$pkg_info"    \
           --description "$pkg_desc"    \
           --file        "$pkg_file"    \

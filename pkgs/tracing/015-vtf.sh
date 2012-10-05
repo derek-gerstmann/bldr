@@ -13,28 +13,34 @@ source "bldr.sh"
 pkg_ctry="tracing"
 pkg_name="vtf"
 
+pkg_default="1.43"
+pkg_variants=("1.43")
+
 pkg_info="The Vampire Trace Format contains tools for trace date conversion or preparation."
 
 pkg_desc="The Vampire Trace Format contains tools for trace date conversion or preparation."
 
-pkg_vers_dft="1.43"
-pkg_vers_list=("$pkg_vers_dft")
-
-pkg_opts="configure skip-config skip-boot skip-compile skip-install migrate-build-headers migrate-build-bin"
+pkg_opts="configure "
+pkg_opts+="skip-config "
+pkg_opts+="skip-boot "
+pkg_opts+="skip-compile "
+pkg_opts+="skip-install "
+pkg_opts+="migrate-build-headers "
+pkg_opts+="migrate-build-bin "
 
 ####################################################################################################
 
 if [[ $BLDR_SYSTEM_IS_OSX == true ]]
 then
-     pkg_opts="$pkg_opts use-build-tree=apple"
+     pkg_opts+="use-build-tree=apple "
 
 elif [[ $BLDR_SYSTEM_IS_LINUX == true ]]
 then
      if [[ $BLDR_SYSTEM_IS_64BIT == true ]]
      then
-          pkg_opts="$pkg_opts use-build-tree=x86_64"
+          pkg_opts+="use-build-tree=x86_64 "
      else
-          pkg_opts="$pkg_opts use-build-tree=i386_linux"
+          pkg_opts+="use-build-tree=i386_linux "
      fi
 fi
 
@@ -51,7 +57,7 @@ pkg_cfg=""
 # register each pkg version with bldr
 ####################################################################################################
 
-for pkg_vers in ${pkg_vers_list[@]}
+for pkg_vers in ${pkg_variants[@]}
 do
      pkg_file="${pkg_name}3-$pkg_vers.tar.gz"
      pkg_urls="http://www.cs.uoregon.edu/research/paracomp/tau/$pkg_file"
@@ -60,7 +66,7 @@ do
           --category    "$pkg_ctry"    \
           --name        "$pkg_name"    \
           --version     "$pkg_vers"    \
-          --default     "$pkg_vers_dft"\
+          --default     "$pkg_default"\
           --info        "$pkg_info"    \
           --description "$pkg_desc"    \
           --file        "$pkg_file"    \

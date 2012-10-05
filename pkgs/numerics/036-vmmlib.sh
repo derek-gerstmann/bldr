@@ -12,7 +12,10 @@ source "bldr.sh"
 
 pkg_ctry="numerics"
 pkg_name="vmmlib"
-pkg_vers="trunk"
+
+pkg_default="trunk"
+pkg_variants=("trunk")
+
 pkg_info="vmmlib is a templatized C++ vector and matrix math library."
 
 pkg_desc="vmmlib is a templatized C++ vector and matrix math library. 
@@ -41,7 +44,7 @@ pkg_ldflags=""
 # build and install pkg as local module
 ####################################################################################################
 
-for pkg_vers in ${pkg_vers_list[@]}
+for pkg_vers in ${pkg_variants[@]}
 do
      pkg_file="$pkg_name-$pkg_vers-$BLDR_TIMESTAMP.tar.bz2"
      pkg_urls="git://github.com/VMML/vmmlib.git"
@@ -50,7 +53,7 @@ do
           --category    "$pkg_ctry"    \
           --name        "$pkg_name"    \
           --version     "$pkg_vers"    \
-          --default     "$pkg_vers_dft"\
+          --default     "$pkg_default" \
           --info        "$pkg_info"    \
           --description "$pkg_desc"    \
           --file        "$pkg_file"    \

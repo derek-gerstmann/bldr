@@ -13,6 +13,9 @@ source "bldr.sh"
 pkg_ctry="internal"
 pkg_name="make"
 
+pkg_default="3.82"
+pkg_variants=("3.82")
+
 pkg_info="GNU Make is a tool which controls the generation of executables and other non-source files of a program from the program's source files."
 
 pkg_desc="GNU Make is a tool which controls the generation of executables and other non-source 
@@ -22,9 +25,6 @@ Make gets its knowledge of how to build your program from a file called the make
 lists each of the non-source files and how to compute it from other files. When you write a 
 program, you should write a makefile for it, so that it is possible to use Make to build and 
 install the program."
-
-pkg_vers_dft="3.82"
-pkg_vers_list=("$pkg_vers_dft")
 
 pkg_opts="configure force-static"
 pkg_uses="m4 autoconf automake"
@@ -38,7 +38,7 @@ pkg_cfg=""
 # register each pkg version with bldr
 ####################################################################################################
 
-for pkg_vers in ${pkg_vers_list[@]}
+for pkg_vers in ${pkg_variants[@]}
 do
      pkg_file="$pkg_name-$pkg_vers.tar.gz"
      pkg_urls="http://ftp.gnu.org/gnu/make/$pkg_file"
@@ -47,7 +47,7 @@ do
          --category    "$pkg_ctry"    \
          --name        "$pkg_name"    \
          --version     "$pkg_vers"    \
-         --default     "$pkg_vers_dft"\
+         --default     "$pkg_default" \
          --info        "$pkg_info"    \
          --description "$pkg_desc"    \
          --file        "$pkg_file"    \

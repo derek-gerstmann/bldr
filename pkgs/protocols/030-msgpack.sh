@@ -12,6 +12,10 @@ source "bldr.sh"
 
 pkg_ctry="protocols"
 pkg_name="msgpack"
+
+pkg_default="0.5.7"
+pkg_variants=("0.5.7")
+
 pkg_info="MessagePack is an efficient binary serialization format. "
 
 pkg_desc="MessagePack is an efficient binary serialization format. 
@@ -24,9 +28,6 @@ If you ever wished to use JSON for convenience (storing an image with metadata)
 but could not for technical reasons (encoding, size, speed...), MessagePack 
 is a perfect replacement."
 
-pkg_vers_dft="0.5.7"
-pkg_vers_list=("$pkg_vers_dft")
-
 pkg_opts="configure force-static"
 pkg_reqs=""
 pkg_uses="$pkg_reqs"
@@ -38,16 +39,16 @@ pkg_ldflags=""
 # register each pkg version with bldr
 ####################################################################################################
 
-for pkg_vers in ${pkg_vers_list[@]}
+for pkg_vers in ${pkg_variants[@]}
 do
      pkg_file="$pkg_name-$pkg_vers.tar.gz"
      pkg_urls="http://msgpack.org/releases/cpp/$pkg_file"
 
-     bldr_register_pkg                  \
+     bldr_register_pkg                 \
           --category    "$pkg_ctry"    \
           --name        "$pkg_name"    \
           --version     "$pkg_vers"    \
-          --default     "$pkg_vers_dft"\
+          --default     "$pkg_default" \
           --info        "$pkg_info"    \
           --description "$pkg_desc"    \
           --file        "$pkg_file"    \

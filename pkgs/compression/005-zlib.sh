@@ -13,6 +13,9 @@ source "bldr.sh"
 pkg_ctry="compression"
 pkg_name="zlib"
 
+pkg_default="1.2.7"
+pkg_variants=("1.2.7")
+
 pkg_info="ZLIB is a massively spiffy yet delicately unobtrusive compression library"
 
 pkg_desc="ZLIB is designed to be a free, general-purpose, legally unencumbered --  
@@ -25,31 +28,34 @@ zlib's memory footprint is also independent of the input data and can be reduced
 necessary, at some cost in compression. A more precise, technical discussion of both 
 points is available on another page."
 
-pkg_vers_dft="1.2.7"
-pkg_vers_list=("$pkg_vers_dft")
+pkg_opts="configure "
+pkg_opts+="enable-static "
+pkg_opts+="enable-shared "
+pkg_opts+="skip-auto-compile-flags "
+pkg_opts+="config-prepend-env "
 
-pkg_opts="configure --enable-shared skip-auto-compile-flags config-prepend-env"
 pkg_uses="m4 autoconf automake"
 pkg_reqs=""
+
 pkg_cflags=""
 pkg_ldflags=""
-pkg_cfg="-t"
+pkg_cfg="-t "
 
 if [[ $BLDR_SYSTEM_IS_64BIT == true ]]
 then
-    pkg_cfg="$pkg_cfg -64"
+    pkg_cfg+="-64 "
 fi
 
 if [[ $BLDR_SYSTEM_IS_LINUX == true ]]
 then
-    export CFLAGS="-fPIC"
+    export CFLAGS="-fPIC "
 fi
 
 ####################################################################################################
 # register each pkg version with bldr
 ####################################################################################################
 
-for pkg_vers in ${pkg_vers_list[@]}
+for pkg_vers in ${pkg_variants[@]}
 do
       pkg_file="$pkg_name-$pkg_vers.tar.gz"
       pkg_urls="http://zlib.net/$pkg_file"
@@ -58,7 +64,7 @@ do
          --category    "$pkg_ctry"    \
          --name        "$pkg_name"    \
          --version     "$pkg_vers"    \
-         --default     "$pkg_vers_dft"\
+         --default     "$pkg_default" \
          --info        "$pkg_info"    \
          --description "$pkg_desc"    \
          --file        "$pkg_file"    \

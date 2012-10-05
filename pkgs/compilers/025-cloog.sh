@@ -13,6 +13,9 @@ source "bldr.sh"
 pkg_ctry="compilers"
 pkg_name="cloog"
 
+pkg_default="0.17.0"
+pkg_variants=("0.17.0")
+
 pkg_info="CLooG is a free software and library to generate code for scanning Z-polyhedra."
 
 pkg_desc="CLooG is a free software and library to generate code for scanning Z-polyhedra. 
@@ -30,16 +33,12 @@ like LooPo. Thus it is very 'compilable code oriented' and provides powerful pro
 transformation facilities. Mainly, it allows the user to specify very general schedules, 
 e.g. where unimodularity or invertibility doesn't matter."
 
-pkg_vers="0.17.0"
-pkg_vers_list=("$pkg_vers")
-
 pkg_opts="configure force-bootstrap enable-static enable-shared"
 
-pkg_reqs=""
-pkg_reqs="$pkg_reqs gmp"
-pkg_reqs="$pkg_reqs isl"
-pkg_reqs="$pkg_reqs osl"
-pkg_reqs="$pkg_reqs zlib"
+pkg_reqs="zlib"
+pkg_reqs+="gmp "
+pkg_reqs+="isl "
+pkg_reqs+="osl "
 pkg_uses="$pkg_reqs"
 
 ####################################################################################################
@@ -49,18 +48,17 @@ pkg_uses="$pkg_reqs"
 bldr_satisfy_pkg                   \
   --category    "$pkg_ctry"        \
   --name        "$pkg_name"        \
-  --version     "$pkg_vers_dft"    \
+  --version     "$pkg_default"     \
   --requires    "$pkg_reqs"        \
   --uses        "$pkg_uses"        \
   --options     "$pkg_opts"
 
 ####################################################################################################
 
-pkg_cfg=""
-pkg_cfg="$pkg_cfg --with-bits=gmp"
-pkg_cfg="$pkg_cfg --with-gmp=\"$BLDR_GMP_BASE_PATH\""
-pkg_cfg="$pkg_cfg --with-isl=\"$BLDR_ISL_BASE_PATH\""
-pkg_cfg="$pkg_cfg --with-osl=\"$BLDR_OSL_BASE_PATH\""
+pkg_cfg="--with-bits=gmp "
+pkg_cfg+="--with-gmp=\"$BLDR_GMP_BASE_PATH\" "
+pkg_cfg+="--with-isl=\"$BLDR_ISL_BASE_PATH\" "
+pkg_cfg+="--with-osl=\"$BLDR_OSL_BASE_PATH\" "
 
 pkg_cflags=""
 pkg_ldflags=""
@@ -70,7 +68,7 @@ pkg_patch=""
 # register each pkg version with bldr
 ####################################################################################################
 
-for pkg_vers in ${pkg_vers_list[@]}
+for pkg_vers in ${pkg_variants[@]}
 do
     pkg_file="$pkg_name-$pkg_vers.tar.gz"
     pkg_urls="http://www.bastoul.net/cloog/pages/download/count.php3?url=./$pkg_file"
@@ -79,6 +77,7 @@ do
         --category    "$pkg_ctry"    \
         --name        "$pkg_name"    \
         --version     "$pkg_vers"    \
+        --default     "$pkg_default" \
         --info        "$pkg_info"    \
         --description "$pkg_desc"    \
         --file        "$pkg_file"    \

@@ -13,6 +13,9 @@ source "bldr.sh"
 pkg_ctry="concurrent"
 pkg_name="atomic-ops"
 
+pkg_default="7.2d"
+pkg_variants=("7.2d")
+
 pkg_info="The Atomic-Ops Library provides implementations for atomic memory update operations on a number of architectures."
 
 pkg_desc="The Atomic-Ops Library provides implementations for atomic memory update operations 
@@ -29,9 +32,6 @@ It should be useful both for high performance multi-threaded code which can't
 afford to use the standard locking primitives, or for code that has to access shared 
 data structures from signal handlers. For details, see README.txt in the distribution. "
 
-pkg_vers_dft="7.2d"
-pkg_vers_list=("$pkg_vers_dft")
-
 pkg_opts="configure enabled-static enable-shared"
 pkg_reqs="m4 automake autoconf"
 pkg_uses=""
@@ -44,7 +44,7 @@ pkg_cfg=""
 # register each pkg version with bldr
 ####################################################################################################
 
-for pkg_vers in ${pkg_vers_list[@]}
+for pkg_vers in ${pkg_variants[@]}
 do
      pkg_file="libatomic_ops-$pkg_vers.tar.gz"
      pkg_urls="http://www.hpl.hp.com/research/linux/atomic_ops/download/$pkg_file"
@@ -53,7 +53,7 @@ do
          --category    "$pkg_ctry"    \
          --name        "$pkg_name"    \
          --version     "$pkg_vers"    \
-         --default     "$pkg_vers_dft"\
+         --default     "$pkg_default" \
          --info        "$pkg_info"    \
          --description "$pkg_desc"    \
          --file        "$pkg_file"    \

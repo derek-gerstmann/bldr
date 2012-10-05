@@ -13,6 +13,9 @@ source "bldr.sh"
 pkg_ctry="storage"
 pkg_name="mxml"
 
+pkg_default="2.7"
+pkg_variants=("2.7")
+
 pkg_info="Mini-XML is a small XML library that you can use to read and write XML and XML-like data files in your application without requiring large non-standard libraries."
 
 pkg_desc="Mini-XML is a small XML library that you can use to read and write XML and XML-like 
@@ -25,9 +28,6 @@ strings. Data is stored in a linked-list tree structure, preserving the XML data
 and arbitrary element names, attributes, and attribute values are supported with no preset 
 limits, just available memory."
 
-pkg_vers_dft="2.7"
-pkg_vers_list=("$pkg_vers_dft")
-
 pkg_opts="configure enable-static enable-shared"
 pkg_reqs=""
 pkg_uses=""
@@ -39,7 +39,7 @@ pkg_cfg=""
 # register each pkg version with bldr
 ####################################################################################################
 
-for pkg_vers in ${pkg_vers_list[@]}
+for pkg_vers in ${pkg_variants[@]}
 do
      pkg_file="$pkg_name-$pkg_vers.tar.gz"
      pkg_urls="http://ftp.easysw.com/pub/$pkg_name/$pkg_vers/$pkg_file"
@@ -48,7 +48,7 @@ do
           --category    "$pkg_ctry"    \
           --name        "$pkg_name"    \
           --version     "$pkg_vers"    \
-          --default     "$pkg_vers_dft"\
+          --default     "$pkg_default" \
           --info        "$pkg_info"    \
           --description "$pkg_desc"    \
           --file        "$pkg_file"    \

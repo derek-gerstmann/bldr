@@ -12,14 +12,15 @@ source "bldr.sh"
 
 pkg_ctry="languages"
 pkg_name="ruby"
+
+pkg_default="1.9.3-p194"
+pkg_variants=("1.9.3-p194")
+
 pkg_info="Ruby is a dynamic, open source programming language with a focus on simplicity and productivity."
 
 pkg_desc="Ruby is a dynamic, open source programming language with a focus on simplicity and productivity.
 
 It has an elegant syntax that is natural to read and easy to write."
-
-pkg_vers_dft="1.9.3-p194"
-pkg_vers_list=("$pkg_vers_dft")
 
 pkg_opts="configure use-build-makefile=GNUmakefile"
 pkg_reqs="openssl tcl tk gdbm ncurses libyaml"
@@ -32,7 +33,7 @@ pkg_ldflags=""
 # register each pkg version with bldr
 ####################################################################################################
 
-for pkg_vers in ${pkg_vers_list[@]}
+for pkg_vers in ${pkg_variants[@]}
 do
      pkg_file="$pkg_name-$pkg_vers.tar.gz"
      pkg_urls="http://ftp.ruby-lang.org/pub/ruby/1.9/$pkg_file"
@@ -41,7 +42,7 @@ do
           --category    "$pkg_ctry"    \
           --name        "$pkg_name"    \
           --version     "$pkg_vers"    \
-          --default     "$pkg_vers_dft"\
+          --default     "$pkg_default" \
           --info        "$pkg_info"    \
           --description "$pkg_desc"    \
           --file        "$pkg_file"    \

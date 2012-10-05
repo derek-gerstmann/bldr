@@ -13,12 +13,12 @@ source "bldr.sh"
 pkg_ctry="protocols"
 pkg_name="msgpack-ruby"
 
+pkg_default="0.4.7"
+pkg_variants=("0.4.7")
+
 pkg_info="Ruby bindings for MessagePack -- an efficient binary serialization format."
 
 pkg_desc="Ruby bindings for MessagePack -- an efficient binary serialization format."
-
-pkg_vers_dft="0.4.7"
-pkg_vers_list=("$pkg_vers_dft")
 
 pkg_opts="ruby use-gem"
 pkg_reqs="ruby"
@@ -31,16 +31,16 @@ pkg_ldflags=""
 # register each pkg version with bldr
 ####################################################################################################
 
-for pkg_vers in ${pkg_vers_list[@]}
+for pkg_vers in ${pkg_variants[@]}
 do
      pkg_file="msgpack-$pkg_vers.gem"
      pkg_urls="http://rubygems.org/downloads/$pkg_file"
 
-     bldr_register_pkg                  \
+     bldr_register_pkg                 \
           --category    "$pkg_ctry"    \
           --name        "$pkg_name"    \
           --version     "$pkg_vers"    \
-          --default     "$pkg_vers_dft"\
+          --default     "$pkg_default" \
           --info        "$pkg_info"    \
           --description "$pkg_desc"    \
           --file        "$pkg_file"    \

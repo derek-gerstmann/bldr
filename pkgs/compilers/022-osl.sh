@@ -13,6 +13,9 @@ source "bldr.sh"
 pkg_ctry="compilers"
 pkg_name="osl"
 
+pkg_default="0.8.4"
+pkg_variants=("0.8.4")
+
 pkg_info="The OpenScop Library (OSL) is a BSD-Licensed implementation of the OpenScop specification data format."
 
 pkg_desc="OpenScop is an open specification defining a file format and a set of data 
@@ -28,9 +31,6 @@ The OpenScop Library, a.k.a. osl, is an example implementation of the specificat
 licensed under the 3-clause BSD licence so developers may feel free to use it in 
 their code (either by linking it or copy-pasting its code)."
 
-pkg_vers_dft="0.8.4"
-pkg_vers_list=("$pkg_vers_dft")
-
 pkg_opts="configure force-bootstrap enable-shared enable-static"
 pkg_reqs="gmp isl zlib"
 pkg_uses="$pkg_reqs"
@@ -42,16 +42,15 @@ pkg_uses="$pkg_reqs"
 bldr_satisfy_pkg                    \
     --category    "$pkg_ctry"       \
     --name        "$pkg_name"       \
-    --version     "$pkg_vers_dft"   \
+    --version     "$pkg_default"    \
     --requires    "$pkg_reqs"       \
     --uses        "$pkg_uses"       \
     --options     "$pkg_opts"
 
 ####################################################################################################
 
-pkg_cfg=""
-pkg_cfg="$pkg_cfg --with-gmp=\"$BLDR_GMP_PATH\""
-pkg_cfg="$pkg_cfg --with-isl=\"$BLDR_ISL_PATH\""
+pkg_cfg="--with-gmp=\"$BLDR_GMP_PATH\" "
+pkg_cfg+="--with-isl=\"$BLDR_ISL_PATH\" "
 
 pkg_cflags=""
 pkg_ldflags=""
@@ -61,7 +60,7 @@ pkg_patch=""
 # register each pkg version with bldr
 ####################################################################################################
 
-for pkg_vers in ${pkg_vers_list[@]}
+for pkg_vers in ${pkg_variants[@]}
 do
     pkg_file="$pkg_name-$pkg_vers.tar.gz"
     pkg_urls="http://www.lri.fr/~bastoul/development/openscop/docs/$pkg_file"
@@ -70,6 +69,7 @@ do
         --category    "$pkg_ctry"    \
         --name        "$pkg_name"    \
         --version     "$pkg_vers"    \
+        --default     "$pkg_default" \
         --info        "$pkg_info"    \
         --description "$pkg_desc"    \
         --file        "$pkg_file"    \

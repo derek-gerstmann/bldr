@@ -12,7 +12,8 @@ source "bldr.sh"
 
 pkg_ctry="imaging"
 pkg_name="xpm"
-pkg_vers="3.4k"
+pkg_default="3.4k"
+pkg_variants=("3.4k")
 
 pkg_info="XPM (X PixMap) is a format for storing/retrieving X pixmaps to/from files."
 
@@ -33,34 +34,36 @@ while writing. This way comments, default colors and symbol names aren't lost.
 It also handles \"transparent pixels\" by returning a shape mask in addition to
 the created pixmap."
 
-pkg_file="$pkg_name-$pkg_vers.tar.gz"
-pkg_urls="ftp://ftp.x.org/contrib/libraries/$pkg_file"
-pkg_opts="configure use-build-makefile=Makefile.noX"
-pkg_opts="$pkg_opts -MDESTDIR=\"$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers\""
-pkg_opts="$pkg_opts -MMANDIR=\"$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/man\""
-pkg_opts="$pkg_opts -MDESTLIBDIR=\"$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/lib\""
-pkg_opts="$pkg_opts -MDESTBINDIR=\"$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/bin\""
-pkg_opts="$pkg_opts -MDESTINCLUDEDIR=\"$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/include\""
-pkg_opts="$pkg_opts use-make-envflags"
-pkg_opts="$pkg_opts create-local-base-path"
-pkg_opts="$pkg_opts create-local-lib-path"
-pkg_opts="$pkg_opts create-local-bin-path"
+pkg_cfg=""
+pkg_opts="configure "
+pkg_opts+="enable-shared "
+pkg_opts+="enable-static "
+pkg_opts+="use-build-makefile=Makefile.noX "
+pkg_opts+="-MDESTDIR=\"$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers\" "
+pkg_opts+="-MMANDIR=\"$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/man\" "
+pkg_opts+="-MDESTLIBDIR=\"$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/lib\" "
+pkg_opts+="-MDESTBINDIR=\"$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/bin\" "
+pkg_opts+="-MDESTINCLUDEDIR=\"$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/include\" "
+pkg_opts+="use-make-envflags "
+pkg_opts+="create-local-base-path "
+pkg_opts+="create-local-lib-path "
+pkg_opts+="create-local-bin-path "
+
 pkg_uses=""
 pkg_reqs=""
-pkg_cfg="--enable-shared --enable-static"
 
 pkg_cflags=""
 pkg_ldflags=""
 
 if [[ $BLDR_SYSTEM_IS_OSX == true ]]
 then
-     pkg_cflags="$pkg_cflags:-I/opt/X11/include"
-     pkg_ldflags="$pkg_ldflags:-L/opt/X11/lib"
+     pkg_cflags+=":-I/opt/X11/include"
+     pkg_ldflags+=":-L/opt/X11/lib"
 
 elif [[ $BLDR_SYSTEM_IS_LINUX == true ]]
 then
-     pkg_cflags="$pkg_cflags:-I/usr/include/X11:-fPIC"
-     pkg_ldflags="$pkg_ldflags:-L/usr/lib"
+     pkg_cflags+=":-I/usr/include/X11:-fPIC"
+     pkg_ldflags+=":-L/usr/lib"
 fi
 
 function bldr_pkg_install_method()
@@ -69,6 +72,7 @@ function bldr_pkg_install_method()
     local pkg_ctry=""
     local pkg_name="" 
     local pkg_vers=""
+    local pkg_default=""
     local pkg_info=""
     local pkg_desc=""
     local pkg_file=""
@@ -86,6 +90,7 @@ function bldr_pkg_install_method()
            --verbose)       use_verbose="$2"; shift 2;;
            --name)          pkg_name="$2"; shift 2;;
            --version)       pkg_vers="$2"; shift 2;;
+           --default)       pkg_default="$2"; shift 2;;
            --info)          pkg_info="$2"; shift 2;;
            --description)   pkg_desc="$2"; shift 2;;
            --category)      pkg_ctry="$2"; shift 2;;
@@ -109,6 +114,7 @@ function bldr_pkg_install_method()
        --category    "$pkg_ctry"     \
        --name        "$pkg_name"     \
        --version     "$pkg_vers"     \
+       --default     "$pkg_default"  \
        --file        "$pkg_file"     \
        --url         "$pkg_urls"     \
        --uses        "$pkg_uses"     \
@@ -127,21 +133,30 @@ function bldr_pkg_install_method()
 }
 
 ####################################################################################################
-# build and install pkg as local module
+# register each pkg version with bldr
 ####################################################################################################
 
-bldr_build_pkg                    \
-     --category    "$pkg_ctry"    \
-     --name        "$pkg_name"    \
-     --version     "$pkg_vers"    \
-     --info        "$pkg_info"    \
-     --description "$pkg_desc"    \
-     --file        "$pkg_file"    \
-     --url         "$pkg_urls"    \
-     --uses        "$pkg_uses"    \
-     --requires    "$pkg_reqs"    \
-     --options     "$pkg_opts"    \
-     --cflags      "$pkg_cflags"  \
-     --ldflags     "$pkg_ldflags" \
-     --config      "$pkg_cfg"
+for pkg_vers in ${pkg_variants[@]}
+do
+    pkg_file="$pkg_name-$pkg_vers.tar.gz"
+    pkg_urls="ftp://ftp.x.org/contrib/libraries/$pkg_file"
 
+    bldr_register_pkg                \
+        --category    "$pkg_ctry"    \
+        --name        "$pkg_name"    \
+        --version     "$pkg_vers"    \
+        --default     "$pkg_default" \
+        --info        "$pkg_info"    \
+        --description "$pkg_desc"    \
+        --file        "$pkg_file"    \
+        --url         "$pkg_urls"    \
+        --uses        "$pkg_uses"    \
+        --requires    "$pkg_reqs"    \
+        --options     "$pkg_opts"    \
+        --cflags      "$pkg_cflags"  \
+        --ldflags     "$pkg_ldflags" \
+        --config      "$pkg_cfg"     \
+        --config-path "$pkg_cfg_path"
+done
+
+####################################################################################################

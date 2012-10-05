@@ -13,6 +13,9 @@ source "bldr.sh"
 pkg_ctry="text"
 pkg_name="pcre"
 
+pkg_default="8.31"
+pkg_variants=("8.31")
+
 pkg_info="The PCRE package contains Perl Compatible Regular Expression libraries."
 
 pkg_desc="The PCRE package contains Perl Compatible Regular Expression libraries. 
@@ -20,17 +23,19 @@ pkg_desc="The PCRE package contains Perl Compatible Regular Expression libraries
 These are useful for implementing regular expression pattern matching using the same 
 syntax and semantics as Perl 5. "
 
-pkg_vers_dft="8.31"
-pkg_vers_list=("$pkg_vers_dft")
+pkg_opts="configure "
+pkg_opts+="enable-static "
+pkg_opts+="enable-shared "
 
-pkg_opts="configure enable-static enable-shared"
-pkg_reqs="zlib bzip2"
+pkg_reqs="zlib "
+pkg_reqs+="bzip2 "
+
 pkg_uses="$pkg_reqs"
 
-pkg_cfg="$pkg_cfg --enable-pcregrep-libz"
-pkg_cfg="$pkg_cfg --enable-pcregrep-libbz2"
-pkg_cfg="$pkg_cfg --enable-utf"
-pkg_cfg="$pkg_cfg --enable-unicode-properties"
+pkg_cfg="--enable-utf "
+pkg_cfg+="--enable-pcregrep-libz "
+pkg_cfg+="--enable-pcregrep-libbz2 "
+pkg_cfg+="--enable-unicode-properties "
 
 pkg_cflags=""
 pkg_ldflags=""
@@ -39,7 +44,7 @@ pkg_ldflags=""
 # register each pkg version with bldr
 ####################################################################################################
 
-for pkg_vers in ${pkg_vers_list[@]}
+for pkg_vers in ${pkg_variants[@]}
 do
     pkg_file="$pkg_name-$pkg_vers.tar.bz2"
     pkg_urls="ftp://ftp.csx.cam.ac.uk/pub/software/programming/$pkg_name/$pkg_file"
@@ -48,7 +53,7 @@ do
         --category    "$pkg_ctry"    \
         --name        "$pkg_name"    \
         --version     "$pkg_vers"    \
-        --default     "$pkg_vers_dft"\
+        --default     "$pkg_default" \
         --info        "$pkg_info"    \
         --description "$pkg_desc"    \
         --file        "$pkg_file"    \

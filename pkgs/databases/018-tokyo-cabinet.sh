@@ -10,10 +10,12 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_vers="1.4.48"
-pkg_vers_list=("$pkg_vers")
 pkg_ctry="databases"
 pkg_name="tokyo-cabinet"
+
+pkg_default="1.4.48"
+pkg_variants=("1.4.48")
+
 pkg_info="Tokyo Cabinet is a library of routines for managing a database."
 
 pkg_desc="Kyoto Cabinet is a library of routines for managing a database. 
@@ -36,36 +38,44 @@ They are achieved and Tokyo Cabinet replaces conventional DBM products.
 Tokyo Cabinet is written in the C language, and provided as API of C, Perl, Ruby, Java, and Lua. Tokyo Cabinet is available on platforms which have API conforming to C99 and POSIX. 
 Tokyo Cabinet is a free software licensed under the GNU Lesser General Public License."
 
-pkg_file="tokyocabinet-$pkg_vers.tar.gz"
-pkg_opts="configure -MPREFIX=$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
-pkg_urls="http://fallabs.com/tokyocabinet/$pkg_file"
+tc_opts="configure enable-static enable-shared"
+
 pkg_reqs=""
-pkg_uses="tar/latest"
+pkg_uses="tar"
+
 pkg_cflags=""
 pkg_ldflags=""
+
 pkg_cfg=""
 pkg_cfg_path=""
 
-if [[ $BLDR_SYSTEM_IS_LINUX == true ]]; then
-    pkg_cflags="$pkg_cflags -fPIC"
-fi
-
 ####################################################################################################
-# build and install each pkg version as local module
+# register each pkg version with bldr
 ####################################################################################################
 
-bldr_build_pkg --category    "$pkg_ctry"    \
-               --name        "$pkg_name"    \
-               --version     "$pkg_vers"    \
-               --info        "$pkg_info"    \
-               --description "$pkg_desc"    \
-               --file        "$pkg_file"    \
-               --url         "$pkg_urls"    \
-               --uses        "$pkg_uses"    \
-               --requires    "$pkg_reqs"    \
-               --options     "$pkg_opts"    \
-               --cflags      "$pkg_cflags"  \
-               --ldflags     "$pkg_ldflags" \
-               --config      "$pkg_cfg"     
+for pkg_vers in ${pkg_variants[@]}
+do
+     pkg_file="tokyocabinet-$pkg_vers.tar.gz"
+     pkg_urls="http://fallabs.com/tokyocabinet/$pkg_file"
+     pkg_opts="$tc_opts -MPREFIX=$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
 
+     bldr_register_pkg                \
+         --category    "$pkg_ctry"    \
+         --name        "$pkg_name"    \
+         --version     "$pkg_vers"    \
+         --default     "$pkg_default"\
+         --info        "$pkg_info"    \
+         --description "$pkg_desc"    \
+         --file        "$pkg_file"    \
+         --url         "$pkg_urls"    \
+         --uses        "$pkg_uses"    \
+         --requires    "$pkg_reqs"    \
+         --options     "$pkg_opts"    \
+         --cflags      "$pkg_cflags"  \
+         --ldflags     "$pkg_ldflags" \
+         --config      "$pkg_cfg"     \
+         --config-path "$pkg_cfg_path"
+done
+
+####################################################################################################
 

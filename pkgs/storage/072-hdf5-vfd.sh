@@ -10,17 +10,18 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_vers="1.8.8"
-pkg_vers_list=("$pkg_vers" "1.8.9")
 pkg_ctry="storage"
 pkg_name="hdf5-vfd"
+
+pkg_default="1.8.8"
+pkg_variants=("1.8.8" "1.8.9")
+pkg_mirrors=("https://hpcforge.org/frs/download.php/41" 
+             "https://hpcforge.org/frs/download.php/57")
 
 pkg_info="HDF5-VFD is a modified HDF5 source package that provides additional internal support for MPI virtual file drivers."
 
 pkg_desc="HDF5-VFD is a modified HDF5 source package that provides additional internal support for MPI virtual file drivers."
 
-pkg_file="$pkg_name-$pkg_vers.tar.bz2"
-pkg_urls="https://hpcforge.org/frs/download.php/41/$pkg_file"
 pkg_opts="cmake migrate-build-bin migrate-build-doc migrate-build-headers"
 pkg_reqs="szip zlib openmpi"
 pkg_uses="$pkg_reqs"
@@ -32,7 +33,7 @@ pkg_uses="$pkg_reqs"
 bldr_satisfy_pkg               \
   --category    "$pkg_ctry"    \
   --name        "$pkg_name"    \
-  --version     "$pkg_vers"    \
+  --version     "$pkg_default" \
   --requires    "$pkg_reqs"    \
   --uses        "$pkg_uses"    \
   --options     "$pkg_opts"
@@ -43,22 +44,22 @@ pkg_cflags=""
 pkg_ldflags=""
 
 pkg_cfg="-DMAKESTATIC=1:-DLINKSTATIC=1"
-pkg_cfg="$pkg_cfg:-DMPI_COMPILER=$BLDR_OPENMPI_BIN_PATH/mpicc"
-pkg_cfg="$pkg_cfg:-DHDF5_BUILD_FORTRAN=OFF"
-pkg_cfg="$pkg_cfg:-DHDF5_BUILD_TOOLS=ON"
-pkg_cfg="$pkg_cfg:-DHDF5_ENABLE_PARALLEL=ON"
-pkg_cfg="$pkg_cfg:-DHDF5_ENABLE_HSIZET=ON"
-pkg_cfg="$pkg_cfg:-DHDF5_ENABLE_LARGE_FILE=ON"
-pkg_cfg="$pkg_cfg:-DHDF5_ENABLE_ZLIB=ON"
-pkg_cfg="$pkg_cfg:-DHDF5_ENABLE_Z_LIB_SUPPORT=ON"
-pkg_cfg="$pkg_cfg:-DHDF5_ENABLE_SZIP=ON"
-pkg_cfg="$pkg_cfg:-DHDF5_ENABLE_SZIP_SUPPORT=ON"
-pkg_cfg="$pkg_cfg:-DHDF5_BUILD_HL_LIB=ON"
-pkg_cfg="$pkg_cfg:-DHDF5_BUILD_CPP_LIB=OFF"
-pkg_cfg="$pkg_cfg:-DZLIB_INCLUDE_DIR=$BLDR_ZLIB_INCLUDE_PATH"
-pkg_cfg="$pkg_cfg:-DZLIB_LIBRARY=$BLDR_ZLIB_LIB_PATH/libz.a"
-pkg_cfg="$pkg_cfg:-DSZIP_INCLUDE_DIR=$BLDR_SZIP_INCLUDE_PATH/include"
-pkg_cfg="$pkg_cfg:-DSZIP_LIBRARY=$BLDR_SZIP_LIB_PATH/libsz.a"
+pkg_cfg+=":-DMPI_COMPILER=$BLDR_OPENMPI_BIN_PATH/mpicc"
+pkg_cfg+=":-DHDF5_BUILD_FORTRAN=OFF"
+pkg_cfg+=":-DHDF5_BUILD_TOOLS=ON"
+pkg_cfg+=":-DHDF5_ENABLE_PARALLEL=ON"
+pkg_cfg+=":-DHDF5_ENABLE_HSIZET=ON"
+pkg_cfg+=":-DHDF5_ENABLE_LARGE_FILE=ON"
+pkg_cfg+=":-DHDF5_ENABLE_ZLIB=ON"
+pkg_cfg+=":-DHDF5_ENABLE_Z_LIB_SUPPORT=ON"
+pkg_cfg+=":-DHDF5_ENABLE_SZIP=ON"
+pkg_cfg+=":-DHDF5_ENABLE_SZIP_SUPPORT=ON"
+pkg_cfg+=":-DHDF5_BUILD_HL_LIB=ON"
+pkg_cfg+=":-DHDF5_BUILD_CPP_LIB=OFF"
+pkg_cfg+=":-DZLIB_INCLUDE_DIR=$BLDR_ZLIB_INCLUDE_PATH"
+pkg_cfg+=":-DZLIB_LIBRARY=$BLDR_ZLIB_LIB_PATH/libz.a"
+pkg_cfg+=":-DSZIP_INCLUDE_DIR=$BLDR_SZIP_INCLUDE_PATH/include"
+pkg_cfg+=":-DSZIP_LIBRARY=$BLDR_SZIP_LIB_PATH/libsz.a"
 
 hdf5_cfg="$pkg_cfg"
 
@@ -151,17 +152,21 @@ function bldr_pkg_install_method()
 # build and install each pkg version as local module
 ####################################################################################################
 
-for pkg_vers in ${pkg_vers_list[@]}
+let pkg_idx=0
+for pkg_vers in ${pkg_variants[@]}
 do
+    pkg_file="$pkg_name-$pkg_vers.tar.bz2"
+    pkg_host=${pkg_vers_urls[$pkg_idx]}
+    pkg_urls="$pkg_host/$pkg_file"
+
     #
     # hdf5 - standard
     #
-    pkg_file="$pkg_name-$pkg_vers.tar.bz2"
-    pkg_urls="https://hpcforge.org/frs/download.php/57/$pkg_file"
-    bldr_register_pkg                 \
+    bldr_register_pkg              \
       --category    "$pkg_ctry"    \
       --name        "$pkg_name"    \
       --version     "$pkg_vers"    \
+      --default     "$pkg_default" \
       --info        "$pkg_info"    \
       --description "$pkg_desc"    \
       --file        "$pkg_file"    \
@@ -178,10 +183,11 @@ do
     #
     ts_name="$pkg_name-threadsafe"
     pkg_cfg="$hdf5_cfg:-DHDF5_ENABLE_THREADSAFE=ON"
-    bldr_register_pkg                 \
+    bldr_register_pkg              \
       --category    "$pkg_ctry"    \
       --name        "$ts_name"     \
       --version     "$pkg_vers"    \
+      --default     "$pkg_default" \
       --info        "$pkg_info"    \
       --description "$pkg_desc"    \
       --file        "$pkg_file"    \
@@ -193,4 +199,8 @@ do
       --ldflags     "$pkg_ldflags" \
       --config      "$pkg_cfg"
 
+    let pkg_idx++
 done
+
+####################################################################################################
+

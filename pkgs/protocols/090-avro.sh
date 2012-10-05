@@ -13,6 +13,9 @@ source "bldr.sh"
 pkg_ctry="protocols"
 pkg_name="avro"
 
+pkg_default="1.7.1"
+pkg_variants=("1.7.1" "1.7.2")
+
 pkg_info="Apache Avro is a data serialisation system."
 
 pkg_desc="Apache Avro is a data serialisation system.
@@ -36,9 +39,6 @@ can all be easily resolved.
 Avro schemas are defined with JSON . This facilitates implementation in languages 
 that already have JSON libraries."
 
-pkg_vers_dft="1.7.1"
-pkg_vers_list=("$pkg_vers_dft")
-
 pkg_opts="cmake"
 pkg_reqs="zlib boost"
 pkg_uses="$pkg_reqs"
@@ -50,7 +50,7 @@ pkg_uses="$pkg_reqs"
 bldr_satisfy_pkg               \
   --category    "$pkg_ctry"    \
   --name        "$pkg_name"    \
-  --version     "$pkg_vers_dft"\
+  --version     "$pkg_default" \
   --requires    "$pkg_reqs"    \
   --uses        "$pkg_uses"    \
   --options     "$pkg_opts"
@@ -63,29 +63,30 @@ pkg_cflags="-I$BLDR_BOOST_INCLUDE_PATH"
 pkg_ldflags="-L$BLDR_BOOST_LIB_PATH:-lboost_program_options"
 
 pkg_cfg="-DMAKESTATIC=1:-DLINKSTATIC=1"
-pkg_cfg="$pkg_cfg:-DZLIB_INCLUDE_DIR=\"$BLDR_LOCAL_PATH/compression/zlib/latest/include\""
-pkg_cfg="$pkg_cfg:-DZLIB_LIBRARY=\"$BLDR_ZLIB_LIB_PATH/libz.a\""
-pkg_cfg="$pkg_cfg:-DBoost_NO_SYSTEM_PATHS=ON"
-pkg_cfg="$pkg_cfg:-DBoost_NO_BOOST_CMAKE=ON"
-pkg_cfg="$pkg_cfg:-DBoost_DIR=\"$BLDR_BOOST_BASE_PATH\""
-pkg_cfg="$pkg_cfg:-DBoost_INCLUDE_DIR=\"$BLDR_BOOST_BASE_PATH/include\""
-pkg_cfg="$pkg_cfg:-DBOOST_ROOT=\"$BLDR_BOOST_BASE_PATH\""
-pkg_cfg="$pkg_cfg:-DBOOST_INCLUDEDIR=\"$BLDR_BOOST_BASE_PATH/include\""
+pkg_cfg+=":-DZLIB_INCLUDE_DIR=\"$BLDR_LOCAL_PATH/compression/zlib/latest/include\""
+pkg_cfg+=":-DZLIB_LIBRARY=\"$BLDR_ZLIB_LIB_PATH/libz.a\""
+pkg_cfg+=":-DBoost_NO_SYSTEM_PATHS=ON"
+pkg_cfg+=":-DBoost_NO_BOOST_CMAKE=ON"
+pkg_cfg+=":-DBoost_DIR=\"$BLDR_BOOST_BASE_PATH\""
+pkg_cfg+=":-DBoost_INCLUDE_DIR=\"$BLDR_BOOST_BASE_PATH/include\""
+pkg_cfg+=":-DBOOST_ROOT=\"$BLDR_BOOST_BASE_PATH\""
+pkg_cfg+=":-DBOOST_INCLUDEDIR=\"$BLDR_BOOST_BASE_PATH/include\""
 
 ####################################################################################################
 # register each pkg version with bldr
 ####################################################################################################
 
-for pkg_vers in ${pkg_vers_list[@]}
+for pkg_vers in ${pkg_variants[@]}
 do
     pkg_file="$pkg_name-cpp-$pkg_vers.tar.gz"
-    pkg_urls="http://mirror.overthewire.com.au/pub/apache/$pkg_name/$pkg_name-$pkg_vers/cpp/$pkg_file;http://mirror.nexcess.net/apache/$pkg_name/$pkg_name-$pkg_vers/cpp/$pkg_file"
+    pkg_urls="http://mirror.overthewire.com.au/pub/apache/$pkg_name/$pkg_name-$pkg_vers/cpp/$pkg_file"
+    pkg_urls+=";http://mirror.nexcess.net/apache/$pkg_name/$pkg_name-$pkg_vers/cpp/$pkg_file"
 
     bldr_register_pkg                  \
           --category    "$pkg_ctry"    \
           --name        "$pkg_name"    \
           --version     "$pkg_vers"    \
-          --default     "$pkg_vers_dft"\
+          --default     "$pkg_default" \
           --info        "$pkg_info"    \
           --description "$pkg_desc"    \
           --file        "$pkg_file"    \

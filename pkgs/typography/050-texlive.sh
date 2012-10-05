@@ -21,11 +21,11 @@ GNU/Linux, and also Windows. It includes all the major TeX-related programs, mac
 packages, and fonts that are free software, including support for many languages 
 around the world. "
 
-pkg_vers_dft="2012"
-pkg_vers_list=("$pkg_vers_dft")
+pkg_default="2012"
+pkg_variants=("$pkg_default")
 
 pkg_opts="configure keep skip-install"
-pkg_reqs="pkg-config/latest"
+pkg_reqs="pkg-config"
 
 pkg_uses=""
 pkg_reqs=""
@@ -127,22 +127,22 @@ function bldr_pkg_compile_method()
 # register each pkg version with bldr
 ####################################################################################################
 
-for pkg_vers in ${pkg_vers_list[@]}
+for pkg_vers in ${pkg_variants[@]}
 do
     pkg_file="install-tl-unx.tar.gz"
     pkg_urls="http://mirror.ctan.org/systems/texlive/tlnet/$pkg_file"
 
     if [[ $BLDR_SYSTEM_IS_OSX == true ]]
     then
-      pkg_opts="$pkg_opts -EPATH+=$BLDR_LOCAL_ENV_PATH/$pkg_ctry/$pkg_name/$pkg_vers/bin/universal-darwin"
+      pkg_opts+=" -EPATH+=$BLDR_LOCAL_ENV_PATH/$pkg_ctry/$pkg_name/$pkg_vers/bin/universal-darwin"
 
     elif [[ $BLDR_SYSTEM_IS_LINUX == true ]]
     then
       if [[ $BLDR_SYSTEM_IS_64BIT == true ]]
       then
-        pkg_opts="$pkg_opts -EPATH+=$BLDR_LOCAL_ENV_PATH/$pkg_ctry/$pkg_name/$pkg_vers/bin/x86_64-linux"
+        pkg_opts+=" -EPATH+=$BLDR_LOCAL_ENV_PATH/$pkg_ctry/$pkg_name/$pkg_vers/bin/x86_64-linux"
       else
-        pkg_opts="$pkg_opts -EPATH+=$BLDR_LOCAL_ENV_PATH/$pkg_ctry/$pkg_name/$pkg_vers/bin/i386-linux"
+        pkg_opts+=" -EPATH+=$BLDR_LOCAL_ENV_PATH/$pkg_ctry/$pkg_name/$pkg_vers/bin/i386-linux"
       fi
     fi
 
@@ -153,7 +153,7 @@ do
           --category    "$pkg_ctry"    \
           --name        "$pkg_name"    \
           --version     "$pkg_vers"    \
-          --default     "$pkg_vers_dft"\
+          --default     "$pkg_default"\
           --info        "$pkg_info"    \
           --description "$pkg_desc"    \
           --file        "$pkg_file"    \

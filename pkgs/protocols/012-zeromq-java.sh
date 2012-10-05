@@ -13,14 +13,15 @@ source "bldr.sh"
 pkg_ctry="protocols"
 pkg_name="zeromq-java"
 
-pkg_vers_dft="trunk"
-pkg_vers_list=("$pkg_vers_dft")
+pkg_default="trunk"
+pkg_variants=("trunk")
 
 pkg_info="Java Bindings for ZeroMQ -- a set of components for building scalable and high performance distributed applications"
 
-pkg_desc="Java Bindings for ZeroMQ -- a set of components for building scalable and high performance distributed applications"
+pkg_desc="Java Bindings for ZeroMQ -- a set of components for building scalable and high 
+performance distributed applications"
 
-pkg_opts="configure force-bootstrap force-serial-build"
+pkg_opts="configure enable-static enable-shared force-bootstrap force-serial-build"
 pkg_reqs="pkg-config gettext zeromq/2.1.7"
 pkg_uses="autoconf automake m4 libtool"
 
@@ -31,7 +32,7 @@ pkg_uses="autoconf automake m4 libtool"
 bldr_satisfy_pkg                 \
     --category    "$pkg_ctry"    \
     --name        "$pkg_name"    \
-    --version     "$pkg_vers_dft"\
+    --version     "$pkg_default" \
     --requires    "$pkg_reqs"    \
     --uses        "$pkg_uses"    \
     --options     "$pkg_opts"
@@ -52,7 +53,7 @@ then
 else
     if [[ -d "/usr/java/default" ]]
     then
-        pkg_cfg="$pkg_cfg JAVA_HOME=\"/usr/java/default\""
+        pkg_cfg+="JAVA_HOME=\"/usr/java/default\""
     fi
 fi
 
@@ -60,17 +61,17 @@ fi
 # build and install pkg as local module
 ####################################################################################################
 
-for zmq_vers in ${pkg_vers_list[@]}
+for zmq_vers in ${pkg_variants[@]}
 do
      pkg_vers=$zmq_vers
      pkg_file="$pkg_name-$zmq_vers.tar.gz"
      pkg_urls="git://github.com/zeromq/jzmq.git"
 
-     bldr_register_pkg                  \
+     bldr_register_pkg                 \
           --category    "$pkg_ctry"    \
           --name        "$pkg_name"    \
           --version     "$pkg_vers"    \
-          --default     "$pkg_vers_dft"\
+          --default     "$pkg_default" \
           --info        "$pkg_info"    \
           --description "$pkg_desc"    \
           --file        "$pkg_file"    \

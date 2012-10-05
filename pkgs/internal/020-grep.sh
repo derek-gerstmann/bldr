@@ -13,6 +13,9 @@ source "bldr.sh"
 pkg_ctry="internal"
 pkg_name="grep"
 
+pkg_default="2.13"
+pkg_variants=("2.13")
+
 pkg_info="GNU GREP searches input files for lines containing a match to a given regular expression pattern list."
 
 pkg_desc="GNU GREP searches input files for lines containing a match to a given pattern list. 
@@ -23,9 +26,6 @@ Though grep expects to do the matching on text, it has no limits on input line l
 than available memory, and it can match arbitrary characters within a line. If the final 
 byte of an input file is not a newline, grep silently supplies one. Since newline is also 
 a separator for the list of patterns, there is no way to match newline characters in a text."
-
-pkg_vers_dft="2.13"
-pkg_vers_list=("$pkg_vers_dft")
 
 pkg_opts="configure force-static"
 pkg_uses="coreutils"
@@ -38,7 +38,7 @@ pkg_cfg=""
 # register each pkg version with bldr
 ####################################################################################################
 
-for pkg_vers in ${pkg_vers_list[@]}
+for pkg_vers in ${pkg_variants[@]}
 do
      pkg_file="$pkg_name-$pkg_vers.tar.gz"
      pkg_urls="http://fossies.org/unix/misc/$pkg_file"
@@ -47,7 +47,7 @@ do
          --category    "$pkg_ctry"    \
          --name        "$pkg_name"    \
          --version     "$pkg_vers"    \
-         --default     "$pkg_vers_dft"\
+         --default     "$pkg_default" \
          --info        "$pkg_info"    \
          --description "$pkg_desc"    \
          --file        "$pkg_file"    \

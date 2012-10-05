@@ -12,7 +12,10 @@ source "bldr.sh"
 
 pkg_ctry="imaging"
 pkg_name="pyfits"
-pkg_vers="3.1"
+
+pkg_default="3.1"
+pkg_variants=("3.1")
+
 pkg_info="PyFITS provides an interface to FITS formatted files in the Python scripting language."
 
 pkg_desc="PyFITS provides an interface to FITS formatted files in the Python scripting language
@@ -26,22 +29,21 @@ and associated updates to it (though what is included there may not be the very
 latest version). PyFITS does not require PyRAF however. It may be used 
 independently so long as numpy is installed."
 
-pkg_file="$pkg_name-$pkg_vers.tar.gz"
-pkg_urls="http://pypi.python.org/packages/source/p/pyfits/$pkg_file"
 pkg_opts="python skip-compile skip-install"
-pkg_reqs="cfitsio/latest numpy/latest"
-pkg_uses=""
+pkg_reqs="cfitsio numpy"
+pkg_uses="python"
 
 ####################################################################################################
 # satisfy pkg dependencies and load their environment settings
 ####################################################################################################
 
-bldr_satisfy_pkg --category    "$pkg_ctry"    \
-                 --name        "$pkg_name"    \
-                 --version     "$pkg_vers"    \
-                 --requires    "$pkg_reqs"    \
-                 --uses        "$pkg_uses"    \
-                 --options     "$pkg_opts"
+bldr_satisfy_pkg                 \
+    --category    "$pkg_ctry"    \
+    --name        "$pkg_name"    \
+    --version     "$pkg_default" \
+    --requires    "$pkg_reqs"    \
+    --uses        "$pkg_uses"    \
+    --options     "$pkg_opts"
 
 ####################################################################################################
 
@@ -50,21 +52,30 @@ pkg_ldflags=""
 pkg_cfg=""
 
 ####################################################################################################
-# build and install pkg as local module
+# register each pkg version with bldr
 ####################################################################################################
 
-bldr_build_pkg --category    "$pkg_ctry"    \
-               --name        "$pkg_name"    \
-               --version     "$pkg_vers"    \
-               --info        "$pkg_info"    \
-               --description "$pkg_desc"    \
-               --file        "$pkg_file"    \
-               --url         "$pkg_urls"    \
-               --uses        "$pkg_uses"    \
-               --requires    "$pkg_reqs"    \
-               --options     "$pkg_opts"    \
-               --cflags      "$pkg_cflags"  \
-               --ldflags     "$pkg_ldflags" \
-               --config      "$pkg_cfg"
+for pkg_vers in ${pkg_variants[@]}
+do
+    pkg_file="$pkg_name-$pkg_vers.tar.gz"
+    pkg_urls="http://pypi.python.org/packages/source/p/pyfits/$pkg_file"
 
+    bldr_register_pkg                 \
+         --category    "$pkg_ctry"    \
+         --name        "$pkg_name"    \
+         --version     "$pkg_vers"    \
+         --default     "$pkg_default" \
+         --info        "$pkg_info"    \
+         --description "$pkg_desc"    \
+         --file        "$pkg_file"    \
+         --url         "$pkg_urls"    \
+         --uses        "$pkg_uses"    \
+         --requires    "$pkg_reqs"    \
+         --options     "$pkg_opts"    \
+         --cflags      "$pkg_cflags"  \
+         --ldflags     "$pkg_ldflags" \
+         --config      "$pkg_cfg"     \
+         --config-path "$pkg_cfg_path"
+done
 
+####################################################################################################

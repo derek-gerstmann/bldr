@@ -12,8 +12,9 @@ source "bldr.sh"
 
 pkg_ctry="compilers"
 pkg_name="llvm"
-pkg_vers="3.1"
-pkg_vers_list=("$pkg_vers")
+
+pkg_default="3.1"
+pkg_variants=("3.1")
 
 pkg_info="The LLVM Core libraries provide a modern source- and target-independent optimizer, along with code generation support for many popular CPUs (as well as some less common ones!)."
 
@@ -33,10 +34,8 @@ different subprojects, many of which are being used in production by a wide vari
 and open source projects as well as being widely used in academic research. Code in the LLVM project 
 is licensed under the UIUC BSD-Style license."
 
-pkg_file="$pkg_name-$pkg_vers.src.tar.gz"
-pkg_urls="http://llvm.org/releases/$pkg_vers/$pkg_file"
 pkg_opts="configure -MBUILD_EXAMPLES=0"
-pkg_reqs="libffi/latest"
+pkg_reqs="libffi"
 pkg_uses="$pkg_reqs"
 
 pkg_cflags=""
@@ -45,21 +44,30 @@ pkg_ldflags=""
 pkg_cfg="--enable-optimized --enable-jit --enable-targets=all --enable-libffi" 
 
 ####################################################################################################
-# build and install pkg as local module
+# register each pkg version with bldr
 ####################################################################################################
 
-bldr_register_pkg --category    "$pkg_ctry"    \
-               --name        "$pkg_name"    \
-               --version     "$pkg_vers"    \
-               --info        "$pkg_info"    \
-               --description "$pkg_desc"    \
-               --file        "$pkg_file"    \
-               --url         "$pkg_urls"    \
-               --uses        "$pkg_uses"    \
-               --requires    "$pkg_reqs"    \
-               --options     "$pkg_opts"    \
-               --cflags      "$pkg_cflags"  \
-               --ldflags     "$pkg_ldflags" \
-               --config      "$pkg_cfg"
+for pkg_vers in ${pkg_variants[@]}
+do
+     pkg_file="$pkg_name-$pkg_vers.src.tar.gz"
+     pkg_urls="http://llvm.org/releases/$pkg_vers/$pkg_file"
 
+     bldr_register_pkg                \
+        --category    "$pkg_ctry"     \
+        --name        "$pkg_name"     \
+        --version     "$pkg_vers"     \
+        --default     "$pkg_default"  \
+        --info        "$pkg_info"     \
+        --description "$pkg_desc"     \
+        --file        "$pkg_file"     \
+        --url         "$pkg_urls"     \
+        --uses        "$pkg_uses"     \
+        --requires    "$pkg_reqs"     \
+        --options     "$pkg_opts"     \
+        --cflags      "$pkg_cflags"   \
+        --ldflags     "$pkg_ldflags"  \
+        --config      "$pkg_cfg"      \
+        --config-path "$pkg_cfg_path"
+done
 
+####################################################################################################

@@ -13,14 +13,14 @@ source "bldr.sh"
 pkg_ctry="storage"
 pkg_name="h5md"
 
+pkg_default="trunk"
+pkg_variants=("trunk")
+
 pkg_info="The H5MB library is a simple MultiBlock wrapper for HDF5 so that each process can create one or more datasets/group, write some data into it independently."
 
 pkg_desc="The H5MB library is a simple MultiBlock wrapper for HDF5 so that each 
 process can create one or more datasets/group, write some data into it 
 independently."
-
-pkg_vers_dft="trunk"
-pkg_vers_list=("$pkg_vers_dft")
 
 pkg_opts="cmake"
 pkg_reqs="szip zlib szip openmpi phdf5"
@@ -33,7 +33,7 @@ pkg_uses="$pkg_reqs"
 bldr_satisfy_pkg               \
   --category    "$pkg_ctry"    \
   --name        "$pkg_name"    \
-  --version     "$pkg_vers_dft"\
+  --version     "$pkg_default" \
   --requires    "$pkg_reqs"    \
   --uses        "$pkg_uses"    \
   --options     "$pkg_opts"
@@ -68,7 +68,7 @@ pkg_cfg="$pkg_cfg:-DHDF5_ENABLE_HL_LIB=ON"
 # register each pkg version with bldr
 ####################################################################################################
 
-for pkg_vers in ${pkg_vers_list[@]}
+for pkg_vers in ${pkg_variants[@]}
 do
     pkg_file="$pkg_name-$pkg_vers.tar.bz2"
     pkg_urls="https://hpcforge.org/anonscm/git/libh5mb/libh5mb.git"
@@ -77,7 +77,7 @@ do
         --category    "$pkg_ctry"    \
         --name        "$pkg_name"    \
         --version     "$pkg_vers"    \
-        --default     "$pkg_vers_dft"\
+        --default     "$pkg_default" \
         --info        "$pkg_info"    \
         --description "$pkg_desc"    \
         --file        "$pkg_file"    \

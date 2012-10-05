@@ -13,14 +13,14 @@ source "bldr.sh"
 pkg_ctry="internal"
 pkg_name="patch"
 
+pkg_default="2.6.1"
+pkg_variants=("2.6.1")
+
 pkg_info="GNU Patch takes a patch file containing a difference listing produced by the diff program and applies those differences to one or more original files, producing patched versions."
 
 pkg_desc="GNU Patch takes a patch file containing a difference listing produced by the diff 
 program and applies those differences to one or more original files, producing patched 
 versions."
-
-pkg_vers_dft="2.6.1"
-pkg_vers_list=("$pkg_vers_dft")
 
 pkg_opts="configure force-static"
 pkg_uses="coreutils"
@@ -33,7 +33,7 @@ pkg_cfg=""
 # register each pkg version with bldr
 ####################################################################################################
 
-for pkg_vers in ${pkg_vers_list[@]}
+for pkg_vers in ${pkg_variants[@]}
 do
      pkg_file="$pkg_name-$pkg_vers.tar.gz"
      pkg_urls="http://ftp.gnu.org/gnu/$pkg_name/$pkg_file"
@@ -42,7 +42,7 @@ do
          --category    "$pkg_ctry"    \
          --name        "$pkg_name"    \
          --version     "$pkg_vers"    \
-         --default     "$pkg_vers_dft"\
+         --default     "$pkg_default" \
          --info        "$pkg_info"    \
          --description "$pkg_desc"    \
          --file        "$pkg_file"    \

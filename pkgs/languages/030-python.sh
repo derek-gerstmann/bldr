@@ -13,6 +13,9 @@ source "bldr.sh"
 pkg_ctry="languages"
 pkg_name="python"
 
+pkg_default="2.7.3"
+pkg_variants=("2.7.3" "3.2.3")
+
 pkg_info="Python is a programming language that lets you work more quickly and integrate your systems more effectively."
 
 pkg_desc="Python is a programming language that lets you work more quickly and 
@@ -24,9 +27,6 @@ Java and .NET virtual machines.
 
 Python is free to use, even for commercial products, because of its 
 OSI-approved open source license."
-
-pkg_vers_dft="2.7.3"
-pkg_vers_list=("$pkg_vers_dft" "3.2.3")
 
 pkg_opts="configure"
 pkg_reqs="zlib bzip2"
@@ -44,7 +44,7 @@ pkg_cfg=""
 # register each pkg version with bldr
 ####################################################################################################
 
-for pkg_vers in ${pkg_vers_list[@]}
+for pkg_vers in ${pkg_variants[@]}
 do
     pkg_file="Python-$pkg_vers.tar.bz2"
     pkg_urls="http://www.python.org/ftp/python/$pkg_vers/$pkg_file"
@@ -53,7 +53,7 @@ do
           --category    "$pkg_ctry"    \
           --name        "$pkg_name"    \
           --version     "$pkg_vers"    \
-          --default     "$pkg_vers_dft"\
+          --default     "$pkg_default" \
           --info        "$pkg_info"    \
           --description "$pkg_desc"    \
           --file        "$pkg_file"    \

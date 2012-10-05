@@ -13,8 +13,8 @@ source "bldr.sh"
 pkg_ctry="protocols"
 pkg_name="protobuf"
 
-pkg_vers_dft="2.4.1"
-pkg_vers_list=("$pkg_vers_dft")
+pkg_default="2.4.1"
+pkg_variants=("2.4.1")
 
 pkg_info="Protocol buffers are a flexible, efficient, automated mechanism for serializing structured data."
 
@@ -36,7 +36,7 @@ pkg_ldflags=""
 # register each pkg version with bldr
 ####################################################################################################
 
-for pkg_vers in ${pkg_vers_list[@]}
+for pkg_vers in ${pkg_variants[@]}
 do
      pkg_file="$pkg_name-$pkg_vers.tar.bz2"
      pkg_urls="http://protobuf.googlecode.com/files/$pkg_file"
@@ -45,7 +45,7 @@ do
           --category    "$pkg_ctry"    \
           --name        "$pkg_name"    \
           --version     "$pkg_vers"    \
-          --default     "$pkg_vers_dft"\
+          --default     "$pkg_default" \
           --info        "$pkg_info"    \
           --description "$pkg_desc"    \
           --file        "$pkg_file"    \

@@ -12,7 +12,9 @@ source "bldr.sh"
 
 pkg_ctry="graphics"
 pkg_name="cairo"
-pkg_vers="1.12.2"
+
+pkg_default="1.12.2"
+pkg_variants=("1.12.2")
 
 pkg_info="Cairo is a 2D graphics library with support for multiple output devices."
 
@@ -37,60 +39,67 @@ Cairo is free software and is available to be redistributed and/or modified
 under the terms of either the GNU Lesser General Public License (LGPL) version 
 2.1 or the Mozilla Public License (MPL) version 1.1 at your option."
 
-pkg_file="$pkg_name-$pkg_vers.tar.xz"
-pkg_urls="http://cairographics.org/releases/$pkg_file"
-pkg_opts="configure force-bootstrap"
-pkg_uses=""
-pkg_reqs=""
-pkg_cfg=""
+pkg_opts="configure force-bootstrap enable-static enable-shared"
 
-pkg_reqs=""
-pkg_reqs="$pkg_reqs zlib/latest"
-pkg_reqs="$pkg_reqs libxml2/latest"
-pkg_reqs="$pkg_reqs libicu/latest"
-pkg_reqs="$pkg_reqs libiconv/latest"
-pkg_reqs="$pkg_reqs gtk-doc/latest"
-pkg_reqs="$pkg_reqs libtool/latest"
-pkg_reqs="$pkg_reqs gettext/latest"
-pkg_reqs="$pkg_reqs glib/latest"
-pkg_reqs="$pkg_reqs libpng/latest"
-pkg_reqs="$pkg_reqs freetype/latest"
-pkg_reqs="$pkg_reqs fontconfig/latest"
-pkg_reqs="$pkg_reqs pango/latest"
-pkg_reqs="$pkg_reqs pixman/latest"
-pkg_reqs="$pkg_reqs poppler/latest"
+pkg_reqs="zlib "
+pkg_reqs+="libxml2 "
+pkg_reqs+="libicu "
+pkg_reqs+="libiconv "
+pkg_reqs+="gtk-doc "
+pkg_reqs+="libtool "
+pkg_reqs+="gettext "
+pkg_reqs+="glib "
+pkg_reqs+="libpng "
+pkg_reqs+="freetype "
+pkg_reqs+="fontconfig "
+pkg_reqs+="pango "
+pkg_reqs+="pixman "
+pkg_reqs+="poppler "
+pkg_uses=$pkg_reqs
 
-pkg_cfg="--disable-introspection"
 pkg_cfg_path=""
 pkg_cflags=""
 pkg_ldflags=""
 
+pkg_cfg="--disable-introspection "
 if [[ $BLDR_SYSTEM_IS_OSX == true ]]; then
-     pkg_cfg="$pkg_cfg --disable-xlib --enable-quartz --enable-quartz-image --without-x"
+     pkg_cfg+="--disable-xlib --enable-quartz --enable-quartz-image --without-x "
 fi
 
 if [[ $BLDR_SYSTEM_IS_LINUX == true ]] 
 then
-     pkg_cflags="$pkg_cflags -fPIC"    
+     pkg_cflags+="-fPIC "    
 fi
 
-pkg_uses="$pkg_reqs"
-
 ####################################################################################################
-# build and install pkg as local module
+# register each pkg version with bldr
 ####################################################################################################
 
-bldr_build_pkg --category    "$pkg_ctry"    \
-               --name        "$pkg_name"    \
-               --version     "$pkg_vers"    \
-               --info        "$pkg_info"    \
-               --description "$pkg_desc"    \
-               --file        "$pkg_file"    \
-               --url         "$pkg_urls"    \
-               --uses        "$pkg_uses"    \
-               --requires    "$pkg_reqs"    \
-               --options     "$pkg_opts"    \
-               --cflags      "$pkg_cflags"  \
-               --ldflags     "$pkg_ldflags" \
-               --config      "$pkg_cfg"
+let pkg_idx=0
+for pkg_vers in ${pkg_variants[@]}
+do
+     pkg_file="$pkg_name-$pkg_vers.tar.xz"
+     pkg_urls="http://cairographics.org/releases/$pkg_file"
+
+     bldr_register_pkg                \
+         --category    "$pkg_ctry"    \
+         --name        "$pkg_name"    \
+         --version     "$pkg_vers"    \
+         --default     "$pkg_default" \
+         --info        "$pkg_info"    \
+         --description "$pkg_desc"    \
+         --file        "$pkg_file"    \
+         --url         "$pkg_urls"    \
+         --uses        "$pkg_uses"    \
+         --requires    "$pkg_reqs"    \
+         --options     "$pkg_opts"    \
+         --cflags      "$pkg_cflags"  \
+         --ldflags     "$pkg_ldflags" \
+         --config      "$pkg_cfg"     \
+         --config-path "$pkg_cfg_path"
+
+    let pkg_idx++
+done
+
+####################################################################################################
 

@@ -13,6 +13,9 @@ source "bldr.sh"
 pkg_ctry="text"
 pkg_name="docbook-xml"
 
+pkg_default="4.5"
+pkg_variants=("4.5")
+
 pkg_info="The DocBook XML DTD-4.5 package contains document type definitions for verification of XML data files against the DocBook rule set."
 
 pkg_desc="The DocBook XML DTD-4.5 package contains document type definitions for verification 
@@ -20,11 +23,16 @@ of XML data files against the DocBook rule set. These are useful for structuring
 and software documentation to a standard allowing you to utilize transformations already 
 written for that standard."
 
-pkg_vers_dft="4.5"
-pkg_vers_list=("$pkg_vers_dft")
+pkg_opts="configure "
+pkg_opts+="skip-compile "
+pkg_opts+="skip-boot "
+pkg_opts+="skip-config "
 
-pkg_opts="configure skip-compile skip-boot skip-config"
-pkg_reqs="pkg-config coreutils zlib gzip libxml2"
+pkg_reqs="pkg-config "
+pkg_reqs+="coreutils "
+pkg_reqs+="zlib "
+pkg_reqs+="gzip "
+pkg_reqs+="libxml2 "
 pkg_uses="$pkg_reqs"
 
 pkg_cflags=""
@@ -124,7 +132,7 @@ function bldr_pkg_install_method()
 # register each pkg version with bldr
 ####################################################################################################
 
-for pkg_vers in ${pkg_vers_list[@]}
+for pkg_vers in ${pkg_variants[@]}
 do
     pkg_file="$pkg_name-$pkg_vers.zip"
     pkg_urls="http://www.docbook.org/xml/$pkg_vers/$pkg_file"
@@ -133,7 +141,7 @@ do
         --category    "$pkg_ctry"    \
         --name        "$pkg_name"    \
         --version     "$pkg_vers"    \
-        --default     "$pkg_vers_dft"\
+        --default     "$pkg_default" \
         --info        "$pkg_info"    \
         --description "$pkg_desc"    \
         --file        "$pkg_file"    \

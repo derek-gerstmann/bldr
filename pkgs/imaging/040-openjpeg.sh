@@ -12,7 +12,9 @@ source "bldr.sh"
 
 pkg_ctry="imaging"
 pkg_name="openjpeg"
-pkg_vers="1.5.0"
+
+pkg_default="1.5.0"
+pkg_variants=("1.5.0")
 
 pkg_info="The OpenJPEG library is an open-source JPEG 2000 library developed in order to promote the use of JPEG 2000."
 
@@ -31,59 +33,71 @@ Thanks to the constant contributions of many developers from the open source com
 OpenJPEG has gained throughout the years in flexibility and performance. It is integrated 
 in many open source applications, such as Second Life and Gimp."
 
-pkg_file="$pkg_name-$pkg_vers.tar.gz"
-pkg_urls="http://openjpeg.googlecode.com/files/$pkg_file"
-pkg_opts="configure force-bootstrap"
-pkg_reqs=""
+pkg_opts="configure force-bootstrap enable-static enable-shared"
+
+pkg_reqs="zlib"
+pkg_reqs+="bzip2 "
+pkg_reqs+="libxml2 "
+pkg_reqs+="lcms2 "
+pkg_reqs+="libpng "
+pkg_reqs+="libjpeg "
+pkg_reqs+="libtiff "
+
+####################################################################################################
+# satisfy pkg dependencies and load their environment settings
+####################################################################################################
+
+bldr_satisfy_pkg                 \
+    --category    "$pkg_ctry"    \
+    --name        "$pkg_name"    \
+    --version     "$pkg_default" \
+    --requires    "$pkg_reqs"    \
+    --uses        "$pkg_uses"    \
+    --options     "$pkg_opts"
+
+####################################################################################################
+
 pkg_cflags=""
 pkg_ldflags=""
 
-dep_list="compression/zlib internal/bzip2 formats/libxml2"
-dep_list="$dep_list imaging/lcms2 imaging/libpng imaging/libjpeg imaging/libtiff"
-for dep_pkg in $dep_list
+pkg_cfg="--disable-dependency-tracking"
+pkg_cfg+="--enable-tiff "
+pkg_cfg+="--enable-mj2 "
+pkg_cfg+="--enable-jpwl "
+pkg_cfg+="--enable-jpip "
+pkg_cfg+="--enable-jpip-server "
+pkg_cfg+="Z_CFLAGS=-I$BLDR_ZLIB_INCLUDE_PATH "
+pkg_cfg+="Z_LIBS=-lz "
+pkg_cfg+="PNG_CFLAGS=-I$BLDR_LIBPNG_INCLUDE_PATH "
+pkg_cfg+="PNG_LIBS=-lpng "
+pkg_cfg+="TIFF_CFLAGS=-I$BLDR_LIBTIFF_INCLUDE_PATH "
+pkg_cfg+="TIFF_LIBS=-ltiff"
+
+####################################################################################################
+# register each pkg version with bldr
+####################################################################################################
+
+for pkg_vers in ${pkg_variants[@]}
 do
-     pkg_req_name=$(echo "$dep_pkg" | sed 's/.*\///g' )
-     pkg_reqs="$pkg_reqs $pkg_req_name/latest"
-     pkg_cflags="$pkg_cflags:-I$BLDR_LOCAL_PATH/$dep_pkg/latest/include"
-     pkg_ldflags="$pkg_ldflags:-L$BLDR_LOCAL_PATH/$dep_pkg/latest/lib"
+     pkg_file="$pkg_name-$pkg_vers.tar.gz"
+     pkg_urls="http://openjpeg.googlecode.com/files/$pkg_file"
+
+     bldr_register_pkg                \
+         --category    "$pkg_ctry"    \
+         --name        "$pkg_name"    \
+         --version     "$pkg_vers"    \
+         --default     "$pkg_default" \
+         --info        "$pkg_info"    \
+         --description "$pkg_desc"    \
+         --file        "$pkg_file"    \
+         --url         "$pkg_urls"    \
+         --uses        "$pkg_uses"    \
+         --requires    "$pkg_reqs"    \
+         --options     "$pkg_opts"    \
+         --cflags      "$pkg_cflags"  \
+         --ldflags     "$pkg_ldflags" \
+         --config      "$pkg_cfg"     \
+         --config-path "$pkg_cfg_path"
 done
 
-pkg_uses="$pkg_reqs"
-
-pkg_cfg="--disable-dependency-tracking"
-pkg_cfg="$pkg_cfg --enable-tiff"
-pkg_cfg="$pkg_cfg --enable-mj2"
-pkg_cfg="$pkg_cfg --enable-jpwl"
-pkg_cfg="$pkg_cfg --enable-jpip"
-pkg_cfg="$pkg_cfg --enable-jpip-server"
-pkg_cfg="$pkg_cfg Z_CFLAGS=-I$BLDR_LOCAL_PATH/compression/zlib/latest/include"
-pkg_cfg="$pkg_cfg Z_LIBS=-lz"
-pkg_cfg="$pkg_cfg PNG_CFLAGS=-I$BLDR_LOCAL_PATH/imaging/libpng/latest/include"
-pkg_cfg="$pkg_cfg PNG_LIBS=-lpng"
-pkg_cfg="$pkg_cfg TIFF_CFLAGS=-I$BLDR_LOCAL_PATH/imaging/libtiff/latest/include"
-pkg_cfg="$pkg_cfg TIFF_LIBS=-ltiff"
-
-if [[ $BLDR_SYSTEM_IS_LINUX == true ]]
-then
-     pkg_cflags="$pkg_cflags -fPIC"
-fi
-
 ####################################################################################################
-# build and install pkg as local module
-####################################################################################################
-
-bldr_build_pkg --category    "$pkg_ctry"    \
-               --name        "$pkg_name"    \
-               --version     "$pkg_vers"    \
-               --info        "$pkg_info"    \
-               --description "$pkg_desc"    \
-               --file        "$pkg_file"    \
-               --url         "$pkg_urls"    \
-               --uses        "$pkg_uses"    \
-               --requires    "$pkg_reqs"    \
-               --options     "$pkg_opts"    \
-               --cflags      "$pkg_cflags"  \
-               --ldflags     "$pkg_ldflags" \
-               --config      "$pkg_cfg"
-
-

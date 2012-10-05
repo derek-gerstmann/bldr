@@ -19,11 +19,15 @@ pkg_desc="Expat is an XML parser library written in C. It is a stream-oriented p
 in which an application registers handlers for things the parser might find in the 
 XML document (like start tags). "
 
-pkg_vers_dft="2.1.0"
-pkg_vers_list=("$pkg_vers_dft")
+pkg_default="2.1.0"
+pkg_variants=("$pkg_default")
 
-pkg_opts="configure enable-static enable-shared"
-pkg_reqs="pkg-config zlib"
+pkg_opts="configure "
+pkg_opts+="enable-static "
+pkg_opts+="enable-shared" 
+
+pkg_reqs="pkg-config "
+pkg_reqs+="zlib "
 pkg_uses="$pkg_reqs"
 
 pkg_cflags=""
@@ -35,7 +39,7 @@ pkg_patch=""
 # register each pkg version with bldr
 ####################################################################################################
 
-for pkg_vers in ${pkg_vers_list[@]}
+for pkg_vers in ${pkg_variants[@]}
 do
     pkg_file="$pkg_name-$pkg_vers.tar.gz"
     pkg_urls="http://prdownloads.sourceforge.net/$pkg_name/$pkg_vers/$pkg_file?download"
@@ -44,7 +48,7 @@ do
         --category    "$pkg_ctry"    \
         --name        "$pkg_name"    \
         --version     "$pkg_vers"    \
-        --default     "$pkg_vers_dft"\
+        --default     "$pkg_default" \
         --info        "$pkg_info"    \
         --description "$pkg_desc"    \
         --file        "$pkg_file"    \

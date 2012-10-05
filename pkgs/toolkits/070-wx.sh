@@ -13,6 +13,9 @@ source "bldr.sh"
 pkg_ctry="toolkits"
 pkg_name="wx"
 
+pkg_default="2.9.4"
+pkg_variants=("2.9.4")
+
 pkg_info="WX is a C++ Widgets library that lets developers create GUI applications for many platforms."
 
 pkg_desc="wxWidgets is a C++ library that lets developers create applications for Windows, 
@@ -24,17 +27,15 @@ Unlike other cross-platform toolkits, wxWidgets gives its applications a truly n
 look and feel because it uses the platform's native API rather than emulating the GUI. 
 It's also extensive, free, open-source and mature."
 
-pkg_vers_dft="2.9.4"
-pkg_vers_list=("$pkg_vers_dft")
+pkg_opts="configure "
 
-pkg_opts="configure"
-pkg_reqs="$pkg_reqs zlib"
-pkg_reqs="$pkg_reqs libxml2"
-pkg_reqs="$pkg_reqs libicu"
-pkg_reqs="$pkg_reqs libiconv"
-pkg_reqs="$pkg_reqs glib"
-pkg_reqs="$pkg_reqs libpng"
-pkg_reqs="$pkg_reqs pango"
+pkg_reqs+="zlib "
+pkg_reqs+="libxml2 "
+pkg_reqs+="libicu "
+pkg_reqs+="libiconv "
+pkg_reqs+="glib "
+pkg_reqs+="libpng "
+pkg_reqs+="pango "
 pkg_uses="$pkg_reqs"
 
 ####################################################################################################
@@ -44,7 +45,7 @@ pkg_uses="$pkg_reqs"
 bldr_satisfy_pkg                    \
     --category    "$pkg_ctry"       \
     --name        "$pkg_name"       \
-    --version     "$pkg_vers_dft"   \
+    --version     "$pkg_default"    \
     --requires    "$pkg_reqs"       \
     --uses        "$pkg_uses"       \
     --options     "$pkg_opts"
@@ -60,7 +61,7 @@ pkg_ldflags=""
 # register each pkg version with bldr
 ####################################################################################################
 
-for pkg_vers in ${pkg_vers_list[@]}
+for pkg_vers in ${pkg_variants[@]}
 do
     pkg_file="wxWidgets-$pkg_vers-src.tar.bz2"
     pkg_urls="http://prdownloads.sourceforge.net/wxwindows/$pkg_file"
@@ -69,7 +70,7 @@ do
         --category    "$pkg_ctry"    \
         --name        "$pkg_name"    \
         --version     "$pkg_vers"    \
-        --default     "$pkg_vers_dft"\
+        --default     "$pkg_default" \
         --info        "$pkg_info"    \
         --description "$pkg_desc"    \
         --file        "$pkg_file"    \

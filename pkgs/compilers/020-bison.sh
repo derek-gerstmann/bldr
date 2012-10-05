@@ -13,6 +13,9 @@ source "bldr.sh"
 pkg_ctry="compilers"
 pkg_name="bison"
 
+pkg_default="2.6.1"
+pkg_variants=("2.6.1")
+
 pkg_info="Bison is a tool for generating parsers (eg for building custom compilers)."
 
 pkg_desc="Bison is a general-purpose parser generator that converts an annotated 
@@ -28,9 +31,6 @@ be able to use Bison with little trouble. You need to be fluent in C or C++
 programming in order to use Bison. Java is also supported as an experimental 
 feature. "
 
-pkg_vers_dft="2.6.1"
-pkg_vers_list=("$pkg_vers")
-
 pkg_opts="configure enable-static enable-shared"
 pkg_reqs="coreutils gettext libiconv"
 pkg_uses="$pkg_reqs"
@@ -42,7 +42,7 @@ pkg_uses="$pkg_reqs"
 bldr_satisfy_pkg                 \
     --category    "$pkg_ctry"    \
     --name        "$pkg_name"    \
-    --version     "$pkg_vers_dft"\
+    --version     "$pkg_default" \
     --requires    "$pkg_reqs"    \
     --uses        "$pkg_uses"    \
     --options     "$pkg_opts"
@@ -52,15 +52,14 @@ bldr_satisfy_pkg                 \
 pkg_cflags=""
 pkg_ldflags=""
 
-pkg_cfg=""
-pkg_cfg="$pkg_cfg --with-libiconv-prefix=\"$BLDR_LIBICONV_BASE_PATH\""
-pkg_cfg="$pkg_cfg --with-libintl-prefix=\"$BLDR_GETTEXT_BASE_PATH\""
+pkg_cfg="--with-libiconv-prefix=\"$BLDR_LIBICONV_BASE_PATH\" "
+pkg_cfg+="--with-libintl-prefix=\"$BLDR_GETTEXT_BASE_PATH\" "
 
 ####################################################################################################
 # register each pkg version with bldr
 ####################################################################################################
 
-for pkg_vers in ${pkg_vers_list[@]}
+for pkg_vers in ${pkg_variants[@]}
 do
     pkg_file="$pkg_name-$pkg_vers.tar.xz"
     pkg_urls="http://ftp.gnu.org/gnu/$pkg_name/$pkg_file"
@@ -69,7 +68,7 @@ do
         --category    "$pkg_ctry"    \
         --name        "$pkg_name"    \
         --version     "$pkg_vers"    \
-        --default     "$pkg_vers_dft"\
+        --default     "$pkg_default" \
         --info        "$pkg_info"    \
         --description "$pkg_desc"    \
         --file        "$pkg_file"    \

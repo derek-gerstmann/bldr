@@ -13,6 +13,9 @@ source "bldr.sh"
 pkg_ctry="languages"
 pkg_name="cython"
 
+pkg_default="0.17.1"
+pkg_variants=("0.17.1")
+
 pkg_info="Cython is a language that makes writing C extensions for the Python language as easy as Python itself."
 
 pkg_desc="Cython is a language that makes writing C extensions for the Python language as easy as Python itself. 
@@ -22,9 +25,6 @@ It aims to become a superset of the [Python] language which gives it high-level,
 and dynamic programming. The source code gets translated into optimized C/C++ code and compiled as Python 
 extension modules. This allows for both very fast program execution and tight integration with external C 
 libraries, while keeping up the high programmer productivity for which the Python language is well known."
-
-pkg_vers_dft="0.16"
-pkg_vers_list=("$pkg_vers_dft")
 
 pkg_opts="python skip-compile skip-install"
 pkg_reqs="python"
@@ -47,7 +47,7 @@ do
           --category    "$pkg_ctry"    \
           --name        "$pkg_name"    \
           --version     "$pkg_vers"    \
-          --default     "$pkg_vers_dft"\
+          --default     "$pkg_default" \
           --info        "$pkg_info"    \
           --description "$pkg_desc"    \
           --file        "$pkg_file"    \

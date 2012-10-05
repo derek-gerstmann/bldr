@@ -12,7 +12,9 @@ source "bldr.sh"
 
 pkg_ctry="spatial"
 pkg_name="arboretum"
-pkg_vers="2.0.0"
+
+pkg_default="2.0.0"
+pkg_variants=("2.0.0")
 
 pkg_info="The GBDI Arboretum is a portable C++ library which implements various metric access methods (MAM)."
 
@@ -33,7 +35,7 @@ pkg_ldflags=""
 # register each pkg version with bldr
 ####################################################################################################
 
-for pkg_vers in ${pkg_vers_list[@]}
+for pkg_vers in ${pkg_variants[@]}
 do
      pkg_file="arboretum-1.0R2.tar.gz"
      pkg_urls="http://www.gbdi.icmc.usp.br/?q=system/files/arboretum-1.0R2.tar_.gz"
@@ -42,7 +44,7 @@ do
           --category    "$pkg_ctry"    \
           --name        "$pkg_name"    \
           --version     "$pkg_vers"    \
-          --default     "$pkg_vers_dft"\
+          --default     "$pkg_default" \
           --info        "$pkg_info"    \
           --description "$pkg_desc"    \
           --file        "$pkg_file"    \

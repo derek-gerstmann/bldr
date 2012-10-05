@@ -12,6 +12,10 @@ source "bldr.sh"
 
 pkg_ctry="numerics"
 pkg_name="scipy"
+
+pkg_default="0.11.0"
+pkg_variants=("0.11.0")
+
 pkg_info="SciPy is an open-source software python library for mathematics, science, and engineering."
 
 pkg_desc="SciPy is an open-source software python library for mathematics, science, and engineering.
@@ -24,9 +28,6 @@ run on all popular operating systems, are quick to install, and are free of char
 SciPy are easy to use, but powerful enough to be depended upon by some of the world's leading 
 scientists and engineers."
 
-pkg_vers_dft="0.11.0"
-pkg_vers_list=("$pkg_vers_dft")
-
 pkg_opts="python skip-compile skip-install"
 pkg_reqs="python lapack atlas gfortran numpy"
 pkg_uses="$pkg_reqs"
@@ -38,7 +39,7 @@ pkg_uses="$pkg_reqs"
 bldr_satisfy_pkg                 \
     --category    "$pkg_ctry"    \
     --name        "$pkg_name"    \
-    --version     "$pkg_vers_dft"\
+    --version     "$pkg_default" \
     --requires    "$pkg_reqs"    \
     --uses        "$pkg_uses"    \
     --options     "$pkg_opts"
@@ -57,7 +58,7 @@ pkg_cfg=""
 # build and install pkg as local module
 ####################################################################################################
 
-for pkg_vers in ${pkg_vers_list[@]}
+for pkg_vers in ${pkg_variants[@]}
 do
     pkg_file="$pkg_name-$pkg_vers.tar.gz"
     pkg_urls="http://downloads.sourceforge.net/project/$pkg_name/scipy/$pkg_vers/$pkg_file"
@@ -66,7 +67,7 @@ do
           --category    "$pkg_ctry"    \
           --name        "$pkg_name"    \
           --version     "$pkg_vers"    \
-          --default     "$pkg_vers_dft"\
+          --default     "$pkg_default" \
           --info        "$pkg_info"    \
           --description "$pkg_desc"    \
           --file        "$pkg_file"    \

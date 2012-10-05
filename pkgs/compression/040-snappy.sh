@@ -13,6 +13,9 @@ source "bldr.sh"
 pkg_ctry="compression"
 pkg_name="snappy"
 
+pkg_default="1.0.5"
+pkg_variants=("1.0.5")
+
 pkg_info="Snappy is a compression/decompression library."
 
 pkg_desc="Snappy is a compression/decompression library. It does not aim for maximum compression, 
@@ -33,9 +36,6 @@ a specification for a framing format useful for higher-level framing and encapsu
 of Snappy data, e.g. for transporting Snappy-compressed data across HTTP in a streaming 
 fashion. Note that there is currently no known code implementing the latter."
 
-pkg_vers_dft="1.0.5"
-pkg_vers_list=("$pkg_vers_dft")
-
 pkg_opts="configure"
 pkg_uses="m4 autoconf automake"
 
@@ -48,7 +48,7 @@ pkg_cfg=""
 # register each pkg version with bldr
 ####################################################################################################
 
-for pkg_vers in ${pkg_vers_list[@]}
+for pkg_vers in ${pkg_variants[@]}
 do
      pkg_file="$pkg_name-$pkg_vers.tar.gz"
      pkg_urls="http://snappy.googlecode.com/files/$pkg_file"
@@ -57,7 +57,7 @@ do
           --category    "$pkg_ctry"    \
           --name        "$pkg_name"    \
           --version     "$pkg_vers"    \
-          --default     "$pkg_vers_dft"\
+          --default     "$pkg_default" \
           --info        "$pkg_info"    \
           --description "$pkg_desc"    \
           --file        "$pkg_file"    \

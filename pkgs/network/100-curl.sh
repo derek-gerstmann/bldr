@@ -13,6 +13,9 @@ source "bldr.sh"
 pkg_ctry="network"
 pkg_name="curl"
 
+pkg_default="7.26.0"
+pkg_variants=("7.26.0")
+
 pkg_info="Curl is a command line tool for transferring data with URL syntax."
 
 pkg_desc="curl is a command line tool for transferring data with URL syntax, 
@@ -22,9 +25,6 @@ curl supports SSL certificates, HTTP POST, HTTP PUT, FTP uploading,
 HTTP form based upload, proxies, cookies, user+password authentication 
 (Basic, Digest, NTLM, Negotiate, kerberos...), file transfer resume, 
 proxy tunneling and a busload of other useful tricks."
-
-pkg_vers_dft="7.26.0"
-pkg_vers_list=("$pkg_vers_dft")
 
 pkg_opts="configure enable-static enable-shared"
 pkg_uses="openssl"
@@ -37,7 +37,7 @@ pkg_reqs="$pkg_uses"
 bldr_satisfy_pkg               \
   --category    "$pkg_ctry"    \
   --name        "$pkg_name"    \
-  --version     "$pkg_vers_dft"\
+  --version     "$pkg_default" \
   --requires    "$pkg_reqs"    \
   --uses        "$pkg_uses"    \
   --options     "$pkg_opts"
@@ -48,15 +48,15 @@ pkg_cflags=""
 pkg_ldflags=""
 
 pkg_cfg="--enable-optimize"
-pkg_cfg="$pkg_cfg --enable-threaded-resolver"
-pkg_cfg="$pkg_cfg --enable-nonblocking"
-pkg_cfg="$pkg_cfg --with-ssl=$BLDR_OPENSSL_BASE_PATH"
+pkg_cfg+="--enable-threaded-resolver "
+pkg_cfg+="--enable-nonblocking "
+pkg_cfg+="--with-ssl=$BLDR_OPENSSL_BASE_PATH "
 
 ####################################################################################################
 # build and install pkg as local module
 ####################################################################################################
 
-for pkg_vers in ${pkg_vers_list[@]}
+for pkg_vers in ${pkg_variants[@]}
 do
       pkg_file="$pkg_name-$pkg_vers.tar.gz"
       pkg_urls="http://curl.haxx.se/download/$pkg_file"
@@ -65,7 +65,7 @@ do
           --category    "$pkg_ctry"    \
           --name        "$pkg_name"    \
           --version     "$pkg_vers"    \
-          --default     "$pkg_vers_dft"\
+          --default     "$pkg_default" \
           --info        "$pkg_info"    \
           --description "$pkg_desc"    \
           --file        "$pkg_file"    \

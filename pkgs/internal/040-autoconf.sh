@@ -13,6 +13,9 @@ source "bldr.sh"
 pkg_ctry="internal"
 pkg_name="autoconf"
 
+pkg_default="2.69"
+pkg_variants=("2.66" "2.68" "2.69")
+
 pkg_info="Autoconf is an extensible system to automatically configure software source code packages. "
 
 pkg_desc="Autoconf is an extensible package of M4 macros that produce shell 
@@ -22,9 +25,6 @@ systems without manual user intervention.  Autoconf creates a
 configuration script for a package from a template file that lists the 
 operating system features that the package can use, in the form of M4 
 macro calls."
-
-pkg_vers_dft="2.69"
-pkg_vers_list=("2.66" "2.68" "$pkg_vers_dft")
 
 pkg_opts="configure force-static"
 pkg_reqs="coreutils m4"
@@ -37,7 +37,7 @@ pkg_cfg=""
 # register each pkg version with bldr
 ####################################################################################################
 
-for pkg_vers in ${pkg_vers_list[@]}
+for pkg_vers in ${pkg_variants[@]}
 do
      pkg_file="$pkg_name-$pkg_vers.tar.gz"
      pkg_urls="http://ftp.gnu.org/gnu/autoconf/$pkg_file"
@@ -46,7 +46,7 @@ do
          --category    "$pkg_ctry"    \
          --name        "$pkg_name"    \
          --version     "$pkg_vers"    \
-         --default     "$pkg_vers_dft"\
+         --default     "$pkg_default" \
          --info        "$pkg_info"    \
          --description "$pkg_desc"    \
          --file        "$pkg_file"    \

@@ -10,10 +10,11 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_vers="1.8.9"
-pkg_vers_list=("1.6.10" "1.8.2" "$pkg_vers")
 pkg_ctry="storage"
 pkg_name="hdf5"
+
+pkg_default="1.8.9"
+pkg_variants=("1.6.10" "1.8.2" "1.8.9")
 
 pkg_info="HDF5 is a unique technology suite that makes possible the management of extremely large and complex data collections."
 
@@ -27,9 +28,6 @@ The HDF5 technology suite includes:
 * A rich set of integrated performance features that allow for access time and storage space optimizations.
 * Tools and applications for managing, manipulating, viewing, and analyzing the data in the collection."
 
-pkg_vers_dft="1.8.9"
-pkg_vers_list=("$pkg_vers_dft" "1.8.2" "1.6.10")
-
 pkg_opts="configure skip-xcode-config force-serial-build"
 pkg_reqs="szip zlib"
 pkg_uses="$pkg_reqs"
@@ -41,7 +39,7 @@ pkg_uses="$pkg_reqs"
 bldr_satisfy_pkg               \
   --category    "$pkg_ctry"    \
   --name        "$pkg_name"    \
-  --version     "$pkg_vers_dft"\
+  --version     "$pkg_default" \
   --requires    "$pkg_reqs"    \
   --uses        "$pkg_uses"    \
   --options     "$pkg_opts"
@@ -52,22 +50,22 @@ pkg_cflags=""
 pkg_ldflags=""
 
 pkg_cfg=""
-pkg_cfg="$pkg_cfg --enable-hl"
-pkg_cfg="$pkg_cfg --enable-filters=all"
-pkg_cfg="$pkg_cfg --enable-static-exec"
+pkg_cfg+="--enable-hl "
+pkg_cfg+="--enable-filters=all "
+pkg_cfg+="--enable-static-exec "
 
 if [[ $BLDR_SYSTEM_IS_OSX == true ]]; then
-    pkg_cfg="$pkg_cfg --with-pthread=\"/usr\""
+    pkg_cfg+="--with-pthread=\"/usr\" "
 fi
 
 if [[ $BLDR_SYSTEM_IS_LINUX == true ]]; then
-    pkg_cfg="$pkg_cfg --with-pthread=\"/usr\""
-    pkg_cfg="$pkg_cfg --enable-linux-lfs"
-    pkg_cflags="$pkg_cflags -fPIC"
+    pkg_cfg+="--with-pthread=\"/usr\" "
+    pkg_cfg+="--enable-linux-lfs "
+    pkg_cflags="$pkg_cflags -fPIC "
 fi
 
-pkg_cfg="$pkg_cfg --with-szlib=\"$BLDR_SZIP_BASE_PATH\""
-pkg_cfg="$pkg_cfg --with-zlib=\"$BLDR_ZLIB_BASE_PATH\""
+pkg_cfg+="--with-szlib=\"$BLDR_SZIP_BASE_PATH\" "
+pkg_cfg+="--with-zlib=\"$BLDR_ZLIB_BASE_PATH\" "
 
 hdf5_cfg="$pkg_cfg"
 hdf5_reqs="$pkg_reqs"
@@ -76,7 +74,7 @@ hdf5_reqs="$pkg_reqs"
 # build and install each pkg version as local module
 ####################################################################################################
 
-for pkg_vers in ${pkg_vers_list[@]}
+for pkg_vers in ${pkg_variants[@]}
 do
     pkg_name="hdf5"
     pkg_file="hdf5-$pkg_vers.tar.gz"
@@ -91,9 +89,9 @@ do
     then
       	if [[ $(echo $pkg_vers | grep -m1 -c '^1.8.2' ) < 1 ]]
         then
-            pkg_cfg="$pkg_cfg FC=gfortran"
-            pkg_cfg="$pkg_cfg --enable-fortran"
-            pkg_reqs="$hdf5_reqs gfortran"
+            pkg_cfg+="FC=gfortran "
+            pkg_cfg+="--enable-fortran "
+            pkg_reqs="$hdf5_reqs gfortran "
         fi
     else
         pkg_reqs="$hdf5_reqs"      
@@ -103,7 +101,7 @@ do
       --category    "$pkg_ctry"    \
       --name        "$pkg_name"    \
       --version     "$pkg_vers"    \
-      --default     "$pkg_vers_dft"\
+      --default     "$pkg_default" \
       --info        "$pkg_info"    \
       --description "$pkg_desc"    \
       --file        "$pkg_file"    \
@@ -121,21 +119,21 @@ do
     if [[ $(echo $pkg_vers | grep -m1 -c '^1.8' ) > 0 ]]
     then
         pkg_name="hdf5-16"
-        pkg_cfg="$hdf5_cfg --enable-cxx"
-        pkg_cfg="$pkg_cfg --with-default-api-version=v16"
+        pkg_cfg="$hdf5_cfg --enable-cxx "
+        pkg_cfg+="--with-default-api-version=v16 "
       
       	if [[ $(echo $pkg_vers | grep -m1 -c '^1.8.2' ) < 1 ]]
         then
-            pkg_cfg="$pkg_cfg FC=gfortran"
-            pkg_cfg="$pkg_cfg --enable-fortran"
-            pkg_reqs="$hdf5_reqs gfortran/latest"
+            pkg_cfg+="FC=gfortran "
+            pkg_cfg+="--enable-fortran "
+            pkg_reqs="$hdf5_reqs gfortran "
         fi
 
-        bldr_register_pkg                 \
+        bldr_register_pkg              \
           --category    "$pkg_ctry"    \
           --name        "$pkg_name"    \
           --version     "$pkg_vers"    \
-          --default     "$pkg_vers_dft"\
+          --default     "$pkg_default" \
           --info        "$pkg_info"    \
           --description "$pkg_desc"    \
           --file        "$pkg_file"    \
@@ -160,7 +158,7 @@ do
       --category    "$pkg_ctry"    \
       --name        "$pkg_name"    \
       --version     "$pkg_vers"    \
-      --default     "$pkg_vers_dft"\
+      --default     "$pkg_default" \
       --info        "$pkg_info"    \
       --description "$pkg_desc"    \
       --file        "$pkg_file"    \
@@ -178,15 +176,15 @@ do
     if [[ $(echo $pkg_vers | grep -m1 -c '^1.8' ) > 0 ]]
     then
         pkg_name="hdf5-threadsafe-16"
-        pkg_cfg="$hdf5_cfg --enable-threadsafe"
-        pkg_cfg="$hdf5_cfg --with-default-api-version=v16"
+        pkg_cfg="$hdf5_cfg --enable-threadsafe "
+        pkg_cfg+="--with-default-api-version=v16"
         pkg_reqs="$hdf5_reqs"      
 
         bldr_register_pkg              \
           --category    "$pkg_ctry"    \
           --name        "$pkg_name"    \
           --version     "$pkg_vers"    \
-          --default     "$pkg_vers_dft"\
+          --default     "$pkg_default" \
           --info        "$pkg_info"    \
           --description "$pkg_desc"    \
           --file        "$pkg_file"    \

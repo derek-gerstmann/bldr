@@ -13,15 +13,15 @@ source "bldr.sh"
 pkg_ctry="numerics"
 pkg_name="gsl"
 
+pkg_default="1.15"
+pkg_variants=("1.15")
+
 pkg_info="The GNU Scientific Library (GSL) is a numerical library for C and C++ programmers."
 
 pkg_desc="The GNU Scientific Library (GSL) is a numerical library for C and C++ programmers. 
 It is free software under the GNU General Public License. The library provides a wide range of 
 mathematical routines such as random number generators, special functions and least-squares 
 fitting. There are over 1000 functions in total with an extensive test suite."
-
-pkg_vers_dft="1.15"
-pkg_vers_list=("$pkg_vers_dft")
 
 pkg_opts="configure enable-static enable-shared"
 
@@ -109,17 +109,8 @@ function bldr_pkg_compile_method()
         ln -sv "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers" "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/gsl"
         bldr_log_split
         
-        bldr_log_cmd "make $options PREFIX="$prefix""
+        bldr_run_cmd "make $options PREFIX="$prefix""
         bldr_log_split
-
-        if [ $BLDR_VERBOSE != false ]
-        then
-            eval make $options PREFIX="$prefix" || bldr_bail "Failed to install package: '$prefix'"
-            bldr_log_split
-        else
-            eval make $options PREFIX="$prefix" &> /dev/null || bldr_bail "Failed to install package: '$prefix'"
-            bldr_log_split
-        fi
     fi
     bldr_pop_dir
 }
@@ -128,7 +119,7 @@ function bldr_pkg_compile_method()
 # build and install pkg as local module
 ####################################################################################################
 
-for pkg_vers in ${pkg_vers_list[@]}
+for pkg_vers in ${pkg_variants[@]}
 do
     pkg_file="$pkg_name-$pkg_vers.tar.gz"
     pkg_urls="http://ftp.gnu.org/gnu/gsl/$pkg_file"
@@ -137,7 +128,7 @@ do
           --category    "$pkg_ctry"    \
           --name        "$pkg_name"    \
           --version     "$pkg_vers"    \
-          --default     "$pkg_vers_dft"\
+          --default     "$pkg_default" \
           --info        "$pkg_info"    \
           --description "$pkg_desc"    \
           --file        "$pkg_file"    \

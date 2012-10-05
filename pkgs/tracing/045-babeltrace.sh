@@ -19,13 +19,18 @@ pkg_desc="Babeltrace is a command-line tool and library to read and convert
 trace files to and from different formats. It supports the CTF format, which 
 is outputted by the LTTng 2.0 tracers."
 
-pkg_vers_dft="1.0.0-rc5"
-pkg_vers_list=("$pkg_vers_dft")
+pkg_default="1.0.0-rc5"
+pkg_variants=("1.0.0-rc5")
 
-pkg_opts="configure enable-static enable-shared"
+pkg_opts="configure "
+pkg_opts+="enable-static "
+pkg_opts+="enable-shared "
 pkg_cfg=""
 
-pkg_reqs="liburcu lttng-ust zlib"
+pkg_reqs="liburcu "
+pkg_reqs+="lttng-ust "
+pkg_reqs+="zlib "
+
 pkg_uses=""
 
 ####################################################################################################
@@ -35,7 +40,7 @@ pkg_uses=""
 bldr_satisfy_pkg                 \
     --category    "$pkg_ctry"    \
     --name        "$pkg_name"    \
-    --version     "$pkg_vers_dft"\
+    --version     "$pkg_default" \
     --requires    "$pkg_reqs"    \
     --uses        "$pkg_uses"    \
     --options     "$pkg_opts"
@@ -57,7 +62,7 @@ then
      bldr_log_warning "$pkg_name isn't supported on MacOSX.  Skipping..."
      bldr_log_split
 else
-     for pkg_vers in ${pkg_vers_list[@]}
+     for pkg_vers in ${pkg_variants[@]}
      do
           pkg_file="$pkg_name-$pkg_vers.tar.bz2"
           pkg_urls="http://lttng.org/files/$pkg_name/$pkg_file"
@@ -66,7 +71,7 @@ else
                --category    "$pkg_ctry"    \
                --name        "$pkg_name"    \
                --version     "$pkg_vers"    \
-               --default     "$pkg_vers_dft"\
+               --default     "$pkg_default" \
                --info        "$pkg_info"    \
                --description "$pkg_desc"    \
                --file        "$pkg_file"    \

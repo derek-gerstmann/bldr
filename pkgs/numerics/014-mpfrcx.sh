@@ -12,6 +12,10 @@ source "bldr.sh"
 
 pkg_ctry="numerics"
 pkg_name="mpfrcx"
+
+pkg_default="0.4.1"
+pkg_variants=("0.4.1")
+
 pkg_info="MPFRCX is a library for the arithmetic of univariate polynomials over arbitrary precision real (Mpfr) or complex (Mpc) numbers, without control on the rounding."
 
 pkg_desc="MPFRCX is a library for the arithmetic of univariate polynomials 
@@ -26,9 +30,6 @@ The library is written by Andreas Enge and is distributed under the Gnu Lesser
 General Public License, either version 2.1 of the licence, or (at your option) 
 any later version."
 
-pkg_vers_dft="0.4.1"
-pkg_vers_list=("$pkg_vers_dft")
-
 pkg_opts="configure enable-static enable-shared"
 pkg_reqs="gmp mpfr mpc"
 pkg_uses="$pkg_reqs"
@@ -40,7 +41,7 @@ pkg_uses="$pkg_reqs"
 bldr_satisfy_pkg                 \
     --category    "$pkg_ctry"    \
     --name        "$pkg_name"    \
-    --version     "$pkg_vers_dft"\
+    --version     "$pkg_default" \
     --requires    "$pkg_reqs"    \
     --uses        "$pkg_uses"    \
     --options     "$pkg_opts"
@@ -48,9 +49,9 @@ bldr_satisfy_pkg                 \
 ####################################################################################################
 
 pkg_cfg=""
-pkg_cfg="$pkg_cfg --with-gmp=\"$BLDR_GMP_BASE_PATH\""
-pkg_cfg="$pkg_cfg --with-mpfr=\"$BLDR_MPFR_BASE_PATH\""
-pkg_cfg="$pkg_cfg --with-mpc=\"$BLDR_MPC_BASE_PATH\""
+pkg_cfg+="--with-gmp=\"$BLDR_GMP_BASE_PATH\" "
+pkg_cfg+="--with-mpfr=\"$BLDR_MPFR_BASE_PATH\" "
+pkg_cfg+="--with-mpc=\"$BLDR_MPC_BASE_PATH\" "
 
 pkg_patch=""
 pkg_cflags=""
@@ -60,7 +61,7 @@ pkg_ldflags=""
 # build and install pkg as local module
 ####################################################################################################
 
-for pkg_vers in ${pkg_vers_list[@]}
+for pkg_vers in ${pkg_variants[@]}
 do
     pkg_file="$pkg_name-$pkg_vers.tar.gz"
     pkg_urls="http://www.multiprecision.org/mpc/download/$pkg_file"
@@ -69,7 +70,7 @@ do
           --category    "$pkg_ctry"    \
           --name        "$pkg_name"    \
           --version     "$pkg_vers"    \
-          --default     "$pkg_vers_dft"\
+          --default     "$pkg_default" \
           --info        "$pkg_info"    \
           --description "$pkg_desc"    \
           --file        "$pkg_file"    \

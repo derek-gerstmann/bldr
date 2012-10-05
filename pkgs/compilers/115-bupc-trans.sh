@@ -13,8 +13,8 @@ source "bldr.sh"
 pkg_ctry="compilers"
 pkg_name="bupc-trans"
 
-pkg_vers_dft="2.14.2"
-pkg_vers_list=("$pkg_vers_dft")
+pkg_default="2.14.2"
+pkg_variants=("2.14.2")
 
 pkg_info="The Berkeley UPC-to-C translator provides a source-to-source compiler for translating Unified Parallel C (UPC) to ANSI-C99."
 
@@ -45,14 +45,12 @@ the best characteristics of each. UPC combines the programmability advantages of
 shared memory programming paradigm and the control over data layout and performance 
 of the message passing programming paradigm."
 
-pkg_file="berkeley_upc_translator-$pkg_vers.tar.gz"
-pkg_urls="http://upc.lbl.gov/download/release/$pkg_file"
-base_opts="configure force-serial-build skip-config"
-pkg_reqs=""
-pkg_uses="$pkg_reqs"
+upc_opts="configure force-serial-build skip-config"
 
 ####################################################################################################
 
+pkg_reqs=""
+pkg_uses=""
 pkg_cfg=""
 pkg_cflags=""
 pkg_ldflags=""
@@ -62,17 +60,17 @@ pkg_patch=""
 # register each pkg version with bldr
 ####################################################################################################
 
-for pkg_vers in ${pkg_vers_list[@]}
+for pkg_vers in ${pkg_variants[@]}
 do
     pkg_file="berkeley_upc_translator-$pkg_vers.tar.gz"
     pkg_urls="http://upc.lbl.gov/download/release/$pkg_file"
-    pkg_opts="$base_opts -MPREFIX=\"$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers\""
+    pkg_opts="$upc_opts -MPREFIX=\"$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers\""
 
     bldr_register_pkg                \
         --category    "$pkg_ctry"    \
         --name        "$pkg_name"    \
         --version     "$pkg_vers"    \
-        --default     "$pkg_vers_dft"\
+        --default     "$pkg_default" \
         --info        "$pkg_info"    \
         --description "$pkg_desc"    \
         --file        "$pkg_file"    \

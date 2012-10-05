@@ -12,7 +12,10 @@ source "bldr.sh"
 
 pkg_ctry="developer"
 pkg_name="ncurses"
-pkg_vers="5.9"
+
+pkg_default="5.9"
+pkg_variants=("5.9")
+
 pkg_info="The Ncurses (new curses) library is a free software emulation of curses in System V Release 4.0, and more."
 
 pkg_desc="The Ncurses (new curses) library is a free software emulation of curses in System V Release 4.0, 
@@ -27,36 +30,41 @@ The distribution includes the library and support utilities, including a terminf
 tic, a decompiler infocmp, clear, tput, tset, and a termcap conversion tool captoinfo. Full 
 manual pages are provided for the library and tools."
 
-pkg_file="$pkg_name-$pkg_vers.tar.gz"
-pkg_urls="http://ftp.gnu.org/pub/gnu/$pkg_name/$pkg_file"
 pkg_opts="configure"
-pkg_reqs="pkg-config/latest zlib/latest"
+pkg_reqs="pkg-config zlib"
 pkg_uses="$pkg_reqs"
+
 pkg_cflags=""
 pkg_ldflags=""
+
 pkg_cfg=""
 pkg_patch=""
 
-if [[ $BLDR_SYSTEM_IS_LINUX == true ]]; then
-    pkg_cflags="$pkg_cflags -fPIC"
-fi
-
 ####################################################################################################
-# build and install pkg as local module
+# register each pkg version with bldr
 ####################################################################################################
 
-bldr_build_pkg --category    "$pkg_ctry"    \
-               --name        "$pkg_name"    \
-               --version     "$pkg_vers"    \
-               --info        "$pkg_info"    \
-               --description "$pkg_desc"    \
-               --file        "$pkg_file"    \
-               --url         "$pkg_urls"    \
-               --uses        "$pkg_uses"    \
-               --requires    "$pkg_reqs"    \
-               --options     "$pkg_opts"    \
-               --patch       "$pkg_patch"   \
-               --cflags      "$pkg_cflags"  \
-               --ldflags     "$pkg_ldflags" \
-               --config      "$pkg_cfg"
+for pkg_vers in ${pkg_variants[@]}
+do
+     pkg_file="$pkg_name-$pkg_vers.tar.gz"
+     pkg_urls="http://ftp.gnu.org/pub/gnu/$pkg_name/$pkg_file"
 
+     bldr_register_pkg                \
+         --category    "$pkg_ctry"    \
+         --name        "$pkg_name"    \
+         --version     "$pkg_vers"    \
+         --default     "$pkg_default" \
+         --info        "$pkg_info"    \
+         --description "$pkg_desc"    \
+         --file        "$pkg_file"    \
+         --url         "$pkg_urls"    \
+         --uses        "$pkg_uses"    \
+         --requires    "$pkg_reqs"    \
+         --options     "$pkg_opts"    \
+         --cflags      "$pkg_cflags"  \
+         --ldflags     "$pkg_ldflags" \
+         --config      "$pkg_cfg"     \
+         --config-path "$pkg_cfg_path"
+done
+
+####################################################################################################

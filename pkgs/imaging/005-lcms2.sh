@@ -12,7 +12,9 @@ source "bldr.sh"
 
 pkg_ctry="imaging"
 pkg_name="lcms2"
-pkg_vers="2.3"
+
+pkg_default="2.3"
+pkg_variants=("$pkg_default")
 
 pkg_info="The Little Color Management System implements fast transforms between ICC profiles."
 
@@ -29,31 +31,39 @@ Less common usage would be to convert from RGB to CMYK accurately, to convert
 separations done for one printer to another printer, to use CIEL*a*b as working 
 space, to read Lab TIFF, to characterize Colorimetric PNG, etc. etc."
 
-pkg_file="$pkg_name-$pkg_vers.tar.gz"
-pkg_urls="http://sourceforge.net/projects/lcms/files/lcms/2.3/$pkg_file?download"
-pkg_opts="configure"
-pkg_reqs="zlib/latest"
-pkg_uses="$pkg_reqs"
+pkg_opts="configure enable-static enable-shared"
+pkg_reqs="zlib"
+pkg_uses="zlib"
+
 pkg_cflags=""
 pkg_ldflags=""
 pkg_cfg=""
 
 ####################################################################################################
-# build and install pkg as local module
+# register each pkg version with bldr
 ####################################################################################################
 
-bldr_build_pkg --category    "$pkg_ctry"    \
-               --name        "$pkg_name"    \
-               --version     "$pkg_vers"    \
-               --info        "$pkg_info"    \
-               --description "$pkg_desc"    \
-               --file        "$pkg_file"    \
-               --url         "$pkg_urls"    \
-               --uses        "$pkg_uses"    \
-               --requires    "$pkg_reqs"    \
-               --options     "$pkg_opts"    \
-               --cflags      "$pkg_cflags"  \
-               --ldflags     "$pkg_ldflags" \
-               --config      "$pkg_cfg"
+for pkg_vers in ${pkg_variants[@]}
+do
+     pkg_file="$pkg_name-$pkg_vers.tar.gz"
+     pkg_urls="http://sourceforge.net/projects/lcms/files/lcms/$pkg_vers/$pkg_file?download"
 
+     bldr_register_pkg                \
+         --category    "$pkg_ctry"    \
+         --name        "$pkg_name"    \
+         --version     "$pkg_vers"    \
+         --default     "$pkg_default" \
+         --info        "$pkg_info"    \
+         --description "$pkg_desc"    \
+         --file        "$pkg_file"    \
+         --url         "$pkg_urls"    \
+         --uses        "$pkg_uses"    \
+         --requires    "$pkg_reqs"    \
+         --options     "$pkg_opts"    \
+         --cflags      "$pkg_cflags"  \
+         --ldflags     "$pkg_ldflags" \
+         --config      "$pkg_cfg"     \
+         --config-path "$pkg_cfg_path"
+done
 
+####################################################################################################

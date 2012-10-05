@@ -13,6 +13,9 @@ source "bldr.sh"
 pkg_ctry="storage"
 pkg_name="jhi5"
 
+pkg_default="2.8"
+pkg_variants=("2.8")
+
 pkg_info="The Java HD5 Interface (JHI5) is a Java package that wraps around the HDF5 library."
 
 pkg_desc="The Java HD5 Interface (JHI5) is a Java package that wraps around the HDF5 library.
@@ -30,9 +33,6 @@ objects of the two HDF formats. Fundamental objects from HDF4 (group, multi-dime
 array, raster image, vdata, and annotation) and HDF5 (group and dataset) are presented 
 as Java classes in the HDF Object Package."
 
-pkg_vers_dft="2.8"
-pkg_vers_list=("$pkg_vers_dft")
-
 pkg_opts="configure enable-static enable-shared"
 pkg_reqs="szip zlib libjpeg hdf5"
 pkg_uses="$pkg_reqs"
@@ -41,27 +41,28 @@ pkg_uses="$pkg_reqs"
 # satisfy pkg dependencies and load their environment settings
 ####################################################################################################
 
-bldr_satisfy_pkg --category    "$pkg_ctry"    \
-                 --name        "$pkg_name"    \
-                 --version     "$pkg_vers"    \
-                 --requires    "$pkg_reqs"    \
-                 --uses        "$pkg_uses"    \
-                 --options     "$pkg_opts"
+bldr_satisfy_pkg                 \
+    --category    "$pkg_ctry"    \
+    --name        "$pkg_name"    \
+    --version     "$pkg_default" \
+    --requires    "$pkg_reqs"    \
+    --uses        "$pkg_uses"    \
+    --options     "$pkg_opts"
 
 ####################################################################################################
 
 
 pkg_cfg=""
-pkg_cfg="$pkg_cfg --with-hdf5=$BLDR_HDF5_INCLUDE_PATH,$BLDR_HDF5_LIB_PATH"
-pkg_cfg="$pkg_cfg --with-hdf5=$BLDR_HDF5_INCLUDE_PATH,$BLDR_HDF5_LIB_PATH"
-pkg_cfg="$pkg_cfg --with-libsz=$BLDR_SZIP_INCLUDE_PATH,$BLDR_SZIP_LIB_PATH"
-pkg_cfg="$pkg_cfg --with-libz=$BLDR_ZLIB_INCLUDE_PATH,$BLDR_ZLIB_LIB_PATH"
-pkg_cfg="$pkg_cfg --with-libjpeg=$BLDR_LIBJPEG_INCLUDE_PATH,$BLDR_LIBJPEG_LIB_PATH"
+pkg_cfg+="--with-hdf5=$BLDR_HDF5_INCLUDE_PATH,$BLDR_HDF5_LIB_PATH"
+pkg_cfg+="--with-hdf5=$BLDR_HDF5_INCLUDE_PATH,$BLDR_HDF5_LIB_PATH"
+pkg_cfg+="--with-libsz=$BLDR_SZIP_INCLUDE_PATH,$BLDR_SZIP_LIB_PATH"
+pkg_cfg+="--with-libz=$BLDR_ZLIB_INCLUDE_PATH,$BLDR_ZLIB_LIB_PATH"
+pkg_cfg+="--with-libjpeg=$BLDR_LIBJPEG_INCLUDE_PATH,$BLDR_LIBJPEG_LIB_PATH"
 
 if [[ $BLDR_SYSTEM_IS_OSX == true ]]
 then
     uname_vers=$(uname -r)
-    pkg_cfg="$pkg_cfg -build=i686-apple-darwin${uname_vers}"
+    pkg_cfg+="-build=i686-apple-darwin${uname_vers}"
 fi
 
 pkg_cflags=""
@@ -71,7 +72,7 @@ pkg_ldflags=""
 # register each pkg version with bldr
 ####################################################################################################
 
-for pkg_vers in ${pkg_vers_list[@]}
+for pkg_vers in ${pkg_variants[@]}
 do
     pkg_file="hdf-java-$pkg_vers-src.tar"
     pkg_urls="http://www.hdfgroup.org/ftp/HDF5/hdf-java/src/$pkg_file"
@@ -80,7 +81,7 @@ do
           --category    "$pkg_ctry"    \
           --name        "$pkg_name"    \
           --version     "$pkg_vers"    \
-          --default     "$pkg_vers_dft"\
+          --default     "$pkg_default" \
           --info        "$pkg_info"    \
           --description "$pkg_desc"    \
           --file        "$pkg_file"    \

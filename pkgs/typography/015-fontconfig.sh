@@ -13,6 +13,9 @@ source "bldr.sh"
 pkg_ctry="typography"
 pkg_name="fontconfig"
 
+pkg_default="2.10.1"
+pkg_variants=("2.10.1")
+
 pkg_info="FontConfig is a library for configuring and customizing font access. "
 
 pkg_desc="Fontconfig is a library designed to provide system-wide font configuration, 
@@ -22,12 +25,14 @@ Fontconfig contains two essential modules, the configuration module which builds
 internal configuration from XML files and the matching module which accepts font 
 patterns and returns the nearest matching font."
 
-pkg_vers_dft="2.10.1"
-pkg_vers_list=("$pkg_vers_dft")
-
 pkg_opts="configure"
 pkg_cfg="--disable-docs"
-pkg_reqs="zlib libicu libiconv libxml2 freetype"
+
+pkg_reqs="zlib "
+pkg_reqs+="libicu "
+pkg_reqs+="libiconv "
+pkg_reqs+="libxml2 "
+pkg_reqs+="freetype "
 pkg_uses="$pkg_reqs"
 
 pkg_cflags=""
@@ -38,9 +43,9 @@ if [[ $BLDR_SYSTEM_IS_OSX == true ]]
 then
      if [[ $BLDR_SYSTEM_IS_64BIT == true ]]
      then
-          pkg_cfg="$pkg_cfg --with-arch=x86_64"
+          pkg_cfg+="--with-arch=x86_64"
      fi
-     pkg_cfg="$pkg_cfg --with-sysroot=$BLDR_OSX_SYSROOT"
+     pkg_cfg+="--with-sysroot=$BLDR_OSX_SYSROOT"
 fi
 
 pkg_uses=$pkg_reqs
@@ -49,7 +54,7 @@ pkg_uses=$pkg_reqs
 # register each pkg version with bldr
 ####################################################################################################
 
-for pkg_vers in ${pkg_vers_list[@]}
+for pkg_vers in ${pkg_variants[@]}
 do
     pkg_file="$pkg_name-$pkg_vers.tar.gz"
     pkg_urls="http://www.freedesktop.org/software/$pkg_name/release/$pkg_file"
@@ -58,7 +63,7 @@ do
          --category    "$pkg_ctry"    \
          --name        "$pkg_name"    \
          --version     "$pkg_vers"    \
-         --default     "$pkg_vers_dft"\
+         --default     "$pkg_default" \
          --info        "$pkg_info"    \
          --description "$pkg_desc"    \
          --file        "$pkg_file"    \

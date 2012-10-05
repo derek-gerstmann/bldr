@@ -13,6 +13,9 @@ source "bldr.sh"
 pkg_ctry="storage"
 pkg_name="netcdf"
 
+pkg_default="4.2.1.1"
+pkg_variants=("4.2.1.1")
+
 pkg_info="NetCDF is a set of software libraries and self-describing, machine-independent data formats that support the creation, access, and sharing of array-oriented scientific data."
 
 pkg_desc="NetCDF is a set of software libraries and self-describing, machine-independent data 
@@ -23,9 +26,6 @@ a freely-distributed collection of data access libraries for C, Fortran, C++, Ja
 and other languages. The netCDF libraries support a machine-independent format for 
 representing scientific data. Together, the interfaces, libraries, and format support 
 the creation, access, and sharing of scientific data."
-
-pkg_vers_dft="4.2.1.1"
-pkg_vers_list=("$pkg_vers_dft")
 
 pkg_opts="configure enable-static enable-shared"
 pkg_reqs="szip zlib hdf5"
@@ -40,7 +40,7 @@ pkg_ldflags=""
 # register each pkg version with bldr
 ####################################################################################################
 
-for pkg_vers in ${pkg_vers_list[@]}
+for pkg_vers in ${pkg_variants[@]}
 do
      pkg_file="$pkg_name-$pkg_vers.tar.gz"
      pkg_urls="http://www.unidata.ucar.edu/downloads/netcdf/ftp/$pkg_file"
@@ -49,7 +49,7 @@ do
           --category    "$pkg_ctry"    \
           --name        "$pkg_name"    \
           --version     "$pkg_vers"    \
-          --default     "$pkg_vers_dft"\
+          --default     "$pkg_default" \
           --info        "$pkg_info"    \
           --description "$pkg_desc"    \
           --file        "$pkg_file"    \

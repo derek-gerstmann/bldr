@@ -12,14 +12,15 @@ source "bldr.sh"
 
 pkg_ctry="internal"
 pkg_name="automake"
+
+pkg_default="1.12.2"
+pkg_variants=("1.11" "1.12.2")
+
 pkg_info="Automake is a Makefile generator."
 
 pkg_desc="Automake is a Makefile generator.  It was inspired by the 4.4BSD 
 make and include files, but aims to be portable and to conform to the 
 GNU Coding Standards for Makefile variables and targets."
-
-pkg_vers_dft="1.12.2"
-pkg_vers_list=("1.11" "$pkg_vers_dft")
 
 pkg_opts="configure force-static"
 pkg_reqs="coreutils m4 autoconf"
@@ -32,7 +33,7 @@ pkg_cfg=""
 # register each pkg version with bldr
 ####################################################################################################
 
-for pkg_vers in ${pkg_vers_list[@]}
+for pkg_vers in ${pkg_variants[@]}
 do
      pkg_file="$pkg_name-$pkg_vers.tar.gz"
      pkg_urls="http://ftp.gnu.org/gnu/automake/$pkg_file"
@@ -41,7 +42,7 @@ do
          --category    "$pkg_ctry"    \
          --name        "$pkg_name"    \
          --version     "$pkg_vers"    \
-         --default     "$pkg_vers_dft"\
+         --default     "$pkg_default" \
          --info        "$pkg_info"    \
          --description "$pkg_desc"    \
          --file        "$pkg_file"    \

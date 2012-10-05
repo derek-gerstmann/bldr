@@ -13,6 +13,9 @@ source "bldr.sh"
 pkg_ctry="compression"
 pkg_name="xz"
 
+pkg_default="5.0.3"
+pkg_variants=("5.0.3")
+
 pkg_info="XZ utils is free general-purpose data compression software with high compression ratio."
 
 pkg_desc="XZ utils is free general-purpose data compression software with high compression ratio. 
@@ -23,9 +26,6 @@ The core of the XZ Utils compression code is based on LZMA SDK, but it has been 
 quite a lot to be suitable for XZ Utils. The primary compression algorithm is currently LZMA2, 
 which is used inside the .xz container format. With typical files, XZ Utils create 30 % smaller 
 output than gzip and 15 % smaller output than bzip2. "
-
-pkg_vers_dft="5.0.3"
-pkg_vers_list=("$pkg_vers_dft")
 
 pkg_opts="configure force-static"
 pkg_uses="m4 autoconf automake"
@@ -39,7 +39,7 @@ pkg_cfg=""
 # register each pkg version with bldr
 ####################################################################################################
 
-for pkg_vers in ${pkg_vers_list[@]}
+for pkg_vers in ${pkg_variants[@]}
 do
      pkg_file="$pkg_name-$pkg_vers.tar.gz"
      pkg_urls="http://tukaani.org/xz/$pkg_file"
@@ -48,7 +48,7 @@ do
           --category    "$pkg_ctry"    \
           --name        "$pkg_name"    \
           --version     "$pkg_vers"    \
-          --default     "$pkg_vers_dft"\
+          --default     "$pkg_default" \
           --info        "$pkg_info"    \
           --description "$pkg_desc"    \
           --file        "$pkg_file"    \

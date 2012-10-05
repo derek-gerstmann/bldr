@@ -10,9 +10,12 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_vers="1.5.0"
 pkg_ctry="databases"
 pkg_name="leveldb"
+
+pkg_default="1.5.0"
+pkg_variants=("1.5.0")
+
 pkg_info="LevelDB is a fast key-value storage library written at Google that provides an ordered mapping from string keys to string values."
 
 pkg_desc="LevelDB is a fast key-value storage library written at Google that provides an ordered mapping from string keys to string values.
@@ -34,36 +37,49 @@ Limitations
 * Only a single process (possibly multi-threaded) can access a particular database at a time.
 * There is no client-server support builtin to the library. An application that needs such support will have to wrap their own server around the library."
 
-pkg_file="$pkg_name-$pkg_vers.tar.gz"
-pkg_urls="https://leveldb.googlecode.com/files/$pkg_file"
-pkg_opts="configure migrate-build-headers migrate-build-bin migrate-build-doc"
+pkg_opts="configure "
+pkg_opts+="enable-static "
+pkg_opts+="enable-shared "
+pkg_opts+="migrate-build-headers "
+pkg_opts+="migrate-build-bin "
+pkg_opts+="migrate-build-doc "
+
 pkg_reqs=""
 pkg_uses=""
+
 pkg_cflags=""
 pkg_ldflags=""
+
 pkg_cfg=""
 pkg_cfg_path=""
 
-if [[ $BLDR_SYSTEM_IS_LINUX == true ]]; then
-    pkg_cflags="$pkg_cflags -fPIC"
-fi
-
 ####################################################################################################
-# build and install each pkg version as local module
+# register each pkg version with bldr
 ####################################################################################################
 
-bldr_build_pkg --category    "$pkg_ctry"    \
-               --name        "$pkg_name"    \
-               --version     "$pkg_vers"    \
-               --info        "$pkg_info"    \
-               --description "$pkg_desc"    \
-               --file        "$pkg_file"    \
-               --url         "$pkg_urls"    \
-               --uses        "$pkg_uses"    \
-               --requires    "$pkg_reqs"    \
-               --options     "$pkg_opts"    \
-               --cflags      "$pkg_cflags"  \
-               --ldflags     "$pkg_ldflags" \
-               --config      "$pkg_cfg"     
+for pkg_vers in ${pkg_variants[@]}
+do
+     pkg_file="$pkg_name-$pkg_vers.tar.gz"
+     pkg_urls="https://leveldb.googlecode.com/files/$pkg_file"
+
+     bldr_register_pkg                \
+         --category    "$pkg_ctry"    \
+         --name        "$pkg_name"    \
+         --version     "$pkg_vers"    \
+         --default     "$pkg_default" \
+         --info        "$pkg_info"    \
+         --description "$pkg_desc"    \
+         --file        "$pkg_file"    \
+         --url         "$pkg_urls"    \
+         --uses        "$pkg_uses"    \
+         --requires    "$pkg_reqs"    \
+         --options     "$pkg_opts"    \
+         --cflags      "$pkg_cflags"  \
+         --ldflags     "$pkg_ldflags" \
+         --config      "$pkg_cfg"     \
+         --config-path "$pkg_cfg_path"
+done
+
+####################################################################################################
 
 

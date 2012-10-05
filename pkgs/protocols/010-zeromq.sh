@@ -23,8 +23,8 @@ Its asynchronous I/O model gives you scalable multicore applications, built as a
 message-processing tasks. It has a score of language APIs and runs on most operating systems. 
 ØMQ is from iMatix and is LGPL open source."
 
-pkg_vers_dft="2.2.0"
-pkg_vers_list=("2.1.7" "2.2.0" "3.2.0-rc1")
+pkg_default="2.2.0"
+pkg_variants=("2.1.7" "2.2.0" "3.2.0-rc1")
 
 pkg_opts="configure enable-static enable-shared"
 pkg_reqs=""
@@ -37,16 +37,16 @@ pkg_cfg=""
 # build and install pkg as local module
 ####################################################################################################
 
-for pkg_vers in ${pkg_vers_list[@]}
+for pkg_vers in ${pkg_variants[@]}
 do
      pkg_file="$pkg_name-$zmq_vers.tar.gz"
      pkg_urls="http://download.zeromq.org/$pkg_file"
 
-     bldr_register_pkg                  \
+     bldr_register_pkg                 \
           --category    "$pkg_ctry"    \
           --name        "$pkg_name"    \
           --version     "$pkg_vers"    \
-          --default     "$pkg_vers_dft"\
+          --default     "$pkg_default" \
           --info        "$pkg_info"    \
           --description "$pkg_desc"    \
           --file        "$pkg_file"    \

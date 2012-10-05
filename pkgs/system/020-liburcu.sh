@@ -13,6 +13,9 @@ source "bldr.sh"
 pkg_ctry="system"
 pkg_name="liburcu"
 
+pkg_default="0.7.3"
+pkg_variants=("0.7.3")
+
 pkg_info="Userspace RCU (liburcu) is a LGPLv2.1 userspace RCU (read-copy-update) library."
 
 pkg_desc="Userspace RCU (liburcu) is a LGPLv2.1 userspace RCU (read-copy-update) library. 
@@ -26,12 +29,13 @@ Those structures include hash tables, queues, stacks, and doubly-linked lists.
 
 The liburcu project has been started by Mathieu Desnoyers."
 
-pkg_vers_dft="0.7.3"
-pkg_vers_list=("$pkg_vers")
+pkg_opts="configure "
+pkg_opts+="enable-static "
+pkg_opts+="enable-shared "
 
-pkg_opts="configure enable-static enable-shared"
 pkg_uses=""
 pkg_reqs=""
+
 pkg_cflags=""
 pkg_ldflags=""
 pkg_cfg=""
@@ -45,7 +49,7 @@ then
      bldr_log_warning "$pkg_name isn't supported on MacOSX.  Skipping..."
      bldr_log_split
 else
-    for pkg_vers in ${pkg_vers_list[@]}
+    for pkg_vers in ${pkg_variants[@]}
     do
         pkg_file="userspace-rcu-$pkg_vers.tar.bz2"
         pkg_urls="http://lttng.org/files/urcu/$pkg_file"
@@ -54,7 +58,7 @@ else
               --category    "$pkg_ctry"    \
               --name        "$pkg_name"    \
               --version     "$pkg_vers"    \
-              --default     "$pkg_vers_dft"\
+              --default     "$pkg_default" \
               --info        "$pkg_info"    \
               --description "$pkg_desc"    \
               --file        "$pkg_file"    \

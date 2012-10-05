@@ -13,6 +13,9 @@ source "bldr.sh"
 pkg_ctry="compilers"
 pkg_name="swig"
 
+pkg_default="2.0.7"
+pkg_variants=("2.0.7")
+
 pkg_info="SWIG is an interface compiler that connects programs written in C and C++ with scripting languages such as Perl, Python, Ruby, and Tcl."
 
 pkg_desc="SWIG is an interface compiler that connects programs written in C and C++ with 
@@ -25,9 +28,6 @@ John Ousterhout (creator of Tcl) has written a paper that describes the benefits
 scripting languages. SWIG makes it fairly easy to connect scripting languages with 
 C/C++ code."
 
-pkg_vers_dft="2.0.7"
-pkg_vers_list=("$pkg_vers_dft")
-
 pkg_opts="configure"
 pkg_reqs="pcre m4 automake autoconf"
 pkg_uses="pcre"
@@ -39,7 +39,7 @@ pkg_cfg=""
 # register each pkg version with bldr
 ####################################################################################################
 
-for pkg_vers in ${pkg_vers_list[@]}
+for pkg_vers in ${pkg_variants[@]}
 do
      pkg_file="$pkg_name-$pkg_vers.tar.gz"
      pkg_urls="http://prdownloads.sourceforge.net/$pkg_name/$pkg_file"
@@ -48,7 +48,7 @@ do
         --category    "$pkg_ctry"     \
         --name        "$pkg_name"     \
         --version     "$pkg_vers"     \
-        --default     "$pkg_vers_dft" \
+        --default     "$pkg_default"  \
         --info        "$pkg_info"     \
         --description "$pkg_desc"     \
         --file        "$pkg_file"     \

@@ -13,6 +13,9 @@ source "bldr.sh"
 pkg_ctry="spatial"
 pkg_name="flann"
 
+pkg_default="trunk"
+pkg_variants=("trunk")
+
 pkg_info="FLANN is a library for performing fast approximate nearest neighbor searches in high dimensional spaces."
 
 pkg_desc="FLANN is a library for performing fast approximate nearest neighbor searches in 
@@ -20,9 +23,6 @@ high dimensional spaces. It contains a collection of algorithms we found to work
 nearest neighbor search and a system for automatically choosing the best algorithm and 
 optimum parameters depending on the dataset. FLANN is written in C++ and contains bindings 
 for the following languages: C, MATLAB and Python."
-
-pkg_vers_dft="trunk"
-pkg_vers_list=("$pkg_vers_dft")
 
 pkg_opts="cmake"
 pkg_uses="python"
@@ -38,7 +38,7 @@ pkg_cfg_path="build"
 # register each pkg version with bldr
 ####################################################################################################
 
-for pkg_vers in ${pkg_vers_list[@]}
+for pkg_vers in ${pkg_variants[@]}
 do
      pkg_file="$pkg_name-$pkg_vers-$BLDR_TIMESTAMP.tar.bz2"
      pkg_urls="git://github.com/mariusmuja/flann.git"
@@ -47,7 +47,7 @@ do
           --category    "$pkg_ctry"    \
           --name        "$pkg_name"    \
           --version     "$pkg_vers"    \
-          --default     "$pkg_vers_dft"\
+          --default     "$pkg_default" \
           --info        "$pkg_info"    \
           --description "$pkg_desc"    \
           --file        "$pkg_file"    \

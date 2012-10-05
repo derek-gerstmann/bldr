@@ -10,9 +10,11 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_vers="1.2b"
 pkg_ctry="distributed"
 pkg_name="snu-cl"
+
+pkg_default="1.2b"
+pkg_variants=("1.2b")
 
 pkg_info="SnuCL is an OpenCL framework and freely available, open-source software developed at Seoul National University."
 
@@ -31,20 +33,20 @@ SnuCL consists of SnuCL runtime and compiler. The SnuCL compiler is based on the
 compiler in SNU-SAMSUNG OpenCL framework. Currently, the SnuCL compiler supports x86, ARM, 
 and PowerPC CPUs, AMD GPUs, and NVIDIA GPUs. "
 
-pkg_opts="configure -ESNUCLROOT=$BLDR_LOCAL_ENV_PATH/$pkg_ctry/$pkg_name/$pkg_vers use-build-script=build/install.sh"
-pkg_reqs="openmpi/latest"
+pkg_reqs="openmpi"
 pkg_uses="$pkg_uses"
 
 ####################################################################################################
 # satisfy pkg dependencies and load their environment settings
 ####################################################################################################
 
-bldr_satisfy_pkg --category    "$pkg_ctry"    \
-                 --name        "$pkg_name"    \
-                 --version     "$pkg_vers"    \
-                 --requires    "$pkg_reqs"    \
-                 --uses        "$pkg_uses"    \
-                 --options     "$pkg_opts"
+bldr_satisfy_pkg                    \
+    --category    "$pkg_ctry"       \
+    --name        "$pkg_name"       \
+    --version     "$pkg_default"    \
+    --requires    "$pkg_reqs"       \
+    --uses        "$pkg_uses"       \
+    --options     "$pkg_opts"
 
 ####################################################################################################
 
@@ -53,26 +55,33 @@ pkg_ldflags=""
 pkg_cfg=""
 
 ####################################################################################################
-# build and install each pkg version as local module
+# register each pkg version with bldr
 ####################################################################################################
 
-export SNUCLROOT="${BLDR_BUILD_PATH}/$pkg_ctry/$pkg_name/$pkg_vers"
-pkg_file="SnuCL-$pkg_vers.tar.gz"
-pkg_urls="http://aces.snu.ac.kr/download.php?p=snucl&ver=1.2b&email=derek.gerstmann@icrar.org"
-bldr_build_pkg                   \
-    --category    "$pkg_ctry"    \
-    --name        "$pkg_name"    \
-    --version     "$pkg_vers"    \
-    --info        "$pkg_info"    \
-    --description "$pkg_desc"    \
-    --file        "$pkg_file"    \
-    --url         "$pkg_urls"    \
-    --uses        "$pkg_uses"    \
-    --requires    "$pkg_reqs"    \
-    --options     "$pkg_opts"    \
-    --patch       "$pkg_patch"   \
-    --cflags      "$pkg_cflags"  \
-    --ldflags     "$pkg_ldflags" \
-    --config      "$pkg_cfg"
+for pkg_vers in ${pkg_vers_list[@]}
+do
+    export SNUCLROOT="${BLDR_BUILD_PATH}/$pkg_ctry/$pkg_name/$pkg_vers"
+    
+    pkg_file="SnuCL-$pkg_vers.tar.gz"
+    pkg_urls="http://aces.snu.ac.kr/download.php?p=snucl&ver=1.2b&email=derek.gerstmann@icrar.org"
+    pkg_opts="configure -ESNUCLROOT=$BLDR_LOCAL_ENV_PATH/$pkg_ctry/$pkg_name/$pkg_vers use-build-script=build/install.sh"
 
+    bldr_register_pkg                   \
+        --category    "$pkg_ctry"    \
+        --name        "$pkg_name"    \
+        --version     "$pkg_vers"    \
+        --info        "$pkg_info"    \
+        --description "$pkg_desc"    \
+        --file        "$pkg_file"    \
+        --url         "$pkg_urls"    \
+        --uses        "$pkg_uses"    \
+        --requires    "$pkg_reqs"    \
+        --options     "$pkg_opts"    \
+        --patch       "$pkg_patch"   \
+        --cflags      "$pkg_cflags"  \
+        --ldflags     "$pkg_ldflags" \
+        --config      "$pkg_cfg"
+done
+
+####################################################################################################
 

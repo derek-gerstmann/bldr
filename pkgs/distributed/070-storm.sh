@@ -10,9 +10,11 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_vers="0.8.1"
 pkg_ctry="distributed"
 pkg_name="storm"
+
+pkg_default="0.8.1"
+pkg_variants=("0.8.1")
 
 pkg_info="Storm is a distributed realtime computation system."
 
@@ -24,19 +26,20 @@ simple, can be used with any programming language, is used by many companies, an
 a lot of fun to use!"
 
 pkg_opts="configure skip-config skip-build migrate-build-tree"
-pkg_reqs="zeromq/2.1.7 zeromq-java/2.1.0 ruby/latest thrift/latest"
+pkg_reqs="zeromq/2.1.7 zeromq-java/2.1.0 ruby thrift"
 pkg_uses="$pkg_uses"
 
 ####################################################################################################
 # satisfy pkg dependencies and load their environment settings
 ####################################################################################################
 
-bldr_satisfy_pkg --category    "$pkg_ctry"    \
-                 --name        "$pkg_name"    \
-                 --version     "$pkg_vers"    \
-                 --requires    "$pkg_reqs"    \
-                 --uses        "$pkg_uses"    \
-                 --options     "$pkg_opts"
+bldr_satisfy_pkg                    \
+    --category    "$pkg_ctry"       \
+    --name        "$pkg_name"       \
+    --version     "$pkg_default"    \
+    --requires    "$pkg_reqs"       \
+    --uses        "$pkg_uses"       \
+    --options     "$pkg_opts"
 
 ####################################################################################################
 
@@ -55,30 +58,36 @@ else
     then
         if [[ -d "/usr/java/default" ]]
         then
-            pkg_cfg="$pkg_cfg JAVA_HOME=\"/usr/java/default\""
+            pkg_cfg+="JAVA_HOME=\"/usr/java/default\""
         fi
     fi
 fi
 
 ####################################################################################################
-# build and install each pkg version as local module
+# register each pkg version with bldr
 ####################################################################################################
 
-pkg_file="$pkg_name-$pkg_vers.zip"
-pkg_urls="https://github.com/downloads/nathanmarz/storm/$pkg_file"
-bldr_build_pkg                   \
-    --category    "$pkg_ctry"    \
-    --name        "$pkg_name"    \
-    --version     "$pkg_vers"    \
-    --info        "$pkg_info"    \
-    --description "$pkg_desc"    \
-    --file        "$pkg_file"    \
-    --url         "$pkg_urls"    \
-    --uses        "$pkg_uses"    \
-    --requires    "$pkg_reqs"    \
-    --options     "$pkg_opts"    \
-    --patch       "$pkg_patch"   \
-    --cflags      "$pkg_cflags"  \
-    --ldflags     "$pkg_ldflags" \
-    --config      "$pkg_cfg"
+for pkg_vers in ${pkg_variants[@]}
+do
+    pkg_file="$pkg_name-$pkg_vers.zip"
+    pkg_urls="https://github.com/downloads/nathanmarz/storm/$pkg_file"
 
+    bldr_register_pkg                 \
+         --category    "$pkg_ctry"    \
+         --name        "$pkg_name"    \
+         --version     "$pkg_vers"    \
+         --default     "$pkg_default" \
+         --info        "$pkg_info"    \
+         --description "$pkg_desc"    \
+         --file        "$pkg_file"    \
+         --url         "$pkg_urls"    \
+         --uses        "$pkg_uses"    \
+         --requires    "$pkg_reqs"    \
+         --options     "$pkg_opts"    \
+         --cflags      "$pkg_cflags"  \
+         --ldflags     "$pkg_ldflags" \
+         --config      "$pkg_cfg"     \
+         --config-path "$pkg_cfg_path"
+done
+
+####################################################################################################

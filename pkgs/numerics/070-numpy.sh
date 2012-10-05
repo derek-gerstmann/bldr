@@ -13,6 +13,9 @@ source "bldr.sh"
 pkg_ctry="numerics"
 pkg_name="numpy"
 
+pkg_default="1.6.2"
+pkg_variants=("1.6.2" "1.7.0b2")
+
 pkg_info="NumPy is the fundamental package for scientific computing with Python."
 
 pkg_desc="NumPy is the fundamental package for scientific computing with Python.
@@ -29,9 +32,6 @@ This allows NumPy to seamlessly and speedily integrate with a wide variety of da
 
 Numpy is licensed under the BSD license, enabling reuse with few restrictions."
 
-pkg_vers_dft="1.7.0b2"
-pkg_vers_list=("1.6.2" "$pkg_vers_dft")
-
 pkg_opts="python skip-compile skip-install"
 pkg_reqs="python lapack atlas gfortran"
 pkg_uses="$pkg_reqs"
@@ -43,7 +43,7 @@ pkg_uses="$pkg_reqs"
 bldr_satisfy_pkg                     \
     --category    "$pkg_ctry"        \
     --name        "$pkg_name"        \
-    --version     "$pkg_vers_dft"    \
+    --version     "$pkg_default"     \
     --requires    "$pkg_reqs"        \
     --uses        "$pkg_uses"        \
     --options     "$pkg_opts"
@@ -62,7 +62,7 @@ pkg_cfg=""
 # build and install pkg as local module
 ####################################################################################################
 
-for pkg_vers in ${pkg_vers_list[@]}
+for pkg_vers in ${pkg_variants[@]}
 do
     pkg_file="$pkg_name-$pkg_vers.tar.gz"
     pkg_urls="http://downloads.sourceforge.net/project/$pkg_name/NumPy/$pkg_vers/$pkg_file"
@@ -71,7 +71,7 @@ do
           --category    "$pkg_ctry"    \
           --name        "$pkg_name"    \
           --version     "$pkg_vers"    \
-          --default     "$pkg_vers_dft"\
+          --default     "$pkg_default" \
           --info        "$pkg_info"    \
           --description "$pkg_desc"    \
           --file        "$pkg_file"    \

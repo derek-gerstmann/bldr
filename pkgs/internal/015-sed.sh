@@ -13,6 +13,9 @@ source "bldr.sh"
 pkg_ctry="internal"
 pkg_name="sed"
 
+pkg_default="4.2.1"
+pkg_variants=("4.2.1")
+
 pkg_info="GNU SED is a stream editor used to perform basic text transformations on an input stream (a file or input from a pipeline). "
 
 pkg_desc="GNU SED is a stream editor used to perform basic text transformations on 
@@ -23,9 +26,6 @@ sed works by making only one pass over the input(s), and is consequently more ef
 
 But it is sed's ability to filter text in a pipeline which particularly distinguishes it 
 from other types of editors."
-
-pkg_vers_dft="4.2.1"
-pkg_vers_list=("$pkg_vers_dft")
 
 pkg_opts="configure force-static"
 pkg_uses="coreutils"
@@ -38,7 +38,7 @@ pkg_cfg=""
 # register each pkg version with bldr
 ####################################################################################################
 
-for pkg_vers in ${pkg_vers_list[@]}
+for pkg_vers in ${pkg_variants[@]}
 do
      pkg_file="$pkg_name-$pkg_vers.tar.gz"
      pkg_urls="http://ftp.gnu.org/gnu/$pkg_name/$pkg_file"
@@ -47,7 +47,7 @@ do
          --category    "$pkg_ctry"    \
          --name        "$pkg_name"    \
          --version     "$pkg_vers"    \
-         --default     "$pkg_vers_dft"\
+         --default     "$pkg_default" \
          --info        "$pkg_info"    \
          --description "$pkg_desc"    \
          --file        "$pkg_file"    \

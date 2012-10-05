@@ -13,6 +13,9 @@ source "bldr.sh"
 pkg_ctry="text"
 pkg_name="libiconv"
 
+pkg_default="1.14"
+pkg_variants=("1.14")
+
 pkg_info="The GNU libiconv library provides utilities for converting text from/to Unicode via the iconv() method."
 
 pkg_desc="The GNU libiconv library provides utilities for converting text from/to Unicode via the iconv() method.
@@ -32,9 +35,6 @@ processing, and need to convert between internal string representation (Unicode)
 string representation (a traditional encoding) when they are doing I/O. GNU libiconv is a 
 conversion library for both kinds of applications. "
 
-pkg_vers_dft="1.14"
-pkg_vers_list=("$pkg_vers_dft")
-
 pkg_opts="configure enable-static enable-shared"
 pkg_cfg="--enable-extra-encodings" 
 
@@ -51,7 +51,7 @@ pkg_ldflags=""
 #
 if [ $BLDR_SYSTEM_IS_OSX == true ]
 then
-    pkg_opts="$pkg_opts skip-fetch skip-boot skip-config skip-install migrate-build-tree"
+    pkg_opts+=" skip-fetch skip-boot skip-config skip-install migrate-build-tree"
 fi
 
 ####################################################################################################
@@ -62,7 +62,7 @@ function bldr_pkg_compile_method()
     local pkg_ctry=""
     local pkg_name="" 
     local pkg_vers=""
-    local pkg_vers_dft=""
+    local pkg_default=""
     local pkg_info=""
     local pkg_desc=""
     local pkg_file=""
@@ -80,7 +80,7 @@ function bldr_pkg_compile_method()
            --verbose)       use_verbose="$2"; shift 2;;
            --name)          pkg_name="$2"; shift 2;;
            --version)       pkg_vers="$2"; shift 2;;
-           --default)       pkg_vers_dft="$2"; shift 2;;
+           --default)       pkg_default="$2"; shift 2;;
            --info)          pkg_info="$2"; shift 2;;
            --description)   pkg_desc="$2"; shift 2;;
            --category)      pkg_ctry="$2"; shift 2;;
@@ -106,7 +106,7 @@ function bldr_pkg_compile_method()
             --category    "$pkg_ctry"    \
             --name        "$pkg_name"    \
             --version     "$pkg_vers"    \
-            --default     "$pkg_vers_dft"\
+            --default     "$pkg_default"\
             --info        "$pkg_info"    \
             --description "$pkg_desc"    \
             --file        "$pkg_file"    \
@@ -167,7 +167,7 @@ function bldr_pkg_compile_method()
 # register each pkg version with bldr
 ####################################################################################################
 
-for pkg_vers in ${pkg_vers_list[@]}
+for pkg_vers in ${pkg_variants[@]}
 do
     pkg_file="$pkg_name-$pkg_vers.tar.gz"
     pkg_urls="http://ftp.gnu.org/pub/gnu/libiconv/$pkg_file"
@@ -176,7 +176,7 @@ do
         --category    "$pkg_ctry"    \
         --name        "$pkg_name"    \
         --version     "$pkg_vers"    \
-        --default     "$pkg_vers_dft"\
+        --default     "$pkg_default"\
         --info        "$pkg_info"    \
         --description "$pkg_desc"    \
         --file        "$pkg_file"    \

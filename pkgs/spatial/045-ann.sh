@@ -13,6 +13,9 @@ source "bldr.sh"
 pkg_ctry="spatial"
 pkg_name="ann"
 
+pkg_default="1.1.2"
+pkg_variants=("1.1.2")
+
 pkg_info="ANN is a library written in C++, which supports data structures and algorithms for both exact and approximate nearest neighbor searching in arbitrarily high dimensions."
 
 pkg_desc="ANN is a library written in C++, which supports data structures and algorithms 
@@ -37,9 +40,6 @@ The library also comes with test programs for measuring the quality of performan
 ANN on any particular data sets, as well as programs for visualizing the structure of 
 the geometric data structures."
 
-pkg_vers_dft="1.1.2"
-pkg_vers_list=("$pkg_vers_dft")
-
 pkg_opts="configure enable-static enable-shared"
 pkg_uses=""
 pkg_reqs=""
@@ -51,7 +51,7 @@ pkg_ldflags=""
 # register each pkg version with bldr
 ####################################################################################################
 
-for pkg_vers in ${pkg_vers_list[@]}
+for pkg_vers in ${pkg_variants[@]}
 do
      pkg_file="${pkg_name}_${pkg_vers}.tar.gz"
      pkg_urls="http://www.cs.umd.edu/~mount/ANN/Files/$pkg_vers/$pkg_file"
@@ -60,7 +60,7 @@ do
           --category    "$pkg_ctry"    \
           --name        "$pkg_name"    \
           --version     "$pkg_vers"    \
-          --default     "$pkg_vers_dft"\
+          --default     "$pkg_default" \
           --info        "$pkg_info"    \
           --description "$pkg_desc"    \
           --file        "$pkg_file"    \

@@ -13,12 +13,13 @@ source "bldr.sh"
 pkg_ctry="system"
 pkg_name="gpusd"
 
+pkg_default="1.4"
+pkg_variants=("1.4")
+
 pkg_info="Local and remote ZeroConf service discovery for GPU resources."
 
 pkg_desc="Local and remote ZeroConf service discovery for GPU resources."
 
-pkg_vers_dft="1.4"
-pkg_vers_list=("$pkg_vers")
 pkg_opts="cmake"
 
 pkg_uses=""
@@ -32,7 +33,7 @@ pkg_cfg=""
 # register each pkg version with bldr
 ####################################################################################################
 
-for pkg_vers in ${pkg_vers_list[@]}
+for pkg_vers in ${pkg_variants[@]}
 do
     pkg_file="$pkg_name-$pkg_vers.zip"
     pkg_urls="https://github.com/Eyescale/gpusd/zipball/$pkg_vers/$pkg_file"
@@ -41,7 +42,7 @@ do
           --category    "$pkg_ctry"    \
           --name        "$pkg_name"    \
           --version     "$pkg_vers"    \
-          --default     "$pkg_vers_dft"\
+          --default     "$pkg_default" \
           --info        "$pkg_info"    \
           --description "$pkg_desc"    \
           --file        "$pkg_file"    \

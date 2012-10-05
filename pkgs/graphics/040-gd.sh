@@ -12,7 +12,9 @@ source "bldr.sh"
 
 pkg_ctry="graphics"
 pkg_name="gd"
-pkg_vers="2.0.33"
+
+pkg_default="2.0.33"
+pkg_variants=("2.0.33")
 
 pkg_info="A graphics library for fast image creation"
 
@@ -30,50 +32,61 @@ or desirable for gd to become a kitchen-sink graphics package, but version 2.0 d
 most frequently requested features, including both truecolor and palette images, resampling 
 (smooth resizing of truecolor images) and so forth."
 
-pkg_file="$pkg_name-$pkg_vers.tar.bz2"
-pkg_urls="https://bitbucket.org/pierrejoye/gd-libgd/get/5551f61978e3.tar.bz2"
-pkg_opts="configure"
-pkg_reqs="zlib/latest libpng/latest freetype/latest xpm/latest"
+pkg_opts="configure enable-static enable-shared"
+pkg_reqs="zlib libpng freetype xpm"
 pkg_uses="$pkg_reqs"
 
 ####################################################################################################
 # satisfy pkg dependencies and load their environment settings
 ####################################################################################################
 
-bldr_satisfy_pkg --category    "$pkg_ctry"    \
-                 --name        "$pkg_name"    \
-                 --version     "$pkg_vers"    \
-                 --requires    "$pkg_reqs"    \
-                 --uses        "$pkg_uses"    \
-                 --options     "$pkg_opts"
+bldr_satisfy_pkg                 \
+    --category    "$pkg_ctry"    \
+    --name        "$pkg_name"    \
+    --version     "$pkg_default" \
+    --requires    "$pkg_reqs"    \
+    --uses        "$pkg_uses"    \
+    --options     "$pkg_opts"
 
 ####################################################################################################
 
-pkg_cfg="--enable-shared --enable-static"
-pkg_cfg="$pkg_cfd --with-png=\"$BLDR_LIBPNG_BASE_DIR\""
-pkg_cfg="$pkg_cfd --with-jpeg=\"$BLDR_LIBJPEG_BASE_DIR\""
-pkg_cfg="$pkg_cfd --with-freetype=\"$BLDR_FREETYPE_BASE_DIR\""
-pkg_cfg="$pkg_cfd --with-xpm=\"$BLDR_XPM_BASE_DIR\""
+pkg_cfg="--with-png=\"$BLDR_LIBPNG_BASE_DIR\" "
+pkg_cfg+="--with-jpeg=\"$BLDR_LIBJPEG_BASE_DIR\" "
+pkg_cfg+="--with-freetype=\"$BLDR_FREETYPE_BASE_DIR\" "
+pkg_cfg+="--with-xpm=\"$BLDR_XPM_BASE_DIR\" "
 
 pkg_cflags=""
 pkg_ldflags=""
 
 ####################################################################################################
-# build and install pkg as local module
+# register each pkg version with bldr
 ####################################################################################################
 
-bldr_build_pkg                    \
-     --category    "$pkg_ctry"    \
-     --name        "$pkg_name"    \
-     --version     "$pkg_vers"    \
-     --info        "$pkg_info"    \
-     --description "$pkg_desc"    \
-     --file        "$pkg_file"    \
-     --url         "$pkg_urls"    \
-     --uses        "$pkg_uses"    \
-     --requires    "$pkg_reqs"    \
-     --options     "$pkg_opts"    \
-     --cflags      "$pkg_cflags"  \
-     --ldflags     "$pkg_ldflags" \
-     --config      "$pkg_cfg"
+let pkg_idx=0
+for pkg_vers in ${pkg_variants[@]}
+do
+    pkg_file="$pkg_name-$pkg_vers.tar.bz2"
+    pkg_urls="https://bitbucket.org/pierrejoye/gd-libgd/get/5551f61978e3.tar.bz2"
+
+    bldr_register_pkg                 \
+         --category    "$pkg_ctry"    \
+         --name        "$pkg_name"    \
+         --version     "$pkg_vers"    \
+         --default     "$pkg_default" \
+         --info        "$pkg_info"    \
+         --description "$pkg_desc"    \
+         --file        "$pkg_file"    \
+         --url         "$pkg_urls"    \
+         --uses        "$pkg_uses"    \
+         --requires    "$pkg_reqs"    \
+         --options     "$pkg_opts"    \
+         --cflags      "$pkg_cflags"  \
+         --ldflags     "$pkg_ldflags" \
+         --config      "$pkg_cfg"     \
+         --config-path "$pkg_cfg_path"
+
+    let pkg_idx++
+done
+
+####################################################################################################
 

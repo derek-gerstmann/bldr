@@ -13,6 +13,9 @@ source "bldr.sh"
 pkg_ctry="compression"
 pkg_name="lzo"
 
+pkg_default="2.06"
+pkg_variants=("2.06")
+
 pkg_info="LZO is a data compression library which is suitable for data de-/compression in real-time."
 
 pkg_desc="LZO is a data compression library which is suitable for data de-/compression 
@@ -38,9 +41,6 @@ LZO supports overlapping compression and in-place decompression.
 LZO and the LZO algorithms and implementations are distributed under the terms of the 
 GNU General Public License (GPL) ."
 
-pkg_vers_dft="2.06"
-pkg_vers_list=("$pkg_vers_dft")
-
 pkg_opts="configure enable-static enable-shared"
 pkg_uses="m4 autoconf automake"
 pkg_reqs=""
@@ -54,7 +54,7 @@ pkg_cfg_path=""
 # register each pkg version with bldr
 ####################################################################################################
 
-for pkg_vers in ${pkg_vers_list[@]}
+for pkg_vers in ${pkg_variants[@]}
 do
      pkg_file="$pkg_name-$pkg_vers.tar.gz"
      pkg_urls="http://www.oberhumer.com/opensource/lzo/download/$pkg_file"
@@ -63,7 +63,7 @@ do
           --category    "$pkg_ctry"    \
           --name        "$pkg_name"    \
           --version     "$pkg_vers"    \
-          --default     "$pkg_vers_dft"\
+          --default     "$pkg_default" \
           --info        "$pkg_info"    \
           --description "$pkg_desc"    \
           --file        "$pkg_file"    \

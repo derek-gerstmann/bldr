@@ -13,6 +13,9 @@ source "bldr.sh"
 pkg_ctry="compilers"
 pkg_name="pypy"
 
+pkg_default="1.9"
+pkg_variants=("1.9")
+
 pkg_info="PyPy is a fast, compliant alternative implementation of the Python language (2.7.2)."
 
 pkg_desc="PyPy is a fast, compliant alternative implementation of the Python language (2.7.2). 
@@ -31,9 +34,6 @@ It has several advantages and distinct features:
 
 As well as other features."
 
-pkg_vers_dft="1.9"
-pkg_vers_list=("$pkg_vers_dft")
-
 pkg_opts="configure migrate-build-tree"
 pkg_reqs="m4 autoconf automake"
 pkg_uses=""
@@ -46,7 +46,7 @@ pkg_cfg=""
 # register each pkg version with bldr
 ####################################################################################################
 
-for pkg_vers in ${pkg_vers_list[@]}
+for pkg_vers in ${pkg_variants[@]}
 do
      pkg_file="release-$pkg_vers.tar.bz2"
      pkg_urls="http://bitbucket.org/$pkg_name/$pkg_name/get/$pkg_file"
@@ -55,7 +55,7 @@ do
         --category    "$pkg_ctry"     \
         --name        "$pkg_name"     \
         --version     "$pkg_vers"     \
-        --default     "$pkg_vers_dft" \
+        --default     "$pkg_default"  \
         --info        "$pkg_info"     \
         --description "$pkg_desc"     \
         --file        "$pkg_file"     \

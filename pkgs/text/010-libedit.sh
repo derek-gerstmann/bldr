@@ -13,10 +13,10 @@ source "bldr.sh"
 pkg_ctry="text"
 pkg_name="libedit"
 
-pkg_vers_dft="3.0"
-pkg_vers_list=("$pkg_vers_dft")
-pkg_vers_file=("libedit-20120601-3.0.tar.gz")
-pkg_vers_urls=("http://www.thrysoee.dk/editline/libedit-20120601-3.0.tar.gz")
+pkg_default="3.0"
+pkg_variants=("3.0")
+pkg_distribs=("libedit-20120601-3.0.tar.gz")
+pkg_mirrors=("http://www.thrysoee.dk/editline/libedit-20120601-3.0.tar.gz")
 
 pkg_info="This is an autotool- and lib-toolized port of the NetBSD Editline library (libedit)"
 
@@ -25,7 +25,10 @@ pkg_desc="This is an autotool- and lib-toolized port of the NetBSD Editline libr
 This Berkeley-style licensed command line editor library provides generic line editing, history, 
 and tokenization functions, similar to those found in GNU Readline."
 
-pkg_opts="configure enable-static enable-shared"
+pkg_opts="configure "
+pkg_opts+="enable-static "
+pkg_opts+="enable-shared "
+
 pkg_reqs="zlib"
 pkg_uses="$pkg_reqs"
 
@@ -37,16 +40,16 @@ pkg_ldflags=""
 ####################################################################################################
 
 let pkg_idx=0
-for pkg_vers in ${pkg_vers_list[@]}
+for pkg_vers in ${pkg_variants[@]}
 do
-    pkg_file=${pkg_vers_files[$pkg_idx]}
-    pkg_urls=${pkg_vers_urls[$pkg_idx]}
+    pkg_file=${pkg_distribs[$pkg_idx]}
+    pkg_urls=${pkg_mirrors[$pkg_idx]}
 
     bldr_register_pkg                \
         --category    "$pkg_ctry"    \
         --name        "$pkg_name"    \
         --version     "$pkg_vers"    \
-        --default     "$pkg_vers_dft"\
+        --default     "$pkg_default" \
         --info        "$pkg_info"    \
         --description "$pkg_desc"    \
         --file        "$pkg_file"    \

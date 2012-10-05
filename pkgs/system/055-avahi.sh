@@ -13,6 +13,9 @@ source "bldr.sh"
 pkg_ctry="system"
 pkg_name="avahi"
 
+pkg_default="0.6.31"
+pkg_variants=("0.6.31")
+
 pkg_info="Avahi is a system which facilitates service discovery on a local network via the mDNS/DNS-SD protocol suite."
 
 pkg_desc="Avahi is a system which facilitates service discovery on a local network via the 
@@ -20,9 +23,6 @@ mDNS/DNS-SD protocol suite. This enables you to plug your laptop or computer int
 and instantly be able to view other people who you can chat with, find printers to print 
 to or find files being shared. Compatible technology is found in Apple MacOS X (branded  
 Bonjour and sometimes Zeroconf)."
-
-pkg_vers_dft="0.6.31"
-pkg_vers_list=("$pkg_vers")
 
 pkg_opts="configure"
 pkg_uses="coreutils tar qt4 glib"
@@ -36,7 +36,7 @@ pkg_cfg=""
 # register each pkg version with bldr
 ####################################################################################################
 
-for pkg_vers in ${pkg_vers_list[@]}
+for pkg_vers in ${pkg_variants[@]}
 do
     pkg_file="$pkg_name-$pkg_vers.tar.gz"
     pkg_urls="http://avahi.org/download/$pkg_file"
@@ -45,7 +45,7 @@ do
           --category    "$pkg_ctry"    \
           --name        "$pkg_name"    \
           --version     "$pkg_vers"    \
-          --default     "$pkg_vers_dft"\
+          --default     "$pkg_default" \
           --info        "$pkg_info"    \
           --description "$pkg_desc"    \
           --file        "$pkg_file"    \

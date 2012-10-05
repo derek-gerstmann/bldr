@@ -12,6 +12,10 @@ source "bldr.sh"
 
 pkg_ctry="numerics"
 pkg_name="isl"
+
+pkg_default="0.10"
+pkg_variants=("0.10")
+
 pkg_info="ISL is a library for manipulating sets and relations of integer points bounded by linear constraints."
 
 pkg_desc="ISL is a library for manipulating sets and relations of integer points bounded 
@@ -22,9 +26,6 @@ projection, and computing the lexicographic minimum using parametric integer pro
 It also includes an ILP solver based on generalized basis reduction. 
 
 ISL is released under LGPLv2.1"
-
-pkg_vers_dft="0.10"
-pkg_vers_list=("$pkg_vers_dft")
 
 pkg_opts="configure enable-static enable-shared"
 pkg_reqs="gmp pip"
@@ -37,7 +38,7 @@ pkg_uses="$pkg_reqs"
 bldr_satisfy_pkg                 \
     --category    "$pkg_ctry"    \
     --name        "$pkg_name"    \
-    --version     "$pkg_vers_dft"\
+    --version     "$pkg_default" \
     --requires    "$pkg_reqs"    \
     --uses        "$pkg_uses"    \
     --options     "$pkg_opts"
@@ -45,8 +46,8 @@ bldr_satisfy_pkg                 \
 ####################################################################################################
 
 pkg_cfg=""
-pkg_cfg="$pkg_cfg --with-gmp=\"$BLDR_GMP_BASE_PATH\""
-pkg_cfg="$pkg_cfg --with-piplib=\"$BLDR_PIP_BASE_PATH\""
+pkg_cfg+="--with-gmp=\"$BLDR_GMP_BASE_PATH\" "
+pkg_cfg+="--with-piplib=\"$BLDR_PIP_BASE_PATH\" "
 
 pkg_patch=""
 pkg_cflags=""
@@ -56,7 +57,7 @@ pkg_ldflags=""
 # build and install pkg as local module
 ####################################################################################################
 
-for pkg_vers in ${pkg_vers_list[@]}
+for pkg_vers in ${pkg_variants[@]}
 do
     pkg_file="$pkg_name-$pkg_vers.tar.bz2"
     pkg_urls="ftp://gcc.gnu.org/pub/gcc/infrastructure/$pkg_file"
@@ -65,7 +66,7 @@ do
           --category    "$pkg_ctry"    \
           --name        "$pkg_name"    \
           --version     "$pkg_vers"    \
-          --default     "$pkg_vers_dft"\
+          --default     "$pkg_default" \
           --info        "$pkg_info"    \
           --description "$pkg_desc"    \
           --file        "$pkg_file"    \

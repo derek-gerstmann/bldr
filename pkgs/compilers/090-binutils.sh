@@ -13,8 +13,8 @@ source "bldr.sh"
 pkg_ctry="compilers"
 pkg_name="binutils"
 
-pkg_vers_dft="2.22"
-pkg_vers_list=("$pkg_vers_dft")
+pkg_default="2.22"
+pkg_variants=("2.22")
 
 pkg_info="The GNU Binutils are a collection of binary tools (eg for linking and assembling)."
 
@@ -58,16 +58,16 @@ pkg_cfg=""
 # register each pkg version with bldr
 ####################################################################################################
 
-for pkg_vers in ${pkg_vers_list}
+for pkg_vers in ${pkg_variants}
 do
      pkg_file="$pkg_name-$pkg_vers.tar.bz2"
      pkg_urls="http://ftp.gnu.org/gnu/$pkg_name/$pkg_file"
 
-     bldr_register_pkg                \
+     bldr_register_pkg               \
         --category    "$pkg_ctry"    \
         --name        "$pkg_name"    \
         --version     "$pkg_vers"    \
-        --default     "$pkg_vers_dft"\
+        --default     "$pkg_default" \
         --info        "$pkg_info"    \
         --description "$pkg_desc"    \
         --file        "$pkg_file"    \

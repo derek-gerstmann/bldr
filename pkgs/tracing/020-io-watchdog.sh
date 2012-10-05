@@ -13,6 +13,9 @@ source "bldr.sh"
 pkg_ctry="tracing"
 pkg_name="io-watchdog"
 
+pkg_default="0.8"
+pkg_variants=("0.8")
+
 pkg_info="io-watchdog is a facility for monitoring user applications and parallel jobs for hangs."
 
 pkg_desc="io-watchdog is a facility for monitoring user applications and parallel jobs for hangs.
@@ -22,10 +25,11 @@ that writes something to a log or data file during each cycle of computation). T
 attempts to watch all IO coming from an application and triggers a set of user-defined actions w
 hen IO has stopped for a configurable timeout period."
 
-pkg_vers_dft="0.8"
-pkg_vers_list=("$pkg_vers_dft")
+pkg_opts="configure "
+pkg_opts+="force-serial-build "
+pkg_opts+="enable-static "
+pkg_opts+="enable-shared "
 
-pkg_opts="configure force-serial-build enable-static enable-shared"
 pkg_reqs=""
 pkg_uses=""
 
@@ -42,7 +46,7 @@ then
      bldr_log_warning "$pkg_name isn't supported on MacOSX.  Skipping..."
      bldr_log_split
 else
-     for pkg_vers in ${pkg_vers_list[@]}
+     for pkg_vers in ${pkg_variants[@]}
      do
           pkg_file="$pkg_name-$pkg_vers.tar.bz2"
           pkg_urls="https://io-watchdog.googlecode.com/files/$pkg_file"
@@ -51,7 +55,7 @@ else
                --category    "$pkg_ctry"    \
                --name        "$pkg_name"    \
                --version     "$pkg_vers"    \
-               --default     "$pkg_vers_dft"\
+               --default     "$pkg_default" \
                --info        "$pkg_info"    \
                --description "$pkg_desc"    \
                --file        "$pkg_file"    \
