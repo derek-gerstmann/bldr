@@ -29,8 +29,6 @@ necessary, at some cost in compression. A more precise, technical discussion of 
 points is available on another page."
 
 pkg_opts="configure "
-pkg_opts+="enable-static "
-pkg_opts+="enable-shared "
 pkg_opts+="skip-auto-compile-flags "
 pkg_opts+="config-prepend-env "
 
