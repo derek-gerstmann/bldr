@@ -3572,6 +3572,7 @@ function bldr_autocfg_pkg()
         bldr_log_split
         if [ $use_shared != true ]
         then
+            use_shared=true
             pkg_cfg="$pkg_cfg --enable-shared --disable-static"
         fi
 
@@ -3581,6 +3582,7 @@ function bldr_autocfg_pkg()
         bldr_log_split
         if [ $use_static != true ]
         then
+            use_static=true
             pkg_cfg="$pkg_cfg --disable-shared --enable-static"
         fi
     fi
