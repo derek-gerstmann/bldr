@@ -35,7 +35,7 @@ e.g. where unimodularity or invertibility doesn't matter."
 
 pkg_opts="configure force-bootstrap enable-static enable-shared"
 
-pkg_reqs="zlib"
+pkg_reqs="zlib "
 pkg_reqs+="gmp "
 pkg_reqs+="isl "
 pkg_reqs+="osl "

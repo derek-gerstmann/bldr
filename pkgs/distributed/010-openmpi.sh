@@ -111,7 +111,7 @@ fi
 
 for pkg_vers in ${pkg_variants[@]}
 do
-     pkg_file="$pkg_name-$omp_vers.tar.bz2"
+     pkg_file="$pkg_name-$pkg_vers.tar.bz2"
      pkg_urls="http://www.open-mpi.org/software/ompi/v1.6/downloads/$pkg_file"
 
      bldr_register_pkg                \

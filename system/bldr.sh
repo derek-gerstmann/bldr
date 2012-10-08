@@ -2386,10 +2386,9 @@ function bldr_build_required_pkg()
                         local old_cmds=$BLDR_USE_PKG_CMDS
 
                         export BLDR_USE_PKG_CMDS="build"
-                        eval $pkg_sh || exit -1
+                        eval $pkg_sh || bldr_log_warning "Failed to build '$ctry_name/$pkg_tst_name' ..."
 
                         export BLDR_USE_PKG_CMDS="$old_cmds"
-                        return
                     fi
                 fi
             done
@@ -3572,6 +3571,7 @@ function bldr_autocfg_pkg()
         bldr_log_split
         if [ $use_shared != true ]
         then
+            use_shared=true
             pkg_cfg="$pkg_cfg --enable-shared --disable-static"
         fi
 
@@ -3581,6 +3581,7 @@ function bldr_autocfg_pkg()
         bldr_log_split
         if [ $use_static != true ]
         then
+            use_static=true
             pkg_cfg="$pkg_cfg --disable-shared --enable-static"
         fi
     fi
@@ -6877,15 +6878,19 @@ function bldr_build_pkgs()
                         bldr_log_list_item_progress $bld_idx $bld_cnt "Building '$pkg_tst_name/$pkg_tst_vers' from '$ctry_name' ... "
                         bldr_log_split
 
+                        bldr_log_status "Building required '$pkg_tst_name/$pkg_tst_vers' from '$ctry_name' ... "
+
+                        local old_cmds=$BLDR_USE_PKG_CMDS
+
                         export BLDR_USE_PKG_CTRY="$ctry_name"
                         export BLDR_USE_PKG_OPTS="$pkg_opts"
                         export BLDR_USE_PKG_CMDS="build"
 
-                        eval $pkg_sh || exit -1
+                         eval $pkg_sh || bldr_log_warning "Failed to build '$ctry_name/$pkg_tst_name' ..."
 
+                        export BLDR_USE_PKG_CMDS="$old_cmds"
                         export BLDR_USE_PKG_CTRY=""
                         export BLDR_USE_PKG_OPTS=""
-                        export BLDR_USE_PKG_CMDS=""
                     fi
                 fi
             done
@@ -7129,15 +7134,19 @@ function bldr()
                         bldr_log_list_item_progress $bld_idx $bld_cnt "Processing '$pkg_tst_name/$pkg_tst_vers' from '$ctry_name' ... "
                         bldr_log_split
 
+
+                        local old_cmds=$BLDR_USE_PKG_CMDS
+
                         export BLDR_USE_PKG_CTRY="$ctry_name"
                         export BLDR_USE_PKG_OPTS="$pkg_opts"
-                        export BLDR_USE_PKG_CMDS="$pkg_cmds"
+                        export BLDR_USE_PKG_CMDS="build"
 
-                        eval $pkg_sh || exit -1
+                        eval $pkg_sh || bldr_log_warning "Failed to build '$ctry_name/$pkg_tst_name' ..."
 
+                        export BLDR_USE_PKG_CMDS="$old_cmds"
                         export BLDR_USE_PKG_CTRY=""
                         export BLDR_USE_PKG_OPTS=""
-                        export BLDR_USE_PKG_CMDS=""
+
                     fi
                 fi
             done

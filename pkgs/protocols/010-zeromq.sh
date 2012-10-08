@@ -39,7 +39,7 @@ pkg_cfg=""
 
 for pkg_vers in ${pkg_variants[@]}
 do
-     pkg_file="$pkg_name-$zmq_vers.tar.gz"
+     pkg_file="$pkg_name-$pkg_vers.tar.gz"
      pkg_urls="http://download.zeromq.org/$pkg_file"
 
      bldr_register_pkg                 \

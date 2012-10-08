@@ -30,7 +30,7 @@ The distribution includes the library and support utilities, including a terminf
 tic, a decompiler infocmp, clear, tput, tset, and a termcap conversion tool captoinfo. Full 
 manual pages are provided for the library and tools."
 
-pkg_opts="configure"
+pkg_opts="configure enable-static enable-shared"
 pkg_reqs="pkg-config zlib"
 pkg_uses="$pkg_reqs"
 
