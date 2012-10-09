@@ -45,7 +45,7 @@ ilm_cflags=""
 ilm_ldflags=""
 if [[ $BLDR_SYSTEM_IS_LINUX == true ]]
 then
-     ilm_cflags="$ilm_cflags -fPIC "
+     ilm_cflags+="-fPIC "
 fi
 
 pkg_cfg="--disable-dependency-tracking "
@@ -65,14 +65,13 @@ do
 
     pkg_ldflags="$ilm_ldflags"
     pkg_cflags="$ilm_cflags"
-    for sub_inc in "Half IlmThread Imath ImathTest Iex IexMath IexTest"
+    pkg_subs=("Half" "IlmThread" "Imath" "ImathTest" "Iex" "IexMath" "IexTest")
+    for sub_inc in ${pkg_subs[@]}
     do
-         pkg_cflags="$pkg_cflags:-I$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$pkg_base/IlmBase/$sub_inc"
-#         pkg_cflags="$pkg_cflags:-I$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/IlmBase/$sub_inc"
+         pkg_cflags+=":-I$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$pkg_base/IlmBase/$sub_inc"
     done
 
     pkg_opts="cmake skip-boot force-serial-build use-base-dir=$pkg_base"
-#    pkg_opts="cmake skip-boot force-serial-build"
     pkg_cfg_path="$pkg_base/IlmBase"
 
     bldr_register_pkg                 \
@@ -92,7 +91,7 @@ do
          --config      "$pkg_cfg"     \
          --config-path "$pkg_cfg_path"
 
-    pkg_idx++
+    let pkg_idx++
 done
 
 ####################################################################################################

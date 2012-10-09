@@ -48,13 +48,11 @@ bldr_satisfy_pkg                 \
 ilm_cflags=""
 ilm_ldflags=""
 
-sub_list="Half IlmThread Imath ImathTest Iex IexMath IexTest"
-for sub_inc in $sub_list
+ilm_subs=("Half" "IlmThread" "Imath" "ImathTest" "Iex" "IexMath" "IexTest" "OpenEXR")
+for sub_inc in ${ilm_subs[@]}
 do
-     ilm_cflags+=":-I$BLDR_ILMBASE_INCLUDE_PATH/$sub_inc"
+    ilm_cflags+=":-I$BLDR_ILMBASE_INCLUDE_PATH/$sub_inc"
 done
-
-ilm_cflags+=":-I$BLDR_ILMBASE_INCLUDE_PATH/OpenEXR"
 
 if [[ $BLDR_SYSTEM_IS_LINUX == true ]]
 then
@@ -102,7 +100,7 @@ do
          --config      "$pkg_cfg"     \
          --config-path "$pkg_cfg_path"
 
-    pkg_idx++
+    let pkg_idx++
 done
 
 ####################################################################################################

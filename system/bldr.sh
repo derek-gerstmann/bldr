@@ -467,6 +467,7 @@ function bldr_run_cmd()
 
     rm $cmd_log_file
     bldr_log_split
+    return 0
 }
 
 function bldr_exec()
@@ -2386,8 +2387,8 @@ function bldr_build_required_pkg()
                         local old_cmds=$BLDR_USE_PKG_CMDS
 
                         export BLDR_USE_PKG_CMDS="build"
-                        eval $pkg_sh || bldr_log_warning "Failed to build '$ctry_name/$pkg_tst_name' ..."
-
+#                        bldr_run_cmd $pkg_sh || bldr_log_warning "Failed to build '$ctry_name/$pkg_tst_name' ..."
+                        eval $pkg_sh
                         export BLDR_USE_PKG_CMDS="$old_cmds"
                     fi
                 fi
@@ -6888,7 +6889,8 @@ function bldr_build_pkgs()
                         export BLDR_USE_PKG_OPTS="$pkg_opts"
                         export BLDR_USE_PKG_CMDS="build"
 
-                         eval $pkg_sh || bldr_log_warning "Failed to build '$ctry_name/$pkg_tst_name' ..."
+#                        bldr_run_cmd $pkg_sh || bldr_log_warning "Failed to build '$pkg_tst_name/$pkg_tst_vers' from '$ctry_name' ... "
+                        eval $pkg_sh
 
                         export BLDR_USE_PKG_CMDS="$old_cmds"
                         export BLDR_USE_PKG_CTRY=""
@@ -7143,7 +7145,8 @@ function bldr()
                         export BLDR_USE_PKG_OPTS="$pkg_opts"
                         export BLDR_USE_PKG_CMDS="build"
 
-                        eval $pkg_sh || bldr_log_warning "Failed to build '$ctry_name/$pkg_tst_name' ..."
+#                        bldr_run_cmd $pkg_sh || bldr_log_warning "Failed to build '$ctry_name/$pkg_tst_name' ..."
+                        eval $pkg_sh
 
                         export BLDR_USE_PKG_CMDS="$old_cmds"
                         export BLDR_USE_PKG_CTRY=""
