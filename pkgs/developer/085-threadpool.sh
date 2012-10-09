@@ -49,6 +49,7 @@ function bldr_pkg_install_method()
     local pkg_ctry=""
     local pkg_name="" 
     local pkg_vers=""
+    local pkg_default=""
     local pkg_info=""
     local pkg_desc=""
     local pkg_file=""
@@ -66,6 +67,7 @@ function bldr_pkg_install_method()
            --verbose)       use_verbose="$2"; shift 2;;
            --name)          pkg_name="$2"; shift 2;;
            --version)       pkg_vers="$2"; shift 2;;
+           --default)       pkg_default="$2"; shift 2;;
            --info)          pkg_info="$2"; shift 2;;
            --description)   pkg_desc="$2"; shift 2;;
            --category)      pkg_ctry="$2"; shift 2;;
@@ -116,6 +118,7 @@ function bldr_pkg_install_method()
 let pkg_idx=0
 for pkg_vers in ${pkg_variants[@]}
 do
+    pkg_host=${pkg_mirrors[$pkg_idx]}
     pkg_file=${pkg_distribs[$pkg_idx]}
     pkg_base=${pkg_bases[$pkg_idx]}
     pkg_urls="$pkg_host/$pkg_file"

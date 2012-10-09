@@ -34,7 +34,7 @@ having to be a threading expert. Intel TBB is not just a threads-replacement lib
 It represents a higher-level, task-based parallelism that abstracts platform details 
 and threading mechanisms for scalability and performance. "
 
-tbb_opts="configure enable-static enable-shared"
+tbb_opts="configure enable-static enable-shared migrate-build-tree"
 pkg_reqs="m4 automake autoconf"
 pkg_uses=""
 
@@ -52,7 +52,7 @@ do
      pkg_file=${pkg_file_list[$pkg_idx]}
      pkg_host=${pkg_urls_list[$pkg_idx]}
      pkg_urls="$pkg_host/$pkg_file"
-     pkg_opts="$tbb_opt -ETBBROOT=$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
+     pkg_opts="$tbb_opts -ETBBROOT=$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
 
      bldr_register_pkg                \
          --category    "$pkg_ctry"    \
