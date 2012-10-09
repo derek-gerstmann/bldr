@@ -16,16 +16,16 @@ pkg_name="mvapich2"
 pkg_default="1.9a"
 pkg_variants=("1.8.1" "1.9a")
 
-pkg_info="MVAPICH2 (MPI-2 over OpenFabrics-IB, OpenFabrics-iWARP, PSM, uDAPL and TCP/IP)."
+pkg_info="MVAPICH2 aka MPI-2 over OpenFabrics-IB, OpenFabrics-iWARP, PSM, uDAPL and TCP/IP."
 
-pkg_desc="MVAPICH2 (MPI-2 over OpenFabrics-IB, OpenFabrics-iWARP, PSM, uDAPL and TCP/IP)
+pkg_desc="MVAPICH2 aka MPI-2 over OpenFabrics-IB, OpenFabrics-iWARP, PSM, uDAPL and TCP/IP
 
 This is an MPI-2 implementation (conforming to MPI 2.2 standard) which includes all 
 MPI-1 features. It is based on MPICH2 and MVICH. The latest release is MVAPICH2 1.8 
 (includes MPICH2 1.4.1p1). It is available under BSD licensing."
 
-pkg_opts="configure enable-static enable-shared skip-auto-compile-flags"
-pkg_reqs="zlib papi gfortran"
+pkg_opts="configure force-serial-build enable-shared skip-auto-compile-flags skip-system-flags"
+pkg_reqs="zlib libtool papi gfortran valgrind hwloc"
 pkg_uses="$pkg_reqs"
 
 pkg_cflags=""
@@ -40,12 +40,17 @@ then
      pkg_cfg+="--with-cuda-libpath=/usr/local/cuda/lib64 "
 fi
 
-pkg_cfg+="--enable-threads=runtime "
-pkg_cfg+="--with-thread-package=posix "
+# pkg_cfg+="--enable-threads=runtime "
+# pkg_cfg+="--with-thread-package=posix "
 pkg_cfg+="--enable-romio "
 pkg_cfg+="--enable-cxx "
-pkg_cfg+="--enable-mpe "
 pkg_cfg+="--enable-fc "
+pkg_cfg+="--enable-error-checking=runtime "
+pkg_cfg+="--enable-timing=none "
+pkg_cfg+="--enable-g=mem,dbg,meminit "
+pkg_cfg+="--enable-mpe "
+pkg_cfg+="--enable-sharedlibs=gcc "
+pkg_cfg+="--with-rdma=gen2 "
 
 # pkg_cfg+="--enable-ckpt"
 # pkg_cfg+="--enable-ckpt-aggregation"
@@ -79,7 +84,7 @@ else
 
      for pkg_vers in ${pkg_variants[@]}
      do
-          pkg_file="$pkg_name-$pkg_vers.tar.gz"
+          pkg_file="$pkg_name-$pkg_vers.tgz"
           pkg_urls="http://mvapich.cse.ohio-state.edu/download/mvapich2/$pkg_file"
 
           bldr_register_pkg                \
