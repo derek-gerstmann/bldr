@@ -41,8 +41,8 @@ If you use Kyoto Cabinet within a proprietary software, the commercial license i
 
 kc_opts="configure enable-static enable-shared"
 
-pkg_reqs="tar zlib"
-pkg_uses="tar zlib"
+pkg_reqs="tar zlib bzip2"
+pkg_uses="tar zlib bzip2"
 
 pkg_cflags=""
 pkg_ldflags=""

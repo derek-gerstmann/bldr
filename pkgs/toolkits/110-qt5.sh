@@ -33,9 +33,9 @@ pkg_reqs+="libicu "
 pkg_reqs+="libiconv "
 pkg_reqs+="libedit "
 pkg_reqs+="perl "
-pkg_reqs+="python"
-pkg_reqs+="libtiff"
-pkg_reqs+="libpng"
+pkg_reqs+="python "
+pkg_reqs+="libtiff "
+pkg_reqs+="libpng "
 pkg_uses="$pkg_reqs"
 
 ####################################################################################################

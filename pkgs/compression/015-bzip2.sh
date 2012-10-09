@@ -30,6 +30,7 @@ bz2_opts="configure "
 bz2_opts+="skip-bootstrap "
 bz2_opts+="migrate-build-headers "
 bz2_opts+="migrate-build-bin "
+bz2_cfg=""
 
 pkg_cflags=""
 pkg_ldflags=""
@@ -44,10 +45,12 @@ do
      pkg_file="$pkg_name-$pkg_vers.tar.gz"
      pkg_urls="http://www.bzip.org/$pkg_vers/$pkg_file"
      pkg_opts="$bz2_opts -MPREFIX=\"$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers\" "
+     pkg_cfg="$bz2_cfg "
 
      if [[ $BLDR_SYSTEM_IS_LINUX == true ]]
      then
           pkg_opts+="use-build-makefile=Makefile-libbz2_so "
+          pkg_cfg+="-fPIC "
 
           bldr_register_pkg                 \
                --category    "$pkg_ctry"    \
@@ -68,12 +71,14 @@ do
      fi
 
      pkg_opts="$bz2_opts -MPREFIX=\"$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers\" "
+     pkg_cfg="$bz2_cfg"
 
      if [[ $BLDR_SYSTEM_IS_LINUX == true ]]
      then
           pkg_opts+="migrate-skip-libs "
           pkg_opts+="keep-existing-install "
           pkg_opts+="force-rebuild "
+          pkg_cfg+="-fPIC "
      fi
 
      bldr_register_pkg                  \

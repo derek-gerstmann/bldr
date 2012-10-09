@@ -40,8 +40,8 @@ Tokyo Cabinet is a free software licensed under the GNU Lesser General Public Li
 
 tc_opts="configure enable-static enable-shared"
 
-pkg_reqs="tar zlib"
-pkg_uses="tar zlib"
+pkg_reqs="tar zlib bzip2"
+pkg_uses="tar zlib bzip2"
 
 pkg_cflags=""
 pkg_ldflags=""

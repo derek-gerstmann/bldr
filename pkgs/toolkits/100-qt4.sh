@@ -22,7 +22,7 @@ pkg_desc="Qt is a cross-platform application and UI framework for developers usi
 a CSS & JavaScript like language"
 
 pkg_opts="configure "
-pkg_opts+="skip-auto-compile-flags "
+pkg_opts+="skip-system-flags "
 
 pkg_reqs=""
 pkg_reqs+="zlib "

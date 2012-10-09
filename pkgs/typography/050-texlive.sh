@@ -23,8 +23,10 @@ around the world. "
 
 pkg_default="2012"
 pkg_variants=("$pkg_default")
+pkg_distribs=("texlive-20120628-source.tar.xz")
+pkg_mirrors=("http://ctan.unsw.edu.au/systems/texlive/Source/")
 
-pkg_opts="configure keep skip-install"
+txl_opts="configure keep skip-install"
 pkg_reqs="pkg-config"
 
 pkg_uses=""
@@ -59,6 +61,7 @@ function bldr_pkg_compile_method()
            --verbose)       use_verbose="$2"; shift 2;;
            --name)          pkg_name="$2"; shift 2;;
            --version)       pkg_vers="$2"; shift 2;;
+           --default)       pkg_default="$2"; shift 2;;
            --info)          pkg_info="$2"; shift 2;;
            --description)   pkg_desc="$2"; shift 2;;
            --category)      pkg_ctry="$2"; shift 2;;
@@ -127,27 +130,27 @@ function bldr_pkg_compile_method()
 # register each pkg version with bldr
 ####################################################################################################
 
+let pkg_idx=0
 for pkg_vers in ${pkg_variants[@]}
 do
-    pkg_file="install-tl-unx.tar.gz"
-    pkg_urls="http://mirror.ctan.org/systems/texlive/tlnet/$pkg_file"
+    pkg_host=${pkg_mirrors[$pkg_idx]}
+    pkg_file=${pkg_distribs[$pkg_idx]}
+    pkg_urls="$pkg_host/$pkg_file"
 
+    pkg_opts=txl_opts
     if [[ $BLDR_SYSTEM_IS_OSX == true ]]
     then
-      pkg_opts+=" -EPATH+=$BLDR_LOCAL_ENV_PATH/$pkg_ctry/$pkg_name/$pkg_vers/bin/universal-darwin"
+      pkg_opts+=" -EPATH+=$BLDR_LOCAL_ENV_PATH/$pkg_ctry/$pkg_name/$pkg_vers/bin/universal-darwin "
 
     elif [[ $BLDR_SYSTEM_IS_LINUX == true ]]
     then
       if [[ $BLDR_SYSTEM_IS_64BIT == true ]]
       then
-        pkg_opts+=" -EPATH+=$BLDR_LOCAL_ENV_PATH/$pkg_ctry/$pkg_name/$pkg_vers/bin/x86_64-linux"
+        pkg_opts+=" -EPATH+=$BLDR_LOCAL_ENV_PATH/$pkg_ctry/$pkg_name/$pkg_vers/bin/x86_64-linux "
       else
-        pkg_opts+=" -EPATH+=$BLDR_LOCAL_ENV_PATH/$pkg_ctry/$pkg_name/$pkg_vers/bin/i386-linux"
+        pkg_opts+=" -EPATH+=$BLDR_LOCAL_ENV_PATH/$pkg_ctry/$pkg_name/$pkg_vers/bin/i386-linux "
       fi
     fi
-
-    pkg_file="$pkg_name-$pkg_vers.tar.gz"
-    pkg_urls="http://icl.cs.utk.edu/projects/papi/downloads/$pkg_file"
 
     bldr_register_pkg                  \
           --category    "$pkg_ctry"    \
@@ -165,6 +168,8 @@ do
           --ldflags     "$pkg_ldflags" \
           --config      "$pkg_cfg"     \
           --config-path "$pkg_cfg_path"
+
+    let pkg_idx++
 done
 
 ####################################################################################################
