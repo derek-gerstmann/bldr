@@ -42,6 +42,7 @@ under the terms of either the GNU Lesser General Public License (LGPL) version
 pkg_opts="configure force-bootstrap enable-static enable-shared"
 
 pkg_reqs="zlib "
+pkg_reqs+="bzip2 "
 pkg_reqs+="libxml2 "
 pkg_reqs+="libicu "
 pkg_reqs+="libiconv "
@@ -59,7 +60,7 @@ pkg_uses="$pkg_reqs"
 
 pkg_cfg_path=""
 pkg_cflags=""
-pkg_ldflags=""
+pkg_ldflags="-lz -lbz2 "
 
 pkg_cfg="--disable-introspection "
 if [[ $BLDR_SYSTEM_IS_OSX == true ]]; then

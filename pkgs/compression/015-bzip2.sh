@@ -27,7 +27,7 @@ pkg_uses="m4 autoconf automake"
 pkg_reqs=""
 
 bz2_opts="configure "
-bz2_opts+="skip-bootstrap "
+# bz2_opts+="skip-bootstrap "
 bz2_opts+="migrate-build-headers "
 bz2_opts+="migrate-build-bin "
 bz2_cfg=""

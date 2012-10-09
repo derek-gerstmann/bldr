@@ -63,8 +63,8 @@ pkg_ldflags=""
 
 for pkg_vers in ${pkg_variants[@]}
 do
-    pkg_file="wxWidgets-$pkg_vers-src.tar.bz2"
-    pkg_urls="http://prdownloads.sourceforge.net/wxwindows/$pkg_file"
+    pkg_file="wxWidgets-$pkg_vers.tar.bz2"
+    pkg_urls="http://aarnet.dl.sourceforge.net/project/wxwindows/$pkg_vers/$pkg_files"
 
     bldr_register_pkg                \
         --category    "$pkg_ctry"    \
