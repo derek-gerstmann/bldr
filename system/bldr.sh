@@ -4147,6 +4147,16 @@ function bldr_compile_pkg()
         done
     fi
 
+    local mk_tgt=""
+    if [[ $(echo "$pkg_opts" | grep -m1 -c 'use-make-build-target') > 0 ]]
+    then
+        local user_mk=$(echo $pkg_opts | grep -E -o 'use-make-build-target=(\S+)' | sed 's/.*=//g' )
+        if [[ "$user_mk" != "" ]]
+        then
+            mk_tgt="$user_mk"
+        fi
+    fi
+
     # append any CFLAGS or LDFLAGS if requested
     if [[ $(bldr_has_cfg_option "$pkg_opts" "use-make-envflags" ) == "true" ]]
     then
@@ -4246,7 +4256,7 @@ function bldr_compile_pkg()
 
     if [ -f "$mk_file" ]
     then
-        bldr_run_cmd "make -f $mk_file $options" || bldr_bail "Failed to build package: '$prefix'"
+        bldr_run_cmd "make -f $mk_file $options $mk_tgt" || bldr_bail "Failed to build package: '$prefix'"
     fi
 
     if [[ $(echo "$pkg_opts" | grep -m1 -c 'use-build-script') > 0 ]]
@@ -4481,14 +4491,25 @@ function bldr_install_pkg()
         options="$options $env_flags"
     fi
 
+    local mk_tgt="install"
+    if [[ $(echo "$pkg_opts" | grep -m1 -c 'use-make-install-target') > 0 ]]
+    then
+        local user_mk=$(echo $pkg_opts | grep -E -o 'use-make-install-target=(\S+)' | sed 's/.*=//g' )
+        if [[ "$user_mk" != "" ]]
+        then
+            mk_tgt="$user_mk"
+        fi
+    fi
+
     if [ -f "$mk_file" ]
     then
+
         # install using make if an 'install' rule exists
-        local rules=$(make -f $mk_file -pnsk | grep -v ^$ | grep -v ^# | grep -m1 -c '^install:')
+        local rules=$(make -f $mk_file -pnsk | grep -v ^$ | grep -v ^# | grep -m1 -c "^$mk_tgt:")
         if [[ $(echo "$rules") > 0 ]]
         then
             bldr_log_subsection "Installing package '$pkg_name/$pkg_vers' for '$pkg_ctry' ..."
-            bldr_run_cmd "make -f $mk_file $options install" || bldr_bail "Failed to install package: '$prefix'"
+            bldr_run_cmd "make -f $mk_file $options $mk_tgt" || bldr_bail "Failed to install package: '$prefix'"
         fi
     fi
     bldr_pop_dir

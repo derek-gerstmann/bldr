@@ -37,7 +37,7 @@ The **bldr** build process
     6. Install: installs the package (eg via make)
     7. Migrate: migrates any additional files into the install path
     8. Modulate: creates a module file to encapsulate the shell environment
-    9. Link: updates the 'defuault' and 'current' symlinked versions for local installs and module files
+    9. Link: updates the 'default' and 'current' symlinked versions for local installs and module files
     10. Cleanup: removes any temporary build files
 
 Each of the above build phases can be overridden by a package build specification, and each of these phases are optional.
