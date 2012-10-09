@@ -42,7 +42,7 @@ on platforms which have API conforming to C++03 with the TR1 library extensions.
 Kyoto Tycoon is a free software licensed under the GNU General Public License."
 
 cfg_opts="configure enable-static enable-shared"
-pkg_reqs="kyoto-cabinet lua"
+pkg_reqs="kyoto-cabinet lua zlib"
 pkg_uses="$pkg_reqs"
 
 ####################################################################################################
@@ -60,7 +60,7 @@ bldr_satisfy_pkg                    \
 ####################################################################################################
 
 pkg_cfg=""
-pkg_cfg+="--enable-lua"
+pkg_cfg+="--enable-lua "
 pkg_cfg+="--with-lua=\"$BLDR_LUA_BASE_PATH\" "
 pkg_cfg+="--with-kc=\"$BLDR_KYOTO_CABINET_BASE_PATH\" "
 pkg_cfg_path=""

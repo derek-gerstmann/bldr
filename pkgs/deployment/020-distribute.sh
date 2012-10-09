@@ -20,7 +20,7 @@ pkg_info="Distribute is a fork of the Setuptools project for Python."
 
 pkg_desc="Distribute is a fork of the Setuptools project for Python."
 
-pkg_opts="python skip-compile skip-install"
+pkg_opts="python skip-compile skip-install keep-existing-install"
 
 pkg_reqs="python"
 pkg_uses="python"
@@ -35,6 +35,15 @@ pkg_cfg=""
 
 for pkg_vers in ${pkg_variants[@]}
 do
+     pkg_site=$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/lib/python2.7/site-packages
+     export PYTHONPATH=$PYTHONPATH:$pkg_site
+
+     if [[ -d $pkg_site ]]; then
+	bldr_remove_dir $pkg_site
+     fi
+     bldr_make_dir $pkg_site
+     bldr_log_split
+     
      pkg_file="distribute-$pkg_vers.tar.gz"
      pkg_urls="http://pypi.python.org/packages/source/d/distribute/$pkg_file"
 

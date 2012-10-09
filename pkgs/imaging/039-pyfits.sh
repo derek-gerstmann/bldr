@@ -30,8 +30,8 @@ latest version). PyFITS does not require PyRAF however. It may be used
 independently so long as numpy is installed."
 
 pkg_opts="python skip-compile skip-install"
-pkg_reqs="cfitsio numpy"
-pkg_uses="python"
+pkg_reqs="cfitsio numpy distribute"
+pkg_uses="python distribute"
 
 ####################################################################################################
 # satisfy pkg dependencies and load their environment settings
