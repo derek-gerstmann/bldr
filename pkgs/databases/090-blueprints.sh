@@ -23,7 +23,7 @@ pkg_mirrors=(
      "git://github.com/tinkerpop/blueprints.git")
 
 pkg_distribs=(
-     "blueprints-2.1.0.tar.gz")
+     "blueprints-2.1.0.tar.gz"
      "blueprints-trunk-$BLDR_TIMESTAMP.tar.gz")
 
 pkg_info="Blueprints is a property graph model interface."

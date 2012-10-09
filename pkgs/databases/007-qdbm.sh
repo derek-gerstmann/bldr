@@ -56,7 +56,7 @@ pkg_reqs="tar zlib bzip2 lzo libiconv"
 pkg_uses="tar zlib bzip2 lzo libiconv"
 
 pkg_cflags=""
-pkg_ldflags="-lz -bz2 "
+pkg_ldflags="-lz -lbz2 "
 
 pkg_cfg="--enable-zlib "
 pkg_cfg+="--enable-lzo "

@@ -22,7 +22,7 @@ pkg_mirrors=(
      "git://github.com/tinkerpop/rexster.git")
 
 pkg_distribs=(
-     "$pkg_name-2.1.0.tar.gz")
+     "$pkg_name-2.1.0.tar.gz"
      "$pkg_name-trunk-$BLDR_TIMESTAMP.tar.gz")
 
 pkg_info="Rexster is a multi-faceted graph server that exposes any Blueprints graph through several mechanisms with a general focus on REST. "

@@ -1,0 +1,15 @@
+--- ./build/compression/bzip2/1.0.6/Makefile	2010-09-10 22:46:02.000000000 +0000
++++ ./Makefile	2012-10-09 06:19:35.000000000 +0000
+@@ -18,10 +18,10 @@
+ CC=gcc
+ AR=ar
+ RANLIB=ranlib
+-LDFLAGS=
++LDFLAGS=-fPIC
+ 
+ BIGFILES=-D_FILE_OFFSET_BITS=64
+-CFLAGS=-Wall -Winline -O2 -g $(BIGFILES)
++CFLAGS=-Wall -Winline -O2 -g $(BIGFILES) -fPIC
+ 
+ # Where you want it installed when you do 'make install'
+ PREFIX=/usr/local
