@@ -55,7 +55,7 @@ pkg_reqs+="fontconfig "
 pkg_reqs+="pango "
 pkg_reqs+="pixman "
 pkg_reqs+="poppler "
-pkg_uses=$pkg_reqs
+pkg_uses="$pkg_reqs"
 
 pkg_cfg_path=""
 pkg_cflags=""
@@ -68,7 +68,7 @@ fi
 
 if [[ $BLDR_SYSTEM_IS_LINUX == true ]] 
 then
-     pkg_cflags+="-fPIC "    
+     pkg_cflags+="-fPIC "
 fi
 
 ####################################################################################################

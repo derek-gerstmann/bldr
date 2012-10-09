@@ -33,7 +33,7 @@ objects of the two HDF formats. Fundamental objects from HDF4 (group, multi-dime
 array, raster image, vdata, and annotation) and HDF5 (group and dataset) are presented 
 as Java classes in the HDF Object Package."
 
-pkg_opts="configure enable-static enable-shared"
+pkg_opts="configure enable-static enable-shared keep-existing-install"
 pkg_reqs="szip zlib libjpeg hdf5"
 pkg_uses="$pkg_reqs"
 
@@ -53,20 +53,36 @@ bldr_satisfy_pkg                 \
 
 
 pkg_cfg=""
-pkg_cfg+="--with-hdf5=$BLDR_HDF5_INCLUDE_PATH,$BLDR_HDF5_LIB_PATH"
-pkg_cfg+="--with-hdf5=$BLDR_HDF5_INCLUDE_PATH,$BLDR_HDF5_LIB_PATH"
-pkg_cfg+="--with-libsz=$BLDR_SZIP_INCLUDE_PATH,$BLDR_SZIP_LIB_PATH"
-pkg_cfg+="--with-libz=$BLDR_ZLIB_INCLUDE_PATH,$BLDR_ZLIB_LIB_PATH"
-pkg_cfg+="--with-libjpeg=$BLDR_LIBJPEG_INCLUDE_PATH,$BLDR_LIBJPEG_LIB_PATH"
+pkg_cfg+="--with-hdf5=$BLDR_HDF5_INCLUDE_PATH,$BLDR_HDF5_LIB_PATH "
+pkg_cfg+="--with-hdf5=$BLDR_HDF5_INCLUDE_PATH,$BLDR_HDF5_LIB_PATH "
+pkg_cfg+="--with-libsz=$BLDR_SZIP_INCLUDE_PATH,$BLDR_SZIP_LIB_PATH "
+pkg_cfg+="--with-libz=$BLDR_ZLIB_INCLUDE_PATH,$BLDR_ZLIB_LIB_PATH "
+pkg_cfg+="--with-libjpeg=$BLDR_LIBJPEG_INCLUDE_PATH,$BLDR_LIBJPEG_LIB_PATH "
 
 if [[ $BLDR_SYSTEM_IS_OSX == true ]]
 then
     uname_vers=$(uname -r)
-    pkg_cfg+="-build=i686-apple-darwin${uname_vers}"
+    pkg_cfg+="-build=i686-apple-darwin${uname_vers} "
 fi
 
 pkg_cflags=""
 pkg_ldflags=""
+
+####################################################################################################
+
+if [[ $BLDR_SYSTEM_IS_OSX == true ]]
+then
+    export JAVA_HEADERS="/System/Library/Frameworks/JavaVM.framework/Versions/A/Headers"
+    export JAVA_CPPFLAGS="-I/System/Library/Frameworks/JavaVM.framework/Headers"
+    pkg_cfg+="--with-jdk=/System/Library/Frameworks/JavaVM.framework/Headers,/System/Library/Frameworks/JavaVM.framework/Home/lib"
+    pkg_cflags+="-I/System/Library/Frameworks/JavaVM.framework/Headers "
+else
+    if [[ -d "/usr/java/default" ]]
+    then
+	pkg_cfg+="--with-jdk=$JAVA_HOME/include,$JAVA_HOME/lib "
+	pkg_cflags+="-I$JAVA_HOME/include "
+    fi
+fi
 
 ####################################################################################################
 # register each pkg version with bldr
@@ -76,6 +92,12 @@ for pkg_vers in ${pkg_variants[@]}
 do
     pkg_file="hdf-java-$pkg_vers-src.tar"
     pkg_urls="http://www.hdfgroup.org/ftp/HDF5/hdf-java/src/$pkg_file"
+
+    if [[ -d $BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers ]]; then
+       bldr_remove_dir $BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers
+    fi
+    bldr_make_dir $BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers
+    bldr_log_split
 
     bldr_register_pkg                  \
           --category    "$pkg_ctry"    \

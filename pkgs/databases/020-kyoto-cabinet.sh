@@ -45,7 +45,7 @@ pkg_reqs="tar zlib bzip2"
 pkg_uses="tar zlib bzip2"
 
 pkg_cflags=""
-pkg_ldflags=""
+pkg_ldflags="-lz -lbz2 "
 
 pkg_cfg=""
 pkg_cfg_path=""

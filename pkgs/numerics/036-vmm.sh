@@ -11,14 +11,14 @@ source "bldr.sh"
 ####################################################################################################
 
 pkg_ctry="numerics"
-pkg_name="vmmlib"
+pkg_name="vmm"
 
 pkg_default="trunk"
 pkg_variants=("trunk")
 
-pkg_info="vmmlib is a templatized C++ vector and matrix math library."
+pkg_info="VMM is a templatized C++ vector and matrix math library."
 
-pkg_desc="vmmlib is a templatized C++ vector and matrix math library. 
+pkg_desc="VMM is a templatized C++ vector and matrix math library. 
 
 Its basic functionality includes a vector and a matrix class, with additional functionality 
 for the often-used 3d and 4d vectors and 3x3 and 4x4 matrices.

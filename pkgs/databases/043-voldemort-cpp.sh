@@ -36,7 +36,7 @@ bldr_satisfy_pkg                 \
     --category    "$pkg_ctry"    \
     --name        "$pkg_name"    \
     --version     "$pkg_default"\
-    --requires    "$pkg_reqs"    \
+    --requires    "$vdm_reqs"    \
     --uses        "$pkg_uses"    \
     --options     "$pkg_opts"
 
@@ -45,7 +45,10 @@ bldr_satisfy_pkg                 \
 pkg_cflags=""
 pkg_ldflags=""
 
-pkg_cfg="--with-boost=$BLDR_BOOST_BASE_PATH"
+pkg_cfg="--with-boost=$BLDR_BOOST_BASE_PATH "
+pkg_cfg+="--with-boost-asio=boost_system "
+#pkg_cfg+="--with-boost-unit-test-framework=boost_unit_test_framework "
+pkg_cfg+="--with-boost-thread=boost_thread "
 pkg_cfg_path="clients/cpp"
 
 ####################################################################################################

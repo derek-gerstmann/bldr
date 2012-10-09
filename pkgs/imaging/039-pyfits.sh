@@ -29,7 +29,7 @@ and associated updates to it (though what is included there may not be the very
 latest version). PyFITS does not require PyRAF however. It may be used 
 independently so long as numpy is installed."
 
-pkg_opts="python skip-compile skip-install"
+pkg_opts="python skip-compile skip-install keep-existing-install"
 pkg_reqs="cfitsio numpy distribute"
 pkg_uses="python distribute"
 
@@ -57,10 +57,19 @@ pkg_cfg=""
 
 for pkg_vers in ${pkg_variants[@]}
 do
-    pkg_file="$pkg_name-$pkg_vers.tar.gz"
-    pkg_urls="http://pypi.python.org/packages/source/p/pyfits/$pkg_file"
+     pkg_site=$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/lib/python2.7/site-packages
+     export PYTHONPATH=$PYTHONPATH:$pkg_site
 
-    bldr_register_pkg                 \
+     if [[ -d $BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers ]]; then
+        bldr_remove_dir $BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers
+     fi
+     bldr_make_dir $pkg_site
+     bldr_log_split
+
+     pkg_file="$pkg_name-$pkg_vers.tar.gz"
+     pkg_urls="http://pypi.python.org/packages/source/p/pyfits/$pkg_file"
+
+     bldr_register_pkg                \
          --category    "$pkg_ctry"    \
          --name        "$pkg_name"    \
          --version     "$pkg_vers"    \

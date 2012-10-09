@@ -32,6 +32,7 @@ pkg_opts="configure enable-static enable-shared"
 
 pkg_reqs="pkg-config "
 pkg_reqs+="zlib "
+pkg_reqs+="bzip2 "
 pkg_reqs+="libxml2 "
 pkg_reqs+="libicu "
 pkg_reqs+="libiconv "
@@ -50,7 +51,7 @@ pkg_cfg="--without-x "
 pkg_cfg_path=""
 
 pkg_cflags=""
-pkg_ldflags="-liconv "
+pkg_ldflags="-liconv -lz -lbz2 "
 
 ####################################################################################################
 # register each pkg version with bldr

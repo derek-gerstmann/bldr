@@ -26,7 +26,7 @@ simple, can be used with any programming language, is used by many companies, an
 a lot of fun to use!"
 
 pkg_opts="configure skip-config skip-build migrate-build-tree"
-pkg_reqs="zeromq/2.1.7 zeromq-java/2.1.0 ruby thrift"
+pkg_reqs="zeromq/2.1.7 zeromq-java ruby thrift"
 pkg_uses="$pkg_uses"
 
 ####################################################################################################
