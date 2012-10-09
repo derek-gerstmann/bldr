@@ -24,7 +24,7 @@ implementation of high performance concurrent systems. It is designed to minimiz
 on operating system-specific interfaces and most of the interface relies only on a strict subset 
 of the standard library and more popular compiler extensions."
 
-pkg_opts="configure skip-xcode-config enable-shared enable-static"
+pkg_opts="configure skip-system-flags"
 pkg_reqs="m4 automake autoconf"
 pkg_uses=""
 

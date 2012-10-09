@@ -58,7 +58,7 @@ ilm_cflags+=":-I$BLDR_ILMBASE_INCLUDE_PATH/OpenEXR"
 
 if [[ $BLDR_SYSTEM_IS_LINUX == true ]]
 then
-     ilm_cflags+=" -fPIC"
+     ilm_cflags+=" -fPIC "
 fi
 
 pkg_uses="$pkg_reqs"
@@ -78,8 +78,8 @@ do
     pkg_base=${pkg_bases[$pkg_idx]}
     pkg_urls=${pkg_mirrors[$pkg_idx]}
 
-    pkg_ldflags="$ilm_ldflags"
-    pkg_cflags="$ilm_cflags"
+    pkg_ldflags="$ilm_ldflags "
+    pkg_cflags="$ilm_cflags "
     pkg_cflags+=":-I$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$pkg_base/OpenEXR/IlmImf"
 
     pkg_opts="cmake skip-boot force-serial-build use-base-dir=$pkg_base"

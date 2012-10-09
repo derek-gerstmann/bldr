@@ -39,7 +39,7 @@ bst_opts="configure "
 bst_opts+="force-bootstrap "
 bst_opts+="skip-config "
 bst_opts+="force-static "
-bst_opts+="skip-auto-compile-flags"
+bst_opts+="skip-auto-compile-flags "
 
 pkg_reqs="zlib "
 pkg_reqs+="bzip2 "
@@ -82,6 +82,38 @@ then
 fi
 
 ####################################################################################################
+
+function pkg_run_cmd()
+{
+    local cmd="${@}"
+
+    bldr_log_cmd "$cmd"
+
+    local ts=$(date "+%Y-%m-%d-%Hh%Mm%Ss")
+    local log_file="$BLDR_LOG_PATH/$BLDR_LOG_FILE"
+    local cmd_log_file="$BLDR_LOG_PATH/bldr_cmd_$ts.log"
+
+    set -o pipefail    
+    
+    if [[ $BLDR_VERBOSE == true ]]
+    then
+        bldr_log_split
+
+        (eval "$cmd" 2>&1 | tee -a $cmd_log_file $log_file) || \
+            (bldr_log_split ; bldr_log_error "Failed to execute command!  Output follows:" ; \
+             bldr_bail_cmd "$(cat $cmd_log_file)")
+
+        bldr_log_split
+    else
+        (eval "$cmd" 2>&1 | tee -a $cmd_log_file) >> $log_file || \
+            (bldr_log_split ; bldr_log_error "Failed to execute command!  Output follows:" ; \
+                bldr_bail_cmd "$(cat $cmd_log_file)")
+    fi
+
+    rm $cmd_log_file
+    bldr_log_split
+}
+
 
 function bldr_pkg_compile_method()
 {
@@ -185,8 +217,8 @@ function bldr_pkg_compile_method()
         pkg_ldflags=""
     fi
 
-    bldr_run_cmd "./b2 --prefix=\"$prefix\" $pkg_cfg $env_flags"
-    bldr_run_cmd "./b2 install"
+    pkg_run_cmd "./b2 --prefix=\"$prefix\" $pkg_cfg $env_flags"
+    pkg_run_cmd "./b2 install"
     bldr_pop_dir
 }
 

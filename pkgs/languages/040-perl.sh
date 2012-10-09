@@ -40,7 +40,7 @@ In 1998, it was also referred to as the 'duct tape that holds the Internet toget
 in reference to its ubiquity and perceived inelegance."
 
 pkg_default="5.16.1"
-pkg_ver_list=("$pkg_default")
+pkg_variants=("$pkg_default")
 
 pkg_opts="configure force-serial-build config-disable-prefix skip-xcode-config"
 pkg_reqs="coreutils tar make"
@@ -52,12 +52,13 @@ if [[ $BLDR_SYSTEM_IS_64BIT == true ]]
 then
     pkg_cfg+="-Duse64bitall "
 fi
+p5_cfg=$pkg_cfg
 
 ####################################################################################################
 # build and install each pkg version as local module
 ####################################################################################################
 
-for pkg_vers in ${pkg_ver_list}
+for pkg_vers in ${pkg_variants}
 do
     pkg_file="$pkg_name-$pkg_vers.tar.gz"
     pkg_urls="http://www.cpan.org/src/5.0/$pkg_file"

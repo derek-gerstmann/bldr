@@ -16,7 +16,7 @@ pkg_name="ilmbase"
 pkg_default="2.0-beta1"
 pkg_variants=("2.0-beta1")
 pkg_mirrors=("http://github.com/openexr/openexr/zipball/v2_beta.1")
-pkg_bases=("openexr-openexr-27b2bf9")
+pkg_bases=("openexr-openexr-93484b1")
 
 pkg_info="IlmBase is a graphics and imaging framework developed at Industrial Light & Magic (primarily used by OpenEXR)"
 
@@ -45,7 +45,7 @@ ilm_cflags=""
 ilm_ldflags=""
 if [[ $BLDR_SYSTEM_IS_LINUX == true ]]
 then
-     ilm_cflags="$ilm_cflags -fPIC"
+     ilm_cflags="$ilm_cflags -fPIC "
 fi
 
 pkg_cfg="--disable-dependency-tracking "
@@ -68,9 +68,11 @@ do
     for sub_inc in "Half IlmThread Imath ImathTest Iex IexMath IexTest"
     do
          pkg_cflags="$pkg_cflags:-I$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$pkg_base/IlmBase/$sub_inc"
+#         pkg_cflags="$pkg_cflags:-I$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/IlmBase/$sub_inc"
     done
 
     pkg_opts="cmake skip-boot force-serial-build use-base-dir=$pkg_base"
+#    pkg_opts="cmake skip-boot force-serial-build"
     pkg_cfg_path="$pkg_base/IlmBase"
 
     bldr_register_pkg                 \

@@ -2386,10 +2386,9 @@ function bldr_build_required_pkg()
                         local old_cmds=$BLDR_USE_PKG_CMDS
 
                         export BLDR_USE_PKG_CMDS="build"
-                        eval $pkg_sh || exit -1
+                        eval $pkg_sh || bldr_log_warning "Failed to build '$ctry_name/$pkg_tst_name' ..."
 
                         export BLDR_USE_PKG_CMDS="$old_cmds"
-                        return
                     fi
                 fi
             done
@@ -2822,16 +2821,18 @@ function bldr_boot_pkg()
     bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
     local base_dir=$(bldr_locate_config_path "$pkg_cfg_path" "$pkg_opts")
     bldr_pop_dir
+
+    local base_path="$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
     if [[ $(echo "$pkg_opts" | grep -m1 -c 'use-base-dir') > 0 ]]
     then
         local user_dir=$(echo $pkg_opts | grep -E -o 'use-base-dir=(\S+)' | sed 's/.*=//g' )
         if [[ "$base_dir" != "" ]]
         then
             base_dir="$user_dir"
+            base_path="$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$base_dir"
         fi
     fi
 
-    local base_path="$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
     bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$base_dir"
 
     local applied_patch=false
@@ -6879,15 +6880,19 @@ function bldr_build_pkgs()
                         bldr_log_list_item_progress $bld_idx $bld_cnt "Building '$pkg_tst_name/$pkg_tst_vers' from '$ctry_name' ... "
                         bldr_log_split
 
+                        bldr_log_status "Building required '$pkg_tst_name/$pkg_tst_vers' from '$ctry_name' ... "
+
+                        local old_cmds=$BLDR_USE_PKG_CMDS
+
                         export BLDR_USE_PKG_CTRY="$ctry_name"
                         export BLDR_USE_PKG_OPTS="$pkg_opts"
                         export BLDR_USE_PKG_CMDS="build"
 
-                        eval $pkg_sh || exit -1
+                         eval $pkg_sh || bldr_log_warning "Failed to build '$ctry_name/$pkg_tst_name' ..."
 
+                        export BLDR_USE_PKG_CMDS="$old_cmds"
                         export BLDR_USE_PKG_CTRY=""
                         export BLDR_USE_PKG_OPTS=""
-                        export BLDR_USE_PKG_CMDS=""
                     fi
                 fi
             done
@@ -7131,15 +7136,19 @@ function bldr()
                         bldr_log_list_item_progress $bld_idx $bld_cnt "Processing '$pkg_tst_name/$pkg_tst_vers' from '$ctry_name' ... "
                         bldr_log_split
 
+
+                        local old_cmds=$BLDR_USE_PKG_CMDS
+
                         export BLDR_USE_PKG_CTRY="$ctry_name"
                         export BLDR_USE_PKG_OPTS="$pkg_opts"
-                        export BLDR_USE_PKG_CMDS="$pkg_cmds"
+                        export BLDR_USE_PKG_CMDS="build"
 
-                        eval $pkg_sh || exit -1
+                        eval $pkg_sh || bldr_log_warning "Failed to build '$ctry_name/$pkg_tst_name' ..."
 
+                        export BLDR_USE_PKG_CMDS="$old_cmds"
                         export BLDR_USE_PKG_CTRY=""
                         export BLDR_USE_PKG_OPTS=""
-                        export BLDR_USE_PKG_CMDS=""
+
                     fi
                 fi
             done

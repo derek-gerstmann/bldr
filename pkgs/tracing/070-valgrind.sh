@@ -34,8 +34,6 @@ ARM/Linux, PPC32/Linux, PPC64/Linux, S390X/Linux, ARM/Android (2.3.x), X86/Darwi
 and AMD64/Darwin (Mac OS X 10.6 and 10.7)."
 
 pkg_opts="configure "
-pkg_opts+="enable-static "
-pkg_opts+="enable-shared "
 
 pkg_reqs=""
 pkg_uses=""

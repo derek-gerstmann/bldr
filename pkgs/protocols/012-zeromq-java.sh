@@ -42,7 +42,7 @@ bldr_satisfy_pkg                 \
 pkg_cflags=""
 pkg_ldflags=""
 
-pkg_cfg="--with-zeromq=$BLDR_ZEROMQ_BASE_PATH" 
+pkg_cfg="--with-zeromq=\"$BLDR_ZEROMQ_BASE_PATH\" "
 
 ####################################################################################################
 
@@ -53,7 +53,7 @@ then
 else
     if [[ -d "/usr/java/default" ]]
     then
-        pkg_cfg+="JAVA_HOME=\"/usr/java/default\""
+        pkg_cfg+="JAVA_HOME=\"/usr/java/default\" "
     fi
 fi
 
@@ -61,10 +61,9 @@ fi
 # build and install pkg as local module
 ####################################################################################################
 
-for zmq_vers in ${pkg_variants[@]}
+for pkg_vers in ${pkg_variants[@]}
 do
-     pkg_vers=$zmq_vers
-     pkg_file="$pkg_name-$zmq_vers.tar.gz"
+     pkg_file="$pkg_name-$pkg_vers.tar.gz"
      pkg_urls="git://github.com/zeromq/jzmq.git"
 
      bldr_register_pkg                 \

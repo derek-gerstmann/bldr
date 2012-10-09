@@ -39,7 +39,7 @@ pkg_uses="$pkg_reqs"
 
 bldr_satisfy_pkg --category    "$pkg_ctry"    \
                  --name        "$pkg_name"    \
-                 --version     "$pkg_vers"    \
+                 --version     "$pkg_default" \
                  --requires    "$pkg_reqs"    \
                  --uses        "$pkg_uses"    \
                  --options     "$pkg_opts"
@@ -64,7 +64,7 @@ do
           --category    "$pkg_ctry"    \
           --name        "$pkg_name"    \
           --version     "$pkg_vers"    \
-          --default     "$pkg_default "\
+          --default     "$pkg_default" \
           --info        "$pkg_info"    \
           --description "$pkg_desc"    \
           --file        "$pkg_file"    \

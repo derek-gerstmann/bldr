@@ -28,7 +28,7 @@ It was meant primarily for porting SVR4 applications to other operating systems 
 can also be used as the basis for new applications (and as a light-weight alternative 
 to libbfd). "
 
-pkg_opts="configure skip-xcode-config enable-static enable-shared"
+pkg_opts="configure skip-system-flags"
 pkg_reqs=""
 pkg_uses=""
 pkg_cflags=""

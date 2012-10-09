@@ -39,15 +39,11 @@ pkg_opts="configure "
 pkg_opts+="enable-shared "
 pkg_opts+="enable-static "
 pkg_opts+="use-build-makefile=Makefile.noX "
-pkg_opts+="-MDESTDIR=\"$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers\" "
-pkg_opts+="-MMANDIR=\"$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/man\" "
-pkg_opts+="-MDESTLIBDIR=\"$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/lib\" "
-pkg_opts+="-MDESTBINDIR=\"$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/bin\" "
-pkg_opts+="-MDESTINCLUDEDIR=\"$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/include\" "
-pkg_opts+="use-make-envflags "
 pkg_opts+="create-local-base-path "
 pkg_opts+="create-local-lib-path "
 pkg_opts+="create-local-bin-path "
+pkg_opts+="use-make-envflags "
+xpm_opts=$pkg_opts
 
 pkg_uses=""
 pkg_reqs=""
@@ -140,6 +136,12 @@ for pkg_vers in ${pkg_variants[@]}
 do
     pkg_file="$pkg_name-$pkg_vers.tar.gz"
     pkg_urls="ftp://ftp.x.org/contrib/libraries/$pkg_file"
+    pkg_opts=$xpm_opts
+    pkg_opts+="-MDESTDIR=\"$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers\" "
+    pkg_opts+="-MMANDIR=\"$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/man\" "
+    pkg_opts+="-MDESTLIBDIR=\"$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/lib\" "
+    pkg_opts+="-MDESTBINDIR=\"$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/bin\" "
+    pkg_opts+="-MDESTINCLUDEDIR=\"$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/include\" "
 
     bldr_register_pkg                \
         --category    "$pkg_ctry"    \

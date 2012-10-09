@@ -35,7 +35,7 @@ in many open source applications, such as Second Life and Gimp."
 
 pkg_opts="configure force-bootstrap enable-static enable-shared"
 
-pkg_reqs="zlib"
+pkg_reqs="zlib "
 pkg_reqs+="bzip2 "
 pkg_reqs+="libxml2 "
 pkg_reqs+="lcms2 "

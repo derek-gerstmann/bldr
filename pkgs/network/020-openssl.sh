@@ -25,7 +25,7 @@ as well as a full-strength general purpose cryptography library managed by a
 worldwide community of volunteers that use the Internet to communicate, plan, 
 and develop the OpenSSL toolkit and its related documentation."
 
-pkg_opts="configure enable-static enable-shared skip-xcode-config force-serial-build"
+pkg_opts="configure skip-system-flags force-serial-build"
 pkg_uses=""
 pkg_reqs=""
 pkg_cflags=""
