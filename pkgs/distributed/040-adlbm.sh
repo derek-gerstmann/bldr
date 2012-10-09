@@ -11,7 +11,7 @@ source "bldr.sh"
 ####################################################################################################
 
 pkg_ctry="distributed"
-pkg_name="adlb"
+pkg_name="adlbm"
 
 pkg_default="trunk"
 pkg_variants=("trunk")
