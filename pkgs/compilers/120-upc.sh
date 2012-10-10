@@ -47,7 +47,7 @@ pkg_file="berkeley_upc-$pkg_vers.tar.gz"
 pkg_urls="http://upc.lbl.gov/download/release/$pkg_file"
 pkg_opts="configure skip-xcode-config"
 
-pkg_reqs="zlib"
+pkg_reqs="zlib "
 pkg_reqs+="perl "
 pkg_reqs+="bupc-trans "
 pkg_reqs+="openmpi "
@@ -78,7 +78,7 @@ then
     pkg_cfg+="--enable-pshm "
     pkg_cfg+="--enable-pthreads "
     pkg_cfg+="PTHREADS_INCLUDE=/usr/include "
-    pkg_cfg+="PTHREADS_LIB=/usr/lib "
+    pkg_cfg+="PTHREADS_LIB=/usr/lib64 "
 fi
 
 pkg_cflags=""
