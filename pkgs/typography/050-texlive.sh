@@ -22,9 +22,9 @@ packages, and fonts that are free software, including support for many languages
 around the world. "
 
 pkg_default="2012"
-pkg_variants=("$pkg_default")
-pkg_distribs=("texlive-20120628-source.tar.xz")
-pkg_mirrors=("http://ctan.unsw.edu.au/systems/texlive/Source/")
+pkg_variants=("2012")
+pkg_distribs=("install-tl-unx.tar.gz")
+pkg_mirrors=("http://mirror.ctan.org/systems/texlive/tlnet")
 
 txl_opts="configure keep skip-install"
 pkg_reqs="pkg-config"
