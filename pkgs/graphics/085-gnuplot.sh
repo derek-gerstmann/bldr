@@ -40,18 +40,39 @@ pkg_reqs+="gettext "
 pkg_reqs+="glib "
 pkg_reqs+="gtk-doc "
 pkg_reqs+="pango "
+pkg_reqs+="qt "
+pkg_reqs+="gd "
 pkg_uses="$pkg_reqs"
+
+####################################################################################################
+# satisfy pkg dependencies and load their environment settings
+####################################################################################################
+
+bldr_satisfy_pkg                    \
+    --category    "$pkg_ctry"       \
+    --name        "$pkg_name"       \
+    --version     "$pkg_default"    \
+    --requires    "$pkg_reqs"       \
+    --uses        "$pkg_uses"       \
+    --options     "$pkg_opts"
+
+####################################################################################################
+
+pkg_cfg="--without-x --without-wxt "
+pkg_cfg+="--enable-qt "
+pkg_cfg_path=""
+
+pkg_cflags=""
+pkg_ldflags="-L\"$BLDR_LIBICONV_LIB_PATH\" -liconv "
+pkg_ldflags+="\"$BLDR_ZLIB_LIB_PATH/libz.a\" "
+pkg_ldflags+="-L\"$BLDR_BZIP2_LIB_PATH\" -lbz2 "
 
 if [[ $BLDR_SYSTEM_IS_OSX == false ]]
 then
      pkg_reqs+="libpng "
+     pkg_ldflags+="-L\"$BLDR_LIBPNG_LIB_PATH\" -lpng "
 fi
 
-pkg_cfg="--without-x "
-pkg_cfg_path=""
-
-pkg_cflags=""
-pkg_ldflags="-liconv -lz -lbz2 "
 
 ####################################################################################################
 # register each pkg version with bldr
