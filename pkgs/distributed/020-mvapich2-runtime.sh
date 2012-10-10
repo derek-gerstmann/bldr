@@ -11,7 +11,7 @@ source "bldr.sh"
 ####################################################################################################
 
 pkg_ctry="distributed"
-pkg_name="mvapich2"
+pkg_name="mvapich2-runtime"
 
 pkg_default="1.9a"
 pkg_variants=("1.8.1" "1.9a")
@@ -84,7 +84,7 @@ else
 
      for pkg_vers in ${pkg_variants[@]}
      do
-          pkg_file="$pkg_name-$pkg_vers.tgz"
+          pkg_file="mvapich2-$pkg_vers.tgz"
           pkg_urls="http://mvapich.cse.ohio-state.edu/download/mvapich2/$pkg_file"
 
           bldr_register_pkg                \

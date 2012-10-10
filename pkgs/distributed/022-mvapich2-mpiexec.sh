@@ -11,56 +11,35 @@ source "bldr.sh"
 ####################################################################################################
 
 pkg_ctry="distributed"
-pkg_name="mpiexec"
+pkg_name="mvapich2-mpiexec"
 
-pkg_default="0.84"
-pkg_variants=("0.84")
+pkg_default="1.9a"
+pkg_variants=("1.8.1" "1.9a")
+pkg_requires=("mvapich2-runtime/1.8.1" "mvapich2-runtime/1.9a")
 
-pkg_info="ADLB is a software library designed to help rapidly build scalable parallel programs."
+pkg_info="Mpiexec is a replacement program for the script mpirun, which is part of the mpich package."
 
-pkg_desc="ADLB is a software library designed to help rapidly build scalable parallel programs. 
+pkg_desc="Mpiexec is a replacement program for the script mpirun, which is part of the mpich package.
 
-ADLB is a software library designed to help rapidly build scalable parallel programs. 
-The name (pronounced adlib) is the acronym for Asynchronous Dynamic Load Balancing. 
-
-However, ADLB does not achieve scalability solely by load balancing. It also includes some 
-features that exploit work-stealing as well. Indeed, we sometimes use the phrase instantaneous 
-load balancing via work-stealing to describe ADLB. 
-
-ADLB will be available under the same license arrangement as MPICH2. 
-
-There are features of ADLB that are reminiscent of a variety of other systems, e.g. Linda. 
-However, ADLB is significantly different and unique in a number of ways."
+It is used to initialize a parallel job from within a PBS batch or interactive environment. Mpiexec 
+uses the task manager library of PBS to spawn copies of the executable on the nodes in a PBS allocation."
 
 pkg_opts="configure"
-pkg_reqs="openmpi mvapich2 torque"
-pkg_uses="openmpi mvapich2"
-
-####################################################################################################
-# satisfy pkg dependencies and load their environment settings
-####################################################################################################
-
-bldr_satisfy_pkg                    \
-    --category    "$pkg_ctry"       \
-    --name        "$pkg_name"       \
-    --version     "$pkg_default"    \
-    --requires    "$pkg_reqs"       \
-    --uses        "$pkg_uses"       \
-    --options     "$pkg_opts"
-
-####################################################################################################
-
 pkg_cflags=""
 pkg_ldflags=""
-pkg_cfg=""
+pkg_cfg="--with-default-comm=mpich2-pmi --with-pbs=/usr "
 
 ####################################################################################################
 # register each pkg version with bldr
 ####################################################################################################
 
+let pkg_idx=0
 for pkg_vers in ${pkg_variants[@]}
 do
-    pkg_file="$pkg_name-$pkg_vers.tgz"
+    pkg_reqs=${pkg_requires[$pkg_idx]}
+    pkg_uses=${pkg_requires[$pkg_idx]}
+
+    pkg_file="mpiexec-0.84.tgz"
     pkg_urls="https://www.osc.edu/~djohnson/mpiexec/$pkg_file"
 
     bldr_register_pkg                 \
@@ -79,6 +58,8 @@ do
          --ldflags     "$pkg_ldflags" \
          --config      "$pkg_cfg"     \
          --config-path "$pkg_cfg_path"
+
+    let pkg_idx++
 done
 
 ####################################################################################################
