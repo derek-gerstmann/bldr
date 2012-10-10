@@ -27,10 +27,10 @@ on any visualization system, from a simple workstation to large scale graphics c
 multi-GPU workstations and Virtual Reality installations"
 
 pkg_opts="cmake force-inplace-build"
-pkg_reqs="zlib vmm lunchbox glew "
-if [[ $BLDR_SYSTEM_IS_LINUX == true ]]; then
-    $pkg_reqs+="hwloc-gl "
-fi
+pkg_reqs="zlib vmm lunchbox glew udt "
+# if [[ $BLDR_SYSTEM_IS_LINUX == true ]]; then
+#    $pkg_reqs+="hwloc-gl "
+# fi
 pkg_uses="$pkg_reqs"
 
 ####################################################################################################
@@ -59,7 +59,8 @@ pkg_cfg+=":-DBOOST_INCLUDEDIR=\"$BLDR_BOOST_INCLUDE_PATH\""
 pkg_cfg+=":-DBoost_NO_SYSTEM_PATHS=ON"
 pkg_cfg+=":-DBoost_NO_BOOST_CMAKE=ON"
 pkg_cfg+=":-DBoost_DIR=\"$BLDR_BOOST_BASE_PATH\""
-pkg_cfg+=":-DBoost_INCLUDE_DIR=\"$BLDR_BOOST_INCLUDE_PATH\""
+pkg_cfg+=":-DEQUALIZER_USE_HWLOC=OFF"
+pkg_cfg+=":-DEQUALIZER_BUILD_EXAMPLES=OFF"
 
 ####################################################################################################
 # register each pkg version with bldr
