@@ -15,6 +15,7 @@ pkg_name="libspatialindex"
 
 pkg_default="trunk"
 pkg_variants=("trunk")
+pkg_mirrors=("git://github.com/libspatialindex/libspatialindex.git")
 
 pkg_info="libspatialindex provides a C++ implementation various spatial data structures with a C API."
 
@@ -37,8 +38,8 @@ Features
 * Large parameterization capabilities, including dimensionality, fill factor, node capacity, etc.
 * STR packing / bulk loading.
 "
-pkg_opts="configure enable-static enable-shared skip-bootstrap"
-pkg_uses="zlib"
+pkg_opts="configure enable-static enable-shared force-bootstrap"
+pkg_uses="zlib m4 automake autoconf libtool"
 pkg_reqs="$pkg_reqs"
 
 pkg_cfg=""
@@ -49,10 +50,12 @@ pkg_ldflags=""
 # register each pkg version with bldr
 ####################################################################################################
 
+let pkg_idx=0
 for pkg_vers in ${pkg_variants[@]}
 do
-     pkg_file="$pkg_name-$pkg_vers.tar.bz2"
-     pkg_urls="git://github.com/libspatialindex/libspatialindex.git"
+     pkg_file="$pkg_name-$pkg_vers-$BLDR_TIMESTAMP.tar.gz"
+     pkg_host=${pkg_mirrors[$pkg_idx]}
+     pkg_urls="$pkg_host"
 
      bldr_register_pkg                 \
           --category    "$pkg_ctry"    \
@@ -70,6 +73,8 @@ do
           --ldflags     "$pkg_ldflags" \
           --config      "$pkg_cfg"     \
           --config-path "$pkg_cfg_path"
+
+    let pkg_idx++
 done
 
 ####################################################################################################
