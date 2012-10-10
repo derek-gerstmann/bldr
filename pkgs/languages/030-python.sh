@@ -28,7 +28,7 @@ Java and .NET virtual machines.
 Python is free to use, even for commercial products, because of its 
 OSI-approved open source license."
 
-pkg_opts="configure"
+pkg_opts="configure enable-static"
 pkg_reqs="zlib bzip2"
 pkg_uses="$pkg_reqs"
 

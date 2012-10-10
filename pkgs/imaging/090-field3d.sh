@@ -53,12 +53,17 @@ bldr_satisfy_pkg                 \
 
 ####################################################################################################
 
+boost_list="$BLDR_BOOST_LIB_PATH/libboost_system.a "
+boost_list+="$BLDR_BOOST_LIB_PATH/libboost_regex.a "
+boost_list+="$BLDR_BOOST_LIB_PATH/libboost_thread.a "
+boost_list+="$BLDR_BOOST_LIB_PATH/libboost_program_options.a "
+pkg_ldflags="$pkg_ldflags:$boost_list"
+
 hdf_libs="$BLDR_HDF5_LIB_PATH/libhdf5.a"
 hdf_libs="$hdf_libs\;$BLDR_HDF5_LIB_PATH/libhdf5_hl.a"
 hdf_libs="$hdf_libs\;$BLDR_HDF5_LIB_PATH/libhdf5_cpp.a"
 hdf_libs="$hdf_libs\;$BLDR_ZLIB_LIB_PATH/libz.a"
 hdf_libs="$hdf_libs\;$BLDR_SZIP_LIB_PATH/libsz.a"
-pkg_ldflags="$pkg_ldflags:$boost_libs"
 
 ####################################################################################################
 
@@ -73,7 +78,7 @@ pkg_cfg+="-DBoost_NO_BOOST_CMAKE=ON "
 pkg_cfg+="-DBoost_DIR=\"$BLDR_BOOST_BASE_PATH\" "
 pkg_cfg+="-DBoost_INCLUDE_DIR=\"$BLDR_BOOST_INCLUDE_PATH\" "
 pkg_cfg+="-DBOOST_ROOT=\"$BLDR_BOOST_BASE_PATH\" "
-# pkg_cfg+="-DBoost_DEBUG=OFF "
+pkg_cfg+="-DBoost_DEBUG=OFF "
 pkg_cfg+="-DBoost_FOUND=TRUE "
 pkg_cfg+="-DBoost_INCLUDE_DIR=\"$BLDR_BOOST_INCLUDE_PATH\" "
 pkg_cfg+="-DBoost_LIBRARY_DIRS=\"$BLDR_BOOST_LIB_PATH\" "
