@@ -20,9 +20,9 @@ pkg_info="Local and remote ZeroConf service discovery for GPU resources."
 
 pkg_desc="Local and remote ZeroConf service discovery for GPU resources."
 
-pkg_opts="cmake use-base-dir=Eyescale-gpusd-5b821a5"
-pkg_uses=""
-pkg_reqs=""
+pkg_opts="cmake force-inplace-build"
+pkg_uses="lunchbox"
+pkg_reqs="lunchbox"
 
 pkg_cflags=""
 pkg_ldflags=""

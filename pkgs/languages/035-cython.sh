@@ -38,7 +38,7 @@ pkg_cfg=""
 # build and install each pkg version as local module
 ####################################################################################################
 
-for pkg_vers in ${pkg_ver_list}
+for pkg_vers in ${pkg_variants}
 do
      pkg_file="Cython-$pkg_vers.tar.gz"
      pkg_urls="http://www.cython.org/release/$pkg_file"
