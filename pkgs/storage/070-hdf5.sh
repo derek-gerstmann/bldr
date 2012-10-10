@@ -84,7 +84,7 @@ do
     # hdf5 - standard
     #
     pkg_name="hdf5"
-    pkg_cfg="$hdf5_cfg --enable-cxx"
+    pkg_cfg="$hdf5_cfg --enable-cxx "
     if [[ $(echo $pkg_vers | grep -m1 -c '^1.8' ) > 0 ]]
     then
       	if [[ $(echo $pkg_vers | grep -m1 -c '^1.8.2' ) < 1 ]]
@@ -151,7 +151,7 @@ do
     # hdf5 - threadsafe (re-entrant methods wrapped in mutex locks) 
     #
     pkg_name="hdf5-threadsafe"
-    pkg_cfg="$hdf5_cfg --enable-threadsafe"
+    pkg_cfg="$hdf5_cfg --enable-threadsafe "
     pkg_reqs="$hdf5_reqs"      
 
     bldr_register_pkg              \
@@ -177,7 +177,7 @@ do
     then
         pkg_name="hdf5-threadsafe-16"
         pkg_cfg="$hdf5_cfg --enable-threadsafe "
-        pkg_cfg+="--with-default-api-version=v16"
+        pkg_cfg+="--with-default-api-version=v16 "
         pkg_reqs="$hdf5_reqs"      
 
         bldr_register_pkg              \

@@ -34,7 +34,7 @@ However, ADLB is significantly different and unique in a number of ways."
 
 pkg_opts="configure"
 pkg_reqs="openmpi mvapich2 torque"
-pkg_uses="$pkg_uses"
+pkg_uses="openmpi mvapich2"
 
 ####################################################################################################
 # satisfy pkg dependencies and load their environment settings
