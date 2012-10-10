@@ -40,7 +40,15 @@ The library also comes with test programs for measuring the quality of performan
 ANN on any particular data sets, as well as programs for visualizing the structure of 
 the geometric data structures."
 
-pkg_opts="configure enable-static enable-shared"
+pkg_opts="configure enable-static enable-shared skip-install migrate-build-tree migrate-build-bin "
+
+if [[ $BLDR_SYSTEM_IS_LINUX == true ]]; then
+    pkg_opts+="use-make-build-target=linux-g++ "
+fi
+if [[ $BLDR_SYSTEM_IS_OSX == true ]]; then
+    pkg_opts+="use-make-build-target=macosx-g++ "
+fi
+
 pkg_uses=""
 pkg_reqs=""
 pkg_cfg=""
