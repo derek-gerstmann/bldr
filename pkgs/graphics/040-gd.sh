@@ -33,7 +33,7 @@ most frequently requested features, including both truecolor and palette images,
 (smooth resizing of truecolor images) and so forth."
 
 pkg_opts="configure enable-static enable-shared"
-pkg_reqs="zlib libpng freetype xpm"
+pkg_reqs="zlib libpng libjpeg freetype xpm"
 pkg_uses="$pkg_reqs"
 
 ####################################################################################################

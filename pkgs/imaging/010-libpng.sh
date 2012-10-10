@@ -44,7 +44,7 @@ pkg_cfg="--with-zlib-prefix=\"$BLDR_ZLIB_BASE_PATH\" "
 pkg_cfg+="--with-pkgconfigdir=\"$PKG_CONFIG_PATH\" "
 
 pkg_cflags=""
-pkg_ldflags=""
+pkg_ldflags="-L\"$BLDR_ZLIB_LIB_PATH\" -lz"
 
 ####################################################################################################
 # register each pkg version with bldr

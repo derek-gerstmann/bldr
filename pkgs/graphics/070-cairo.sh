@@ -39,7 +39,7 @@ Cairo is free software and is available to be redistributed and/or modified
 under the terms of either the GNU Lesser General Public License (LGPL) version 
 2.1 or the Mozilla Public License (MPL) version 1.1 at your option."
 
-pkg_opts="configure force-bootstrap enable-static enable-shared"
+pkg_opts="configure force-bootstrap force-static"
 
 pkg_reqs="zlib "
 pkg_reqs+="bzip2 "
@@ -58,9 +58,26 @@ pkg_reqs+="pixman "
 pkg_reqs+="poppler "
 pkg_uses="$pkg_reqs"
 
+####################################################################################################
+# satisfy pkg dependencies and load their environment settings
+####################################################################################################
+
+bldr_satisfy_pkg                    \
+    --category    "$pkg_ctry"       \
+    --name        "$pkg_name"       \
+    --version     "$pkg_default"    \
+    --requires    "$pkg_reqs"       \
+    --uses        "$pkg_uses"       \
+    --options     "$pkg_opts"
+
+####################################################################################################
+
 pkg_cfg_path=""
 pkg_cflags=""
-pkg_ldflags="-lz -lbz2 "
+
+pkg_ldflags="\"$BLDR_ZLIB_LIB_PATH/libz.a\" "
+pkg_ldflags+="-L\"$BLDR_BZIP2_LIB_PATH\" -lbz2 "
+pkg_ldflags+="-L\"$BLDR_LIBPNG_LIB_PATH\" -lpng "
 
 pkg_cfg="--disable-introspection "
 if [[ $BLDR_SYSTEM_IS_OSX == true ]]; then
