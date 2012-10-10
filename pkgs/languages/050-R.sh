@@ -14,7 +14,7 @@ pkg_ctry="languages"
 pkg_name="R"
 
 pkg_default="2.15.1"
-pkg_ver_list=("2.15.1")
+pkg_variants=("2.15.1")
 
 pkg_info="R is a free software environment for statistical computing and graphics."
 
