@@ -37,10 +37,10 @@ usage () {
   echo "BLDR $BLDR_VERSION_STR                                                  " >&2
   echo "                                                                        " >&2
   echo "NAME                                                                    " >&2
-  echo "  bldr build - starts an automated build for a set of BLDR packages     " >&2
+  echo "  bldr - starts an automated build for a set of BLDR packages     " >&2
   echo "                                                                        " >&2
   echo "SYNOPSIS                                                                " >&2
-  echo "  build.sh [OPTIONS] [pkgs]                                             " >&2
+  echo "  bldr [CMD] [OPTIONS] [pkgs]                                           " >&2
   echo "                                                                        " >&2
   echo "OPTIONS                                                                 " >&2
   echo "  -h show help (this).                                                  " >&2
@@ -51,16 +51,16 @@ usage () {
   echo "  -o options to use for build (use more than once to provide a list of options)." >&2
   echo "                                                                        " >&2
   echo "EXAMPLES                                                                " >&2
-  echo "  build.sh -c graphics -n glew        [ build the 'GLEW' package under the 'graphics' category ] " >&2
-  echo "  build.sh -c internal -c system      [ build all packages under the 'internal' and 'system' categories ] " >&2
-  echo "  build.sh -n m4 -o force-rebuild     [ force a rebuild of any package called 'm4' in any category ] " >&2
+  echo "  bldr build -c graphics -n glew      [ build the 'GLEW' package under the 'graphics' category ] " >&2
+  echo "  bldr build -c internal -c system    [ build all packages under the 'internal' and 'system' categories ] " >&2
+  echo "  bldr build -n m4 -o force-rebuild   [ force a rebuild of any package called 'm4' in any category ] " >&2
   echo "                                                                        " >&2
 }
 
 ####################################################################################################
 
 pkg_args=""
-pkg_cmds=""
+pkg_cmds=" "
 pkg_ctry=" "
 pkg_name=" "
 pkg_opts=" "
@@ -126,16 +126,17 @@ then
   export BLDR_VERBOSE=true
 fi
 
+
 ####################################################################################################
 
 bldr                        \
   --category "$pkg_ctry"    \
   --name     "$pkg_name"    \
   --version  "$pkg_vers"    \
-  --options  "$pkg_opts"    \
   --verbose  "$use_verbose" \
-  --debug    "$use_debug"   \
   --commands "$pkg_cmds"    \
+  --options  "$pkg_opts"    \
+  --debug    "$use_debug"   \
   ${pkg_args}
 
 ####################################################################################################

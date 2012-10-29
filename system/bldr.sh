@@ -75,7 +75,7 @@ BLDR_LOG_FILE=${BLDR_LOG_FILE:=""}
 BLDR_IS_INTERNAL_LOADED=${BLDR_IS_INTERNAL_LOADED:=false}
 BLDR_LOADED_MODULES=${BLDR_LOADED_MODULES:=""}
 BLDR_RESOLVED_PKGS=${BLDR_RESOLVED_PKGS:=""}
-BLDR_DEFAULT_BUILD_LIST=${BLDR_DEFAULT_BUILD_LIST:=${BLDR_CATEGORIES[@]}}
+BLDR_DEFAULT_BUILD_LIST=${BLDR_DEFAULT_BUILD_LIST:="${BLDR_CATEGORIES[@]}"}
 BLDR_DEFAULT_PKG_USES=${BLDR_DEFAULT_PKG_USES:=""}
 BLDR_DEFAULT_LINE_WIDTH=${BLDR_DEFAULT_LINE_WIDTH:=78}
 BLDR_USE_PKG_CTRY=${BLDR_USE_PKG_CTRY:=""}
@@ -2892,10 +2892,9 @@ function bldr_boot_pkg()
     done
     bldr_pop_dir
 
-    if [[ applied_patch == true ]]
+    if [[ $applied_patch == true ]]
     then
         bldr_log_info "Done applying patches!"
-        bldr_log_split
     fi
 
     pkg_uses=$(bldr_trim_list_str "$pkg_uses")
@@ -5094,6 +5093,7 @@ function bldr_modulate_pkg()
     then
         return
     fi
+
     if [ ! -d "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers" ]
     then
         bldr_log_warning "Local directory not found for '$pkg_name/$pkg_vers'!  Skipping 'modulate' stage ..."
@@ -5115,7 +5115,7 @@ function bldr_modulate_pkg()
     local module_dir="$BLDR_MODULE_PATH/$pkg_ctry/$pkg_name"
     local module_file="$BLDR_MODULE_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
 
-    bldr_log_subsection "Modulating package '$pkg_name/$pkg_vers' for '$pkg_ctry' ..."
+    bldr_log_status "Modulating package '$pkg_name/$pkg_vers' for '$pkg_ctry' ..."
 
     if [ ! -d $module_dir ]
     then 
@@ -5274,6 +5274,19 @@ function bldr_modulate_pkg()
         fi
     fi
     echo "    puts stderr \" \""                                                     >> $module_file
+
+    if [ "$pkg_reqs" != "" ]
+    then
+        echo "    puts stderr \"----------- Module Requirements for '$pkg_name/$pkg_vers' -------------\"" >> $module_file
+        echo "    puts stderr \" \""                                                 >> $module_file
+
+        for require in ${pkg_reqs}
+        do
+            echo "    puts stderr \"    $require\""                                  >> $module_file
+        done
+        echo "    puts stderr \" \""                                                 >> $module_file
+    fi
+
     echo "}"                                                                         >> $module_file
     echo ""                                                                          >> $module_file
 
@@ -5289,23 +5302,26 @@ function bldr_modulate_pkg()
 
     if [ "$pkg_reqs" != "" ]
     then
-        for require in ${pkg_reqs}
-        do
-            echo "if { ! [ is-loaded $require ] } {"                                 >> $module_file
-            echo "    module load $require"                                          >> $module_file
-            echo "}"                                                                 >> $module_file
-            echo ""                                                                  >> $module_file
-        done
 
+        echo "if { [ module-info mode load ] } { "                                 >> $module_file
         for require in ${pkg_reqs}
         do
-            echo "prereq $require"                                                   >> $module_file
+            echo "    module load $require"                                          >> $module_file
+        done
+        for require in ${pkg_reqs}
+        do
+            echo "    prereq $require"                                                   >> $module_file
         done
         echo ""                                                                      >> $module_file
+        echo "}"                                                                     >> $module_file     
+        echo ""                                                                  >> $module_file
 
         echo "if { [ module-info mode remove ] } { "                                 >> $module_file
         for require in ${pkg_reqs}
         do
+            if [[ "$require" == "bldr" ]]; then
+                continue
+            fi
             echo "    module unload $require"                                        >> $module_file
         done
         echo "}"                                                                     >> $module_file     
@@ -5557,6 +5573,9 @@ function bldr_modulate_pkg()
     echo "# =======================================================================" >> $module_file
     echo ""                                                                          >> $module_file
 
+    bldr_log_info "Done modulating package for '$pkg_name/$pkg_vers'"
+    bldr_log_split
+
     bldr_pop_dir
 }
 
@@ -5788,6 +5807,7 @@ function bldr_exec_cmds()
     pkg_vers="$(bldr_trim_list_str "$pkg_vers")"
     pkg_ctry="$(bldr_trim_list_str "$pkg_ctry")"
     pkg_name="$(bldr_trim_list_str "$pkg_name")"
+    pkg_cmd_list="$(bldr_trim_list_str "$pkg_cmd_list")"
 
     if [ "$pkg_name" == "" ] || [ "$pkg_vers" == "" ] || [ "$pkg_file" == "" ]
     then
@@ -5820,13 +5840,16 @@ function bldr_exec_cmds()
 
     if [ "$existing" == "true" ]
     then
-        if [ $BLDR_VERBOSE != false ]
+        if [[ $(bldr_has_cfg_option "$pkg_cmd_list" "build" ) == "true" ]]
         then
-            bldr_log_split
-            bldr_log_info "Skipping existing package '$pkg_name/$pkg_vers' ... "
-            bldr_log_split
+            if [ $BLDR_VERBOSE != false ]
+            then
+                bldr_log_split
+                bldr_log_info "Skipping existing package '$pkg_name/$pkg_vers' ... "
+                bldr_log_split
+            fi
+            return
         fi
-        return
     fi
 
     pkg_urls="$(bldr_trim_url_str $pkg_urls)"
@@ -5840,7 +5863,13 @@ function bldr_exec_cmds()
     pkg_patches="$(bldr_trim_list_str $pkg_patches)"
     pkg_cmd_list="$(bldr_trim_list_str $pkg_cmd_list)"
 
-    if [[ $BLDR_VERBOSE != false ]]
+    if [ "$pkg_cmd_list" == "" ] 
+    then 
+        pkg_cmd_list="$BLDR_USE_PKG_CMDS"
+        pkg_cmd_list="$(bldr_trim_list_str $pkg_cmd_list)"
+    fi
+ 
+    if [ $BLDR_VERBOSE != false ]
     then
         echo "Category:       '$pkg_ctry'"
         echo "Name:           '$pkg_name'"
@@ -5864,10 +5893,86 @@ function bldr_exec_cmds()
         bldr_log_split
     fi
 
-    local skip_satisfy=$(bldr_has_cfg_option "$pkg_opts" "skip-satisfy" )
+    local call_setup=false
+    local call_fetch=false
+    local call_boot=false
+    local call_config=false
+    local call_compile=false
+    local call_install=false
+    local call_migrate=false
+    local call_modulate=false
+    local call_link=false
+    local call_cleanup=false
+    local call_satisfy=false
+
+    if [[ $(bldr_has_cfg_option "$pkg_opts" "skip-satisfy" ) == "true" ]]
+    then
+        call_satisfy=false
+    fi
+
     local pkg_resolved=$(bldr_has_cfg_option "$BLDR_RESOLVED_PKGS" "$pkg_name/$pkg_vers" )
 
-    if [[ "$pkg_resolved" == "false" ]] && [[ "$skip_satisfy" == "false" ]]
+    if [[ $(bldr_has_cfg_option "$pkg_cmd_list" "build" ) == "true" ]]
+    then
+        call_setup=true
+        call_fetch=true
+        call_boot=true
+        call_config=true
+        call_compile=true
+        call_install=true
+        call_migrate=true
+        call_modulate=true
+        call_link=true
+        call_cleanup=true
+        call_satisfy=true
+    fi
+
+    if [[ $(bldr_has_cfg_option "$pkg_cmd_list" "setup" ) == "true" ]]
+    then
+        call_setup=true
+    fi
+    if [[ $(bldr_has_cfg_option "$pkg_cmd_list" "fetch" ) == "true" ]]
+    then
+        call_fetch=true
+    fi
+    if [[ $(bldr_has_cfg_option "$pkg_cmd_list" "boot" ) == "true" ]]
+    then
+        call_boot=true
+    fi
+    if [[ $(bldr_has_cfg_option "$pkg_cmd_list" "config" ) == "true" ]]
+    then
+        call_config=true
+        call_satisfy=true
+    fi
+    if [[ $(bldr_has_cfg_option "$pkg_cmd_list" "compile" ) == "true" ]]
+    then
+        call_compile=true
+        call_satisfy=true
+    fi
+    if [[ $(bldr_has_cfg_option "$pkg_cmd_list" "install" ) == "true" ]]
+    then
+        call_install=true
+        call_satisfy=true
+    fi
+    if [[ $(bldr_has_cfg_option "$pkg_cmd_list" "migrate" ) == "true" ]]
+    then
+        call_migrate=true
+    fi
+    if [[ $(bldr_has_cfg_option "$pkg_cmd_list" "modulate" ) == "true" ]]
+    then
+        call_modulate=true
+    fi
+    if [[ $(bldr_has_cfg_option "$pkg_cmd_list" "link" ) == "true" ]]
+    then
+        call_link=true
+    fi
+    if [[ $(bldr_has_cfg_option "$pkg_cmd_list" "cleanup" ) == "true" ]]
+    then
+        call_cleanup=true
+    fi
+
+
+    if [ $call_satisfy == true ]
     then
         bldr_satisfy_pkg                  \
             --category    "$pkg_ctry"     \
@@ -5931,72 +6036,6 @@ function bldr_exec_cmds()
     local override_modulate=$(type -t bldr_pkg_modulate_method)
     local override_link=$(type -t bldr_pkg_link_method)
     local override_cleanup=$(type -t bldr_pkg_cleanup_method)
-
-    local call_setup=false
-    local call_fetch=false
-    local call_boot=false
-    local call_config=false
-    local call_compile=false
-    local call_install=false
-    local call_migrate=false
-    local call_modulate=false
-    local call_link=false
-    local call_cleanup=false
-
-    if [[ $(bldr_has_cfg_option "$pkg_cmd_list" "build" ) == "true" ]]
-    then
-        call_setup=true
-        call_fetch=true
-        call_boot=true
-        call_config=true
-        call_compile=true
-        call_install=true
-        call_migrate=true
-        call_modulate=true
-        call_link=true
-        call_cleanup=true
-    fi
-
-    if [[ $(bldr_has_cfg_option "$pkg_cmd_list" "setup" ) == "true" ]]
-    then
-        call_setup=true
-    fi
-    if [[ $(bldr_has_cfg_option "$pkg_cmd_list" "fetch" ) == "true" ]]
-    then
-        call_fetch=true
-    fi
-    if [[ $(bldr_has_cfg_option "$pkg_cmd_list" "boot" ) == "true" ]]
-    then
-        call_boot=true
-    fi
-    if [[ $(bldr_has_cfg_option "$pkg_cmd_list" "config" ) == "true" ]]
-    then
-        call_config=true
-    fi
-    if [[ $(bldr_has_cfg_option "$pkg_cmd_list" "compile" ) == "true" ]]
-    then
-        call_compile=true
-    fi
-    if [[ $(bldr_has_cfg_option "$pkg_cmd_list" "install" ) == "true" ]]
-    then
-        call_install=true
-    fi
-    if [[ $(bldr_has_cfg_option "$pkg_cmd_list" "migrate" ) == "true" ]]
-    then
-        call_migrate=true
-    fi
-    if [[ $(bldr_has_cfg_option "$pkg_cmd_list" "modulate" ) == "true" ]]
-    then
-        call_modulate=true
-    fi
-    if [[ $(bldr_has_cfg_option "$pkg_cmd_list" "link" ) == "true" ]]
-    then
-        call_link=true
-    fi
-    if [[ $(bldr_has_cfg_option "$pkg_cmd_list" "cleanup" ) == "true" ]]
-    then
-        call_cleanup=true
-    fi
     
     # Call the overridden package methods for each build phase if they were defined
     # -- otherwise use the default internal ones (which should handle 90% of most packages)
@@ -6681,250 +6720,6 @@ function bldr_modularize_pkg()
 
 ####################################################################################################
 
-function bldr_build_pkgs()
-{
-    local use_verbose="false"
-    local pkg_ctry=""
-    local pkg_name="" 
-    local pkg_vers=""
-    local pkg_opts=""
-
-    while true ; do
-        case "$1" in
-           --verbose)       use_verbose=$(bldr_trim_str "$2"); shift 2;;
-           --name)          pkg_name=$(bldr_trim_str "$2"); shift 2;;
-           --category)      pkg_ctry=$(bldr_trim_str "$2"); shift 2;;
-           --version)       pkg_vers=$(bldr_trim_str "$2"); shift 2;;
-           --options)       pkg_opts=$(bldr_trim_str "$pkg_opts $2"); shift 2;;
-           * )              break ;;
-        esac
-    done
-
-    if [ "$use_verbose" == "true" ]
-    then
-        BLDR_VERBOSE=true
-    fi
-    
-    if [ "$BLDR_USE_PKG_OPTS" != "" ]
-    then
-        pkg_opts="$BLDR_USE_PKG_OPTS $pkg_opts"
-    fi
-
-    if [ "$pkg_vers" == "" ]
-    then
-        pkg_vers="default"
-    fi
-
-    local pkg_vers=$(echo "$pkg_vers" | sed 's/\://g' )
-    local pkg_ctry=$(echo "$pkg_ctry" | bldr_split_str ":" | bldr_join_str " ")
-    local pkg_list=$(echo "$pkg_name" | bldr_split_str ":" | bldr_join_str " ")
-    local pkg_dir="$BLDR_PKGS_PATH"
-
-    local force_rebuild=false
-    if [[ $(echo "$pkg_opts" | grep -m1 -c 'force-rebuild' ) > 0 ]]
-    then
-        force_rebuild=true
-    fi
-    
-    # push the system category onto the list if it hasn't been built yet
-    pkg_ctry=$(bldr_trim_str $pkg_ctry)
-    if [ "$pkg_ctry" == "" ]
-    then
-        pkg_ctry="$BLDR_DEFAULT_BUILD_LIST"
-    fi
-
-    if [[ ! -d $BLDR_LOCAL_PATH/internal ]]
-    then
-        if [[ $(echo "$pkg_ctry" | grep -m1 -c 'internal' ) < 1 ]]
-        then
-            pkg_ctry="internal $pkg_ctry"
-        fi
-    fi
-
-    local pkg_vers=$(echo "$pkg_vers" | sed 's/\://g' )
-    local pkg_ctry=$(echo "$pkg_ctry" | bldr_split_str ":" | bldr_join_str " ")
-    local pkg_list=$(echo "$pkg_name" | bldr_split_str ":" | bldr_join_str " ")
-
-    if [[ ! -d $pkg_dir ]]
-    then
-        bldr_log_split
-        bldr_log_error "Unable to locate package repository!  Please checkout the 'bldr/pkgs' into your local repo!"
-        bldr_log_split
-        return
-    fi
-
-    bldr_log_section "Starting build from '$pkg_dir' ..."
-    
-    local bld_cnt
-    let bld_cnt=0
-    local pkg_ctry_path=""
-    for pkg_ctry_path in $pkg_dir/$pkg_ctry
-    do
-        local ctry_name=$(basename "$pkg_ctry_path")
-        if [[ ! -d $pkg_dir/$ctry_name ]]
-        then
-            continue
-        fi
-
-        local ctry_cnt
-        let ctry_cnt=0
-        local pkg_sh=""
-        for pkg_sh in $pkg_dir/$ctry_name/*
-        do
-            if [[ ! -x "$pkg_sh" ]]
-            then
-                continue
-            fi
-
-            local pkg_tst_list=$pkg_list
-            if [[ "$pkg_list" == "" ]]
-            then
-                local pkg_base="$(basename "$pkg_sh" )"
-                local pkg_base_name="$(echo "$pkg_base" | sed 's/\.sh$//g' | sed 's/[0-9]*\-//' )"
-                pkg_tst_list="$pkg_base_name"
-            fi
-            
-            local pkg_entry=""
-            local pkg_tst_name=""
-            local pkg_tst_vers=""
-            for pkg_entry in $pkg_tst_list
-            do
-                if [[ $(echo "$pkg_entry" | grep -m1 -c '\/') > 0 ]]
-                then
-                    pkg_tst_name=$(echo "$pkg_entry" | sed 's/\/.*//g')
-                    pkg_tst_vers=$(echo "$pkg_entry" | sed 's/.*\///g')
-                else
-                    pkg_tst_name=$(echo "$pkg_entry" | sed 's/\/.*//g')
-                    pkg_tst_vers="$pkg_vers"
-                fi
-
-                if [[ $(echo "$pkg_sh" | grep -m1 -c "$pkg_tst_name.sh" ) > 0 ]]
-                then
-
-                    local use_existing="false"
-                    if [[ $force_rebuild == true ]]
-                    then
-                        use_existing="false"
-                    else
-                        use_existing=$(bldr_has_pkg --category "$ctry_name" --name "$pkg_tst_name" --version "$pkg_tst_vers" --options "$pkg_opts" )
-                    fi
-
-                    if [ "$use_existing" == "false" ]
-                    then
-                        let bld_cnt++
-                        let ctry_cnt++
-                    fi
-                fi
-            done
-        done
-
-        if [[ $ctry_cnt -gt 0 ]]
-        then
-            bldr_log_list_item_suffix $ctry_cnt "$ctry_name" "Matching packages in"
-
-        elif [[ $BLDR_VERBOSE == true ]]
-        then
-            bldr_log_list_item_suffix $ctry_cnt "$ctry_name" "Matching packages in"
-        fi
-    done
-
-    if [ $BLDR_VERBOSE == true ] || [ $bld_cnt -gt 0 ]
-    then
-        bldr_log_split
-    fi
-    
-    if [ $bld_cnt -lt 1 ]
-    then
-        bldr_log_warning "No matching packages found!  Use --option 'force-rebuild' to override!"
-        bldr_log_split
-        return
-    fi
-
-    local bld_idx
-    let bld_idx=0
-    local txt_cnt=$(printf "%03d" $bld_cnt)
-    local pkg_ctry_path=""
-    for pkg_ctry_path in $pkg_dir/$pkg_ctry
-    do
-        local ctry_name=$(basename "$pkg_ctry_path")
-        if [[ ! -d $pkg_dir/$ctry_name ]]
-        then
-            continue
-        fi
-
-        local pkg_sh=""
-        for pkg_sh in $pkg_dir/$ctry_name/*
-        do
-            if [[ ! -x "$pkg_sh" ]]
-            then
-                continue
-            fi
-
-            local pkg_tst_list=$pkg_list
-            local pkg_base_name=""
-            if [[ "$pkg_list" == "" ]]
-            then
-                local pkg_base="$(basename "$pkg_sh" )"
-                pkg_base_name="$(echo "$pkg_base" | sed 's/\.sh$//g' | sed 's/[0-9]*\-//' )"
-                pkg_tst_list="$pkg_base_name"
-            fi
-
-            local pkg_entry=""
-            local pkg_tst_name=""
-            local pkg_tst_vers=""
-            for pkg_entry in $pkg_tst_list
-            do
-                if [[ $(echo "$pkg_entry" | grep -m1 -c '\/') > 0 ]]
-                then
-                    pkg_tst_name=$(echo "$pkg_entry" | sed 's/\/.*//g')
-                    pkg_tst_vers=$(echo "$pkg_entry" | sed 's/.*\///g')
-                else
-                    pkg_tst_name=$(echo "$pkg_entry" | sed 's/\/.*//g')
-                    pkg_tst_vers="$pkg_vers"
-                fi
-
-                if [[ $(echo "$pkg_sh" | grep -m1 -c "$pkg_tst_name.sh" ) > 0 ]]
-                then
-
-                    local use_existing="false"
-                    if [[ $force_rebuild == true ]]
-                    then
-                        use_existing="false"
-                    else
-                        use_existing=$(bldr_has_pkg --category "$ctry_name" --name "$pkg_tst_name" --version "$pkg_tst_vers" --options "$pkg_opts" )
-                    fi
-                    
-                    if [[ "$use_existing" == "false" ]]
-                    then
-                        let bld_idx++
-                        local txt_idx=$(printf "%03d" $bld_idx)
-
-                        bldr_log_list_item_progress $bld_idx $bld_cnt "Building '$pkg_tst_name/$pkg_tst_vers' from '$ctry_name' ... "
-                        bldr_log_split
-
-                        bldr_log_status "Building required '$pkg_tst_name/$pkg_tst_vers' from '$ctry_name' ... "
-
-                        local old_cmds=$BLDR_USE_PKG_CMDS
-
-                        export BLDR_USE_PKG_CTRY="$ctry_name"
-                        export BLDR_USE_PKG_OPTS="$pkg_opts"
-                        export BLDR_USE_PKG_CMDS="build"
-
-#                        bldr_run_cmd $pkg_sh || bldr_log_warning "Failed to build '$pkg_tst_name/$pkg_tst_vers' from '$ctry_name' ... "
-                        eval $pkg_sh
-
-                        export BLDR_USE_PKG_CMDS="$old_cmds"
-                        export BLDR_USE_PKG_CTRY=""
-                        export BLDR_USE_PKG_OPTS=""
-                    fi
-                fi
-            done
-        done
-    done
-}
-
-####################################################################################################
-
 function bldr()
 {
     local use_verbose="false"
@@ -6936,9 +6731,10 @@ function bldr()
 
     while true ; do
         case "$1" in
-           --verbose)       use_verbose=$(bldr_trim_str "$2"); shift 2;;
+           --verbose)       use_verbose="$2"; shift 2;;
            --name)          pkg_name=$(bldr_trim_str "$2"); shift 2;;
            --category)      pkg_ctry=$(bldr_trim_str "$2"); shift 2;;
+           --commands)      pkg_cmds=$(bldr_trim_str "$pkg_cmds:$2"); shift 2;;
            --version)       pkg_vers=$(bldr_trim_str "$2"); shift 2;;
            --options)       pkg_opts=$(bldr_trim_str "$pkg_opts:$2"); shift 2;;
            --force)         pkg_opts=$(bldr_trim_str "$pkg_opts:force-rebuild"); shift 1;;
@@ -6973,9 +6769,12 @@ function bldr()
     fi
 
     local pkg_vers=$(echo "$pkg_vers" | sed 's/\://g' )
-    local pkg_ctry=$(echo "$pkg_ctry" | bldr_split_str ":" | bldr_join_str " ")
-    local pkg_list=$(echo "$pkg_name" | bldr_split_str ":" | bldr_join_str " ")
+    local pkg_cmds=$(bldr_trim_list_str "$pkg_cmds")
+    local pkg_name=$(bldr_trim_list_str "$pkg_name")
+    local pkg_ctry=$(bldr_trim_list_str "$pkg_ctry")
+    local pkg_list=$(bldr_trim_list_str "$pkg_name")
     local pkg_dir="$BLDR_PKGS_PATH"
+
 
     local force_rebuild=false
     if [[ $(echo "$pkg_opts" | grep -m1 -c 'force-rebuild' ) > 0 ]]
@@ -7001,6 +6800,7 @@ function bldr()
     local pkg_vers=$(echo "$pkg_vers" | sed 's/\://g' )
     local pkg_ctry=$(echo "$pkg_ctry" | bldr_split_str ":" | bldr_join_str " ")
     local pkg_list=$(echo "$pkg_name" | bldr_split_str ":" | bldr_join_str " ")
+    local pkg_cmds=$(bldr_trim_str "$pkg_cmds")
 
     if [[ ! -d $pkg_dir ]]
     then
@@ -7012,8 +6812,10 @@ function bldr()
 
     bldr_log_section "Starting from '$pkg_dir' ..."
     
+    local old_cnt
     local bld_cnt
     let bld_cnt=0
+    let old_cnt=0
     local pkg_ctry_path=""
     for pkg_ctry_path in $pkg_dir/$pkg_ctry
     do
@@ -7057,7 +6859,8 @@ function bldr()
 
                 if [[ $(echo "$pkg_sh" | grep -m1 -c "$pkg_tst_name.sh" ) > 0 ]]
                 then
-
+                    let old_cnt++
+                    let ctry_cnt++
                     local use_existing="false"
                     if [[ $force_rebuild == true ]]
                     then
@@ -7069,7 +6872,6 @@ function bldr()
                     if [ "$use_existing" == "false" ]
                     then
                         let bld_cnt++
-                        let ctry_cnt++
                     fi
                 fi
             done
@@ -7078,23 +6880,22 @@ function bldr()
         if [[ $ctry_cnt -gt 0 ]]
         then
             bldr_log_list_item_suffix $ctry_cnt "$ctry_name" "Matching packages in"
-
-        elif [[ $BLDR_VERBOSE == true ]]
-        then
-            bldr_log_list_item_suffix $ctry_cnt "$ctry_name" "Matching packages in"
         fi
     done
 
-    if [ $BLDR_VERBOSE == true ] || [ $bld_cnt -gt 0 ]
+    if [[ $old_cnt -gt 0 ]]
     then
         bldr_log_split
     fi
     
-    if [ $bld_cnt -lt 1 ]
+    if [[ $(bldr_has_cfg_option "$pkg_cmds" "build" ) == "true" ]]
     then
-        bldr_log_warning "No matching packages found!  Use --force to override!"
-        bldr_log_split
-        return
+        if [ $bld_cnt -lt 1 ]
+        then
+            bldr_log_warning "No stale packages found for '$pkg_name/$pkg_vers'!  Use --force to override!"
+            bldr_log_split
+            return
+        fi
     fi
 
     local bld_idx
@@ -7148,7 +6949,9 @@ function bldr()
                     then
                         use_existing="false"
                     else
-                        use_existing=$(bldr_has_pkg --category "$ctry_name" --name "$pkg_tst_name" --version "$pkg_tst_vers" --options "$pkg_opts" )
+                        if [[ $(bldr_has_cfg_option "$pkg_cmds" "build" ) == "true" ]]; then
+                            use_existing=$(bldr_has_pkg --category "$ctry_name" --name "$pkg_tst_name" --version "$pkg_tst_vers" --options "$pkg_opts" )
+                        fi                            
                     fi
                     
                     if [[ "$use_existing" == "false" ]]
@@ -7156,15 +6959,18 @@ function bldr()
                         let bld_idx++
                         local txt_idx=$(printf "%03d" $bld_idx)
 
-                        bldr_log_list_item_progress $bld_idx $bld_cnt "Processing '$pkg_tst_name/$pkg_tst_vers' from '$ctry_name' ... "
-                        bldr_log_split
+                        local cmd_names=$(echo "$pkg_cmds" | bldr_split_str ":" | bldr_join_str " ")
+                        cmd_names=$(bldr_trim_str "$cmd_names")
+                        cmd_names=$(bldr_trim_str "$cmd_names")
 
+                        bldr_log_list_item_progress $bld_idx $old_cnt "Running '$cmd_names' for '$pkg_tst_name/$pkg_tst_vers' from '$ctry_name' ... "
+                        bldr_log_split
 
                         local old_cmds=$BLDR_USE_PKG_CMDS
 
                         export BLDR_USE_PKG_CTRY="$ctry_name"
                         export BLDR_USE_PKG_OPTS="$pkg_opts"
-                        export BLDR_USE_PKG_CMDS="build"
+                        export BLDR_USE_PKG_CMDS="$pkg_cmds"
 
 #                        bldr_run_cmd $pkg_sh || bldr_log_warning "Failed to build '$ctry_name/$pkg_tst_name' ..."
                         eval $pkg_sh
