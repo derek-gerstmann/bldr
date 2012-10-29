@@ -43,8 +43,8 @@ do
 
      if [ $BLDR_SYSTEM_IS_OSX == true ]
      then
-          pkg_cfg+="no-asm no-krb5"
-          pkg_cfg+="darwin64-x86_64-cc"
+          pkg_cfg+="no-asm no-krb5 "
+          pkg_cfg+="darwin64-x86_64-cc "
      fi
 
      pkg_file="$pkg_name-$pkg_vers.tar.gz"

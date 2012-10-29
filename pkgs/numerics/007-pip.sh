@@ -30,7 +30,7 @@ from his programs, without file accesses or system calls. The user only needs to
 his programs with C libraries."
 
 pkg_opts="configure force-bootstrap enable-static enable-shared"
-pkg_reqs="gmp"
+pkg_reqs="gmp libtool automake autoconf m4"
 pkg_uses="$pkg_reqs"
 
 ####################################################################################################

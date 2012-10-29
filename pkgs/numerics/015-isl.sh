@@ -28,7 +28,7 @@ It also includes an ILP solver based on generalized basis reduction.
 ISL is released under LGPLv2.1"
 
 pkg_opts="configure enable-static enable-shared"
-pkg_reqs="gmp pip"
+pkg_reqs="gmp pip libtool automake autoconf m4"
 pkg_uses="$pkg_reqs"
 
 ####################################################################################################

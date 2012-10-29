@@ -14,7 +14,11 @@ pkg_ctry="storage"
 pkg_name="phdf5"
 
 pkg_default="1.8.9"
-pkg_variants=("1.6.10" "1.8.2" "1.8.9")
+if [[ $BLDR_SYSTEM_IS_OSX == true ]]; then
+    pkg_variants=("1.8.9")
+else
+    pkg_variants=("1.6.10" "1.8.2" "1.8.9")
+fi
 
 pkg_info="The Parallel-HDF5 technology suite includes HDF5 compiled with MPI support to enable distributed parallel file access."
 

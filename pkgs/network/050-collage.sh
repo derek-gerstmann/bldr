@@ -57,8 +57,8 @@ pkg_ldflags=""
 
 for pkg_vers in ${pkg_variants[@]}
 do
-      pkg_file="$pkg_name-$pkg_vers.tar.bz2"
-      pkg_urls="git://github.com/Eyescale/Collage.git"
+      pkg_file="$pkg_name-$pkg_vers-$BLDR_TIMESTAMP.tar.bz2"
+      pkg_urls="git://github.com/tribal-tec/Collage.git"
 
       bldr_register_pkg                \
           --category    "$pkg_ctry"    \

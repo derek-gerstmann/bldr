@@ -14,7 +14,11 @@ pkg_ctry="storage"
 pkg_name="hdf5"
 
 pkg_default="1.8.9"
-pkg_variants=("1.6.10" "1.8.2" "1.8.9")
+if [[ $BLDR_SYSTEM_IS_OSX == true ]]; then
+    pkg_variants=("1.8.9")
+else
+    pkg_variants=("1.6.10" "1.8.2" "1.8.9")
+fi
 
 pkg_info="HDF5 is a unique technology suite that makes possible the management of extremely large and complex data collections."
 
@@ -28,8 +32,8 @@ The HDF5 technology suite includes:
 * A rich set of integrated performance features that allow for access time and storage space optimizations.
 * Tools and applications for managing, manipulating, viewing, and analyzing the data in the collection."
 
-pkg_opts="configure skip-xcode-config force-serial-build"
-pkg_reqs="szip zlib"
+pkg_opts="configure skip-system-flags force-serial-build"
+pkg_reqs="szip zlib gfortran"
 pkg_uses="$pkg_reqs"
 
 ####################################################################################################
@@ -84,9 +88,10 @@ do
     # hdf5 - standard
     #
     pkg_name="hdf5"
-    pkg_cfg="$hdf5_cfg --enable-cxx "
+    pkg_cfg="$hdf5_cfg "
     if [[ $(echo $pkg_vers | grep -m1 -c '^1.8' ) > 0 ]]
     then
+        pkg_cfg+="--enable-cxx "
       	if [[ $(echo $pkg_vers | grep -m1 -c '^1.8.2' ) < 1 ]]
         then
             pkg_cfg+="FC=gfortran "

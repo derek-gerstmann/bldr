@@ -43,9 +43,9 @@ if [[ $BLDR_SYSTEM_IS_OSX == true ]]
 then
      if [[ $BLDR_SYSTEM_IS_64BIT == true ]]
      then
-          pkg_cfg+="--with-arch=x86_64"
+          pkg_cfg+=" --with-arch=x86_64 "
      fi
-     pkg_cfg+="--with-sysroot=$BLDR_OSX_SYSROOT"
+     pkg_cfg+=" --with-sysroot=$BLDR_OSX_SYSROOT "
 fi
 
 pkg_uses=$pkg_reqs

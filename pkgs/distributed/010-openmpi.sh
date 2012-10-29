@@ -28,10 +28,10 @@ Open MPI offers advantages for system and software vendors, application develope
 science researchers."
 
 pkg_opts="configure skip-xcode-config enable-static enable-shared"
-pkg_reqs="zlib papi gfortran valgrind "
+pkg_reqs="zlib papi gfortran "
 if [[ $BLDR_SYSTEM_IS_OSX == false ]]
 then
-    pkg_reqs+="ftb "
+    pkg_reqs+="ftb valgrind "
     pkg_uses="$pkg_reqs torque"
 else
     pkg_uses="$pkg_reqs"
@@ -59,7 +59,11 @@ pkg_cfg+="--enable-mpi-f77 "
 pkg_cfg+="--enable-mpi-f90 "
 pkg_cfg+="--enable-mpi-thread-multiple "
 pkg_cfg+="--enable-heterogeneous "
-pkg_cfg+="--with-valgrind=\"$BLDR_VALGRIND_BASE_PATH\" "
+
+if [[ $BLDR_SYSTEM_IS_OSX == false ]]
+then
+    pkg_cfg+="--with-valgrind=\"$BLDR_VALGRIND_BASE_PATH\" "
+fi
 
 #
 # Disable vampire trace avoids build errors on OSX:
