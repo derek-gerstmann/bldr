@@ -1,0 +1,20 @@
+--- QGLViewer.pro.orig	2012-10-30 12:03:05.000000000 +0800
++++ QGLViewer.pro	2012-10-30 12:26:57.000000000 +0800
+@@ -235,7 +235,7 @@
+ #       -------------------
+ macx|darwin-g++ {
+   # This setting creates a Mac framework. Comment out this line to create a dylib instead.
+-  CONFIG *= lib_bundle
++#  CONFIG *= lib_bundle
+ 
+   include.files *= qglviewer.icns
+ 
+@@ -263,6 +263,8 @@
+     QMAKE_LIBS_OPENGL *= -framework GLUT -lobjc
+   }
+ 
++  QMAKE_LIBS_OPENGL *= -framework OpenGL -framework AGL
++
+   # Qt3 only
+   macx: CONFIG -= thread
+ }

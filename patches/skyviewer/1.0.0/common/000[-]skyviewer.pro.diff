@@ -1,0 +1,11 @@
+--- skyviewer.pro.orig	2012-10-30 15:34:23.000000000 +0800
++++ skyviewer.pro	2012-10-30 15:35:01.000000000 +0800
+@@ -88,7 +88,7 @@
+     message( Use qmake INCLUDE_DIR~Path/To/QGLViewer/HeaderFiles )
+     error( Replace the ~ by the "equals" character in the above line )
+   }
+-  !exists( $$LIB_DIR/libQGLViewer.so* ){
++  !exists( $$LIB_DIR/libQGLViewer.* ){
+     message( Unable to find libQGLViewer.so in $$LIB_DIR )
+     message( You should run qmake LIB_DIR~Path/To/QGLViewer/Lib.so )
+     error( Replace the ~ by the "equals" character in the above line )

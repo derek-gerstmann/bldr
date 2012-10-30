@@ -55,7 +55,8 @@ BLDR_CATEGORIES=(
     "databases" 
     "toolkits" 
     "compilers"
-    "spatial")
+    "spatial"
+    "astronomy")
 
 BLDR_MODULE_EXPORT_PATHS=(
     "bin" "sbin" 
@@ -1317,6 +1318,7 @@ function bldr_locate_config_script
     local python_files=$BLDR_PYTHON_FILE_SEARCH_LIST
     local ruby_files=$BLDR_RUBY_FILE_SEARCH_LIST
 
+    local use_qmake=false
     local use_cmake=false
     local use_autocfg=false
     local use_maven=false
@@ -1337,6 +1339,10 @@ function bldr_locate_config_script
         cfg_paths=$(bldr_trim_str "build $cfg_paths")
         use_cmake=true
     
+    elif [[ $(echo "$cfg_opts" | grep -m1 -c "qmake" ) > 0 ]]
+    then
+        use_qmake=true
+
     elif [[ $(echo "$cfg_opts" | grep -m1 -c "configure" ) > 0 ]]
     then
         use_autocfg=true
@@ -1372,6 +1378,18 @@ function bldr_locate_config_script
             fi
         fi
 
+        if [[ $use_qmake == true ]]
+        then
+            for tst_file in $tst_path/*.pro
+            do
+                if [ -f "$tst_file" ]
+                then
+                    found_path="$tst_file"
+                    break
+                fi
+            done
+        fi
+
         if [[ $use_autocfg == true ]]
         then
             for tst_file in ${autocfg_files}
@@ -1383,6 +1401,7 @@ function bldr_locate_config_script
                 fi
             done
         fi
+
         if [[ $use_cmake == true ]]
         then
             for tst_file in ${cmake_files}
@@ -2559,18 +2578,24 @@ function bldr_setup_pkg()
         bldr_log_info "Keeping stale build directory for '$pkg_ctry'"
         bldr_log_split
     else
-        if [[ -d "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/" ]]
+        if [[ $(bldr_has_cfg_option "$pkg_opts" "keep-build-tree" ) == "true" ]]
         then
-            if [[ -z "$(ls "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/")" ]]
+            bldr_log_info "Keeping stale build directory for '$pkg_name/$pkg_vers'"
+            bldr_log_split
+        else
+            if [[ -d "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/" ]]
             then
-                bldr_remove_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name"
-                bldr_log_split
-            fi
+                if [[ -z "$(ls "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/")" ]]
+                then
+                    bldr_remove_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name"
+                    bldr_log_split
+                fi
 
-            if [[ -z "$(ls "$BLDR_BUILD_PATH/$pkg_ctry/")" ]]
-            then
-                bldr_remove_dir "$BLDR_BUILD_PATH/$pkg_ctry"
-                bldr_log_split
+                if [[ -z "$(ls "$BLDR_BUILD_PATH/$pkg_ctry/")" ]]
+                then
+                    bldr_remove_dir "$BLDR_BUILD_PATH/$pkg_ctry"
+                    bldr_log_split
+                fi
             fi
         fi
     fi
@@ -3465,6 +3490,141 @@ function bldr_cmake_pkg()
     bldr_pop_dir
 }
 
+function bldr_qmake_pkg()
+{
+    local use_verbose="false"
+    local pkg_ctry=""
+    local pkg_name="" 
+    local pkg_vers=""
+    local pkg_vers_dft=""
+    local pkg_info=""
+    local pkg_desc=""
+    local pkg_file=""
+    local pkg_urls=""
+    local pkg_uses=""
+    local pkg_reqs=""
+    local pkg_opts=""
+    local pkg_cflags=""
+    local pkg_ldflags=""
+    local pkg_cfg=""
+    local pkg_cfg_path=""
+
+    while true ; do
+        case "$1" in
+           --verbose)       use_verbose="$2"; shift 2;;
+           --name)          pkg_name="$2"; shift 2;;
+           --version)       pkg_vers="$2"; shift 2;;
+           --default)       pkg_vers_dft="$2"; shift 2;;
+           --info)          pkg_info="$2"; shift 2;;
+           --description)   pkg_desc="$2"; shift 2;;
+           --category)      pkg_ctry="$2"; shift 2;;
+           --options)       pkg_opts="$2"; shift 2;;
+           --file)          pkg_file="$2"; shift 2;;
+           --config)        pkg_cfg="$pkg_cfg:$2"; shift 2;;
+           --config-path)   pkg_cfg_path="$2"; shift 2;;
+           --cflags)        pkg_cflags="$pkg_cflags:$2"; shift 2;;
+           --ldflags)       pkg_ldflags="$pkg_ldflags:$2"; shift 2;;
+           --patch)         pkg_patches="$2"; shift 2;;
+           --uses)          pkg_uses="$pkg_uses:$2"; shift 2;;
+           --requires)      pkg_reqs="$pkg_reqs:$2"; shift 2;;
+           --url)           pkg_urls="$pkg_urls;$2"; shift 2;;
+           * )              break ;;
+        esac
+    done
+
+    if [ "$use_verbose" == "true" ]
+    then
+        BLDR_VERBOSE=true
+    fi
+
+    if [[ $(bldr_has_cfg_option "$pkg_opts" "skip-config" ) == "true" ]]
+    then
+        return
+    fi
+
+    bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
+    local cfg_path=$(bldr_locate_config_path "$pkg_cfg_path" "$pkg_opts")
+    bldr_pop_dir
+  
+    local prefix="$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
+    if [[ $(echo "$pkg_opts" | grep -m1 -c 'use-prefix-path') > 0 ]]
+    then
+        local user_prefix=$(echo $pkg_opts | grep -E -o 'use-prefix-path=(\S+)' | sed 's/.*=//g' )
+        if [[ "$user_prefix" != "" ]]
+        then
+            prefix=$user_prefix
+        fi
+    fi
+
+    local env_mpath=""
+    local env_flags=" "
+    pkg_cfg=$(bldr_trim_list_str "$pkg_cfg")
+    if [ "$pkg_cfg" != "" ] && [ "$pkg_cfg" != " " ] && [ "$pkg_cfg" != ":" ]
+    then
+        pkg_cfg=$(echo $pkg_cfg | bldr_split_str ":" | bldr_join_str " ")
+    else
+        pkg_cfg=""
+    fi
+
+    pkg_cflags=$(bldr_trim_list_str "$pkg_cflags")
+    if [ "$pkg_cflags" != "" ] && [ "$pkg_cflags" != " " ]  && [ "$pkg_cflags" != ":" ]
+    then
+        local env_cflags=$(echo $pkg_cflags | bldr_split_str ":" | bldr_join_str ";")
+        local env_c_mpath=$(echo $env_cflags | sed 's/\-I//g')
+        env_c_mpath=$(echo $env_c_mpath | sed 's/\/include;/;/g')
+        
+        local env_split_cflags=$(echo $pkg_cflags | bldr_split_str ":" | bldr_join_str " ")
+        
+        env_flags="$env_flags QMAKE_CFLAGS_RELEASE='$env_split_cflags'"
+        env_flags="$env_flags QMAKE_CXXFLAGS='$env_split_cflags'"
+    else
+        pkg_cflags=""
+    fi
+
+    pkg_ldflags=$(bldr_trim_list_str "$pkg_ldflags")
+    if [ "$pkg_ldflags" != "" ] && [ "$pkg_ldflags" != " " ] && [ "$pkg_ldflags" != ":" ]
+    then
+        local env_ldflags=$(echo $pkg_ldflags | bldr_split_str ":" | bldr_join_str ";")
+        local env_ld_mpath=$(echo $env_ldflags | sed 's/\-L//g')
+        env_ld_mpath=$(echo $env_ld_mpath | sed 's/\/lib;/;/g')
+        env_ld_mpath=$(echo $env_ld_mpath | sed 's/\/lib32;/;/g')
+        env_ld_mpath=$(echo $env_ld_mpath | sed 's/\/lib64;/;/g')
+        local env_split_ldflags=$(echo $pkg_ldflags | bldr_split_str ":" | bldr_join_str " ")
+
+        env_flags="$env_flags QMAKE_LFLAGS='$env_split_ldflags'"
+        env_mpath="$env_ld_mpath;$env_mpath"
+    else
+        pkg_ldflags=""
+    fi
+
+    env_flags="$env_flags $pkg_cfg"
+
+    local qmake_src_path="$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$cfg_path"
+    bldr_log_status "Configuring qmake project '$pkg_name/$pkg_vers' from source folder '$qmake_src_path' ..."
+    bldr_log_split
+
+    local qmake_exec="$BLDR_LOCAL_PATH/toolkits/qt/default/bin/qmake"
+    local qmake_pre="PREFIX=\"$prefix\""
+
+    local use_static=false
+    local use_shared=false
+
+    bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
+    local cfg_path=$(bldr_locate_config_path "$pkg_cfg_path" "$pkg_opts")
+    local qmake_pro=$(bldr_locate_config_script "$pkg_cfg_path" "$pkg_opts")
+    qmake_pro=$(basename "$qmake_pro")
+    bldr_pop_dir
+
+    bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$cfg_path"
+
+    bldr_log_split
+    bldr_run_cmd "$qmake_exec $qmake_pre $env_flags $qmake_pro"
+
+    bldr_log_info "Done configuring package '$pkg_name/$pkg_vers'"
+    bldr_log_split
+    bldr_pop_dir
+}
+
 function bldr_autocfg_pkg()
 {
     local use_verbose="false"
@@ -3623,7 +3783,7 @@ function bldr_autocfg_pkg()
         fi
         if [[ $BLDR_SYSTEM_IS_OSX == true ]]
         then
-            if [[ $(bldr_has_cfg_option "$pkg_opts" "skip-xcode-flags" ) == "false" ]]
+            if [[ $(bldr_has_cfg_option "$pkg_opts" "skip-xcode-config" ) == "false" ]]
             then
                 if [[ $(bldr_has_cfg_option "$pkg_opts" "skip-xcode-cflags" ) == "true" ]]
                 then
@@ -3794,6 +3954,9 @@ function bldr_config_pkg()
     local use_cmake=true
     local has_cmake=false
 
+    local use_qmake=false
+    local has_qmake=false
+    
     local use_autocfg=false
     local has_autocfg=false
 
@@ -3833,6 +3996,13 @@ function bldr_config_pkg()
         use_autocfg=false
         has_autocfg=false
     
+    elif [[ $(bldr_has_cfg_option "$pkg_opts" "qmake" ) == "true" ]]
+    then
+        use_qmake=true
+        use_cmake=false
+        has_cmake=false
+        use_autocfg=false
+
     elif [[ $(bldr_has_cfg_option "$pkg_opts" "configure" ) == "true" ]]
     then
         use_cmake=false
@@ -3907,6 +4077,28 @@ function bldr_config_pkg()
         bldr_log_split
 
         bldr_cmake_pkg                    \
+            --category    "$pkg_ctry"     \
+            --name        "$pkg_name"     \
+            --version     "$pkg_vers"     \
+            --file        "$pkg_file"     \
+            --url         "$pkg_urls"     \
+            --uses        "$pkg_uses"     \
+            --requires    "$pkg_reqs"     \
+            --options     "$pkg_opts"     \
+            --cflags      "$pkg_cflags"   \
+            --ldflags     "$pkg_ldflags"  \
+            --patch       "$pkg_patches"  \
+            --config      "$pkg_cfg"      \
+            --config-path "$pkg_cfg_path" \
+            --verbose     "$use_verbose"
+    fi
+
+    if [[ $use_qmake == true ]]
+    then
+        bldr_log_info "Using qmake for '$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$cfg_path' ..."
+        bldr_log_split
+
+        bldr_qmake_pkg                    \
             --category    "$pkg_ctry"     \
             --name        "$pkg_name"     \
             --version     "$pkg_vers"     \
@@ -5119,14 +5311,15 @@ function bldr_modulate_pkg()
 
     if [ ! -d $module_dir ]
     then 
+        bldr_log_split
         bldr_make_dir "$module_dir"
         bldr_log_split
     fi
 
     if [ -f $module_file ]
     then
-        bldr_remove_file $module_file
         bldr_log_split
+        bldr_remove_file $module_file
     fi    
 
     # Replace non-alpha chars with underscore (to avoid invalid ENV var names)
@@ -5569,6 +5762,11 @@ function bldr_modulate_pkg()
         done
     fi
 
+    if [[ "$pkg_name" == "bldr" ]]
+    then
+        printf $fmt_lc "append-path" "MANPATH" "\":\""                               >> $module_file
+    fi
+
     echo ""                                                                          >> $module_file
     echo "# =======================================================================" >> $module_file
     echo ""                                                                          >> $module_file
@@ -5648,7 +5846,7 @@ function bldr_satisfy_pkg()
     fi
 
     bldr_log_item_suffix "Scanning for required packages for" "$pkg_name/$pkg_vers"
-    bldr_log_split
+#    bldr_log_split
 
     for pkg_need_name in ${pkg_needs}
     do
