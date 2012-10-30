@@ -11,7 +11,7 @@ source "bldr.sh"
 ####################################################################################################
 
 pkg_ctry="databases"
-pkg_name="leveldb"
+pkg_name="level-db"
 
 pkg_default="1.5.0"
 pkg_variants=("1.5.0")
@@ -59,7 +59,7 @@ pkg_cfg_path=""
 
 for pkg_vers in ${pkg_variants[@]}
 do
-     pkg_file="$pkg_name-$pkg_vers.tar.gz"
+     pkg_file="leveldb-$pkg_vers.tar.gz"
      pkg_urls="https://leveldb.googlecode.com/files/$pkg_file"
 
      bldr_register_pkg                \

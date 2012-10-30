@@ -1288,6 +1288,38 @@ function bldr_is_cmake_file
     echo "false"
 }
 
+function bldr_is_qmake_file
+{
+    local cfg_srch=$(bldr_trim_str "$1")
+    local tst_file=""
+
+    for tst_file in ${cfg_srch}
+    do
+        if [[ $(echo "$tst_file" | grep -m1 -c ".pro") > 0 ]]
+        then
+            echo "true"
+            return
+        fi
+    done
+    echo "false"
+}
+
+function bldr_is_ant_file
+{
+    local cfg_srch=$(bldr_trim_str "$1")
+    local tst_file=""
+
+    for tst_file in ${cfg_srch}
+    do
+        if [[ $(echo "$tst_file" | grep -m1 -c ".xml") > 0 ]]
+        then
+            echo "true"
+            return
+        fi
+    done
+    echo "false"
+}
+
 function bldr_is_maven_file
 {
     local cfg_srch=$(bldr_trim_str "$1")
@@ -1318,6 +1350,7 @@ function bldr_locate_config_script
     local python_files=$BLDR_PYTHON_FILE_SEARCH_LIST
     local ruby_files=$BLDR_RUBY_FILE_SEARCH_LIST
 
+    local use_ant=false
     local use_qmake=false
     local use_cmake=false
     local use_autocfg=false
@@ -1342,6 +1375,10 @@ function bldr_locate_config_script
     elif [[ $(echo "$cfg_opts" | grep -m1 -c "qmake" ) > 0 ]]
     then
         use_qmake=true
+
+    elif [[ $(echo "$cfg_opts" | grep -m1 -c "ant" ) > 0 ]]
+    then
+        use_ant=true
 
     elif [[ $(echo "$cfg_opts" | grep -m1 -c "configure" ) > 0 ]]
     then
@@ -1381,6 +1418,18 @@ function bldr_locate_config_script
         if [[ $use_qmake == true ]]
         then
             for tst_file in $tst_path/*.pro
+            do
+                if [ -f "$tst_file" ]
+                then
+                    found_path="$tst_file"
+                    break
+                fi
+            done
+        fi
+
+        if [[ $use_ant == true ]]
+        then
+            for tst_file in $tst_path/*.xml
             do
                 if [ -f "$tst_file" ]
                 then
@@ -3218,6 +3267,88 @@ function bldr_pysetup_pkg()
     bldr_pop_dir
 }
 
+function bldr_ant_pkg()
+{
+    local use_verbose="false"
+    local pkg_ctry=""
+    local pkg_name="" 
+    local pkg_vers=""
+    local pkg_vers_dft=""
+    local pkg_info=""
+    local pkg_desc=""
+    local pkg_file=""
+    local pkg_urls=""
+    local pkg_uses=""
+    local pkg_reqs=""
+    local pkg_opts=""
+    local pkg_cflags=""
+    local pkg_ldflags=""
+    local pkg_cfg=""
+    local pkg_cfg_path=""
+
+    while true ; do
+        case "$1" in
+           --verbose)       use_verbose="$2"; shift 2;;
+           --name)          pkg_name="$2"; shift 2;;
+           --version)       pkg_vers="$2"; shift 2;;
+           --default)       pkg_vers_dft="$2"; shift 2;;
+           --info)          pkg_info="$2"; shift 2;;
+           --description)   pkg_desc="$2"; shift 2;;
+           --category)      pkg_ctry="$2"; shift 2;;
+           --options)       pkg_opts="$2"; shift 2;;
+           --file)          pkg_file="$2"; shift 2;;
+           --config)        pkg_cfg="$pkg_cfg:$2"; shift 2;;
+           --config-path)   pkg_cfg_path="$2"; shift 2;;
+           --cflags)        pkg_cflags="$pkg_cflags:$2"; shift 2;;
+           --ldflags)       pkg_ldflags="$pkg_ldflags:$2"; shift 2;;
+           --patch)         pkg_patches="$2"; shift 2;;
+           --uses)          pkg_uses="$pkg_uses:$2"; shift 2;;
+           --requires)      pkg_reqs="$pkg_reqs:$2"; shift 2;;
+           --url)           pkg_urls="$pkg_urls;$2"; shift 2;;
+           * )              break ;;
+        esac
+    done
+
+    if [ "$use_verbose" == "true" ]
+    then
+        BLDR_VERBOSE=true
+    fi
+
+    if [[ $(bldr_has_cfg_option "$pkg_opts" "skip-config" ) == "true" ]]
+    then
+        return
+    fi
+
+    bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
+    local cfg_path=$(bldr_locate_config_path "$pkg_cfg_path" "$pkg_opts")
+    bldr_pop_dir
+
+  
+    local prefix="$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
+    local env_mpath=""
+    local env_flags=" "
+
+    pkg_cfg=$(bldr_trim_list_str "$pkg_cfg")
+    if [ "$pkg_cfg" != "" ] && [ "$pkg_cfg" != " " ] && [ "$pkg_cfg" != ":" ]
+    then
+        pkg_cfg=$(echo $pkg_cfg | bldr_split_str ":" | bldr_join_str " ")
+    else
+        pkg_cfg=""
+    fi
+
+    bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$cfg_path"
+
+    bldr_log_status "Launching 'ant' for '$pkg_name/$pkg_vers' from '$cfg_path' ..."
+    bldr_log_split
+
+    bldr_run_cmd "ant build ${pkg_cfg}"
+
+    bldr_log_info "Done configuring package '$pkg_name/$pkg_vers'"
+    bldr_log_split
+
+    bldr_pop_dir
+}
+
 
 function bldr_maven_pkg()
 {
@@ -3960,6 +4091,9 @@ function bldr_config_pkg()
     local use_autocfg=false
     local has_autocfg=false
 
+    local use_ant=false
+    local has_ant=false
+
     local use_maven=false
     local has_maven=false
 
@@ -3976,6 +4110,14 @@ function bldr_config_pkg()
     elif [[ $(bldr_is_autoconf_file "$cfg_cmd") == "true" ]]
     then
         has_autocfg=true
+
+    elif [[ $(bldr_is_qmake_file "$cfg_cmd") == "true" ]]
+    then
+        has_qmake=true
+
+    elif [[ $(bldr_is_ant_file "$cfg_cmd") == "true" ]]
+    then
+        has_ant=true
     
     elif [[ $(bldr_is_maven_file "$cfg_cmd") == "true" ]]
     then
@@ -3999,6 +4141,13 @@ function bldr_config_pkg()
     elif [[ $(bldr_has_cfg_option "$pkg_opts" "qmake" ) == "true" ]]
     then
         use_qmake=true
+        use_cmake=false
+        has_cmake=false
+        use_autocfg=false
+
+    elif [[ $(bldr_has_cfg_option "$pkg_opts" "ant" ) == "true" ]]
+    then
+        use_ant=true
         use_cmake=false
         has_cmake=false
         use_autocfg=false
@@ -4099,6 +4248,28 @@ function bldr_config_pkg()
         bldr_log_split
 
         bldr_qmake_pkg                    \
+            --category    "$pkg_ctry"     \
+            --name        "$pkg_name"     \
+            --version     "$pkg_vers"     \
+            --file        "$pkg_file"     \
+            --url         "$pkg_urls"     \
+            --uses        "$pkg_uses"     \
+            --requires    "$pkg_reqs"     \
+            --options     "$pkg_opts"     \
+            --cflags      "$pkg_cflags"   \
+            --ldflags     "$pkg_ldflags"  \
+            --patch       "$pkg_patches"  \
+            --config      "$pkg_cfg"      \
+            --config-path "$pkg_cfg_path" \
+            --verbose     "$use_verbose"
+    fi
+
+    if [[ $use_ant == true ]]
+    then
+        bldr_log_info "Using ant for '$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$cfg_path' ..."
+        bldr_log_split
+
+        bldr_ant_pkg                      \
             --category    "$pkg_ctry"     \
             --name        "$pkg_name"     \
             --version     "$pkg_vers"     \
@@ -4942,6 +5113,21 @@ function bldr_migrate_pkg()
                         first_file=0
                     fi
                     eval cp -v "$binary" "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$subdir" || bldr_bail "Failed to copy shared files into directory: $BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$subdir"
+                    bldr_log_split
+                fi
+
+                if [[ $(echo "$binary" | grep -m1 -c '.app') > 0 ]]
+                then
+                    if [ $first_file ]
+                    then
+                        bldr_log_status "Migrating build binaries from '$subdir' for '$pkg_name/$pkg_vers'"
+                        bldr_log_split
+                        bldr_make_dir "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$subdir"
+                        bldr_log_split
+                        first_file=0
+                    fi
+
+                    bldr_copy_dir "$binary" "$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$subdir/$binary" || bldr_bail "Failed to copy shared files into directory: $BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$src_path"
                     bldr_log_split
                 fi
             done
@@ -5846,8 +6032,9 @@ function bldr_satisfy_pkg()
     fi
 
     bldr_log_item_suffix "Scanning for required packages for" "$pkg_name/$pkg_vers"
-#    bldr_log_split
 
+    local need_cnt
+    let need_cnt=0
     for pkg_need_name in ${pkg_needs}
     do
         if [[ $(echo $pkg_need_name | grep -m1 -c '\/') > 0 ]]
@@ -5900,7 +6087,12 @@ function bldr_satisfy_pkg()
                 fi
             fi
         fi
+        let need_cnt++
     done
+
+    if [[ $need_cnt -gt 0 ]]; then
+        bldr_log_split
+    fi
 
     local skip_rebuild=$(bldr_has_cfg_option "$pkg_opts" "skip-build-dependencies" )
     if [[ "$pkg_req_build" != "" ]]  && [[ "$skip_rebuild" == "false" ]]
