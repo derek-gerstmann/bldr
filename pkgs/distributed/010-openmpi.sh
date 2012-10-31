@@ -13,8 +13,8 @@ source "bldr.sh"
 pkg_ctry="distributed"
 pkg_name="openmpi"
 
-pkg_default="1.6.2"
-pkg_variants=("1.6" "1.6.1" "1.6.2")
+pkg_default="1.6.3"
+pkg_variants=("1.6" "1.6.1" "1.6.2" "1.6.3")
 
 pkg_info="The Open MPI Project is an open source MPI-2 implementation that is developed and maintained by a consortium of academic, research, and industry partners."
 
