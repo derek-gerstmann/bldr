@@ -11,30 +11,52 @@ source "bldr.sh"
 ####################################################################################################
 
 pkg_ctry="tracing"
-pkg_name="padb"
+pkg_name="mpe2"
 
-pkg_default="3.3"
-pkg_variants=("3.3")
+pkg_default="1.3.0"
+pkg_variants=("1.3.0")
 
-pkg_info="Padb is a Job Inspection Tool for examining and debugging parallel programs."
+pkg_info="MPE is a software package for MPI (Message Passing Interface) programmers."
 
-pkg_desc="Padb is a Job Inspection Tool for examining and debugging parallel programs, primarily 
-it simplifies the process of gathering stack traces on compute clusters however it also supports a 
-wide range of other functions. Padb supports a number of parallel environments and it works 
-out-of-the-box on the majority of clusters. It's an open source, non-interactive, command line, 
-script-able tool intended for use by programmers and system administrators alike."
+pkg_desc="MPE is a set of postmortem profiling tools for use with MPI programs. It consists mainly of 
+libmpe, an instrumentation library, and Jumpshot, its associated graphical visualizer. The most 
+straightforward way of using it is by linking against libmpe; one may also insert logging calls 
+in the target program's source code, thereby increasing the level of detail available for analysis.
 
-pkg_opts="configure"
+While usually associated with MPICH, it is implementation-agnostic and works with OpenMPI, 
+LAM/MPI as well as with commercial implementations, such as IBM's and Cray's. "
+
+pkg_opts="configure force-serial-build "
 pkg_opts+="enable-static "
 pkg_opts+="enable-shared "
 
 ####################################################################################################
 
-pkg_reqs="openmpi "
-pkg_uses="openmpi "
+pkg_reqs="openmpi gfortran"
+pkg_uses="openmpi gfortran"
+
+####################################################################################################
+# satisfy pkg dependencies and load their environment settings
+####################################################################################################
+
+bldr_satisfy_pkg                 \
+    --category    "$pkg_ctry"    \
+    --name        "$pkg_name"    \
+    --version     "$pkg_default" \
+    --requires    "$pkg_reqs"    \
+    --uses        "$pkg_uses"    \
+    --options     "$pkg_opts"
+
+####################################################################################################
 
 pkg_cflags=""
 pkg_ldflags=""
+
+pkg_cfg="--with-mpilibs=\"-L$BLDR_OPENMPI_LIB_PATH -lmpi -lopen-pal -lopen-rte -lompitrace\" "
+pkg_cfg+="--with-mpiinc=\"-I$BLDR_OPENMPI_INCLUDE_PATH\" "
+pkg_cfg+="--with-mpicc=$BLDR_OPENMPI_BIN_PATH/mpicc "
+pkg_cfg+="--with-mpif77=$BLDR_OPENMPI_BIN_PATH/mpif77 "
+pkg_cfg+="F77=$BLDR_GFORTRAN_BIN_PATH/gfortran "
 
 ####################################################################################################
 # register each pkg version with bldr
@@ -43,7 +65,7 @@ pkg_ldflags=""
 for pkg_vers in ${pkg_variants[@]}
 do
      pkg_file="$pkg_name-$pkg_vers.tar.gz"
-     pkg_urls="http://padb.googlecode.com/files/$pkg_file"
+     pkg_urls="ftp://ftp.mcs.anl.gov/pub/mpi/mpe/$pkg_file"
 
      bldr_register_pkg                 \
           --category    "$pkg_ctry"    \
