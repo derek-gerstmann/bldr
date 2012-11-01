@@ -52,7 +52,7 @@ let pkg_idx=0
 for pkg_vers in ${pkg_variants[@]}
 do
      pkg_file="$pkg_name-$pkg_vers.tar.gz"
-     pkg_host="${pkg_vers_url[$pkg_idx]}"
+     pkg_host="${pkg_vers_urls[$pkg_idx]}"
      pkg_urls="$pkg_host/$pkg_file"
 
      bldr_register_pkg                \
