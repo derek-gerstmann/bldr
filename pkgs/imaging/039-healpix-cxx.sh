@@ -51,7 +51,7 @@ else
     export HEALPIX_TARGET=generic_gcc
     pkg_opts+="use-build-tree=src/cxx/generic_gcc "
     pkg_opts+="-MHEALPIX_TARGET=generic_gcc "
-    pkg_opts+="-MOPTS=-fPIC"
+    pkg_opts+="-MOPTS=-fPIC "
 fi
 
 pkg_opts+="-MEXTERNAL_CFITSIO=yes "
