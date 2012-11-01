@@ -42,6 +42,9 @@ pkg_uses="qt"
 
 pkg_cflags=""
 pkg_ldflags=""
+if [ $BLDR_SYSTEM_IS_LINUX == true ]; then
+  pkg_ldflags+="-lGLU "
+fi
 pkg_cfg_path="QGLViewer"
 
 ####################################################################################################
