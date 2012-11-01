@@ -1,11 +1,13 @@
 --- config.h.orig	2012-10-30 12:22:50.000000000 +0800
 +++ config.h	2012-10-30 12:25:34.000000000 +0800
-@@ -97,6 +97,10 @@
+@@ -97,6 +97,12 @@
  # endif
  #endif
  
 +#ifdef Q_OS_MAC
 +#include <OpenGL/glu.h>
++#else
++#include <GL/glu.h>
 +#endif
 +
  // Container classes interfaces changed a lot in Qt.
