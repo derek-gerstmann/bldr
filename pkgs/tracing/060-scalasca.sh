@@ -22,16 +22,14 @@ pkg_desc="Scalasca is a software tool that supports the performance optimization
 
 The analysis identifies potential performance bottlenecks – in particular those concerning communication and synchronization – and offers guidance in exploring their causes."
 
-pkg_opts="configure "
-pkg_opts+="enable-static "
-pkg_opts+="enable-shared "
+pkg_opts="configure force-serial-build "
 
-pkg_reqs=""
-pkg_reqs+="papi"
-pkg_reqs+="pdt"
-pkg_reqs+="vtf"
-pkg_reqs+="otf"
-pkg_reqs+="qt4"
+pkg_reqs="binutils "
+pkg_reqs+="papi "
+pkg_reqs+="pdt "
+pkg_reqs+="vtf "
+pkg_reqs+="otf "
+pkg_reqs+="qt "
 pkg_uses="$pkg_reqs"
 
 ####################################################################################################
@@ -55,11 +53,18 @@ pkg_ldflags=""
 
 ####################################################################################################
 
+export METRDIR=$BLDR_PAPI_BASE_PATH
+export BINUTILS=$BLDR_BINUTILS_BASE_PATH
+export VTF3DIR=$BLDR_VTF_BASE_PATH
+export OTFDIR=$BLDR_OTF_BASE_PATH
+
 pkg_cfg="--enable-all-mpi-wrappers "
+pkg_cfg+="--with-binutils=\"$BLDR_BINUTILS_BASE_PATH\" "
 pkg_cfg+="--with-papi=\"$BLDR_PAPI_BASE_PATH\" "
 pkg_cfg+="--with-otf=\"$BLDR_OTF_BASE_PATH\" "
-pkg_cfg+="--with-vtf=\"$BLDR_VTF_BASE_PATH\" "
+pkg_cfg+="--with-vtf3=\"$BLDR_VTF_BASE_PATH\" "
 pkg_cfg+="--with-pdt=\"$BLDR_PDT_BASE_PATH\" "
+pkg_cfg+="--with-qmake=\"$BLDR_QT_BIN_PATH/qmake\" "
 
 ####################################################################################################
 # register each pkg version with bldr
@@ -67,7 +72,7 @@ pkg_cfg+="--with-pdt=\"$BLDR_PDT_BASE_PATH\" "
 
 for pkg_vers in ${pkg_variants[@]}
 do
-    pkg_file="$pkg_name-$pkg_vers.tar.bz2"
+    pkg_file="$pkg_name-$pkg_vers.tar.gz"
     pkg_urls="http://www2.fz-juelich.de/zam/datapool/$pkg_name/$pkg_file"
 
     bldr_register_pkg                \
@@ -89,3 +94,4 @@ do
 done
 
 ####################################################################################################
+
