@@ -290,6 +290,33 @@ function bldr_log_section()
     bldr_log_divider
 }
 
+function bldr_log_section_suffix()
+{
+    local log_file="$BLDR_LOG_PATH/$BLDR_LOG_FILE"
+    local ts=$(date "+%Y-%m-%d-%H:%M:%S")
+    
+    local item_msg="${1}"
+    local item_sfx="${2}"
+
+    (echo "[ ${ts} ] $item_msg '$item_sfx'" 2>&1) >> $log_file
+    echo -e ${BLDR_TXT_TITLE}"["${BLDR_TXT_HEADER}" ${ts} "${BLDR_TXT_TITLE}"]"${BLDR_TXT_TITLE}"$item_msg ""'"${BLDR_TXT_TITLE}"$item_sfx"${BLDR_TXT_HEADER}"'"${BLDR_TXT_RST}
+    bldr_log_divider
+}
+
+function bldr_log_section_status()
+{
+    local log_file="$BLDR_LOG_PATH/$BLDR_LOG_FILE"
+    local ts=$(date "+%Y-%m-%d-%H:%M:%S")
+    
+    local item_sts="${1}"
+    local item_msg="${2}"
+    local item_sfx="${3}"
+
+    (echo "[ ${item_sts} ] $item_msg '$item_sfx'" 2>&1) >> $log_file
+    echo -e ${BLDR_TXT_TITLE}"["${BLDR_TXT_HEADER}" ${ts} "${BLDR_TXT_TITLE}"]"${BLDR_TXT_TITLE} ${item_sts}${BLDR_TXT_HEADER}" $item_msg ""'"${BLDR_TXT_TITLE}"$item_sfx"${BLDR_TXT_HEADER}"'"${BLDR_TXT_RST}
+    bldr_log_divider
+}
+
 function bldr_log_subsection()
 {
     bldr_log_status "${@}"
@@ -722,6 +749,7 @@ function bldr_load_modules()
             if [[ -d "$md_path/init" ]]
             then
                 source "$md_path/init/bash"
+                break
             fi
         done
     fi
@@ -2885,12 +2913,11 @@ function bldr_boot_pkg()
     fi
 
     bldr_log_status "Booting package '$pkg_name/$pkg_vers' for '$pkg_ctry' ... "
-    bldr_log_split
 
     if [ ! -d "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers" ]
     then
-        bldr_make_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
         bldr_log_split
+        bldr_make_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
     fi
 
     bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
@@ -2914,6 +2941,7 @@ function bldr_boot_pkg()
     local patch_file=""
     if [[ $(bldr_has_cfg_option "$pkg_opts" "skip-system-patches" ) == "true" ]]
     then
+        bldr_log_split
         bldr_log_info "Skipping system patches ..."
         bldr_log_split
     else
@@ -2922,6 +2950,7 @@ function bldr_boot_pkg()
         do
             if [ -f "$patch_file" ] 
             then
+                bldr_log_split
                 bldr_log_info "Applying patch from file '$patch_file' ..."
                 bldr_log_split
 
@@ -2935,6 +2964,7 @@ function bldr_boot_pkg()
         do
             if [ -f "$patch_file" ] 
             then
+                bldr_log_split
                 bldr_log_info "Applying patch from file '$patch_file' ..."
                 bldr_log_split
 
@@ -3002,9 +3032,8 @@ function bldr_boot_pkg()
                 fi
             else
                 bldr_load_pkg --name "$req_name" --version "$req_vers" --verbose "$use_verbose"          
+                let ld_cnt++                      
             fi
-            let ld_cnt++                      
-
         done
         if [[ $ld_cnt -gt 0 ]]
         then
@@ -5682,29 +5711,36 @@ function bldr_modulate_pkg()
     if [ "$pkg_reqs" != "" ]
     then
 
-        echo "if { [ module-info mode load ] } { "                                 >> $module_file
+        local unload_cnt
+        let unload_cnt=0
+        echo "if { [ module-info mode load ] } { "                                   >> $module_file
         for require in ${pkg_reqs}
         do
+            if [[ "$require" != "bldr" ]]; then
+                let unload_cnt++
+            fi
             echo "    module load $require"                                          >> $module_file
         done
         for require in ${pkg_reqs}
         do
-            echo "    prereq $require"                                                   >> $module_file
+            echo "    prereq $require"                                               >> $module_file
         done
         echo ""                                                                      >> $module_file
         echo "}"                                                                     >> $module_file     
-        echo ""                                                                  >> $module_file
+        echo ""                                                                      >> $module_file
 
-        echo "if { [ module-info mode remove ] } { "                                 >> $module_file
-        for require in ${pkg_reqs}
-        do
-            if [[ "$require" == "bldr" ]]; then
-                continue
-            fi
-            echo "    module unload $require"                                        >> $module_file
-        done
-        echo "}"                                                                     >> $module_file     
-        echo ""                                                                      >> $module_file
+        if [[ $unload_cnt -gt 0 ]]; then
+            echo "if { [ module-info mode remove ] } { "                             >> $module_file
+            for require in ${pkg_reqs}
+            do
+                if [[ "$require" == "bldr" ]]; then
+                    continue
+                fi
+                echo "    module unload $require"                                    >> $module_file
+            done
+            echo "}"                                                                 >> $module_file     
+            echo ""                                                                  >> $module_file
+        fi
     fi
 
     echo "# =======================================================================" >> $module_file
@@ -6063,6 +6099,7 @@ function bldr_satisfy_pkg()
         else
             if [[ $(echo $pkg_req_has | grep -m1 -c "$req_name/$req_vers") < 1 ]]
             then
+                let need_cnt++
                 if [[ $BLDR_VERBOSE == true ]]
                 then
                     bldr_log_item_suffix "Using required" "$req_name/$req_vers"
@@ -6087,7 +6124,6 @@ function bldr_satisfy_pkg()
                 fi
             fi
         fi
-        let need_cnt++
     done
 
     if [[ $need_cnt -gt 0 ]]; then
@@ -6869,8 +6905,7 @@ function bldr_exec_cmds()
         fi
     fi
 
-    bldr_log_item_suffix "DONE with" "$pkg_name/$pkg_vers"
-    bldr_log_split
+    bldr_log_section_status "DONE" "with" "$pkg_name/$pkg_vers"
 }
 
 ####################################################################################################
@@ -7354,7 +7389,7 @@ function bldr()
                         cmd_names=$(bldr_trim_str "$cmd_names")
 
                         bldr_log_list_item_progress $bld_idx $old_cnt "Running '$cmd_names' for '$pkg_tst_name/$pkg_tst_vers' from '$ctry_name' ... "
-                        bldr_log_split
+                        bldr_log_divider
 
                         local old_cmds=$BLDR_USE_PKG_CMDS
 
