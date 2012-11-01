@@ -50,9 +50,10 @@ if [[ $BLDR_SYSTEM_IS_OSX == true ]]; then
     pkg_opts+="-MHEALPIX_TARGET=osx "
 else
     export HEALPIX_TARGET=generic_gcc
+    export AR="ar -rsv" 
     pkg_opts+="use-build-tree=src/C/generic_gcc "
     pkg_opts+="-MHEALPIX_TARGET=generic_gcc "
-    pkg_opts+="-MOPTS=-fPIC"
+    pkg_opts+="-MOPTS=-fPIC "
 fi
 
 pkg_opts+="-MEXTERNAL_CFITSIO=yes "
