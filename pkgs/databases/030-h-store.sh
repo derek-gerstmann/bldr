@@ -13,8 +13,9 @@ source "bldr.sh"
 pkg_ctry="databases"
 pkg_name="h-store"
 
-pkg_default="trunk"
-pkg_variants=("trunk")
+pkg_default="2012-06"
+pkg_variants=("2012-06")
+pkg_mirrors=("https://github.com/apavlo/h-store/tarball/release-2012-06")
 
 pkg_info="H-Store is a Parallel Main Memory OLTP Database System."
 
@@ -38,10 +39,11 @@ pkg_cfg=""
 # register each pkg version with bldr
 ####################################################################################################
 
+let pkg_idx=0
 for pkg_vers in ${pkg_variants[@]}
 do
-    pkg_file="$pkg_name-$pkg_vers-$BLDR_TIMESTAMP.tar.gz"
-    pkg_urls="git://github.com/apavlo/h-store.git"
+    pkg_file="$pkg_name-$pkg_vers.tar.gz"
+    pkg_urls="${pkg_mirrors[$pkg_idx]}"
      
     bldr_register_pkg                 \
          --category    "$pkg_ctry"    \
@@ -59,6 +61,8 @@ do
          --ldflags     "$pkg_ldflags" \
          --config      "$pkg_cfg"     \
          --config-path "$pkg_cfg_path"
+
+    let pkg_idx++
 done
 
 ####################################################################################################
