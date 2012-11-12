@@ -13,8 +13,8 @@ source "bldr.sh"
 pkg_ctry="compilers"
 pkg_name="libunwind"
 
-pkg_default="1.0.1"
-pkg_variants=("1.0.1")
+pkg_default="1.1"
+pkg_variants=("1.0.1" "1.1")
 
 pkg_info="libunwind provides a portable and efficient C programming interface (API) to determine the call-chain of a program."
 

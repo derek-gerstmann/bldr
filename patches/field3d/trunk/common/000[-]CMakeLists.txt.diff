@@ -1,0 +1,66 @@
+--- CMakeLists.txt.orig	2012-11-09 12:17:09.000000000 +0800
++++ CMakeLists.txt	2012-11-09 12:35:47.000000000 +0800
+@@ -100,6 +100,23 @@
+   src/SparseFile.cpp
+ )
+ 
++ADD_LIBRARY ( Field3DStatic STATIC
++  src/ClassFactory.cpp
++  src/DenseFieldIO.cpp
++  src/Field3DFile.cpp
++  src/Field.cpp
++  src/FieldInterp.cpp
++  src/FieldMapping.cpp
++  src/FieldMappingIO.cpp
++  src/Hdf5Util.cpp
++  src/InitIO.cpp
++  src/Log.cpp
++  src/MACFieldIO.cpp
++  src/PluginLoader.cpp
++  src/SparseFieldIO.cpp
++  src/SparseFile.cpp
++)
++
+ SET ( Field3D_Libraries_Shared
+   ${HDF5_LIBRARIES}
+   )
+@@ -112,9 +129,8 @@
+   LIST ( APPEND Field3D_Libraries_Shared
+     Iex Half IlmThread Imath
+     pthread dl z )
+-  SET ( Field3D_DSO_Libraries ${Field3D_Libraries_Shared} )
+-  SET ( Field3D_BIN_Libraries Field3D ${Field3D_Libraries_Shared}
+-        ${Boost_LIBRARIES} )
++  SET ( Field3D_DSO_Libraries ${Field3D_Libraries_Shared} ${Boost_LIBRARIES} )
++  SET ( Field3D_BIN_Libraries Field3D ${Field3D_Libraries_Shared} ${Boost_LIBRARIES} )
+ ENDIF ( )
+ IF ( CMAKE_HOST_WIN32 )
+   # Add OpenEXR and zlib release/debug
+@@ -123,11 +139,14 @@
+       optimized ${lib}
+       debug ${lib}_d )
+   ENDFOREACH()
+-  SET ( Field3D_DSO_Libraries ${Field3D_Libraries_Shared} )
++  SET ( Field3D_DSO_Libraries ${Field3D_Libraries_Shared} ${Boost_LIBRARIES} )
+   SET ( Field3D_BIN_Libraries Field3D ${Boost_LIBRARIES} )
+ ENDIF ()
+ 
+ TARGET_LINK_LIBRARIES ( Field3D ${Field3D_DSO_Libraries} )
++TARGET_LINK_LIBRARIES ( Field3DStatic ${Field3D_DSO_Libraries} )
++
++SET_TARGET_PROPERTIES ( Field3DStatic PROPERTIES VERSION 1.3.2)
+ 
+ SET_TARGET_PROPERTIES ( Field3D PROPERTIES VERSION 1.3.2)
+ SET_TARGET_PROPERTIES ( Field3D PROPERTIES SOVERSION 1.3)
+@@ -207,6 +226,11 @@
+   DESTINATION lib${LIB_SUFFIX}
+ )
+ 
++INSTALL ( TARGETS
++  Field3DStatic
++  DESTINATION lib${LIB_SUFFIX}
++)
++
+ FILE(GLOB Field3d_Includes  "${CMAKE_CURRENT_SOURCE_DIR}/export/*.h")
+ 
+ INSTALL ( FILES 

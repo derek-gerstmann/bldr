@@ -16,13 +16,15 @@ pkg_name="qt"
 pkg_default="5.0.0-trunk"
 pkg_variants=("5.0.0-trunk")
 
-pkg_info="Qt is a cross-platform application and UI framework for developers using C++ or QML, 
-a CSS & JavaScript like language."
+pkg_info="Qt is a cross-platform application and UI framework for developers using C++ or QML, a CSS & JavaScript like language."
 
 pkg_desc="Qt is a cross-platform application and UI framework for developers using C++ or QML, 
 a CSS & JavaScript like language"
 
-pkg_opts="configure skip-auto-compile-flags use-build-script=build"
+pkg_opts="configure "
+pkg_opts+="skip-system-flags "
+pkg_opts+="skip-auto-compile-flags "
+# pkg_opts+="use-build-script=build "
 
 pkg_reqs="zlib "
 pkg_reqs+="bison "
@@ -35,7 +37,7 @@ pkg_reqs+="libedit "
 pkg_reqs+="perl "
 pkg_reqs+="python "
 pkg_reqs+="libtiff "
-pkg_reqs+="libpng "
+# pkg_reqs+="libpng "
 pkg_uses="$pkg_reqs"
 
 ####################################################################################################
@@ -70,7 +72,7 @@ fi
 
 pkg_cfg+="-make libs "
 pkg_cfg+="-make tools "
-pkg_cfg+="-system-libpng "
+# pkg_cfg+="-system-libpng "
 pkg_cfg+="-qt-zlib "
 pkg_cfg+="-openssl-linked "
 pkg_cfg+="-I \"$BLDR_ZLIB_INCLUDE_PATH\" "
@@ -166,7 +168,7 @@ function bldr_pkg_boot_method()
 
     bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$cfg_path"
 
-    bldr_run_cmd "perl init-repository"
+    bldr_run_cmd "perl init-repository --ignore-submodules --http --no-webkit "
     bldr_log_split
 
     unset QTDIR
@@ -176,7 +178,7 @@ function bldr_pkg_boot_method()
 
 }
 
-function bldr_pkg_compile_method()
+function bldr_disabled_pkg_compile_method()
 {
     local use_verbose="false"
     local pkg_ctry=""
@@ -241,7 +243,7 @@ function bldr_pkg_compile_method()
 # register pkg with bldr
 ####################################################################################################
 
-pkg_file="$pkg_name-everywhere-opensource-src-$pkg_vers.tar.gz"
+pkg_file="qt5-trunk-src-2012-11-07-12h46m05s.tar.gz"
 pkg_urls="git://gitorious.org/qt/qt5.git"
 
 bldr_register_pkg                 \

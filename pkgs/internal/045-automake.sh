@@ -23,7 +23,7 @@ make and include files, but aims to be portable and to conform to the
 GNU Coding Standards for Makefile variables and targets."
 
 pkg_opts="configure force-static"
-pkg_reqs="coreutils m4 autoconf"
+pkg_reqs="coreutils m4 libtool autoconf"
 pkg_uses="$pkg_reqs"
 pkg_cflags=""
 pkg_ldflags=""

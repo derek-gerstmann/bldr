@@ -14,7 +14,7 @@ pkg_ctry="distributed"
 pkg_name="openmpi"
 
 pkg_default="1.6.3"
-pkg_variants=("1.6" "1.6.1" "1.6.2" "1.6.3")
+pkg_variants=("1.6.3")
 
 pkg_info="The Open MPI Project is an open source MPI-2 implementation that is developed and maintained by a consortium of academic, research, and industry partners."
 
@@ -28,13 +28,13 @@ Open MPI offers advantages for system and software vendors, application develope
 science researchers."
 
 pkg_opts="configure skip-xcode-config enable-static enable-shared"
-pkg_reqs="zlib papi gfortran "
+pkg_reqs="zlib papi "
 if [[ $BLDR_SYSTEM_IS_OSX == false ]]
 then
     pkg_reqs+="ftb valgrind "
-    pkg_uses="$pkg_reqs torque"
+    pkg_uses="$pkg_reqs torque gfortran"
 else
-    pkg_uses="$pkg_reqs"
+    pkg_uses="$pkg_reqs gfortran"
 fi
 
 ####################################################################################################

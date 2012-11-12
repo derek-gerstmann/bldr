@@ -26,7 +26,7 @@ To use libtool, add the new generic library building commands to your Makefile, 
 or Makefile.am. See the documentation for details."
 
 pkg_opts="configure force-static"
-pkg_uses="m4 autoconf automake"
+pkg_uses=" "
 pkg_reqs="$pkg_uses"
 
 pkg_cflags=""

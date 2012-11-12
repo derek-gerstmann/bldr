@@ -33,8 +33,8 @@ There are features of ADLB that are reminiscent of a variety of other systems, e
 However, ADLB is significantly different and unique in a number of ways."
 
 pkg_opts="configure migrate-build-tree enable-static enable-shared"
-pkg_reqs="openmpi gfortran"
-pkg_uses="$pkg_uses"
+pkg_reqs="openmpi "
+pkg_uses="$pkg_uses gfortran "
 
 ####################################################################################################
 # satisfy pkg dependencies and load their environment settings

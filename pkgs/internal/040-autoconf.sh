@@ -27,7 +27,7 @@ operating system features that the package can use, in the form of M4
 macro calls."
 
 pkg_opts="configure force-static"
-pkg_reqs="coreutils m4"
+pkg_reqs="coreutils m4 libtool"
 pkg_uses="$pkg_reqs"
 pkg_cflags=""
 pkg_ldflags=""

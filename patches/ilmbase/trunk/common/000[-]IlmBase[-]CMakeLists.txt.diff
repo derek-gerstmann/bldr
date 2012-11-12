@@ -1,0 +1,15 @@
+--- CMakeLists.txt.orig	2012-11-07 14:54:48.000000000 +0800
++++ CMakeLists.txt	2012-11-07 14:58:37.000000000 +0800
+@@ -70,8 +70,12 @@
+     DESTINATION ${CMAKE_SOURCE_DIR}/config
+     )
+ ELSE ()
++IF(APPLE)
++  FILE ( WRITE ${CMAKE_SOURCE_DIR}/config/IlmBaseConfig.h "#define HAVE_PTHREAD 1\n" )
++ELSE()
+   FILE ( WRITE ${CMAKE_SOURCE_DIR}/config/IlmBaseConfig.h "#define HAVE_PTHREAD 1\n" )
+   FILE ( APPEND ${CMAKE_SOURCE_DIR}/config/IlmBaseConfig.h "#define HAVE_POSIX_SEMAPHORES 1\n" )
++ENDIF()
+   FILE ( APPEND ${CMAKE_SOURCE_DIR}/config/IlmBaseConfig.h "#define ILMBASE_VERSION_STRING \"2.0.0\"\n" )
+   FILE ( APPEND ${CMAKE_SOURCE_DIR}/config/IlmBaseConfig.h "#define ILMBASE_PACKAGE_STRING \"IlmBase 2.0.0\"\n" )
+ ENDIF ()

@@ -666,10 +666,10 @@ then
         else
             if [ -d "$BLDR_XCODE_SDK/MacOSX10.7.sdk" ]
             then
-                    export BLDR_XCODE_SDK="$BLDR_XCODE_SDK/MacOSX10.7.sdk"
-                    export BLDR_OSX_ARCHITECTURES="x86_64"
-                    export BLDR_OSX_SYSROOT="$BLDR_XCODE_SDK"
-                    export BLDR_OSX_DEPLOYMENT_TARGET=10.7
+                export BLDR_XCODE_SDK="$BLDR_XCODE_SDK/MacOSX10.7.sdk"
+                export BLDR_OSX_ARCHITECTURES="x86_64"
+                export BLDR_OSX_SYSROOT="$BLDR_XCODE_SDK"
+                export BLDR_OSX_DEPLOYMENT_TARGET=10.7
             else
                 if [ -d "$BLDR_XCODE_SDK/MacOSX10.8.sdk" ]
                 then
@@ -813,7 +813,7 @@ function bldr_load_logger()
 
 function bldr_startup() 
 {
-    bldr_load_internal
+#    bldr_load_internal
     bldr_load_modules
     bldr_load_logger
     bldr_load_pkgconfig    
@@ -1784,10 +1784,14 @@ function bldr_list_archive()
     then
         listing="$base_dir"
 
-    elif [[ $(echo "$result" | grep -m1 -c "^./") > 0 ]]
+    elif [[ $(echo "$result" | grep -E -m1 -c "^./") > 0 ]]
     then
         listing=$(echo "$result" | grep -E -o -m1 "^./(\S+)/"  )
         
+    elif [[ $(echo "$result" | grep -E -m1 -c "^(\S+)/") > 0 ]]
+    then
+        listing=$(echo "$result" | grep -E -o -m1 "^(\S+)/" )
+
     else
         listing=$(echo "$result" | grep -E -o "(\S+)/" | sed 's/\/.*//g' | sort -u )
     fi
@@ -4983,27 +4987,27 @@ function bldr_migrate_pkg()
 
     local src_path=""
 
-    if [ -d "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$build_path" ] 
-    then
-        bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$build_path"
-        local bin_paths="lib bin lib32 lib64"
-        for src_path in ${bin_paths}
-        do
+#    if [ -d "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$build_path" ] 
+#    then
+#        bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$build_path"
+#        local bin_paths="lib bin lib32 lib64"
+#        for src_path in ${bin_paths}
+#        do
             # move product into external os specific path
-            if [ -d "$prefix/$src_path" ]
-            then
-                if [ -d "$prefix/$src_path/pkgconfig" ] && [ -d "$PKG_CONFIG_PATH" ]
-                then
-                    bldr_log_info "Adding package config '$prefix/$src_path/pkgconfig' for '$pkg_name/$pkg_vers'"
-                    bldr_log_split
-
-                    cp -v $prefix/$src_path/pkgconfig/*.pc "$PKG_CONFIG_PATH" || bldr_bail "Failed to copy pkg-config into directory: $PKG_CONFIG_PATH"
-                    bldr_log_split
-                fi
-            fi
-        done
-        bldr_pop_dir
-    fi
+#            if [ -d "$prefix/$src_path" ]
+#            then
+#                if [ -d "$prefix/$src_path/pkgconfig" ] && [ -d "$PKG_CONFIG_PATH" ]
+#                then
+#                    bldr_log_info "Adding package config '$prefix/$src_path/pkgconfig' for '$pkg_name/$pkg_vers'"
+#                    bldr_log_split
+#
+#                    cp -v $prefix/$src_path/pkgconfig/*.pc "$PKG_CONFIG_PATH" || bldr_bail "Failed to copy pkg-config into directory: $PKG_CONFIG_PATH"
+#                    bldr_log_split
+#                fi
+#            fi
+#        done
+#        bldr_pop_dir
+#    fi
 
     local bt_base="$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
     local bt_path="$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
@@ -5908,6 +5912,18 @@ function bldr_modulate_pkg()
             printf $fmt_lc "append-path" "ACLOCAL_PATH" "\"$found\""                  >> $module_file
         done
 
+        for fnd in $(find . -type f -iname "*.pc" -exec 'dirname' '{}' \; | sort -u)
+        do
+            local sub_path="$fnd"
+            if [[ $sub_path != "." ]]
+            then
+                found="$local_path/$pkg_ctry/$pkg_name/$pkg_vers/$sub_path"
+            else
+                found="$local_path/$pkg_ctry/$pkg_name/$pkg_vers"
+            fi
+            printf $fmt_lc "append-path" "PKG_CONFIG_PATH" "\"$found\""               >> $module_file
+        done
+
         for fnd in $(find . -type d -iname "gems")
         do
             local sub_path="${fnd:2}"
@@ -6102,6 +6118,10 @@ function bldr_satisfy_pkg()
                 let need_cnt++
                 if [[ $BLDR_VERBOSE == true ]]
                 then
+                    if [[ $need_cnt -lt 2 ]]; then
+                        bldr_log_split
+                    fi
+
                     bldr_log_item_suffix "Using required" "$req_name/$req_vers"
                 fi
                 pkg_req_has="$pkg_req_has $req_name/$req_vers"
@@ -6158,6 +6178,8 @@ function bldr_satisfy_pkg()
         bldr_log_split
     fi
 
+    local load_cnt
+    let load_cnt=0
     for pkg_need_name in ${pkg_needs}
     do
         if [[ $(echo $pkg_need_name | grep -m1 -c '\/') > 0 ]]
@@ -6168,9 +6190,13 @@ function bldr_satisfy_pkg()
             local req_name=$(echo "$pkg_need_name" | sed 's/\/.*//g')
             local req_vers="default"
         fi
-        bldr_load_pkg --name "$req_name" --version "$req_vers" --verbose "$use_verbose"                
+        bldr_load_pkg --name "$req_name" --version "$req_vers" --verbose "$use_verbose"   
+        let load_cnt++             
     done
-    bldr_log_split
+    
+    if [[ $load_cnt -gt 0 ]]; then
+        bldr_log_split
+    fi
 
     if [[ $(bldr_has_cfg_option "$BLDR_RESOLVED_PKGS" "$pkg_name/$pkg_vers") == false ]]
     then

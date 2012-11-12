@@ -33,8 +33,8 @@ The HDF5 technology suite includes:
 * Tools and applications for managing, manipulating, viewing, and analyzing the data in the collection."
 
 pkg_opts="configure skip-system-flags force-serial-build"
-pkg_reqs="szip zlib gfortran"
-pkg_uses="$pkg_reqs"
+pkg_reqs="szip zlib "
+pkg_uses="$pkg_reqs gfortran"
 
 ####################################################################################################
 # satisfy pkg dependencies and load their environment settings
@@ -96,7 +96,6 @@ do
         then
             pkg_cfg+="FC=gfortran "
             pkg_cfg+="--enable-fortran "
-            pkg_reqs="$hdf5_reqs gfortran "
         fi
     else
         pkg_reqs="$hdf5_reqs"      
@@ -131,7 +130,6 @@ do
         then
             pkg_cfg+="FC=gfortran "
             pkg_cfg+="--enable-fortran "
-            pkg_reqs="$hdf5_reqs gfortran "
         fi
 
         bldr_register_pkg              \

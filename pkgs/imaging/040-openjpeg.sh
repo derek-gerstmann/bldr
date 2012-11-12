@@ -13,8 +13,8 @@ source "bldr.sh"
 pkg_ctry="imaging"
 pkg_name="openjpeg"
 
-pkg_default="1.5.0"
-pkg_variants=("1.5.0")
+pkg_default="1.5.1"
+pkg_variants=("1.5.1")
 
 pkg_info="The OpenJPEG library is an open-source JPEG 2000 library developed in order to promote the use of JPEG 2000."
 
@@ -35,6 +35,10 @@ in many open source applications, such as Second Life and Gimp."
 
 pkg_opts="configure force-bootstrap enable-static enable-shared"
 
+pkg_reqs="libtool "
+pkg_reqs="automake "
+pkg_reqs="autoconf "
+pkg_reqs="m4 "
 pkg_reqs="zlib "
 pkg_reqs+="bzip2 "
 pkg_reqs+="libxml2 "

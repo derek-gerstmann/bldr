@@ -13,11 +13,12 @@ source "bldr.sh"
 pkg_ctry="developer"
 pkg_name="boost"
 
-pkg_default="1.51"
-pkg_variants=("1.49" "1.50" "1.51")
-pkg_distribs=("boost_1_49_0.tar.bz2"
-              "boost_1_50_0.tar.bz2"
-              "boost_1_51_0.tar.bz2")
+pkg_default="1.52.0"
+pkg_variants=(
+    "1.51.0" "1.52.0")
+pkg_distribs=(
+    "boost_1_51_0.tar.bz2"
+    "boost_1_52_0.tar.bz2")
   
 pkg_info="Boost provides free peer-reviewed portable C++ source libraries."
 
@@ -38,14 +39,14 @@ proposed for TR2."
 bst_opts="configure "
 bst_opts+="force-bootstrap "
 bst_opts+="skip-config "
-bst_opts+="force-static "
 bst_opts+="skip-auto-compile-flags "
 
 pkg_reqs="zlib "
 pkg_reqs+="bzip2 "
 pkg_reqs+="libicu "
-pkg_reqs+="openmpi "
-
+if [[ $BLDR_SYSTEM_IS_LINUX == true ]]; then
+  pkg_reqs+="openmpi "
+fi
 pkg_uses="$pkg_reqs"
 
 ####################################################################################################
@@ -63,9 +64,8 @@ bldr_satisfy_pkg                 \
 ####################################################################################################
 
 pkg_cfg="variant=release "
-pkg_cfg+="link=static "
+pkg_cfg+="link=static,shared "
 pkg_cfg+="threading=single,multi "
-pkg_cfg+="runtime-link=static "
 pkg_cfg+="--with-mpi "
 pkg_cfg+="-s ICU_PATH=\"$BLDR_LIBICU_BASE_PATH\" "
 pkg_cfg+="-s BZIP2_INCLUDE=\"$BLDR_BZIP2_INCLUDE_PATH\" "
@@ -79,6 +79,12 @@ pkg_ldflags=""
 if [[ $BLDR_SYSTEM_IS_LINUX == true ]]
 then
      pkg_cfg+="cxxflags=-fPIC cflags=-fPIC linkflags=-fPIC "
+fi
+
+if [[ $BLDR_SYSTEM_IS_OSX == true ]]
+then
+     pkg_cfg+="cxxflags=\"-I/usr/include -I/usr/include/sys -I/usr/local/include\" "
+     pkg_cfg+="cflags=\"-I/usr/include -I/usr/include/sys -I/usr/local/include\" "
 fi
 
 ####################################################################################################

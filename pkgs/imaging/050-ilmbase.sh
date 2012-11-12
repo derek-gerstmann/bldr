@@ -14,9 +14,13 @@ pkg_ctry="imaging"
 pkg_name="ilmbase"
 
 pkg_default="2.0-beta1"
-pkg_variants=("2.0-beta1")
-pkg_mirrors=("http://github.com/openexr/openexr/zipball/v2_beta.1")
-pkg_bases=("openexr-openexr-93484b1")
+pkg_variants=("2.0-beta1" "trunk")
+pkg_mirrors=(
+    "http://github.com/openexr/openexr/zipball/v2_beta.1"
+    "git://github.com/openexr/openexr.git")
+pkg_bases=(
+    "openexr-openexr-93484b1"
+    "openexr-trunk")
 
 pkg_info="IlmBase is a graphics and imaging framework developed at Industrial Light & Magic (primarily used by OpenEXR)"
 
@@ -43,9 +47,16 @@ bldr_satisfy_pkg                 \
 
 ilm_cflags=""
 ilm_ldflags=""
+
 if [[ $BLDR_SYSTEM_IS_LINUX == true ]]
 then
      ilm_cflags+="-fPIC "
+     ilm_cflags+="-DHAVE_PTHREAD "
+     ilm_cflags+="-DHAVE_POSIX_SEMAPHORES "
+fi
+if [[ $BLDR_SYSTEM_IS_OSX == true ]]
+then
+     ilm_cflags+="-DHAVE_PTHREAD "
 fi
 
 pkg_cfg="--disable-dependency-tracking "
@@ -68,11 +79,17 @@ do
     pkg_subs=("Half" "IlmThread" "Imath" "ImathTest" "Iex" "IexMath" "IexTest")
     for sub_inc in ${pkg_subs[@]}
     do
-         pkg_cflags+=":-I$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$pkg_base/IlmBase/$sub_inc"
+         pkg_cflags+=":-I$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$pkg_base/IlmBase/$sub_inc "
     done
 
-    pkg_opts="cmake skip-boot force-serial-build use-base-dir=$pkg_base"
-    pkg_cfg_path="$pkg_base/IlmBase"
+    pkg_opts="cmake skip-boot force-serial-build "
+
+    if [[ "$pkg_base" != "trunk" ]]; then
+        pkg_opts+="use-base-dir=$pkg_base "
+        pkg_cfg_path="$pkg_base/IlmBase"
+    else
+        pkg_cfg_path="IlmBase"
+    fi
 
     bldr_register_pkg                 \
          --category    "$pkg_ctry"    \

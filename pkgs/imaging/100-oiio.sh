@@ -13,10 +13,17 @@ source "bldr.sh"
 pkg_ctry="imaging"
 pkg_name="oiio"
 
-pkg_default="1.0.8"
-pkg_variants=("1.0.8")
-pkg_mirrors=("http://nodeload.github.com/OpenImageIO/oiio/zipball/RB-1.0")
-pkg_bases=("OpenImageIO-oiio-187bb9b")
+pkg_default="trunk"
+pkg_variants=("trunk" "1.1.0-beta" "1.0.8")
+pkg_mirrors=(
+    "git://github.com/OpenImageIO/oiio.git"
+    "http://nodeload.github.com/OpenImageIO/oiio/zipball/RB-1.1"
+    "http://nodeload.github.com/OpenImageIO/oiio/zipball/RB-1.0"
+    )
+pkg_bases=(
+    "trunk"
+    "OpenImageIO-oiio-2b8a9c7"
+    "OpenImageIO-oiio-187bb9b")
 
 pkg_info="OpenImageIO is a library for reading and writing images, and a bunch of related classes, utilities, and applications."
 
@@ -33,14 +40,22 @@ pkg_reqs+="hdf5 "
 pkg_reqs+="boost "
 pkg_reqs+="glew "
 pkg_reqs+="lcms2 "
-pkg_reqs+="ilmbase "
-pkg_reqs+="openexr "
+if [[ "$pkg_default" != "1.0.8" ]]; then
+    pkg_reqs+="ilmbase/trunk "
+    pkg_reqs+="openexr/trunk "
+else
+    pkg_reqs+="ilmbase "    
+    pkg_reqs+="openexr "
+fi
 pkg_reqs+="openjpeg "
-pkg_reqs+="libpng "
-pkg_reqs+="libjpeg "
+# if [[ $BLDR_SYSTEM_IS_OSX == false ]]; then
+    pkg_reqs+="libpng "
+    pkg_reqs+="libjpeg "
+# fi
 pkg_reqs+="libtiff "
 pkg_reqs+="field3d "
 pkg_reqs+="python "
+pkg_reqs+="qt/4.8.3 "
 pkg_uses="$pkg_reqs"
 
 ####################################################################################################
@@ -81,10 +96,16 @@ ilm_list+="$BLDR_ILMBASE_LIB_PATH/libIlmThread.a"
 
 exr_list="-L$BLDR_OPENEXR_LIB_PATH "
 exr_list+="$BLDR_OPENEXR_LIB_PATH/libIlmImf.a"
-cm_ldflags="$boost_list $ilm_list $exr_list"
 
-pkg_cfg=""
-# -DBUILDSTATIC=ON:-DLINKSTATIC=ON"
+f3d_list="-L$BLDR_FIELD3D_LIB_PATH "
+f3d_list+="$BLDR_FIELD3D_LIB_PATH/libField3DStatic.a "
+
+cm_ldflags="$boost_list $ilm_list $exr_list $f3d_list"
+
+pkg_cfg="-DBUILDSTATIC=ON"
+pkg_cfg+=":-DLINKSTATIC=ON"
+pkg_cfg+=":-DUSE_QT=ON"
+pkg_cfg+=":-DUSE_OPENGL=ON"
 pkg_cfg+=":-DCMAKE_MODULE_LINKER_FLAGS=\"$cm_ldflags\""
 pkg_cfg+=":-DCMAKE_EXE_LINKER_FLAGS=\"$cm_ldflags\""
 pkg_cfg+=":-DIlmbase_Base_Dir=\"$BLDR_ILMBASE_BASE_PATH\""
@@ -118,11 +139,18 @@ pkg_cflags+=" -fPIC "
 
 for pkg_vers in ${pkg_variants[@]}
 do
-    pkg_file="$pkg_name-$pkg_vers.zip"
     pkg_urls=${pkg_mirrors[$pkg_idx]}
     pkg_base=${pkg_bases[$pkg_idx]}
-    pkg_opts="cmake force-bootstrap use-base-dir=$pkg_base"
-    pkg_cfg_path="$pkg_base/src"
+    pkg_opts="cmake force-bootstrap "
+
+    if [[ "$pkg_base" != "trunk" ]]; then
+        pkg_opts+="use-base-dir=$pkg_base "
+        pkg_cfg_path="$pkg_base/src"
+        pkg_file="$pkg_name-$pkg_vers.zip"
+    else
+        pkg_cfg_path="src"
+        pkg_file="$pkg_name-$pkg_vers-$BLDR_TIMESTAMP.tar.gz"
+    fi
 
     bldr_register_pkg                 \
          --category    "$pkg_ctry"    \

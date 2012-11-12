@@ -13,8 +13,8 @@ source "bldr.sh"
 pkg_ctry="concurrent"
 pkg_name="ck"
 
-pkg_default="0.2.10"
-pkg_variants=("0.2.10")
+pkg_default="0.2.12"
+pkg_variants=("0.2.12")
 
 pkg_info="Concurrency Kit provides a plethora of concurrency primitives for high-performance concurrent systems."
 
