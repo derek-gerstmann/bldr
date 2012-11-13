@@ -55,6 +55,7 @@ BLDR_CATEGORIES=(
     "databases" 
     "toolkits" 
     "compilers"
+    "services"
     "spatial"
     "astronomy")
 

@@ -1,0 +1,11 @@
+--- CMakeLists.txt.orig	2012-11-13 15:25:12.000000000 +0800
++++ CMakeLists.txt	2012-11-13 15:25:20.000000000 +0800
+@@ -2,7 +2,7 @@
+     tool)
+ 
+ TARGET_LINK_LIBRARIES(cocaine-tool
+-    boost_program_options-mt
++    boost_program_options
+     cocaine-core)
+ 
+ INSTALL(
