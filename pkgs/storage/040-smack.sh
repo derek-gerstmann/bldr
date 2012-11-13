@@ -29,8 +29,36 @@ pkg_reqs+="python "
 pkg_reqs+="boost "
 pkg_uses="$pkg_reqs"
 
+####################################################################################################
+# satisfy pkg dependencies and load their environment settings
+####################################################################################################
+
+bldr_satisfy_pkg                 \
+    --category    "$pkg_ctry"    \
+    --name        "$pkg_name"    \
+    --version     "$pkg_default" \
+    --requires    "$pkg_reqs"    \
+    --uses        "$pkg_uses"    \
+    --options     "$pkg_opts"
+
+####################################################################################################
+
 pkg_ldflags=""
+
 pkg_cfg=""
+pkg_cfg+=":-DBoost_NO_SYSTEM_PATHS=ON"
+pkg_cfg+=":-DBoost_NO_BOOST_CMAKE=ON"
+pkg_cfg+=":-DBoost_DIR=\"$BLDR_BOOST_BASE_PATH\""
+pkg_cfg+=":-DBoost_INCLUDE_DIR=\"$BLDR_BOOST_INCLUDE_PATH\""
+pkg_cfg+=":-DBOOST_ROOT=\"$BLDR_BOOST_BASE_PATH\""
+pkg_cfg+=":-DBoost_FOUND=TRUE"
+pkg_cfg+=":-DBoost_INCLUDE_DIR=\"$BLDR_BOOST_INCLUDE_PATH\""
+pkg_cfg+=":-DBoost_LIBRARY_DIRS=\"$BLDR_BOOST_LIB_PATH\""
+
+if [[ $BLDR_SYSTEM_IS_LINUX == true ]]
+then
+     pkg_cflags+="-fPIC "
+fi
 
 ####################################################################################################
 # register each pkg version with bldr

@@ -27,12 +27,12 @@ across the High Performance Computing community in order to build the best MPI l
 Open MPI offers advantages for system and software vendors, application developers and computer 
 science researchers."
 
-pkg_opts="configure skip-xcode-config enable-static enable-shared"
+pkg_opts="configure skip-auto-compile-flags skip-system-flags enable-static enable-shared "
 pkg_reqs="zlib papi "
 if [[ $BLDR_SYSTEM_IS_OSX == false ]]
 then
     pkg_reqs+="ftb valgrind "
-    pkg_uses="$pkg_reqs torque gfortran"
+    pkg_uses="$pkg_reqs gfortran torque"
 else
     pkg_uses="$pkg_reqs gfortran"
 fi
@@ -53,6 +53,39 @@ bldr_satisfy_pkg                    \
 
 pkg_cflags=""
 pkg_ldflags=""
+
+if [[ $BLDR_SYSTEM_IS_OSX == false ]]
+then
+    pkg_cflags+="-I$BLDR_ZLIB_INCLUDE_PATH "
+    pkg_cflags+="-I$BLDR_PAPI_INCLUDE_PATH "
+    pkg_cflags+="-I$BLDR_FTB_INCLUDE_PATH "
+    pkg_cflags+="-I$BLDR_TORQUE_INCLUDE_PATH "
+    pkg_cflags+="-I$BLDR_VALGRIND_INCLUDE_PATH "
+
+    pkg_ldflags+="-L$BLDR_ZLIB_LIB_PATH "
+    pkg_ldflags+="-L$BLDR_PAPI_LIB_PATH "
+    pkg_ldflags+="-L$BLDR_FTB_LIB_PATH "
+    pkg_ldflags+="-L$BLDR_TORQUE_LIB_PATH "
+    pkg_ldflags+="-L$BLDR_VALGRIND_LIB_PATH "
+
+    if [[ $BLDR_SYSTEM_IS_LINUX == true ]]
+    then
+        if [ -d /usr/include/infiniband ]
+        then
+            pkg_cflags+="-I/usr/include/infiniband "    
+            pkg_cflags+="-I/usr/include/infiniband/opensm "    
+        fi
+    fi
+
+else
+
+    pkg_cflags+="-I$BLDR_ZLIB_INCLUDE_PATH "
+    pkg_cflags+="-I$BLDR_PAPI_INCLUDE_PATH "
+
+    pkg_ldflags+="-L$BLDR_ZLIB_LIB_PATH "
+    pkg_ldflags+="-L$BLDR_PAPI_LIB_PATH "
+fi
+
 
 pkg_cfg="--enable-btl-openib-failover "
 pkg_cfg+="--enable-mpi-f77 "
@@ -81,8 +114,6 @@ fi
 
 if [[ $BLDR_SYSTEM_IS_LINUX == true ]] 
 then
-     pkg_cflags+="-I/usr/include/infiniband "    
-     pkg_cflags+="-I/usr/include/infiniband/opensm "    
      pkg_cfg+="--with-libltdl=external "
      pkg_cfg+="--with-psm=no "
      pkg_cfg+="--with-gnu-ld "
@@ -96,7 +127,7 @@ then
 
      if [[ -d "/usr/local/cuda" ]]
      then
-         pkg_cfg+="-with-cuda "
+         pkg_cfg+="--with-cuda "
      fi
 
 #     if [[ -d "/opt/mellanox/mxm/lib" ]]
