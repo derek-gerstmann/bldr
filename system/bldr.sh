@@ -835,6 +835,7 @@ BLDR_MAKE_SEARCH_PATH=". build ../build source src .. ../source ../src"
 BLDR_BOOT_FILE_SEARCH_LIST="bootstrap bootstrap.sh autogen.sh"
 BLDR_AUTOCONF_FILE_SEARCH_LIST="configure configure.sh config Configure"
 BLDR_CMAKE_FILE_SEARCH_LIST="CMakeLists.txt cmakelists.txt"
+BLDR_SCONS_FILE_SEARCH_LIST="SConstruct"
 BLDR_MAKE_FILE_SEARCH_LIST="Makefile GNUmakefile makefile"
 BLDR_RUBY_FILE_SEARCH_LIST="extconf.rb Rakefile *.gemspec"
 BLDR_MAVEN_FILE_SEARCH_LIST="pom.xml project.xml"
@@ -1349,6 +1350,23 @@ function bldr_is_ant_file
     echo "false"
 }
 
+function bldr_is_scons_file
+{
+    local cfg_srch=$(bldr_trim_str "$1")
+    local cfg_files=$BLDR_SCONS_FILE_SEARCH_LIST
+    local tst_file=""
+
+    for tst_file in ${cfg_files}
+    do
+        if [[ $(echo "$cfg_srch" | grep -m1 -c "$tst_file") > 0 ]]
+        then
+            echo "true"
+            return
+        fi
+    done
+    echo "false"
+}
+
 function bldr_is_maven_file
 {
     local cfg_srch=$(bldr_trim_str "$1")
@@ -1376,6 +1394,7 @@ function bldr_locate_config_script
     local cmake_files=$BLDR_CMAKE_FILE_SEARCH_LIST
     local autocfg_files=$BLDR_AUTOCONF_FILE_SEARCH_LIST
     local maven_files=$BLDR_MAVEN_FILE_SEARCH_LIST
+    local scons_files=$BLDR_SCONS_FILE_SEARCH_LIST
     local python_files=$BLDR_PYTHON_FILE_SEARCH_LIST
     local ruby_files=$BLDR_RUBY_FILE_SEARCH_LIST
 
@@ -1384,6 +1403,7 @@ function bldr_locate_config_script
     local use_cmake=false
     local use_autocfg=false
     local use_maven=false
+    local use_scons=false
     local use_ruby=false
     local use_python=false
 
@@ -1416,6 +1436,10 @@ function bldr_locate_config_script
     elif [[ $(echo "$cfg_opts" | grep -m1 -c "maven" ) > 0 ]]
     then
         use_maven=true
+
+    elif [[ $(echo "$cfg_opts" | grep -m1 -c "scons" ) > 0 ]]
+    then
+        use_scons=true
 
     elif [[ $(echo "$cfg_opts" | grep -m1 -c "ruby" ) > 0 ]]
     then
@@ -1494,6 +1518,17 @@ function bldr_locate_config_script
         if [[ $use_maven == true ]]
         then
             for tst_file in ${maven_files}
+            do
+                if [ -f "$tst_path/$tst_file" ]
+                then
+                    found_path="$tst_path/$tst_file"
+                    break
+                fi
+            done
+        fi
+        if [[ $use_scons == true ]]
+        then
+            for tst_file in ${scons_files}
             do
                 if [ -f "$tst_path/$tst_file" ]
                 then
@@ -3466,6 +3501,111 @@ function bldr_maven_pkg()
     bldr_pop_dir
 }
 
+function bldr_scons_pkg()
+{
+    local use_verbose="false"
+    local pkg_ctry=""
+    local pkg_name="" 
+    local pkg_vers=""
+    local pkg_vers_dft=""
+    local pkg_info=""
+    local pkg_desc=""
+    local pkg_file=""
+    local pkg_urls=""
+    local pkg_uses=""
+    local pkg_reqs=""
+    local pkg_opts=""
+    local pkg_cflags=""
+    local pkg_ldflags=""
+    local pkg_cfg=""
+    local pkg_cfg_path=""
+
+    while true ; do
+        case "$1" in
+           --verbose)       use_verbose="$2"; shift 2;;
+           --name)          pkg_name="$2"; shift 2;;
+           --version)       pkg_vers="$2"; shift 2;;
+           --default)       pkg_vers_dft="$2"; shift 2;;
+           --info)          pkg_info="$2"; shift 2;;
+           --description)   pkg_desc="$2"; shift 2;;
+           --category)      pkg_ctry="$2"; shift 2;;
+           --options)       pkg_opts="$2"; shift 2;;
+           --file)          pkg_file="$2"; shift 2;;
+           --config)        pkg_cfg="$pkg_cfg:$2"; shift 2;;
+           --config-path)   pkg_cfg_path="$2"; shift 2;;
+           --cflags)        pkg_cflags="$pkg_cflags:$2"; shift 2;;
+           --ldflags)       pkg_ldflags="$pkg_ldflags:$2"; shift 2;;
+           --patch)         pkg_patches="$2"; shift 2;;
+           --uses)          pkg_uses="$pkg_uses:$2"; shift 2;;
+           --requires)      pkg_reqs="$pkg_reqs:$2"; shift 2;;
+           --url)           pkg_urls="$pkg_urls;$2"; shift 2;;
+           * )              break ;;
+        esac
+    done
+
+    if [ "$use_verbose" == "true" ]
+    then
+        BLDR_VERBOSE=true
+    fi
+
+    if [[ $(bldr_has_cfg_option "$pkg_opts" "skip-config" ) == "true" ]]
+    then
+        return
+    fi
+
+    bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
+    local cfg_path=$(bldr_locate_config_path "$pkg_cfg_path" "$pkg_opts")
+    bldr_pop_dir
+
+  
+    local prefix="$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
+    local env_mpath=""
+    local env_flags=" "
+
+    pkg_cfg=$(bldr_trim_list_str "$pkg_cfg")
+    if [ "$pkg_cfg" != "" ] && [ "$pkg_cfg" != " " ] && [ "$pkg_cfg" != ":" ]
+    then
+        pkg_cfg=$(echo $pkg_cfg | bldr_split_str ":" | bldr_join_str " ")
+    else
+        pkg_cfg=""
+    fi
+
+    bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$cfg_path"
+
+    bldr_log_status "Launching 'scons' for '$pkg_name/$pkg_vers' from '$cfg_path' ..."
+    bldr_log_split
+
+    local sb_tgt=""
+    if [[ $(echo "$pkg_opts" | grep -m1 -c 'use-scons-build-target') > 0 ]]
+    then
+        local user_tgt=$(echo $pkg_opts | grep -E -o 'use-scons-build-target=(\S+)' | sed 's/.*=//g' )
+        if [[ "$user_tgt" != "" ]]
+        then
+            sb_tgt="$user_tgt"
+        fi
+    fi
+
+    bldr_run_cmd "scons ${pkg_cfg} $sb_tgt"
+
+    local prefix="$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
+    if [[ $(echo "$pkg_opts" | grep -m1 -c 'use-prefix-path') > 0 ]]
+    then
+        local user_prefix=$(echo $pkg_opts | grep -E -o 'use-prefix-path=(\S+)' | sed 's/.*=//g' )
+        if [[ "$user_prefix" != "" ]]
+        then
+            prefix=$user_prefix
+        fi
+        bldr_run_cmd "scons ${pkg_cfg} --prefix=$prefix install "
+    else
+        bldr_run_cmd "scons ${pkg_cfg} install "        
+    fi
+
+    bldr_log_info "Done configuring package '$pkg_name/$pkg_vers'"
+    bldr_log_split
+
+    bldr_pop_dir
+}
+
 function bldr_cmake_pkg()
 {
     local use_verbose="false"
@@ -4131,6 +4271,9 @@ function bldr_config_pkg()
     local use_maven=false
     local has_maven=false
 
+    local use_scons=false
+    local has_scons=false
+
     local use_ruby=false
     local has_ruby=false
 
@@ -4156,6 +4299,10 @@ function bldr_config_pkg()
     elif [[ $(bldr_is_maven_file "$cfg_cmd") == "true" ]]
     then
         has_maven=true
+
+    elif [[ $(bldr_is_scons_file "$cfg_cmd") == "true" ]]
+    then
+        has_scons=true
 
     elif [[ $(bldr_is_ruby_file "$cfg_cmd") == "true" ]]
     then
@@ -4200,10 +4347,19 @@ function bldr_config_pkg()
         use_autocfg=false
         has_autocfg=false
 
+    elif [[ $(bldr_has_cfg_option "$pkg_opts" "scons" ) == "true" ]]
+    then
+        use_scons=true
+        use_cmake=false
+        has_cmake=false
+        use_autocfg=false
+        has_autocfg=false
+
     elif [[ $(bldr_has_cfg_option "$pkg_opts" "ruby" ) == "true" ]]
     then
         use_ruby=true
         use_maven=false
+        use_scons=false
         use_cmake=false
         has_cmake=false
         use_autocfg=false
@@ -4212,6 +4368,7 @@ function bldr_config_pkg()
     elif [[ $(bldr_has_cfg_option "$pkg_opts" "python" ) == "true" ]]
     then
         use_maven=false
+        use_scons=false
         has_maven=false
         use_cmake=false
         has_cmake=false
@@ -4238,6 +4395,12 @@ function bldr_config_pkg()
         fi
     fi
 
+    if [[ $use_scons == true ]]; then
+        if [[ $has_scons == false ]]; then
+            use_scons=false
+        fi
+    fi
+
     if [[ $use_ruby == true ]]; then
         if [[ $(bldr_has_cfg_option "$pkg_opts" "use-gem" ) == "true" ]]
         then
@@ -4256,7 +4419,7 @@ function bldr_config_pkg()
 
     if [[ $use_cmake == true ]]
     then
-        bldr_log_info "Using cmake for '$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$cfg_path' ..."
+        bldr_log_info "Using 'cmake' for '$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$cfg_path' ..."
         bldr_log_split
 
         bldr_cmake_pkg                    \
@@ -4278,7 +4441,7 @@ function bldr_config_pkg()
 
     if [[ $use_qmake == true ]]
     then
-        bldr_log_info "Using qmake for '$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$cfg_path' ..."
+        bldr_log_info "Using 'qmake' for '$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$cfg_path' ..."
         bldr_log_split
 
         bldr_qmake_pkg                    \
@@ -4300,7 +4463,7 @@ function bldr_config_pkg()
 
     if [[ $use_ant == true ]]
     then
-        bldr_log_info "Using ant for '$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$cfg_path' ..."
+        bldr_log_info "Using 'ant' for '$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$cfg_path' ..."
         bldr_log_split
 
         bldr_ant_pkg                      \
@@ -4322,7 +4485,7 @@ function bldr_config_pkg()
 
     if [[ $use_autocfg == true ]]
     then
-        bldr_log_info "Using autoconfig for '$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$cfg_path' ..."
+        bldr_log_info "Using 'autoconfig' for '$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$cfg_path' ..."
         bldr_log_split
 
         bldr_autocfg_pkg                     \
@@ -4344,7 +4507,7 @@ function bldr_config_pkg()
 
     if [[ $use_maven == true ]]
     then
-        bldr_log_info "Using maven for '$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$cfg_path' ..."
+        bldr_log_info "Using 'maven' for '$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$cfg_path' ..."
         bldr_log_split
 
         bldr_maven_pkg                    \
@@ -4364,9 +4527,31 @@ function bldr_config_pkg()
             --verbose     "$use_verbose"
     fi
 
+    if [[ $use_scons == true ]]
+    then
+        bldr_log_info "Using 'scons' for '$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$cfg_path' ..."
+        bldr_log_split
+
+        bldr_scons_pkg                    \
+            --category    "$pkg_ctry"     \
+            --name        "$pkg_name"     \
+            --version     "$pkg_vers"     \
+            --file        "$pkg_file"     \
+            --url         "$pkg_urls"     \
+            --uses        "$pkg_uses"     \
+            --requires    "$pkg_reqs"     \
+            --options     "$pkg_opts"     \
+            --cflags      "$pkg_cflags"   \
+            --ldflags     "$pkg_ldflags"  \
+            --patch       "$pkg_patches"  \
+            --config      "$pkg_cfg"      \
+            --config-path "$pkg_cfg_path" \
+            --verbose     "$use_verbose"
+    fi
+
     if [[ $use_ruby == true ]]
     then
-        bldr_log_info "Using ruby for '$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$cfg_path' ..."
+        bldr_log_info "Using 'ruby' for '$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$cfg_path' ..."
         bldr_log_split
 
         bldr_ruby_pkg                      \
@@ -4388,7 +4573,7 @@ function bldr_config_pkg()
 
     if [[ $use_python == true ]]
     then
-        bldr_log_info "Using python for '$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$cfg_path' ..."
+        bldr_log_info "Using 'python' for '$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$cfg_path' ..."
         bldr_log_split
 
         bldr_pysetup_pkg                  \

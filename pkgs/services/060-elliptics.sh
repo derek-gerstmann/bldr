@@ -10,7 +10,7 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_ctry="distributed"
+pkg_ctry="services"
 pkg_name="elliptics"
 
 pkg_default="trunk"

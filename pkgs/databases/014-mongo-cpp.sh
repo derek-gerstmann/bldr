@@ -10,40 +10,50 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_ctry="distributed"
-pkg_name="sector"
+pkg_ctry="databases"
+pkg_name="mongo-cpp"
 
-pkg_default="2.9"
-pkg_variants=("2.9")
+pkg_default="2.2.1"
+pkg_variants=("2.2.1")
 
-pkg_info="Sector is a high performance, scalable, and secure distributed file system."
+pkg_info="C++ driver for MongoDB."
 
-pkg_desc="Sector is a high performance, scalable, and secure distributed file system.
+pkg_desc="C++ driver for MongoDB."
 
-Sector/Sphere supports distributed data storage, distribution, and processing over large 
-clusters of commodity computers, either within a data center or across multiple data centers. 
+pkg_opts="scons use-prefix-path use-scons-build-target=mongoclient skip-install"
 
-Sector is a high performance, scalable, and secure distributed file system. Sphere is a high 
-performance parallel data processing engine that can process Sector data files on the storage 
-nodes with very simple programming interfaces. "
-
-pkg_opts="configure force-serial-build skip-install migrate-build-tree migrate-build-bin migrate-build-headers"
-pkg_reqs="openssl"
-pkg_uses="$pkg_uses"
+pkg_uses=""
+pkg_reqs=""
 
 pkg_cflags=""
 pkg_ldflags=""
-pkg_cfg=""
+
+pkg_cfg_path=""
 
 ####################################################################################################
-# register each pkg version with bldr
+# build and install each pkg version as local module
 ####################################################################################################
 
 for pkg_vers in ${pkg_variants[@]}
 do
-    pkg_file="$pkg_name.$pkg_vers.tar.gz"
-    pkg_urls="http://aarnet.dl.sourceforge.net/project/sector/SECTOR/$pkg_vers/$pkg_file"
-    bldr_register_pkg                 \
+    pkg_file="mongodb-linux-x86_64-$pkg_vers.tgz"
+    pkg_urls="http://downloads.mongodb.org/cxx-driver/$pkg_file"
+    
+    pkg_reqs="boost/1.49 "
+    pkg_reqs+="mongo-db/$pkg_vers "
+    pkg_uses=$pkg_reqs
+
+    bldr_satisfy_pkg                    \
+        --category    "$pkg_ctry"       \
+        --name        "$pkg_name"       \
+        --version     "$pkg_default"    \
+        --requires    "$pkg_reqs"       \
+        --uses        "$pkg_uses"       \
+        --options     "$pkg_opts"
+
+    pkg_cfg+="--extrapath=$BLDR_BOOST_BASE_PATH,$BLDR_MONGO_DB_BASE_PATH "
+    
+     bldr_register_pkg                \
          --category    "$pkg_ctry"    \
          --name        "$pkg_name"    \
          --version     "$pkg_vers"    \
@@ -62,4 +72,5 @@ do
 done
 
 ####################################################################################################
+
 

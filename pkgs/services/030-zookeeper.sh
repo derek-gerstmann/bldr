@@ -10,23 +10,27 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_ctry="distributed"
-pkg_name="storm"
+pkg_ctry="services"
+pkg_name="zookeeper"
 
-pkg_default="0.8.1"
-pkg_variants=("0.8.1")
+pkg_default="3.3.6"
+pkg_variants=("3.3.6")
 
-pkg_info="Storm is a distributed realtime computation system."
+pkg_info="Apache ZooKeeper is an effort to develop and maintain an open-source server which enables highly reliable distributed coordination."
 
-pkg_desc="Storm is a distributed realtime computation system.
+pkg_desc="Apache ZooKeeper is an effort to develop and maintain an open-source server which enables highly reliable distributed coordination.
 
-Similar to how Hadoop provides a set of general primitives for doing batch processing, 
-Storm provides a set of general primitives for doing realtime computation. Storm is 
-simple, can be used with any programming language, is used by many companies, and is 
-a lot of fun to use!"
+ZooKeeper is a centralized service for maintaining configuration information, naming, 
+providing distributed synchronization, and providing group services. All of these kinds 
+of services are used in some form or another by distributed applications. Each time they 
+are implemented there is a lot of work that goes into fixing the bugs and race conditions 
+that are inevitable. Because of the difficulty of implementing these kinds of services, 
+applications initially usually skimp on them ,which make them brittle in the presence 
+of change and difficult to manage. Even when done correctly, different implementations 
+of these services lead to management complexity when the applications are deployed."
 
 pkg_opts="configure skip-config skip-build migrate-build-tree"
-pkg_reqs="zeromq/2.1.7 zeromq-java ruby thrift"
+pkg_reqs=""
 pkg_uses="$pkg_uses"
 
 ####################################################################################################
@@ -54,12 +58,9 @@ then
     export JAVA_HEADERS="/System/Library/Frameworks/JavaVM.framework/Versions/A/Headers"
     export JAVA_CPPFLAGS="-I/System/Library/Frameworks/JavaVM.framework/Headers"
 else
-    if [[ ! -d $JAVA_HOME ]]
+    if [[ -d "/usr/java/default" ]]
     then
-        if [[ -d "/usr/java/default" ]]
-        then
-            pkg_cfg+="JAVA_HOME=\"/usr/java/default\""
-        fi
+        pkg_cfg+="JAVA_HOME=\"/usr/java/default\""
     fi
 fi
 
@@ -69,8 +70,8 @@ fi
 
 for pkg_vers in ${pkg_variants[@]}
 do
-    pkg_file="$pkg_name-$pkg_vers.zip"
-    pkg_urls="https://github.com/downloads/nathanmarz/storm/$pkg_file"
+    pkg_file="$pkg_name-$pkg_vers.tar.gz"
+    pkg_urls="http://mirror.overthewire.com.au/pub/apache/zookeeper/stable/$pkg_file"
 
     bldr_register_pkg                 \
          --category    "$pkg_ctry"    \

@@ -15,8 +15,9 @@ pkg_name="boost"
 
 pkg_default="1.52.0"
 pkg_variants=(
-    "1.51.0" "1.52.0")
+    "1.49" "1.51.0" "1.52.0")
 pkg_distribs=(
+    "boost_1_49_0.tar.bz2"
     "boost_1_51_0.tar.bz2"
     "boost_1_52_0.tar.bz2")
   
