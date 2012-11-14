@@ -25,7 +25,6 @@ pkg_opts="cmake "
 pkg_reqs="zlib "
 pkg_reqs+="libtool "
 pkg_reqs+="libev "
-pkg_reqs+="libtool "
 pkg_reqs+="libarchive "
 pkg_reqs+="zeromq "
 pkg_reqs+="msgpack "
@@ -48,14 +47,7 @@ bldr_satisfy_pkg                 \
 
 ####################################################################################################
 
-boost_list="$BLDR_BOOST_LIB_PATH/libboost_system.a "
-boost_list+="$BLDR_BOOST_LIB_PATH/libboost_regex.a "
-boost_list+="$BLDR_BOOST_LIB_PATH/libboost_thread.a "
-boost_list+="$BLDR_BOOST_LIB_PATH/libboost_filesystem.a "
-boost_list+="$BLDR_BOOST_LIB_PATH/libboost_program_options.a"
-
 pkg_ldflags="-L$BLDR_LIBTOOL_LIB_PATH " 
-pkg_ldflags+="-L$BLDR_BOOST_LIB_PATH $boost_list " 
 
 pkg_cfg="-DELLIPTICS=OFF "
 pkg_cfg+="-DCMAKE_C_FLAGS='-I$BLDR_BOOST_INCLUDE_PATH -I$BLDR_LIBTOOL_LIB_PATH' "

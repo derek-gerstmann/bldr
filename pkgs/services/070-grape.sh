@@ -11,30 +11,26 @@ source "bldr.sh"
 ####################################################################################################
 
 pkg_ctry="services"
-pkg_name="cocaine-plugins"
+pkg_name="grape"
 
 pkg_default="trunk"
 pkg_variants=("trunk")
 
-pkg_info="Cocaine is an open-source cloud platform enabling you to build your own PaaS clouds using simple yet effective dynamic components."
+pkg_info="Grape is a pipeline engine to process data stored to elliptics."
 
-pkg_desc="Cocaine is an open-source cloud platform enabling you to build your own PaaS clouds using simple yet effective dynamic components."
+pkg_desc="Grape is a pipeline engine to process data stored to elliptics."
 
 pkg_opts="cmake "
 
 pkg_reqs="zlib "
-pkg_reqs+="libev "
-pkg_reqs+="zeromq "
-pkg_reqs+="msgpack "
 pkg_reqs+="boost "
 pkg_reqs+="python "
 pkg_reqs+="perl "
 pkg_reqs+="cocaine-core "
-if [[ $BLDR_SYSTEM_IS_LINUX == true ]]
-then
-    pkg_reqs+="eblob "
-    pkg_reqs+="elliptics "
-fi
+pkg_reqs+="cocaine-plugins "
+pkg_reqs+="eblob "
+pkg_reqs+="elliptics "
+
 pkg_uses="$pkg_reqs "
 
 ####################################################################################################
@@ -52,28 +48,37 @@ bldr_satisfy_pkg                 \
 ####################################################################################################
 
 pkg_cflags="-I$BLDR_BOOST_INCLUDE_PATH "
+pkg_ldflags="-L$BLDR_BOOST_LIB_PATH "
 
-pkg_ldflags="-L$BLDR_LIBEV_LIB_PATH -lev " 
-pkg_ldflags+="-L$BLDR_ZEROMQ_LIB_PATH -lzmq " 
-pkg_ldflags+="-L$BLDR_MSGPACK_LIB_PATH -lmsgpack " 
-pkg_ldflags+="-L$BLDR_COCAINE_CORE_LIB_PATH -lcocaine-common -lcocaine-core -ljson " 
+pkg_cflags+="-I$BLDR_COCAINE_CORE_INCLUDE_PATH "
+pkg_cflags+="-I$BLDR_COCAINE_CORE_INCLUDE_PATH/cocaine "
+pkg_ldflags+="-L$BLDR_COCAINE_CORE_LIB_PATH -lcocaine-common -lcocaine-core -ljson "
+
+pkg_cflags+="-I$BLDR_COCAINE_PLUGINS_INCLUDE_PATH "
+pkg_cflags+="-I$BLDR_COCAINE_PLUGINS_INCLUDE_PATH/cocaine "
+pkg_ldflags+="-L$BLDR_COCAINE_PLUGINS_LIB_PATH "
+
+pkg_cflags+="-I$BLDR_EBLOB_INCLUDE_PATH "
+pkg_ldflags+="-L$BLDR_EBLOB_LIB_PATH -leblob "
+
+pkg_cflags+="-I$BLDR_ELLIPTICS_INCLUDE_PATH "
+pkg_cflags+="-I$BLDR_ELLIPTICS_INCLUDE_PATH/elliptics "
+pkg_ldflags+="-L$BLDR_ELLIPTICS_LIB_PATH -lelliptics -lelliptics_cpp "
 
 if [[ $BLDR_SYSTEM_IS_LINUX == true ]]
 then
-    pkg_cflags+="-I$BLDR_EBLOB_INCLUDE_PATH "
-    pkg_ldflags+="-L$BLDR_EBLOB_LIB_PATH -leblob "
-
-    pkg_cflags+="-I$BLDR_ELLIPTICS_INCLUDE_PATH "
-    pkg_cflags+="-I$BLDR_ELLIPTICS_INCLUDE_PATH/elliptics "
-    pkg_ldflags+="-L$BLDR_ELLIPTICS_LIB_PATH -lelliptics -lelliptics_cpp "
-
     pkg_cflags+=" -fPIC "
 fi
 
-pkg_ldflags+="-L$BLDR_BOOST_LIB_PATH $boost_list " 
-
 pkg_cfg="-DMONGO=OFF "
 pkg_cfg+="-DJAVASCRIPT=OFF "
+
+pkg_cfg+="-Dcocaine_INCLUDE_DIR=\"$BLDR_COCAINE_CORE_INCLUDE_PATH/cocaine\" "
+pkg_cfg+="-Dcocaine_LIB_DIR=\"$BLDR_COCAINE_CORE_LIB_PATH\" "
+
+pkg_cfg+="-Delliptics_INCLUDE_DIR=\"$BLDR_ELLIPTICS_INCLUDE_PATH/elliptics\" "
+pkg_cfg+="-Delliptics_LIB_DIR=\"$BLDR_ELLIPTICS_LIB_PATH\" "
+
 pkg_cfg+="-DCMAKE_C_FLAGS='$pkg_cflags $pkg_ldflags' "
 pkg_cfg+="-DCMAKE_CXX_FLAGS='$pkg_incflags $pkg_ldflags' "
 pkg_cfg+="-DBoost_NO_SYSTEM_PATHS=ON "
@@ -93,7 +98,7 @@ pkg_cfg+="-DBoost_LIBRARY_DIRS=\"$BLDR_BOOST_LIB_PATH\" "
 for pkg_vers in ${pkg_variants[@]}
 do
     pkg_file="$pkg_name-$pkg_vers-$BLDR_TIMESTAMP.tar.gz"
-    pkg_urls="git://github.com/cocaine/cocaine-plugins.git"
+    pkg_urls="git://github.com/reverbrain/grape.git"
 
     bldr_register_pkg                 \
          --category    "$pkg_ctry"    \
