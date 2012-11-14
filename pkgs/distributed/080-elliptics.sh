@@ -26,6 +26,8 @@ pkg_reqs="zlib "
 pkg_reqs+="bzip2 "
 pkg_reqs+="eblob "
 pkg_reqs+="smack "
+pkg_reqs+="zeromq "
+pkg_reqs+="cocaine-core "
 pkg_reqs+="level-db "
 pkg_reqs+="boost "
 pkg_reqs+="python "
@@ -47,7 +49,7 @@ bldr_satisfy_pkg                 \
 
 
 pkg_ldflags=""
-pkg_cfg="-DWITH_COCAINE=OFF "
+pkg_cfg="-DWITH_COCAINE=ON "
 pkg_cfg+="-DBoost_NO_SYSTEM_PATHS=ON "
 pkg_cfg+="-DBoost_NO_BOOST_CMAKE=ON "
 pkg_cfg+="-DBoost_DIR=\"$BLDR_BOOST_BASE_PATH\" "

@@ -5099,7 +5099,7 @@ function bldr_migrate_pkg()
     if [[ $(bldr_has_cfg_option "$pkg_opts" "migrate-build-bin" ) == "true" ]]
     then
         bldr_push_dir "$bt_path"
-        local bin_paths=". lib bin lib32 lib64 build src"
+        local bin_paths=". lib bin lib32 lib64 lib.target tools build src"
         local binary=""
         local subdir=""
         local src_path=""
