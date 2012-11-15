@@ -5950,6 +5950,7 @@ function bldr_modulate_pkg()
     # (eg. -EPYTHONPATH=path/to/export -> PYTHONPATH=path/to/export)
     local def_name=""
     local def_value=""
+    local user_defs=""
     if [[ $(echo "$pkg_opts" | grep -m1 -c '\-E') > 0 ]]
     then
         echo ""                                                                          >> $module_file
@@ -5970,7 +5971,7 @@ function bldr_modulate_pkg()
                 then
                     def_value=$(echo "$def_value" | sed 's/env(/$::env(/g' )
                 fi
-
+                $user_defs+="$def_name:"
                 printf $fmt_lc "append-path" "$def_name" "${def_value}"              >> $module_file
 
             elif [[ $(echo "$def" | grep -m1 -c '\:=') > 0 ]]
@@ -5984,6 +5985,7 @@ function bldr_modulate_pkg()
                     def_value=$(echo "$def_value" | sed 's/env(/$::env(/g' )
                 fi
 
+                $user_defs+="$def_name:"
                 printf $fmt_lc "prepend-path" "$def_name" "$def_value"               >> $module_file
 
             elif [[ $(echo "$def" | grep -m1 -c '=') > 0 ]]
@@ -5997,6 +5999,7 @@ function bldr_modulate_pkg()
                     def_value=$(echo "$def_value" | sed 's/env(/$::env(/g' )
                 fi
 
+                $user_defs+="$def_name:"
                 printf $fmt_lc "setenv" "$def_name" "$def_value"                     >> $module_file
             fi
         done
@@ -6023,7 +6026,10 @@ function bldr_modulate_pkg()
             local fnd_name=$(bldr_make_uppercase "${pkg_title}_${fnd_sub}_PATH")
             local fnd_rel="${fnd:2}"
             local fnd_value="$local_path/$pkg_ctry/$pkg_name/$pkg_vers/$fnd_rel"
-            printf $fmt_lc "setenv" "$fnd_name" "\"$fnd_value\""                     >> $module_file
+            if [[ $(echo "$user_defs" | grep -m1 -c $fnd_name) < 1 ]]
+            then
+                printf $fmt_lc "setenv" "$fnd_name" "\"$fnd_value\""                     >> $module_file
+            fi
             break
         done
     done
