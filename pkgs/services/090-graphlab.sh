@@ -10,38 +10,31 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_ctry="deployment"
-pkg_name="scons"
+pkg_ctry="services"
+pkg_name="graphlab"
 
-pkg_default="2.2.0"
-pkg_variants=("2.2.0")
+pkg_default="1.4434"
+pkg_variants=("1.4434")
 
-pkg_info="SCons is an Open Source software construction tool—that is, a next-generation build tool."
+pkg_info="GraphLab is a graph-based, high performance, distributed computation framework written in C++."
 
-pkg_desc="SCons is an Open Source software construction tool—that is, a next-generation build tool. 
+pkg_desc="GraphLab is a graph-based, high performance, distributed computation framework written in C++.  
 
-Think of SCons as an improved, cross-platform substitute for the classic Make utility with 
-integrated functionality similar to autoconf/automake and compiler caches such as ccache.
+While GraphLab was originally developed for Machine Learning tasks, it has found great success at a 
+broad range of other data-mining tasks; out-performing other abstractions by orders of magnitude.
 
-In short, SCons is an easier, more reliable and faster way to build software."
+GraphLab Features:
+- A unified multicore and distributed API: write once run efficiently in both shared and distributed memory systems
+- Tuned for performance: optimized C++ execution engine leverages extensive multi-threading and asynchronous IO
+- Scalable: GraphLab intelligently places data and computation using sophisticated new algorithms
+- HDFS Integration: Access your data directly from HDFS
+- Powerful Machine Learning Toolkits: Turn BigData into actionable knowledge with ease
 
-pkg_opts="python skip-compile skip-install" 
+"
 
-pkg_uses="coreutils "
-pkg_uses+="findutils "
-pkg_uses+="diffutils "
-pkg_uses+="patch "
-pkg_uses+="sed "
-pkg_uses+="grep "
-pkg_uses+="tar "
-pkg_uses+="m4 "
-pkg_uses+="autoconf "
-pkg_uses+="automake "
-pkg_uses+="pkg-config "
-pkg_uses+="make "
-pkg_uses+="python "
-pkg_uses+="distribute "
-pkg_reqs="$pkg_uses"
+pkg_opts="cmake "
+pkg_reqs="zlib openmpi"
+pkg_uses="$pkg_uses"
 
 pkg_cflags=""
 pkg_ldflags=""
@@ -53,10 +46,10 @@ pkg_cfg=""
 
 for pkg_vers in ${pkg_variants[@]}
 do
-     pkg_file="$pkg_name-$pkg_vers.tar.gz"
-     pkg_urls="http://downloads.sourceforge.net/project/scons/$pkg_name/$pkg_vers/$pkg_file"
+    pkg_file="graphlabapi_v2.$pkg_vers.tar.gz"
+    pkg_urls="https://graphlabapi.googlecode.com/files/$pkg_file"
 
-     bldr_register_pkg                \
+    bldr_register_pkg                 \
          --category    "$pkg_ctry"    \
          --name        "$pkg_name"    \
          --version     "$pkg_vers"    \

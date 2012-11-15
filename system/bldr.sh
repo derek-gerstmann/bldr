@@ -39,6 +39,7 @@ BLDR_CATEGORIES=(
     "compression" 
     "deployment" 
     "system" 
+    "cryptography"
     "text"
     "languages" 
     "developer" 
@@ -3328,7 +3329,8 @@ function bldr_pysetup_pkg()
     bldr_log_status "Launching 'python' for '$pkg_name/$pkg_vers' from '$cfg_path' ..."
     bldr_log_split
 
-    bldr_run_cmd "python setup.py install --prefix=\"$prefix\" ${pkg_cfg}"
+    local py_cmd="$BLDR_LOCAL_PATH/languages/python/default/bin/python"
+    bldr_run_cmd "$py_cmd setup.py install --prefix=\"$prefix\" ${pkg_cfg}"
 
     bldr_log_info "Done configuring package '$pkg_name/$pkg_vers'"
     bldr_log_split
@@ -5950,7 +5952,7 @@ function bldr_modulate_pkg()
     # (eg. -EPYTHONPATH=path/to/export -> PYTHONPATH=path/to/export)
     local def_name=""
     local def_value=""
-    local user_defs=""
+    local user_defs=" "
     if [[ $(echo "$pkg_opts" | grep -m1 -c '\-E') > 0 ]]
     then
         echo ""                                                                          >> $module_file
@@ -5971,8 +5973,8 @@ function bldr_modulate_pkg()
                 then
                     def_value=$(echo "$def_value" | sed 's/env(/$::env(/g' )
                 fi
-                $user_defs+="$def_name:"
-                printf $fmt_lc "append-path" "$def_name" "${def_value}"              >> $module_file
+                user_defs+="$def_name "
+                printf $fmt_lc "append-path" "$def_name" "\"${def_value}\""            >> $module_file
 
             elif [[ $(echo "$def" | grep -m1 -c '\:=') > 0 ]]
             then
@@ -5985,8 +5987,8 @@ function bldr_modulate_pkg()
                     def_value=$(echo "$def_value" | sed 's/env(/$::env(/g' )
                 fi
 
-                $user_defs+="$def_name:"
-                printf $fmt_lc "prepend-path" "$def_name" "$def_value"               >> $module_file
+                user_defs+="$def_name "
+                printf $fmt_lc "prepend-path" "$def_name" "\"${def_value}\""          >> $module_file
 
             elif [[ $(echo "$def" | grep -m1 -c '=') > 0 ]]
             then
@@ -5999,8 +6001,8 @@ function bldr_modulate_pkg()
                     def_value=$(echo "$def_value" | sed 's/env(/$::env(/g' )
                 fi
 
-                $user_defs+="$def_name:"
-                printf $fmt_lc "setenv" "$def_name" "$def_value"                     >> $module_file
+                user_defs+="$def_name "
+                printf $fmt_lc "setenv" "$def_name" "\"${def_value}\""               >> $module_file
             fi
         done
         echo "" >> $module_file
@@ -6026,7 +6028,7 @@ function bldr_modulate_pkg()
             local fnd_name=$(bldr_make_uppercase "${pkg_title}_${fnd_sub}_PATH")
             local fnd_rel="${fnd:2}"
             local fnd_value="$local_path/$pkg_ctry/$pkg_name/$pkg_vers/$fnd_rel"
-            if [[ $(echo "$user_defs" | grep -m1 -c $fnd_name) < 1 ]]
+            if [[ $(echo "$user_defs" | grep -m1 -c "$fnd_name") < 1 ]]
             then
                 printf $fmt_lc "setenv" "$fnd_name" "\"$fnd_value\""                     >> $module_file
             fi
@@ -6094,7 +6096,7 @@ function bldr_modulate_pkg()
         do
             local sub_path="${fnd:2}"
             found="$local_path/$pkg_ctry/$pkg_name/$pkg_vers/$sub_path"
-            printf $fmt_lc "append-path" "PYTHONPATH" "\"$found\""                   >> $module_file
+            printf $fmt_lc "prepend-path" "PYTHONPATH" "\"$found\""                   >> $module_file
         done
 
         for fnd in $(find . -type d -iname "aclocal*")

@@ -21,6 +21,7 @@ pkg_info="C++ driver for MongoDB."
 pkg_desc="C++ driver for MongoDB."
 
 pkg_opts="scons use-prefix-path use-scons-build-target=mongoclient skip-install"
+pkg_opts+="-EBLDR_MONGO_CPP_INCLUDE_PATH=$BLDR_LOCAL_ENV_PATH/$pkg_ctry/$pkg_name/$pkg_vers/include/mongo "
 
 pkg_uses=""
 pkg_reqs=""
