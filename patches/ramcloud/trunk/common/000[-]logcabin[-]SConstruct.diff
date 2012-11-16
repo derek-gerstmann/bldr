@@ -1,0 +1,10 @@
+--- SConstruct.orig	2012-11-16 03:37:49.515379990 +0000
++++ SConstruct	2012-11-16 03:40:31.673386979 +0000
+@@ -9,6 +9,7 @@
+                 "will search for include directories", []),
+     ("CXX", "C++ Compiler"),
+     ("CXXFLAGS", "Options that are passed to the C++ compiler", []),
++    ("LIBPATH", "Library paths that are passed to the linker", []),
+     ("AS", "Assembler"),
+     ("LINK", "Linker"),
+     ("LIBEVENT2PATH", "libevent-2.0 library path (if necessary).", ""),

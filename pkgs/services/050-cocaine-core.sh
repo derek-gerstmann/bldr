@@ -31,6 +31,9 @@ pkg_reqs+="msgpack "
 pkg_reqs+="boost "
 pkg_reqs+="python "
 pkg_reqs+="perl "
+pkg_reqs+="v8 "
+# pkg_reqs+="mongo-db "
+# pkg_reqs+="mongo-cpp "
 pkg_uses="$pkg_reqs "
 
 ####################################################################################################
@@ -49,7 +52,12 @@ bldr_satisfy_pkg                 \
 
 pkg_ldflags="-L$BLDR_LIBTOOL_LIB_PATH " 
 
-pkg_cfg="-DELLIPTICS=OFF "
+if [[ $BLDR_SYSTEM_IS_OSX == true ]]
+then
+    pkg_cfg="-DELLIPTICS=OFF "
+else
+    pkg_cfg="-DELLIPTICS=ON "
+fi
 pkg_cfg+="-DCMAKE_C_FLAGS='-I$BLDR_BOOST_INCLUDE_PATH -I$BLDR_LIBTOOL_LIB_PATH' "
 pkg_cfg+="-DCMAKE_CXX_FLAGS='-I$BLDR_BOOST_INCLUDE_PATH -L$BLDR_BOOST_LIB_PATH -L$BLDR_LIBTOOL_LIB_PATH' "
 pkg_cfg+="-DBoost_NO_SYSTEM_PATHS=ON "

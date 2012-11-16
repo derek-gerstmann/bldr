@@ -14,7 +14,7 @@ pkg_ctry="databases"
 pkg_name="mongo-db"
 
 pkg_default="2.2.1"
-pkg_variants=("2.2.1")
+pkg_variants=("2.1.2" "2.2.1" "2.3.0")
 
 pkg_info="MongoDB is a scalable, high-performance, open source NoSQL database. "
 

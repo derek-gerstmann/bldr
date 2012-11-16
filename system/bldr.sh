@@ -1621,8 +1621,24 @@ function bldr_clone()
     local cmd="$(which git)"
     if [ -e $cmd ];
     then
-        cmd="git clone"
-        bldr_run_cmd "$cmd $url $dir" || bldr_bail "Failed to clone '$url' into '$dir'"
+        local tag=""
+        if [[ $(echo "$pkg_opts" | grep -m1 -c 'checkout-branch') > 0 ]]
+        then
+            local user_tag=$(echo $pkg_opts | grep -E -o 'checkout-branch=(\S+)' | sed 's/.*=//g' )
+            if [[ "$user_tag" != "" ]]
+            then
+                tag="$user_tag"
+            fi
+        fi
+
+        bldr_run_cmd "git clone $url $dir" || bldr_bail "Failed to clone '$url' into '$dir'"
+        if [[ "$tag" != "" ]]
+        then
+            bldr_push_dir $dir
+            bldr_run_cmd "git checkout $tag" || bldr_bail "Failed to checkout '$tag' for '$url'"
+            bldr_pop_dir
+        fi
+
     else
         bldr_bail "Failed to locate 'git' command!  Please install this command line utility!"
     fi

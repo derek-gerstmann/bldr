@@ -34,18 +34,114 @@ are being widely used (in 2009 Facebook used a total of 150 TB of DRAM in memcac
 caches for a database containing 200 TB of disk storage), and the major Web search engines 
 now keep their search indexes entirely in DRAM."
 
-pkg_opts="configure "
+pkg_opts="configure -MDEBUG=no "
 pkg_reqs="scons "
 pkg_reqs+="zlib "
 pkg_reqs+="bzip2 "
 pkg_reqs+="pcre "
 pkg_reqs+="libevent "
 pkg_reqs+="protobuf "
+pkg_reqs+="ofed-verbs "
 pkg_uses="$pkg_uses"
+
+
+####################################################################################################
+# satisfy pkg dependencies and load their environment settings
+####################################################################################################
+
+bldr_satisfy_pkg                    \
+    --category    "$pkg_ctry"       \
+    --name        "$pkg_name"       \
+    --version     "$pkg_default"    \
+    --requires    "$pkg_reqs"       \
+    --uses        "$pkg_uses"       \
+    --options     "$pkg_opts"
+
+####################################################################################################
 
 pkg_cflags=""
 pkg_ldflags=""
 pkg_cfg=""
+
+# pkg_opts+="-MEXTRALIBS=-L${BLDR_PROTOBUF_LIB_PATH} "
+# pkg_opts+="-MEXTRACXXFLAGS=-I${BLDR_IBOVERBS_INCLUDE_PATH} "
+
+####################################################################################################
+
+function bldr_pkg_boot_method()
+{
+    local use_verbose="false"
+    local pkg_ctry=""
+    local pkg_name="" 
+    local pkg_vers=""
+    local pkg_vers_dft=""
+    local pkg_info=""
+    local pkg_desc=""
+    local pkg_file=""
+    local pkg_urls=""
+    local pkg_uses=""
+    local pkg_reqs=""
+    local pkg_opts=""
+    local pkg_patches=""
+    local pkg_cflags=""
+    local pkg_ldflags=""
+    local pkg_cfg=""
+    local pkg_cfg_path=""
+
+    while true ; do
+        case "$1" in
+           --verbose)       use_verbose="$2"; shift 2;;
+           --name)          pkg_name="$2"; shift 2;;
+           --version)       pkg_vers="$2"; shift 2;;
+           --default)       pkg_vers_dft="$2"; shift 2;;
+           --info)          pkg_info="$2"; shift 2;;
+           --description)   pkg_desc="$2"; shift 2;;
+           --category)      pkg_ctry="$2"; shift 2;;
+           --options)       pkg_opts="$2"; shift 2;;
+           --file)          pkg_file="$2"; shift 2;;
+           --config)        pkg_cfg="$pkg_cfg:$2"; shift 2;;
+           --config-path)   pkg_cfg_path="$2"; shift 2;;
+           --cflags)        pkg_cflags="$pkg_cflags:$2"; shift 2;;
+           --ldflags)       pkg_ldflags="$pkg_ldflags:$2"; shift 2;;
+           --patch)         pkg_patches="$2"; shift 2;;
+           --uses)          pkg_uses="$pkg_uses:$2"; shift 2;;
+           --requires)      pkg_reqs="$pkg_reqs:$2"; shift 2;;
+           --url)           pkg_urls="$pkg_urls;$2"; shift 2;;
+           * )              break ;;
+        esac
+    done
+
+    if [ "$use_verbose" == "true" ]
+    then
+        BLDR_VERBOSE=true
+    fi
+
+    local prefix="$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
+
+    bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
+    bldr_log_subsection "Configuring package '$pkg_name/$pkg_vers' using '$cfg_cmd' ..."
+    bldr_run_cmd "git submodule update --init --recursive"
+    bldr_pop_dir
+
+    bldr_boot_pkg                     \
+        --info        "$pkg_info"     \
+        --description "$pkg_desc"     \
+        --category    "$pkg_ctry"     \
+        --name        "$pkg_name"     \
+        --version     "$pkg_vers"     \
+        --default     "$pkg_vers_dft" \
+        --file        "$pkg_file"     \
+        --url         "$pkg_urls"     \
+        --uses        "$pkg_uses"     \
+        --requires    "$pkg_reqs"     \
+        --options     "$pkg_opts"     \
+        --cflags      "$pkg_cflags"   \
+        --ldflags     "$pkg_ldflags"  \
+        --patch       "$pkg_patches"  \
+        --config      "$pkg_cfg"      \
+        --config-path "$pkg_cfg_path" \
+        --verbose     "$use_verbose"
+}
 
 ####################################################################################################
 
@@ -118,15 +214,31 @@ function bldr_pkg_config_method()
 
     local prefix="$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
 
-    bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
+#    bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
 
     bldr_log_subsection "Configuring package '$pkg_name/$pkg_vers' using '$cfg_cmd' ..."
 
-    bldr_run_cmd "git submodule update --init --recursive"
-    bldr_run_cmd "make logcabin"
+    local lib_paths=""
+    pkg_ldflags=$(bldr_trim_list_str "$pkg_ldflags")
+    if [ "$pkg_ldflags" != "" ] && [ "$pkg_ldflags" != " " ] && [ "$pkg_ldflags" != ":" ]
+    then
+        local env_ldflags=$(echo $pkg_ldflags | bldr_split_str ":" | bldr_join_str ";")
+        local env_ld_mpath=$(echo $env_ldflags | sed 's/\-L//g')
+        lib_paths=$(echo $env_ld_mpath | bldr_split_str ";" | bldr_join_str "', '")
+    fi
 
+    export CPPPATH="$pkg_cflags"
+    export CXXFLAGS="$pkg_cflags"
+#    export LIBPATH="$lib_paths"
+
+#    bldr_run_cmd "git submodule update --init --recursive"
+#    bldr_pop_dir
+
+    bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/logcabin"
+    local cfg_sc="Local.sc"
+    echo "LIBPATH=['$lib_paths']"           > $cfg_sc
+    bldr_run_cmd "scons"
     bldr_pop_dir
-
 }
 
 ####################################################################################################
@@ -138,6 +250,9 @@ for pkg_vers in ${pkg_variants[@]}
 do
     pkg_file="$pkg_name-$pkg_vers-$BLDR_TIMESTAMP.tar.gz"
     pkg_urls="${pkg_mirrors[$pkg_idx]}"
+
+    export EXTRALIBS="\"-L${BLDR_PROTOBUF_LIB_PATH} /usr/lib64/libpthread.so\" "
+    export EXTRACXXFLAGS="\"-I${BLDR_IBOVERBS_INCLUDE_PATH}\" "
 
     bldr_register_pkg                 \
          --category    "$pkg_ctry"    \
