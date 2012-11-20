@@ -506,6 +506,19 @@ function bldr_exec()
     eval "${@}" 
 }
 
+function bldr_has_cfg_option
+{
+    local cfg_opts=$(bldr_trim_str "$1")
+    local cfg_srch=$(bldr_trim_str "$2")
+
+    if [[ $(echo "$cfg_opts" | grep -m1 -c "$cfg_srch") > 0 ]]
+    then
+        echo "true"
+        return
+    fi
+    
+    echo "false"
+}
 
 function bldr_format_version()
 {
@@ -775,7 +788,12 @@ function bldr_load_modules()
             for internal_path in "$BLDR_MODULE_PATH/internal"/*
             do
                 internal_base=$(basename $internal_path)
-                module load $internal_base || bldr_bail "Failed to load module '$internal_base' from 'internal'!"
+                if [[ $(bldr_has_cfg_option "$BLDR_RESOLVED_PKGS" "$internal_base/default") == false ]]
+                then
+#                    bldr_echo "Using '$internal_base' ... "
+                    module load $internal_base || bldr_bail "Failed to load module '$internal_base' from 'internal'!"
+                    export BLDR_RESOLVED_PKGS="$BLDR_RESOLVED_PKGS $internal_base/default"
+                fi
             done
         fi
     fi
@@ -815,7 +833,7 @@ function bldr_load_logger()
 
 function bldr_startup() 
 {
-#    bldr_load_internal
+    bldr_load_internal
     bldr_load_modules
     bldr_load_logger
     bldr_load_pkgconfig    
@@ -1285,20 +1303,6 @@ function bldr_is_python_file
             return
         fi
     done
-    echo "false"
-}
-
-function bldr_has_cfg_option
-{
-    local cfg_opts=$(bldr_trim_str "$1")
-    local cfg_srch=$(bldr_trim_str "$2")
-
-    if [[ $(echo "$cfg_opts" | grep -m1 -c "$cfg_srch") > 0 ]]
-    then
-        echo "true"
-        return
-    fi
-    
     echo "false"
 }
 
@@ -2723,10 +2727,21 @@ function bldr_setup_pkg()
 
     if [ -f "$BLDR_MODULE_PATH/$pkg_ctry/$pkg_name/$pkg_vers" ]
     then
+        local pkg_mf="$BLDR_MODULE_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
         if [[ $BLDR_VERBOSE == true ]]
         then
             bldr_log_info "Removing stale module '$BLDR_MODULE_PATH/$pkg_ctry/$pkg_name/$pkg_vers'"
             bldr_log_split
+        fi
+        if [[ $(readlink "$BLDR_MODULE_PATH/$pkg_ctry/$pkg_name/default") == "$pkg_mf" ]]
+        then
+            module unload " $BLDR_MODULE_PATH/$pkg_ctry/$pkg_name/default"
+            bldr_remove_file "$BLDR_MODULE_PATH/$pkg_ctry/$pkg_name/default"
+        fi
+        if [[ $(readlink "$BLDR_MODULE_PATH/$pkg_ctry/$pkg_name/current") == "$pkg_mf" ]]
+        then
+            module unload " $BLDR_MODULE_PATH/$pkg_ctry/$pkg_name/current"
+            bldr_remove_file "$BLDR_MODULE_PATH/$pkg_ctry/$pkg_name/current"
         fi
         module unload "$BLDR_MODULE_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
         bldr_remove_file "$BLDR_MODULE_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
@@ -5974,7 +5989,7 @@ function bldr_modulate_pkg()
                     def_value=$(echo "$def_value" | sed 's/env(/$::env(/g' )
                 fi
                 user_defs+="$def_name "
-                printf $fmt_lc "append-path" "$def_name" "\"${def_value}\""            >> $module_file
+                printf $fmt_lc "append-path" "$def_name" "${def_value}"           >> $module_file
 
             elif [[ $(echo "$def" | grep -m1 -c '\:=') > 0 ]]
             then
@@ -5988,7 +6003,7 @@ function bldr_modulate_pkg()
                 fi
 
                 user_defs+="$def_name "
-                printf $fmt_lc "prepend-path" "$def_name" "\"${def_value}\""          >> $module_file
+                printf $fmt_lc "prepend-path" "$def_name" "${def_value}"          >> $module_file
 
             elif [[ $(echo "$def" | grep -m1 -c '=') > 0 ]]
             then
@@ -6002,7 +6017,7 @@ function bldr_modulate_pkg()
                 fi
 
                 user_defs+="$def_name "
-                printf $fmt_lc "setenv" "$def_name" "\"${def_value}\""               >> $module_file
+                printf $fmt_lc "setenv" "$def_name" "${def_value}"                  >> $module_file
             fi
         done
         echo "" >> $module_file
@@ -6394,7 +6409,7 @@ function bldr_satisfy_pkg()
 
     if [[ $(bldr_has_cfg_option "$BLDR_RESOLVED_PKGS" "$pkg_name/$pkg_vers") == false ]]
     then
-        BLDR_RESOLVED_PKGS="$BLDR_RESOLVED_PKGS $pkg_name/$pkg_vers"
+        export BLDR_RESOLVED_PKGS="$BLDR_RESOLVED_PKGS $pkg_name/$pkg_vers"
     fi
 }
 
