@@ -63,8 +63,23 @@ pkg_cflags=""
 pkg_ldflags=""
 pkg_cfg=""
 
-# pkg_opts+="-MEXTRALIBS=-L${BLDR_PROTOBUF_LIB_PATH} "
-# pkg_opts+="-MEXTRACXXFLAGS=-I${BLDR_IBOVERBS_INCLUDE_PATH} "
+xtra_libs="-L${BLDR_PROTOBUF_LIB_PATH} "
+xtra_libs+="-L${BLDR_LIBEVENT_LIB_PATH} "
+xtra_libs+="-L${BLDR_PCRE_LIB_PATH} "
+xtra_libs+="-L${BLDR_ZLIB_LIB_PATH} "
+xtra_libs+="-L${BLDR_BZIP2_LIB_PATH} "
+
+xtra_cflags="-I${BLDR_OFED_VERBS_INCLUDE_PATH} "
+xtra_cflags+="-I${BLDR_OFED_VERBS_INCLUDE_PATH}/infiniband "
+
+if [[ $BLDR_SYSTEM_IS_LINUX == true ]]
+then
+    xtra_libs+="/usr/lib64/libpthread.so -fPIC "
+    xtra_cflags+=" -fPIC "
+fi
+
+export EXTRALIBS="$xtra_libs "
+export EXTRACXXFLAGS="\"$xtra_cflags\" "
 
 ####################################################################################################
 
@@ -250,9 +265,6 @@ for pkg_vers in ${pkg_variants[@]}
 do
     pkg_file="$pkg_name-$pkg_vers-$BLDR_TIMESTAMP.tar.gz"
     pkg_urls="${pkg_mirrors[$pkg_idx]}"
-
-    export EXTRALIBS="\"-L${BLDR_PROTOBUF_LIB_PATH} /usr/lib64/libpthread.so\" "
-    export EXTRACXXFLAGS="\"-I${BLDR_IBOVERBS_INCLUDE_PATH}\" "
 
     bldr_register_pkg                 \
          --category    "$pkg_ctry"    \

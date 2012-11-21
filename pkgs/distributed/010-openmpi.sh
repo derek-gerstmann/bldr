@@ -32,9 +32,9 @@ pkg_reqs="zlib papi "
 if [[ $BLDR_SYSTEM_IS_OSX == false ]]
 then
     pkg_reqs+="ftb valgrind "
-    pkg_uses="$pkg_reqs gfortran torque"
+    pkg_uses="$pkg_reqs gfortran torque "
 else
-    pkg_uses="$pkg_reqs gfortran"
+    pkg_uses="$pkg_reqs gfortran "
 fi
 
 ####################################################################################################
@@ -107,13 +107,12 @@ fi
 if [[ $BLDR_SYSTEM_IS_OSX == true ]] 
 then
     pkg_cfg+="--disable-vt "
-else
-    pkg_cfg+="--with-ftb=\"$BLDR_FTB_BASE_PATH\" "
-    pkg_cfg+="--with-tm=\"$BLDR_TORQUE_BASE_PATH\" "
 fi
 
 if [[ $BLDR_SYSTEM_IS_LINUX == true ]] 
 then
+     pkg_cfg+="--with-ftb=\"$BLDR_FTB_BASE_PATH\" "
+     pkg_cfg+="--with-tm=\"$BLDR_TORQUE_BASE_PATH\" "
      pkg_cfg+="--with-libltdl=external "
      pkg_cfg+="--with-psm=no "
      pkg_cfg+="--with-gnu-ld "
