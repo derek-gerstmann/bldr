@@ -24,7 +24,7 @@ pkg_default="R15B02"
 pkg_variants=("$pkg_default")
 
 pkg_opts="configure "
-pkg_reqs="coreutils openssl "
+pkg_reqs="coreutils bison flex openssl "
 pkg_uses="$pkg_reqs tar make "
 
 ####################################################################################################
@@ -45,17 +45,17 @@ pkg_cfg="--enable-native-libs "
 pkg_cfg+="--with-ssl=$BLDR_OPENSSL_BASE_PATH "
 pkg_cfg+="--enable-threads "
 pkg_cfg+="--enable-smp-support "
-pkg_cfg+="--enable-sctp-support "
 pkg_cfg+="--enable-kernel-poll "
+pkg_cfg+="--enable-sctp-support "
+pkg_cfg+="--disable-hipe "
 if [[ $BLDR_SYSTEM_IS_OSX == true ]]; then
-    pkg_cfg+="--disable-hipe "
     if [[ $BLDR_SYSTEM_IS_64BIT == true ]]; then
         pkg_cfg+="--enable-darwin-64bit "
     else
         pkg_cfg+="--enable-darwin-universal "
     fi
 else
-    pkg_cfg+="--enable-hipe "
+    pkg_ldflags+="-I/usr/lib64/libpthread.so "
     if [[ $BLDR_SYSTEM_IS_64BIT == true ]]; then
         pkg_cfg+="--enable-m64-build "
     else
