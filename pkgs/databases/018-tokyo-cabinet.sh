@@ -38,7 +38,12 @@ They are achieved and Tokyo Cabinet replaces conventional DBM products.
 Tokyo Cabinet is written in the C language, and provided as API of C, Perl, Ruby, Java, and Lua. Tokyo Cabinet is available on platforms which have API conforming to C99 and POSIX. 
 Tokyo Cabinet is a free software licensed under the GNU Lesser General Public License."
 
-tc_opts="configure enable-static enable-shared"
+tc_opts="configure skip-auto-compile-flags enable-shared "
+
+if [[ $BLDR_SYSTEM_IS_OSX == false ]]
+then
+    tc_opts+="enable-static "
+fi
 
 pkg_reqs="tar zlib bzip2"
 pkg_uses="tar zlib bzip2"
