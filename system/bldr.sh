@@ -5206,28 +5206,6 @@ function bldr_migrate_pkg()
 
     local src_path=""
 
-#    if [ -d "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$build_path" ] 
-#    then
-#        bldr_push_dir "$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/$build_path"
-#        local bin_paths="lib bin lib32 lib64"
-#        for src_path in ${bin_paths}
-#        do
-            # move product into external os specific path
-#            if [ -d "$prefix/$src_path" ]
-#            then
-#                if [ -d "$prefix/$src_path/pkgconfig" ] && [ -d "$PKG_CONFIG_PATH" ]
-#                then
-#                    bldr_log_info "Adding package config '$prefix/$src_path/pkgconfig' for '$pkg_name/$pkg_vers'"
-#                    bldr_log_split
-#
-#                    cp -v $prefix/$src_path/pkgconfig/*.pc "$PKG_CONFIG_PATH" || bldr_bail "Failed to copy pkg-config into directory: $PKG_CONFIG_PATH"
-#                    bldr_log_split
-#                fi
-#            fi
-#        done
-#        bldr_pop_dir
-#    fi
-
     local bt_base="$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
     local bt_path="$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
     if [[ $(echo "$pkg_opts" | grep -m1 -c 'use-build-tree=') > 0 ]]
@@ -5246,6 +5224,44 @@ function bldr_migrate_pkg()
         bldr_log_split
     fi
     
+    if [ -d "$bt_path" ] 
+    then
+        local pc_cnt
+        let pc_cnt=0
+        bldr_push_dir "$bt_path"
+        for fnd in $(find . -type f -iname "*.pc")
+        do
+            local pc_basename=$(basename $fnd)
+            local pc_dirname=$(dirname $fnd)
+
+            local pc_src=""
+            local pc_dst="$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers/lib/pkgconfig"
+
+            if [[ "$pc_dirname" == "." ]]
+            then
+                pc_src="$pc_basename"
+            else
+                pc_src="$pc_dirname/$pc_basename"
+                pc_dst+="/$pc_dirname"
+            fi
+
+           if [ ! -d $pc_dst ]
+           then
+               bldr_make_dir "$pc_dst"
+               bldr_log_split
+           fi
+
+            cp -v $pc_src $pc_dst || bldr_bail "Failed to copy pkg-config file into directory: $pc_dst"
+            let pc_cnt++
+        done
+
+        if [ $pc_cnt -gt 0 ]
+        then
+            bldr_log_split
+        fi
+        bldr_pop_dir
+    fi
+
     if [[ $(bldr_has_cfg_option "$pkg_opts" "migrate-build-headers" ) == "true" ]]
     then
         bldr_push_dir "$bt_base"
@@ -6140,12 +6156,13 @@ function bldr_modulate_pkg()
         for fnd in $(find . -type f -iname "*.pc" -exec 'dirname' '{}' \; | sort -u)
         do
             local sub_path="$fnd"
-            if [[ $sub_path != "." ]]
+            if [[ $sub_path == "." ]]
             then
-                found="$local_path/$pkg_ctry/$pkg_name/$pkg_vers/$sub_path"
+                sub_path=""
             else
-                found="$local_path/$pkg_ctry/$pkg_name/$pkg_vers"
+                sub_path="${fnd:2}"
             fi
+            local found="$local_path/$pkg_ctry/$pkg_name/$pkg_vers/$sub_path"
             printf $fmt_lc "append-path" "PKG_CONFIG_PATH" "\"$found\""               >> $module_file
         done
 
