@@ -13,8 +13,8 @@ source "bldr.sh"
 pkg_ctry="graphics"
 pkg_name="cairo"
 
-pkg_default="1.12.2"
-pkg_variants=("1.12.2")
+pkg_default="1.12.8"
+pkg_variants=("1.12.8")
 
 pkg_info="Cairo is a 2D graphics library with support for multiple output devices."
 
@@ -39,9 +39,18 @@ Cairo is free software and is available to be redistributed and/or modified
 under the terms of either the GNU Lesser General Public License (LGPL) version 
 2.1 or the Mozilla Public License (MPL) version 1.1 at your option."
 
-pkg_opts="configure skip-xcode-config force-bootstrap force-static "
+pkg_opts="configure "
+
+if [[ $BLDR_SYSTEM_IS_OSX == true ]]; then
+    pkg_opts+="force-bootstrap "
+    pkg_opts+="skip-xcode-config "
+    pkg_opts+="force-static "
+else
+    pkg_opts+="enable-static enable-shared "
+fi
 
 pkg_reqs="pkg-config "
+pkg_reqs+="libtool "
 pkg_reqs+="zlib "
 pkg_reqs+="bzip2 "
 pkg_reqs+="libxml2 "
@@ -51,7 +60,7 @@ pkg_reqs+="gtk-doc "
 pkg_reqs+="libtool "
 pkg_reqs+="gettext "
 pkg_reqs+="glib "
-pkg_reqs+="libpng "
+pkg_reqs+="libpng/1.2.50 "
 pkg_reqs+="freetype "
 pkg_reqs+="fontconfig "
 pkg_reqs+="pango "
@@ -80,12 +89,10 @@ pkg_ldflags=""
 pkg_cfg="--disable-introspection "
 pkg_cfg+="--enable-script=no "
 pkg_cfg+="--enable-test-surfaces=no "
+
 if [[ $BLDR_SYSTEM_IS_OSX == true ]]; then
      pkg_cfg+="--disable-xlib --disable-quartz-font --disable-quartz --without-x "
      pkg_cflags+="-DAC_APPLE_UNIVERSAL_BUILD=1 " 
-#     pkg_ldflags+="-arch i386 -arch x86_64 "
-#     pkg_cflags+="-arch i386 -arch x86_64 -DAC_APPLE_UNIVERSAL_BUILD=1 " 
-#     pkg_ldflags+="-arch i386 -arch x86_64 "
 fi
 
 if [[ $BLDR_SYSTEM_IS_LINUX == true ]] 
@@ -93,9 +100,17 @@ then
      pkg_cflags+="-fPIC "
 fi
 
-pkg_ldflags+="\"$BLDR_ZLIB_LIB_PATH/libz.a\" "
-pkg_ldflags+="-L\"$BLDR_BZIP2_LIB_PATH\" -lbz2 "
-pkg_ldflags+="-L\"$BLDR_LIBPNG_LIB_PATH\" -lpng "
+export png_CFLAGS="-I$BLDR_LIBPNG_INCLUDE_PATH"
+export png_LDFLAGS="-L$BLDR_LIBPNG_LIB_PATH -lpng" 
+export png_REQUIRES="libpng"
+
+export pixman_CFLAGS="-I$BLDR_PIXMAN_INCLUDE_PATH -I$BLDR_PIXMAN_INCLUDE_PATH/pixman-1"
+export pixman_LIBS="-L$BLDR_PIXMAN_LIB_PATH -lpixman-1" 
+export pixman_REQUIRES="libpixman"
+
+# pkg_ldflags+="\"$BLDR_ZLIB_LIB_PATH/libz.a\" "
+# pkg_ldflags+="-L\"$BLDR_BZIP2_LIB_PATH\" -lbz2 "
+# pkg_ldflags+="-L\"$BLDR_LIBPNG_LIB_PATH\" -lpng "
 
 ####################################################################################################
 # register each pkg version with bldr

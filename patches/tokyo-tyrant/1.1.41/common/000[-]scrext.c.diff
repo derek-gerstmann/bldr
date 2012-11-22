@@ -1,0 +1,12 @@
+--- scrext.c.orig	2012-11-22 09:06:24.854375870 +0000
++++ scrext.c	2012-11-22 09:06:47.159417822 +0000
+@@ -153,6 +153,9 @@
+ #include "lualib.h"
+ #include "lauxlib.h"
+ 
++#define lua_strlen(L,i)         lua_rawlen(L, (i))
++#define lua_objlen(L,i)         lua_rawlen(L, (i))
++
+ #define SERVVAR      "_serv_"            // global variable name for server resources
+ #define ITERVAR      "_iter_"            // global variable name for iterator
+ #define MRMAPVAR     "_mrmap_"           // global variable name for mapreduce mapper

@@ -25,9 +25,11 @@ than hard-coding values on where to find glib (or other libraries). It is
 language-agnostic, so it can be used for defining the location of documentation 
 tools, for instance."
 
-pkg_opts="configure force-static"
-pkg_reqs="coreutils"
+pc_opts="configure force-static "
+
+pkg_reqs=""
 pkg_uses="coreutils"
+
 pkg_cfg="--disable-maintainer-mode --disable-dependency-tracking --disable-dtrace" 
 
 pkg_cflags=""
@@ -41,7 +43,11 @@ for pkg_vers in ${pkg_variants[@]}
 do
      pkg_file="$pkg_name-$pkg_vers.tar.gz"
      pkg_urls="http://pkgconfig.freedesktop.org/releases/$pkg_file"
-
+     
+     pkg_opts="$pc_opts "
+     pkg_opts+="-EPKG_CONFIG=$BLDR_LOCAL_ENV_PATH/$pkg_ctry/$pkg_name/$pkg_vers/bin/pkg-config "
+     pkg_opts+="-EPKG_CONFIG_PATH=$BLDR_LOCAL_ENV_PATH/$pkg_ctry/$pkg_name/$pkg_vers/lib/pkgconfig "
+     
      bldr_register_pkg                \
          --category    "$pkg_ctry"    \
          --name        "$pkg_name"    \

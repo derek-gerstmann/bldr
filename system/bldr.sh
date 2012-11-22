@@ -780,37 +780,47 @@ function bldr_load_modules()
             module use "$BLDR_MODULE_PATH/$ctry_name" || bldr_bail "Failed to load '$ctry_name' module!"
         done
 
-        if [ -d "$BLDR_MODULE_PATH/internal" ]
-        then    
-            local internal_path=""
-            local internal_base=""
-            module use "$BLDR_MODULE_PATH/internal" || bldr_bail "Failed to load 'internal' module!"
-            for internal_path in "$BLDR_MODULE_PATH/internal"/*
-            do
-                internal_base=$(basename $internal_path)
-                if [[ $(bldr_has_cfg_option "$BLDR_RESOLVED_PKGS" "$internal_base/default") == false ]]
-                then
+#        if [ -d "$BLDR_MODULE_PATH/internal" ]
+#        then    
+#            local internal_path=""
+#            local internal_base=""
+#            module use "$BLDR_MODULE_PATH/internal" || bldr_bail "Failed to load 'internal' module!"
+#            for internal_path in "$BLDR_MODULE_PATH/internal"/*
+#            do
+#                internal_base=$(basename $internal_path)
+#                if [[ $(bldr_has_cfg_option "$BLDR_RESOLVED_PKGS" "$internal_base/default") == false ]]
+#                then
 #                    bldr_echo "Using '$internal_base' ... "
-                    module load $internal_base || bldr_bail "Failed to load module '$internal_base' from 'internal'!"
-                    export BLDR_RESOLVED_PKGS="$BLDR_RESOLVED_PKGS $internal_base/default"
-                fi
-            done
-        fi
+#                    module load $internal_base || bldr_bail "Failed to load module '$internal_base' from 'internal'!"
+#                    export BLDR_RESOLVED_PKGS="$BLDR_RESOLVED_PKGS $internal_base/default"
+#                fi
+#            done
+#        fi
     fi
 }
 
 # setup the environment to support our own version of PKG_CONFIG
 function bldr_load_pkgconfig()
 {
-    if [ -d "$BLDR_LOCAL_PATH/internal/pkg-config/default/bin" ]
-    then
-        if [ ! -d "$BLDR_LOCAL_PATH/internal/pkg-config/default/lib/pkgconfig" ]
+    if [ -d "$BLDR_MODULE_PATH/internal/pkg-config" ]
+    then    
+        module use "$BLDR_MODULE_PATH/internal" || bldr_bail "Failed to load 'internal' module!"
+        if [[ $(bldr_has_cfg_option "$BLDR_RESOLVED_PKGS" "pkg-config/default") == false ]]
         then
-            mkdir -p "$BLDR_LOCAL_PATH/internal/pkg-config/default/lib/pkgconfig"
+            module load "pkg-config/default" || bldr_bail "Failed to load module '$internal_base' from 'internal'!"
+            export BLDR_RESOLVED_PKGS="$BLDR_RESOLVED_PKGS pkg-config/default"
         fi
+    else
+        if [ -d "$BLDR_LOCAL_PATH/internal/pkg-config/default/bin" ]
+        then
+            if [ ! -d "$BLDR_LOCAL_PATH/internal/pkg-config/default/lib/pkgconfig" ]
+            then
+                mkdir -p "$BLDR_LOCAL_PATH/internal/pkg-config/default/lib/pkgconfig"
+            fi
 
-        export PKG_CONFIG="$BLDR_LOCAL_PATH/internal/pkg-config/default/bin/pkg-config"
-        export PKG_CONFIG_PATH="$BLDR_LOCAL_PATH/internal/pkg-config/default/lib/pkgconfig"
+            export PKG_CONFIG="$BLDR_LOCAL_PATH/internal/pkg-config/default/bin/pkg-config"
+            export PKG_CONFIG_PATH="$BLDR_LOCAL_PATH/internal/pkg-config/default/lib/pkgconfig"
+        fi
     fi
 }
 
@@ -833,10 +843,10 @@ function bldr_load_logger()
 
 function bldr_startup() 
 {
-    bldr_load_internal
     bldr_load_modules
-    bldr_load_logger
     bldr_load_pkgconfig    
+    bldr_load_internal
+    bldr_load_logger
 }
 
 ####################################################################################################
@@ -1426,6 +1436,10 @@ function bldr_locate_config_script
         cfg_paths=$(bldr_trim_str "build $cfg_paths")
         use_cmake=true
     
+    elif [[ $(echo "$cfg_opts" | grep -m1 -c "configure" ) > 0 ]]
+    then
+        use_autocfg=true
+
     elif [[ $(echo "$cfg_opts" | grep -m1 -c "qmake" ) > 0 ]]
     then
         use_qmake=true
@@ -1433,10 +1447,6 @@ function bldr_locate_config_script
     elif [[ $(echo "$cfg_opts" | grep -m1 -c "ant" ) > 0 ]]
     then
         use_ant=true
-
-    elif [[ $(echo "$cfg_opts" | grep -m1 -c "configure" ) > 0 ]]
-    then
-        use_autocfg=true
 
     elif [[ $(echo "$cfg_opts" | grep -m1 -c "maven" ) > 0 ]]
     then
@@ -4352,6 +4362,12 @@ function bldr_config_pkg()
         use_autocfg=false
         has_autocfg=false
     
+    elif [[ $(bldr_has_cfg_option "$pkg_opts" "configure" ) == "true" ]]
+    then
+        use_cmake=false
+        has_cmake=false
+        use_autocfg=true
+
     elif [[ $(bldr_has_cfg_option "$pkg_opts" "qmake" ) == "true" ]]
     then
         use_qmake=true
@@ -4365,12 +4381,6 @@ function bldr_config_pkg()
         use_cmake=false
         has_cmake=false
         use_autocfg=false
-
-    elif [[ $(bldr_has_cfg_option "$pkg_opts" "configure" ) == "true" ]]
-    then
-        use_cmake=false
-        has_cmake=false
-        use_autocfg=true
 
     elif [[ $(bldr_has_cfg_option "$pkg_opts" "maven" ) == "true" ]]
     then
@@ -6153,6 +6163,7 @@ function bldr_modulate_pkg()
             printf $fmt_lc "append-path" "ACLOCAL_PATH" "\"$found\""                  >> $module_file
         done
 
+        local pc_paths=""
         for fnd in $(find . -type f -iname "*.pc" -exec 'dirname' '{}' \; | sort -u)
         do
             local sub_path="$fnd"
@@ -6164,6 +6175,18 @@ function bldr_modulate_pkg()
             fi
             local found="$local_path/$pkg_ctry/$pkg_name/$pkg_vers/$sub_path"
             printf $fmt_lc "append-path" "PKG_CONFIG_PATH" "\"$found\""               >> $module_file
+        done
+
+        for fnd in $(find . -type d -iname "pkgconfig")
+        do
+            local sub_path="${fnd:2}"
+            if [[ $sub_path != "." ]]
+            then
+                found="$local_path/$pkg_ctry/$pkg_name/$pkg_vers/$sub_path"
+            else
+                found="$local_path/$pkg_ctry/$pkg_name/$pkg_vers"
+            fi
+            printf $fmt_lc "append-path" "PKG_CONFIG_PATH" "\"$found\""                     >> $module_file
         done
 
         for fnd in $(find . -type d -iname "gems")

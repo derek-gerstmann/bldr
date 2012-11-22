@@ -10,48 +10,50 @@ source "bldr.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_ctry="imaging"
-pkg_name="libpng"
+pkg_ctry="databases"
+pkg_name="tokyo-tyrant"
 
-pkg_default="1.5.12"
-pkg_variants=("1.2.50" "1.5.12")
+pkg_default="1.1.41"
+pkg_variants=("1.1.41")
 
-pkg_info="PNG is an open, extensible image format with lossless compression."
+pkg_info="Tokyo Tyrant is a package of network interface to the DBM called Tokyo Cabinet. "
 
-pkg_desc="PNG is an open, extensible image format with lossless compression.
-Libpng is the official PNG reference library. It supports almost all PNG 
-features, is extensible, and has been extensively tested for over 16 years."
+pkg_desc="Tokyo Tyrant is a package of network interface to the DBM called Tokyo Cabinet. 
+Though the DBM has high performance, you might bother in case that multiple processes 
+share the same database, or remote processes access the database. Thus, Tokyo Tyrant is 
+provided for concurrent and remote connections to Tokyo Cabinet. It is composed of the 
+server process managing a database and its access library for client applications.
 
-pkg_opts="configure "
-if [[ $BLDR_SYSTEM_IS_OSX == true ]]; then
-    pkg_opts+="force-static "
-else
-    pkg_opts+="enable-static "
-    pkg_opts+="enable-shared "
-fi
+Tokyo Tyrant is written in the C language, and provided as API of C, Perl, and Ruby. 
+Tokyo Tyrant is available on platforms which have API conforming to C99 and POSIX. 
+Tokyo Tyrant is a free software licensed under the GNU Lesser General Public License."
 
-pkg_reqs="zlib pkg-config libtool"
+cfg_opts="configure enable-static enable-shared"
+pkg_reqs="tokyo-cabinet lua zlib bzip2 lzo "
 pkg_uses="$pkg_reqs"
 
 ####################################################################################################
 # satisfy pkg dependencies and load their environment settings
 ####################################################################################################
 
-bldr_satisfy_pkg                 \
-    --category    "$pkg_ctry"    \
-    --name        "$pkg_name"    \
-    --version     "$pkg_default" \
-    --requires    "$pkg_reqs"    \
-    --uses        "$pkg_uses"    \
+bldr_satisfy_pkg                    \
+    --category    "$pkg_ctry"       \
+    --name        "$pkg_name"       \
+    --version     "$pkg_default"    \
+    --requires    "$pkg_reqs"       \
+    --uses        "$pkg_uses"       \
     --options     "$pkg_opts"
 
 ####################################################################################################
 
-pkg_cfg="--with-zlib-prefix=\"$BLDR_ZLIB_BASE_PATH\" "
-pkg_cfg+="--with-pkgconfigdir=\"$PKG_CONFIG_PATH\" "
+pkg_cfg=""
+pkg_cfg+="--enable-lua "
+pkg_cfg+="--with-lua=\"$BLDR_LUA_BASE_PATH\" "
+pkg_cfg+="--with-tc=\"$BLDR_TOKYO_CABINET_BASE_PATH\" "
+pkg_cfg_path=""
 
 pkg_cflags=""
-pkg_ldflags="-L\"$BLDR_ZLIB_LIB_PATH\" -lz"
+pkg_ldflags="-lz -lbz2 -llua "
 
 ####################################################################################################
 # register each pkg version with bldr
@@ -59,8 +61,9 @@ pkg_ldflags="-L\"$BLDR_ZLIB_LIB_PATH\" -lz"
 
 for pkg_vers in ${pkg_variants[@]}
 do
-    pkg_file="$pkg_name-$pkg_vers.tar.gz"
-    pkg_urls="http://prdownloads.sourceforge.net/libpng/$pkg_file?download"
+    pkg_file="tokyotyrant-$pkg_vers.tar.gz"
+    pkg_opts="$cfg_opts -MPREFIX=$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers"
+    pkg_urls="http://fallabs.com/tokyotyrant/$pkg_file"
 
     bldr_register_pkg                 \
          --category    "$pkg_ctry"    \
@@ -81,3 +84,5 @@ do
 done
 
 ####################################################################################################
+
+
