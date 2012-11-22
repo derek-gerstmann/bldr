@@ -21,7 +21,9 @@ pkg_info="Crypto++ Library is a free C++ class library of cryptographic schemes.
 
 pkg_desc="Crypto++ Library is a free C++ class library of cryptographic schemes."
 
-pkg_opts="configure enable-static enable-shared"
+pkg_opts="configure enable-static enable-shared "
+cpp_opts=$pkg_opts
+
 pkg_reqs="coreutils libtool m4 automake autoconf"
 pkg_uses="bzip2 tar"
 
@@ -42,7 +44,8 @@ else
 	for pkg_vers in ${pkg_variants[@]}
 	do
 	    pkg_file="${pkg_distribs[$pkg_idx]}"
-		pkg_urls="http://www.cryptopp.com/$pkg_file"
+            pkg_urls="http://www.cryptopp.com/$pkg_file"
+            pkg_opts="$cpp_opts -MPREFIX=$BLDR_LOCAL_PATH/$pkg_ctry/$pkg_name/$pkg_vers "
 
 	    bldr_register_pkg                 \
 	         --category    "$pkg_ctry"    \
