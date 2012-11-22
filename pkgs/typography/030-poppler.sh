@@ -28,12 +28,14 @@ pkg_opts+="enable-shared "
 pkg_cfg="--enable-zlib"
 
 pkg_reqs=""
+pkg_reqs+="pkg-config "
 pkg_reqs+="zlib "
 pkg_reqs+="libicu "
 pkg_reqs+="libxml2 "
 pkg_reqs+="lcms2 "
 pkg_reqs+="libpng "
 pkg_reqs+="libjpeg "
+pkg_reqs+="fontconfig "
 pkg_uses=$pkg_reqs
 
 pkg_cflags=""
