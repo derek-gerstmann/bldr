@@ -108,10 +108,6 @@ export pixman_CFLAGS="-I$BLDR_PIXMAN_INCLUDE_PATH -I$BLDR_PIXMAN_INCLUDE_PATH/pi
 export pixman_LIBS="-L$BLDR_PIXMAN_LIB_PATH -lpixman-1" 
 export pixman_REQUIRES="libpixman"
 
-# pkg_ldflags+="\"$BLDR_ZLIB_LIB_PATH/libz.a\" "
-# pkg_ldflags+="-L\"$BLDR_BZIP2_LIB_PATH\" -lbz2 "
-# pkg_ldflags+="-L\"$BLDR_LIBPNG_LIB_PATH\" -lpng "
-
 ####################################################################################################
 # register each pkg version with bldr
 ####################################################################################################
