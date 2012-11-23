@@ -42,6 +42,16 @@ pkg_ldflags=""
 pkg_cfg=""
 pkg_cfg_path="source"
 
+if [[ $BLDR_SYSTEM_IS_OSX == true ]]
+then
+    export THE_OS="MacOSX"
+fi
+
+if [[ $BLDR_SYSTEM_IS_LINUX == true ]]
+then
+    export THE_OS="Linux"
+fi
+
 ####################################################################################################
 # register each pkg version with bldr
 ####################################################################################################
@@ -51,6 +61,9 @@ for pkg_vers in ${pkg_variants[@]}
 do
     pkg_file=${pkg_distribs[$pkg_idx]}
     pkg_urls=${pkg_mirrors[$pkg_idx]}
+    pkg_urls+="/$pkg_file"
+
+    pkg_cflags="-I$BLDR_BUILD_PATH/$pkg_ctry/$pkg_name/$pkg_vers/source"
 
     bldr_register_pkg                \
         --category    "$pkg_ctry"    \

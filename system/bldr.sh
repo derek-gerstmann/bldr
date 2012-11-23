@@ -805,11 +805,11 @@ function bldr_load_pkgconfig()
     if [ -d "$BLDR_MODULE_PATH/internal/pkg-config" ]
     then    
         module use "$BLDR_MODULE_PATH/internal" || bldr_bail "Failed to load 'internal' module!"
-        if [[ $(bldr_has_cfg_option "$BLDR_RESOLVED_PKGS" "pkg-config/default") == false ]]
-        then
+#        if [[ $(bldr_has_cfg_option "$BLDR_RESOLVED_PKGS" "pkg-config/default") == false ]]
+#        then
             module load "pkg-config/default" || bldr_bail "Failed to load module '$internal_base' from 'internal'!"
-            export BLDR_RESOLVED_PKGS="$BLDR_RESOLVED_PKGS pkg-config/default"
-        fi
+#            export BLDR_RESOLVED_PKGS="$BLDR_RESOLVED_PKGS pkg-config/default"
+#        fi
     else
         if [ -d "$BLDR_LOCAL_PATH/internal/pkg-config/default/bin" ]
         then
@@ -6463,10 +6463,10 @@ function bldr_satisfy_pkg()
         bldr_log_split
     fi
 
-    if [[ $(bldr_has_cfg_option "$BLDR_RESOLVED_PKGS" "$pkg_name/$pkg_vers") == false ]]
-    then
-        export BLDR_RESOLVED_PKGS="$BLDR_RESOLVED_PKGS $pkg_name/$pkg_vers"
-    fi
+#    if [[ $(bldr_has_cfg_option "$BLDR_RESOLVED_PKGS" "$pkg_name/$pkg_vers") == false ]]
+#    then
+#        export BLDR_RESOLVED_PKGS="$BLDR_RESOLVED_PKGS $pkg_name/$pkg_vers"
+#    fi
 }
 
 ####################################################################################################
