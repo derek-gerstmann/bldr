@@ -3453,7 +3453,17 @@ function bldr_ant_pkg()
     bldr_log_status "Launching 'ant' for '$pkg_name/$pkg_vers' from '$cfg_path' ..."
     bldr_log_split
 
-    bldr_run_cmd "ant build ${pkg_cfg}"
+    local ant_tgt="build"
+    if [[ $(echo "$pkg_opts" | grep -m1 -c 'use-ant-build-target') > 0 ]]
+    then
+        local user_tgt=$(echo $pkg_opts | grep -E -o 'use-ant-build-target=(\S+)' | sed 's/.*=//g' )
+        if [[ "$user_tgt" != "" ]]
+        then
+            ant_tgt="$user_tgt"
+        fi
+    fi
+
+    bldr_run_cmd "ant ${ant_tgt} ${pkg_cfg}"
 
     bldr_log_info "Done configuring package '$pkg_name/$pkg_vers'"
     bldr_log_split
