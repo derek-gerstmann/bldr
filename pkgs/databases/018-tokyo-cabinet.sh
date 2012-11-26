@@ -38,7 +38,7 @@ They are achieved and Tokyo Cabinet replaces conventional DBM products.
 Tokyo Cabinet is written in the C language, and provided as API of C, Perl, Ruby, Java, and Lua. Tokyo Cabinet is available on platforms which have API conforming to C99 and POSIX. 
 Tokyo Cabinet is a free software licensed under the GNU Lesser General Public License."
 
-tc_opts="configure skip-auto-compile-flags enable-shared "
+tc_opts="configure skip-auto-compile-flags skip-system-flags enable-shared "
 
 if [[ $BLDR_SYSTEM_IS_OSX == false ]]
 then
@@ -48,8 +48,22 @@ fi
 pkg_reqs="tar zlib bzip2"
 pkg_uses="tar zlib bzip2"
 
+####################################################################################################
+# satisfy pkg dependencies and load their environment settings
+####################################################################################################
+
+bldr_satisfy_pkg                    \
+    --category    "$pkg_ctry"       \
+    --name        "$pkg_name"       \
+    --version     "$pkg_default"    \
+    --requires    "$pkg_reqs"       \
+    --uses        "$pkg_uses"       \
+    --options     "$pkg_opts"
+
+####################################################################################################
+
 pkg_cflags=""
-pkg_ldflags=""
+pkg_ldflags="-L$BLDR_ZLIB_LIB_PATH -L$BLDR_BZIP2_LIB_PATH "
 
 pkg_cfg=""
 pkg_cfg_path=""
