@@ -66,6 +66,7 @@ BLDR_MODULE_EXPORT_PATHS=(
     "share" "locale"
     "etc" "config" 
     "pkg-config"
+    "pkgconfig"
     "aclocal" 
     "site-packages")
 
@@ -75,6 +76,7 @@ BLDR_DEBUG=${BLDR_DEBUG:=false}
 BLDR_LOG_FILE=${BLDR_LOG_FILE:=""}
 BLDR_IS_INTERNAL_LOADED=${BLDR_IS_INTERNAL_LOADED:=false}
 BLDR_LOADED_MODULES=${BLDR_LOADED_MODULES:=""}
+BLDR_LOADED_CATEGORIES=${BLDR_LOADED_CATEGORIES:=""}
 BLDR_RESOLVED_PKGS=${BLDR_RESOLVED_PKGS:=""}
 BLDR_DEFAULT_BUILD_LIST=${BLDR_DEFAULT_BUILD_LIST:="${BLDR_CATEGORIES[@]}"}
 BLDR_DEFAULT_PKG_USES=${BLDR_DEFAULT_PKG_USES:=""}
@@ -775,7 +777,14 @@ function bldr_load_modules()
         for ctry_path in $BLDR_MODULE_PATH/*
         do
             ctry_name=$(basename "$ctry_path")
-            module use "$BLDR_MODULE_PATH/$ctry_name" || bldr_bail "Failed to load '$ctry_name' module!"
+            if [ -d "$BLDR_MODULE_PATH/$ctry_name" ]
+            then
+                if [[ $(echo "$BLDR_LOADED_CATEGORIES" | grep -m1 -c "$ctry_name") < 1 ]]
+                then
+                    module use "$BLDR_MODULE_PATH/$ctry_name" || bldr_bail "Failed to use module category '$ctry_name'!"
+                    BLDR_LOADED_CATEGORIES="$BLDR_LOADED_CATEGORIES:$ctry_name"
+                fi
+            fi
         done
 
 #        if [ -d "$BLDR_MODULE_PATH/internal" ]
@@ -800,11 +809,15 @@ function bldr_load_modules()
 # setup the environment to support our own version of PKG_CONFIG
 function bldr_load_pkgconfig()
 {
-    if [ -d "$BLDR_MODULE_PATH/internal/pkg-config" ]
+    if [ -d "$BLDR_MODULE_PATH/internal/pkg-config" ] && [ "$(type -t module)" == "function" ]
     then    
+        if [[ $(echo "$BLDR_LOADED_CATEGORIES" | grep -m1 -c "internal") < 1 ]]
+        then
+            module use "$BLDR_MODULE_PATH/internal" || bldr_bail "Failed to load 'pkg-config/default' module from 'internal'!"
+            BLDR_LOADED_CATEGORIES="$BLDR_LOADED_CATEGORIES:internal"
+        fi
         if [[ $(echo "$BLDR_LOADED_MODULES" | grep -m1 -c "pkg-config/default") < 1 ]]
         then
-#            bldr_log_dual_item_suffix "Loading" "internal" "module" "pkg-config/default"
             module load "pkg-config/default" || bldr_bail "Failed to load 'pkg-config/default' module from 'internal'!"
             BLDR_LOADED_MODULES="$BLDR_LOADED_MODULES:pkg-config/default"
         fi
@@ -2551,8 +2564,24 @@ function bldr_build_required_pkg()
                         local old_cmds=$BLDR_USE_PKG_CMDS
 
                         export BLDR_USE_PKG_CMDS="build"
-#                        bldr_run_cmd $pkg_sh || bldr_log_warning "Failed to build '$ctry_name/$pkg_tst_name' ..."
-                        eval $pkg_sh
+
+                        if [[ $(bldr_has_cfg_option "$pkg_opts" "quiet" ) == "true" ]]
+                        then
+                            if [[ $(bldr_has_cfg_option "$pkg_opts" "keep-going" ) == "true" ]]
+                            then
+                                bldr_run_cmd $pkg_sh
+                            else
+                                bldr_run_cmd $pkg_sh || bldr_log_warning "Failed to build '$ctry_name/$pkg_tst_name' ..."
+                            fi
+                        else
+                            if [[ $(bldr_has_cfg_option "$pkg_opts" "keep-going" ) == "true" ]]
+                            then
+                                eval $pkg_sh
+                            else
+                                eval $pkg_sh || bldr_log_warning "Failed to build '$ctry_name/$pkg_tst_name' ..."
+                            fi
+                        fi
+
                         export BLDR_USE_PKG_CMDS="$old_cmds"
                     fi
                 fi
@@ -2625,7 +2654,11 @@ function bldr_load_pkg()
         local fnd_ctry=$(basename "$ctry_entry")
         if [ -d "$BLDR_MODULE_PATH/$pkg_ctry" ]
         then
-            module use "$BLDR_MODULE_PATH/$pkg_ctry" || bldr_bail "Failed to load '$pkg_ctry' module!"
+            if [[ $(echo "$BLDR_LOADED_CATEGORIES" | grep -m1 -c "$pkg_ctry") < 1 ]]
+            then
+                module use "$BLDR_MODULE_PATH/$pkg_ctry" || bldr_bail "Failed to use module category '$pkg_ctry'!"
+                BLDR_LOADED_CATEGORIES="$BLDR_LOADED_CATEGORIES:$pkg_ctry"
+            fi
         fi
 
         for fnd_entry in ${fnd_list}
@@ -6181,6 +6214,7 @@ function bldr_modulate_pkg()
                 sub_path="${fnd:2}"
             fi
             local found="$local_path/$pkg_ctry/$pkg_name/$pkg_vers/$sub_path"
+            pc_paths+="$pc_paths:$found"
             printf $fmt_lc "append-path" "PKG_CONFIG_PATH" "\"$found\""               >> $module_file
         done
 
@@ -6193,7 +6227,11 @@ function bldr_modulate_pkg()
             else
                 found="$local_path/$pkg_ctry/$pkg_name/$pkg_vers"
             fi
-            printf $fmt_lc "append-path" "PKG_CONFIG_PATH" "\"$found\""                     >> $module_file
+
+            if [[ $(bldr_has_cfg_option "$pc_paths" "$found") == "false" ]]
+            then
+                printf $fmt_lc "append-path" "PKG_CONFIG_PATH" "\"$found\""           >> $module_file
+            fi
         done
 
         for fnd in $(find . -type d -iname "gems")
@@ -7697,8 +7735,22 @@ function bldr()
                         export BLDR_USE_PKG_OPTS="$pkg_opts"
                         export BLDR_USE_PKG_CMDS="$pkg_cmds"
 
-#                        bldr_run_cmd $pkg_sh || bldr_log_warning "Failed to build '$ctry_name/$pkg_tst_name' ..."
-                        eval $pkg_sh
+                        if [[ $(bldr_has_cfg_option "$pkg_opts" "quiet" ) == "true" ]]
+                        then
+                            if [[ $(bldr_has_cfg_option "$pkg_opts" "keep-going" ) == "true" ]]
+                            then
+                                bldr_run_cmd $pkg_sh
+                            else
+                                bldr_run_cmd $pkg_sh || bldr_log_warning "Failed to build '$ctry_name/$pkg_tst_name' ..."
+                            fi
+                        else
+                            if [[ $(bldr_has_cfg_option "$pkg_opts" "keep-going" ) == "true" ]]
+                            then
+                                eval $pkg_sh
+                            else
+                                eval $pkg_sh || bldr_log_warning "Failed to build '$ctry_name/$pkg_tst_name' ..."
+                            fi
+                        fi
 
                         export BLDR_USE_PKG_CMDS="$old_cmds"
                         export BLDR_USE_PKG_CTRY=""
