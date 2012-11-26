@@ -29,7 +29,7 @@ of log-structured updates, strong support for materialized views, and powerful b
 
 cas_opts="ant migrate-build-tree"
 
-pkg_reqs=""
+pkg_reqs="ant"
 pkg_uses="ant"
 
 pkg_cflags=""

@@ -24,10 +24,38 @@ pkg_desc="The GObject Introspection library is used to describe the GLIB
 based program APIs and collect them in a uniform, machine readable format."
 
 pkg_opts="configure enable-static enable-shared"
-pkg_reqs="pkg-config glib zlib gzip coreutils"
+pkg_reqs="pkg-config glib zlib gzip coreutils pcre"
 pkg_uses="$pkg_reqs"
+
+####################################################################################################
+# satisfy pkg dependencies and load their environment settings
+####################################################################################################
+
+bldr_satisfy_pkg                  \
+  --category    "$pkg_ctry"       \
+  --name        "$pkg_name"       \
+  --version     "$pkg_default"    \
+  --requires    "$pkg_reqs"       \
+  --uses        "$pkg_uses"       \
+  --options     "$pkg_opts"
+
+####################################################################################################
+
+pkg_cfg="--disable-introspection "
 pkg_cflags=""
+pkg_cflags+="-I$BLDR_GLIB_INCLUDE_PATH/glib-2.0 "
+pkg_cflags+="-I$BLDR_GLIB_INCLUDE_PATH/gio-unix-2.0 "
 pkg_ldflags=""
+
+export GLIB_CFLAGS="-I$BLDR_GLIB_INCLUDE_PATH -I$BLDR_GLIB_INCLUDE_PATH/glib-2.0 -I$BLDR_GLIB_INCLUDE_PATH/gio-unix-2.0 " 
+export GLIB_LIBS="-L$BLDR_GLIB_LIB_PATH -lglib-2.0 -lgio-2.0 -lgmodule-2.0 -lgobject-2.0 -lgthread-2.0 "
+
+export GOBJECT_CFLAGS="-I$BLDR_GLIB_INCLUDE_PATH -I$BLDR_GLIB_INCLUDE_PATH/glib-2.0 -I$BLDR_GLIB_INCLUDE_PATH/gio-unix-2.0 " 
+export GOBJECT_LIBS="-L$BLDR_GLIB_LIB_PATH -lglib-2.0 -lgio-2.0 -lgmodule-2.0 -lgobject-2.0 -lgthread-2.0 "
+
+export LIBPCRE_CFLAGS="-I$BLDR_PCRE_INCLUDE_PATH "
+export LIBPCRE_LIBS="-L$BLDR_PCRE_LIB_PATH -lpcre "
+
 pkg_cfg="--disable-tests"
 pkg_patch=""
 

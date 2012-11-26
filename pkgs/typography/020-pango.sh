@@ -53,15 +53,19 @@ pkg_opts="configure "
 pkg_opts+="enable-static "
 pkg_opts+="enable-shared "
 
-pkg_reqs="pkg-config "
+pkg_reqs="libtool "
+pkg_reqs+="perl "
+pkg_reqs+="glib "
+pkg_reqs+="gobject-isl "
 pkg_reqs+="zlib "
 pkg_reqs+="libicu "
 pkg_reqs+="libiconv "
 pkg_reqs+="libxml2 "
 pkg_reqs+="freetype "
 pkg_reqs+="fontconfig "
+pkg_reqs+="harfbuzz "
 pkg_reqs+="gettext "
-pkg_reqs+="glib "
+pkg_reqs+="gtk-doc "
 pkg_uses="$pkg_reqs"
 
 ####################################################################################################
@@ -78,11 +82,26 @@ bldr_satisfy_pkg                  \
 
 ####################################################################################################
 
-pkg_cfg="--disable-introspection"
+pkg_cfg="--enable-introspection "
+pkg_cfg="--enable-gtk-doc "
 pkg_cflags=""
-pkg_cflags+=":-I$BLDR_GLIB_INCLUDE_PATH/glib-2.0"
-pkg_cflags+=":-I$BLDR_GLIB_INCLUDE_PATH/gio-unix-2.0"
+pkg_cflags+="-I$BLDR_GLIB_INCLUDE_PATH/glib-2.0 "
+pkg_cflags+="-I$BLDR_GLIB_INCLUDE_PATH/gio-unix-2.0 "
 pkg_ldflags=""
+
+export HARFBUZZ_CFLAGS="-I$BLDR_HARFBUZZ_INCLUDE_PATH -I$BLDR_HARFBUZZ_INCLUDE_PATH/harfbuzz "
+export HARFBUZZ_LIBS="-L$BLDR_HARFBUZZ_LIB_PATH -lharfbuzz "
+
+export FREETYPE_CFLAGS="-I$BLDR_FREETYPE_INCLUDE_PATH -I$BLDR_FREETYPE_INCLUDE_PATH/freetype2 "
+export FREETYPE_LIBS="-I$BLDR_FREETYPE_LIB_PATH -lfreetype "
+
+export FONTCONFIG_CFLAGS="-I$BLDR_FONTCONFIG_INCLUDE_PATH "
+export FONTCONFIG_LIBS="-I$BLDR_FONTCONFIG_LIB_PATH -lfontconfig "
+
+export GLIB_CFLAGS="-I$BLDR_GLIB_INCLUDE_PATH -I$BLDR_GLIB_INCLUDE_PATH/glib-2.0 -I$BLDR_GLIB_INCLUDE_PATH/gio-unix-2.0 " 
+export GLIB_LIBS="-L$BLDR_GLIB_LIB_PATH -lglib-2.0 -lgio-2.0 -lgmodule-2.0 -lgobject-2.0 -lgthread-2.0 "
+
+alias glib-mkenums=$BLDR_GLIB_BASE_PATH/bin/glib-mkenums
 
 ####################################################################################################
 # register each pkg version with bldr

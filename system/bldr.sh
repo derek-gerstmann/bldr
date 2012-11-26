@@ -1,5 +1,3 @@
-#!/bin/bash
-
 ####################################################################################################
 ##
 ## License:    The MIT License
@@ -804,12 +802,12 @@ function bldr_load_pkgconfig()
 {
     if [ -d "$BLDR_MODULE_PATH/internal/pkg-config" ]
     then    
-        module use "$BLDR_MODULE_PATH/internal" || bldr_bail "Failed to load 'internal' module!"
-#        if [[ $(bldr_has_cfg_option "$BLDR_RESOLVED_PKGS" "pkg-config/default") == false ]]
-#        then
-            module load "pkg-config/default" || bldr_bail "Failed to load module '$internal_base' from 'internal'!"
-#            export BLDR_RESOLVED_PKGS="$BLDR_RESOLVED_PKGS pkg-config/default"
-#        fi
+        if [[ $(echo "$BLDR_LOADED_MODULES" | grep -m1 -c "pkg-config/default") < 1 ]]
+        then
+#            bldr_log_dual_item_suffix "Loading" "internal" "module" "pkg-config/default"
+            module load "pkg-config/default" || bldr_bail "Failed to load 'pkg-config/default' module from 'internal'!"
+            BLDR_LOADED_MODULES="$BLDR_LOADED_MODULES:pkg-config/default"
+        fi
     else
         if [ -d "$BLDR_LOCAL_PATH/internal/pkg-config/default/bin" ]
         then
@@ -819,12 +817,11 @@ function bldr_load_pkgconfig()
             fi
 
             export PKG_CONFIG="$BLDR_LOCAL_PATH/internal/pkg-config/default/bin/pkg-config"
-            export PKG_CONFIG_PATH="$BLDR_LOCAL_PATH/internal/pkg-config/default/lib/pkgconfig"
+#            export PKG_CONFIG_PATH="$BLDR_LOCAL_PATH/internal/pkg-config/default/lib/pkgconfig"
         fi
     fi
 }
 
-# setup the environment to support our own version of PKG_CONFIG
 function bldr_load_logger()
 {
     if [ ! -d "$BLDR_LOG_PATH" ]
@@ -843,10 +840,10 @@ function bldr_load_logger()
 
 function bldr_startup() 
 {
+    bldr_load_logger
     bldr_load_modules
     bldr_load_pkgconfig    
     bldr_load_internal
-    bldr_load_logger
 }
 
 ####################################################################################################
@@ -4878,7 +4875,7 @@ function bldr_compile_pkg()
         options="$options $env_flags"
     fi
 
-    local mk_file=$(bldr_locate_make_file $pkg_cfg_path $pkg_opts)
+    local mk_file="$(bldr_locate_make_file $pkg_cfg_path $pkg_opts)"
     if [[ $(echo "$pkg_opts" | grep -m1 -c 'use-build-makefile') > 0 ]]
     then
         local user_mk=$(echo $pkg_opts | grep -E -o 'use-build-makefile=(\S+)' | sed 's/.*=//g' )
@@ -6473,10 +6470,10 @@ function bldr_satisfy_pkg()
         bldr_log_split
     fi
 
-#    if [[ $(bldr_has_cfg_option "$BLDR_RESOLVED_PKGS" "$pkg_name/$pkg_vers") == false ]]
-#    then
-#        export BLDR_RESOLVED_PKGS="$BLDR_RESOLVED_PKGS $pkg_name/$pkg_vers"
-#    fi
+    if [[ $(echo "$BLDR_LOADED_MODULES" | grep -m1 -c "$fnd_need") < 1 ]]
+    then
+        BLDR_LOADED_MODULES="$BLDR_LOADED_MODULES:$pkg_name/$pkg_vers"
+    fi
 }
 
 ####################################################################################################
@@ -6596,30 +6593,6 @@ function bldr_exec_cmds()
         pkg_cmd_list="$(bldr_trim_list_str $pkg_cmd_list)"
     fi
  
-    if [ $BLDR_VERBOSE != false ]
-    then
-        echo "Category:       '$pkg_ctry'"
-        echo "Name:           '$pkg_name'"
-        echo "Version:        '$pkg_vers'"
-        echo "Info:           '$pkg_info'"
-        echo "File:           '$pkg_file'"
-        echo "Urls:           '$pkg_urls'"
-        echo "Options:        '$pkg_opts'"
-        echo "Uses:           '$pkg_uses'"
-        echo "Requires:       '$pkg_reqs'"
-        echo "CompilerFlags:  '$pkg_cflags'"
-        echo "LinkerFlags:    '$pkg_ldflags'"
-        echo "Config:         '$pkg_cfg'"
-        echo "ConfigPath:     '$pkg_cfg_path'"
-        echo "Patches:        '$pkg_patches'"
-        echo "Commands:       '$pkg_cmd_list'"
-        echo "Description:      "
-        echo " "
-        echo "'$pkg_desc'"
-        echo " "
-        bldr_log_split
-    fi
-
     local call_setup=false
     local call_fetch=false
     local call_boot=false
@@ -6630,14 +6603,14 @@ function bldr_exec_cmds()
     local call_modulate=false
     local call_link=false
     local call_cleanup=false
-    local call_satisfy=false
+    local call_satisfy=true
 
     if [[ $(bldr_has_cfg_option "$pkg_opts" "skip-satisfy" ) == "true" ]]
     then
         call_satisfy=false
     fi
 
-    local pkg_resolved=$(bldr_has_cfg_option "$BLDR_RESOLVED_PKGS" "$pkg_name/$pkg_vers" )
+    local pkg_resolved=$(bldr_has_cfg_option "$BLDR_LOADED_MODULES" "$pkg_name/$pkg_vers" )
 
     if [[ $(bldr_has_cfg_option "$pkg_cmd_list" "build" ) == "true" ]]
     then
@@ -6709,6 +6682,32 @@ function bldr_exec_cmds()
             --requires    "$pkg_reqs"     \
             --options     "$pkg_opts"     \
             --verbose     "$use_verbose"
+    fi
+
+    if [ $BLDR_VERBOSE != false ]
+    then
+        echo "Category:       '$pkg_ctry'"
+        echo "Name:           '$pkg_name'"
+        echo "Version:        '$pkg_vers'"
+        echo "Info:           '$pkg_info'"
+        echo "Description:      "
+        echo " "
+        echo "'$pkg_desc'"
+        echo " "
+        echo "File:           '$pkg_file'"
+        echo "Urls:           '$pkg_urls'"
+        echo "Options:        '$pkg_opts'"
+        echo "Uses:           '$pkg_uses'"
+        echo "Requires:       '$pkg_reqs'"
+        echo "CompilerFlags:  '$pkg_cflags'"
+        echo "LinkerFlags:    '$pkg_ldflags'"
+        echo "Config:         '$pkg_cfg'"
+        echo "ConfigPath:     '$pkg_cfg_path'"
+        echo "Patches:        '$pkg_patches'"
+        echo "Commands:       '$pkg_cmd_list'"
+        echo "Path:           '$PATH'"
+        echo "PkgConfigPath:  '$PKG_CONFIG_PATH'"
+        bldr_log_split
     fi
 
     local pkg_needs=$(bldr_trim_list_str "$pkg_uses $pkg_reqs")
