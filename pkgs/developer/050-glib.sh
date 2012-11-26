@@ -71,6 +71,9 @@ else
 fi
 pkg_patch=""
 
+export PCRE_CFLAGS="-I$BLDR_PCRE_INCLUDE_PATH " 
+export PCRE_LIBS="-L$BLDR_PCRE_LIB_PATH -lpcre -lpcrecpp "
+
 ####################################################################################################
 # register each pkg version with bldr
 ####################################################################################################
