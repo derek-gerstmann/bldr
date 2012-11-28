@@ -66,7 +66,6 @@ BLDR_MODULE_EXPORT_PATHS=(
     "share" "locale"
     "etc" "config" 
     "pkg-config"
-    "pkgconfig"
     "aclocal" 
     "site-packages")
 

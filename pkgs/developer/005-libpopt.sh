@@ -21,7 +21,7 @@ pkg_info="A C library for parsing command line parameters."
 pkg_desc="A C library for parsing command line parameters."
 
 pkg_opts="configure enable-static enable-shared"
-pkg_reqs="pkg-config zlib"
+pkg_reqs="libtool zlib"
 pkg_uses="$pkg_reqs"
 
 pkg_cflags=""

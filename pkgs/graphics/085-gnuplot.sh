@@ -30,8 +30,7 @@ supported and under active development since 1986."
 
 pkg_opts="configure enable-static enable-shared"
 
-pkg_reqs="pkg-config "
-pkg_reqs+="zlib "
+pkg_reqs="zlib "
 pkg_reqs+="bzip2 "
 pkg_reqs+="libxml2 "
 pkg_reqs+="libicu "

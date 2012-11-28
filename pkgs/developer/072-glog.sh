@@ -23,7 +23,7 @@ pkg_desc="Google's GLOG library provides application-level logging.
 This library provides logging APIs based on C++-style streams and various helper macros."
 
 pkg_opts="configure enable-static enable-shared"
-pkg_reqs="pkg-config zlib"
+pkg_reqs="libtool zlib"
 pkg_uses="$pkg_reqs"
 
 pkg_cflags=""

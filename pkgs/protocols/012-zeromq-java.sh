@@ -22,7 +22,7 @@ pkg_desc="Java Bindings for ZeroMQ -- a set of components for building scalable 
 performance distributed applications"
 
 pkg_opts="configure enable-static enable-shared force-bootstrap force-serial-build"
-pkg_reqs="pkg-config gettext zeromq/2.1.7"
+pkg_reqs="gettext zeromq/2.1.7"
 pkg_uses="autoconf automake m4 libtool"
 
 ####################################################################################################

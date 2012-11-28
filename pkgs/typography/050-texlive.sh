@@ -27,7 +27,7 @@ pkg_distribs=("install-tl-unx.tar.gz")
 pkg_mirrors=("http://mirror.ctan.org/systems/texlive/tlnet")
 
 txl_opts="configure keep skip-install"
-pkg_reqs="pkg-config"
+pkg_reqs="libtool"
 
 pkg_uses=""
 pkg_reqs=""

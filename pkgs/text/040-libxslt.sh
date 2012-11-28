@@ -32,7 +32,7 @@ pkg_opts="configure "
 pkg_opts+="enable-static "
 pkg_opts+="enable-shared "
 
-pkg_reqs="pkg-config "
+pkg_reqs="libtool "
 pkg_reqs+="coreutils "
 pkg_reqs+="zlib "
 pkg_reqs+="gzip "

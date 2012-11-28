@@ -29,9 +29,8 @@ Pixman is free and open source software. It is available to be redistributed and
 modified under the terms of the MIT license. "
 
 pkg_opts="configure enable-static enable-shared"
-pkg_reqs=""
-pkg_reqs+="pkg-config "
-pkg_reqs+="libtool "
+
+pkg_reqs="libtool "
 pkg_reqs+="zlib "
 pkg_reqs+="libxml2 "
 pkg_reqs+="libicu "

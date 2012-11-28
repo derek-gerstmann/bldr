@@ -26,7 +26,7 @@ language but we want to provide bindings for everyone's favorite language too."
 pkg_opts="configure enable-static enable-shared"
 
 pkg_reqs="zlib "
-pkg_reqs+="pkg-config "
+pkg_reqs+="libtool "
 pkg_reqs+="libxml2 "
 pkg_reqs+="libicu "
 pkg_reqs+="libiconv "

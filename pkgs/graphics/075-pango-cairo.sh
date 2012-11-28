@@ -52,8 +52,7 @@ found at http://www.gtk.org/."
 
 pkg_opts="configure enable-static enable-shared"
 
-pkg_reqs="pkg-config "
-pkg_reqs+="zlib "
+pkg_reqs="zlib "
 pkg_reqs+="libicu "
 pkg_reqs+="libiconv "
 pkg_reqs+="libxml2 "

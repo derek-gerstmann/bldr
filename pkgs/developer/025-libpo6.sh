@@ -20,7 +20,7 @@ pkg_info="C++ interfaces for Posix system calls (used internally for HyperDex)"
 pkg_desc="$pkg_info"
 
 pkg_opts="configure enable-static enable-shared"
-pkg_reqs="pkg-config zlib"
+pkg_reqs="libtool zlib"
 pkg_uses="$pkg_reqs"
 pkg_cflags=""
 pkg_ldflags=""

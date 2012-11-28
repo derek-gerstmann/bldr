@@ -28,7 +28,7 @@ of an object when mapping it to servers."
 pkg_opts="configure enable-static enable-shared"
 pkg_cfg="--enable-python-bindings"
 
-pkg_reqs="pkg-config "
+pkg_reqs="libtool "
 pkg_reqs+="zlib "
 pkg_reqs+="cityhash "
 pkg_reqs+="glog "

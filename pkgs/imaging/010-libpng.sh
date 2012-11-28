@@ -30,7 +30,7 @@ else
     pkg_opts+="enable-shared "
 fi
 
-pkg_reqs="zlib pkg-config libtool"
+pkg_reqs="zlib libtool"
 pkg_uses="$pkg_reqs"
 
 ####################################################################################################

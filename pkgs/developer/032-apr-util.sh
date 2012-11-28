@@ -29,7 +29,7 @@ APR and its companion libraries are implemented entirely in C and provide a comm
 interface across a wide variety of operating system platforms without sacrificing performance. "
 
 pkg_opts="configure enable-static enable-shared"
-pkg_reqs="coreutils pkg-config zlib apr"
+pkg_reqs="coreutils libtool zlib apr"
 pkg_uses="$pkg_reqs"
 
 ####################################################################################################

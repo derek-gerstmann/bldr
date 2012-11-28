@@ -26,9 +26,9 @@ pkg_variants=("$pkg_default")
 pkg_opts="configure "
 pkg_opts+="force-serial-build "
 pkg_opts+="use-build-makefile=Makefile "
-pkg_opts+="-EPYTHONPATH+=$BLDR_LOCAL_ENV_PATH/$pkg_ctry/$pkg_name/$pkg_vers/bindings/python/lib/python2.7/site-packages "
+thr_opts=$pkg_opts
 
-pkg_reqs="pkg-config "
+pkg_reqs="libtool "
 pkg_reqs+="bison "
 pkg_reqs+="flex "
 pkg_reqs+="boost "
@@ -77,6 +77,9 @@ for pkg_vers in ${pkg_variants[@]}
 do
     pkg_file="$pkg_name-$pkg_vers.tar.gz"
     pkg_urls="https://dist.apache.org/repos/dist/release/$pkg_name/$pkg_vers/$pkg_file"
+
+    pkg_opts="$thr_opts"
+    pkg_opts+="-EPYTHONPATH+=$BLDR_LOCAL_ENV_PATH/$pkg_ctry/$pkg_name/$pkg_vers/bindings/python/lib/python2.7/site-packages "
 
     bldr_register_pkg                  \
           --category    "$pkg_ctry"    \

@@ -84,9 +84,9 @@ bldr_satisfy_pkg                  \
 
 pkg_cfg="--enable-introspection "
 pkg_cfg="--enable-gtk-doc "
-pkg_cflags=""
-pkg_cflags+="-I$BLDR_GLIB_INCLUDE_PATH/glib-2.0 "
-pkg_cflags+="-I$BLDR_GLIB_INCLUDE_PATH/gio-unix-2.0 "
+pkg_cflags="-I$BLDR_GLIB_BASE_PATH/include "
+pkg_cflags+="-I$BLDR_GLIB_BASE_PATH/include/glib-2.0 "
+pkg_cflags+="-I$BLDR_GLIB_BASE_PATH/include/gio-unix-2.0 "
 pkg_ldflags=""
 
 export HARFBUZZ_CFLAGS="-I$BLDR_HARFBUZZ_INCLUDE_PATH -I$BLDR_HARFBUZZ_INCLUDE_PATH/harfbuzz "
@@ -98,7 +98,7 @@ export FREETYPE_LIBS="-I$BLDR_FREETYPE_LIB_PATH -lfreetype "
 export FONTCONFIG_CFLAGS="-I$BLDR_FONTCONFIG_INCLUDE_PATH "
 export FONTCONFIG_LIBS="-I$BLDR_FONTCONFIG_LIB_PATH -lfontconfig "
 
-export GLIB_CFLAGS="-I$BLDR_GLIB_INCLUDE_PATH -I$BLDR_GLIB_INCLUDE_PATH/glib-2.0 -I$BLDR_GLIB_INCLUDE_PATH/gio-unix-2.0 " 
+export GLIB_CFLAGS="-I$BLDR_GLIB_BASE_PATH/include -I$BLDR_GLIB_BASE_PATH/include/glib-2.0 -I$BLDR_GLIB_BASE_PATH/include/gio-unix-2.0 " 
 export GLIB_LIBS="-L$BLDR_GLIB_LIB_PATH -lglib-2.0 -lgio-2.0 -lgmodule-2.0 -lgobject-2.0 -lgthread-2.0 "
 
 alias glib-mkenums=$BLDR_GLIB_BASE_PATH/bin/glib-mkenums

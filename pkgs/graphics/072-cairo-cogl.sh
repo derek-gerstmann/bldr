@@ -49,8 +49,7 @@ else
     pkg_opts+="enable-static enable-shared "
 fi
 
-pkg_reqs="pkg-config "
-pkg_reqs+="libtool "
+pkg_reqs="libtool "
 pkg_reqs+="zlib "
 pkg_reqs+="bzip2 "
 pkg_reqs+="libxml2 "

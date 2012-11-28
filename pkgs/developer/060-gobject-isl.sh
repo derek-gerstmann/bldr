@@ -24,7 +24,7 @@ pkg_desc="The GObject Introspection library is used to describe the GLIB
 based program APIs and collect them in a uniform, machine readable format."
 
 pkg_opts="configure enable-static enable-shared"
-pkg_reqs="pkg-config glib zlib gzip coreutils pcre"
+pkg_reqs="libtool glib zlib gzip coreutils pcre"
 pkg_uses="$pkg_reqs"
 
 ####################################################################################################

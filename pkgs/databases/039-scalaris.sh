@@ -27,7 +27,7 @@ implemented in Erlang. "
 pkg_opts="configure enable-static enable-shared"
 pkg_cfg=""
 
-pkg_reqs="pkg-config "
+pkg_reqs="libtool "
 pkg_reqs+="erlang "
 pkg_uses="$pkg_reqs"
 

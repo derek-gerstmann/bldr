@@ -25,7 +25,7 @@ information enclosed between angle brackets. HTML is the most well-known markup
 language. Though the library is written in C a variety of language bindings make 
 it available in other environments."
 
-pkg_reqs="pkg-config coreutils zlib gzip xz"
+pkg_reqs="libtool coreutils zlib gzip xz"
 pkg_uses="$pkg_reqs"
 pkg_cfg=""
 pkg_cflags=""

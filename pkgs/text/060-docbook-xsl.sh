@@ -29,7 +29,7 @@ pkg_opts+="skip-compile "
 pkg_opts+="skip-boot "
 pkg_opts+="skip-config "
 
-pkg_reqs="pkg-config "
+pkg_reqs="libtool "
 pkg_reqs+="coreutils "
 pkg_reqs+="zlib "
 pkg_reqs+="gzip "

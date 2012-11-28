@@ -33,7 +33,7 @@ The README contains a good explanation of the various CityHash functions. Howeve
 * CityHashCrc128() and CityHashCrc256() and similar are additional variants, specially tuned for CPUs with SSE4.2."
 
 pkg_opts="configure enable-static enable-shared"
-pkg_reqs="pkg-config zlib"
+pkg_reqs="libtool zlib"
 pkg_uses="$pkg_reqs"
 
 pkg_cflags=""

@@ -20,7 +20,7 @@ pkg_info="C++ interfaces for efficient data structures (used internally for Hype
 pkg_desc="$pkg_info"
 
 pkg_opts="configure"
-pkg_reqs="pkg-config zlib"
+pkg_reqs="libtool zlib"
 pkg_uses="$pkg_reqs"
 pkg_cflags=""
 pkg_ldflags=""

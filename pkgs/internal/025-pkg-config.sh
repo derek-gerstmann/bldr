@@ -46,7 +46,9 @@ do
      
      pkg_opts="$pc_opts "
      pkg_opts+="-EPKG_CONFIG=$BLDR_LOCAL_ENV_PATH/$pkg_ctry/$pkg_name/$pkg_vers/bin/pkg-config "
-     pkg_opts+="-EPKG_CONFIG_PATH=$BLDR_LOCAL_ENV_PATH/$pkg_ctry/$pkg_name/$pkg_vers/lib/pkgconfig "
+     # pkg_opts+="-EPKG_CONFIG_PATH=$BLDR_LOCAL_ENV_PATH/$pkg_ctry/$pkg_name/$pkg_vers/lib/pkgconfig "
+     # pkg_opts+="-EPKG_CONFIG_PATH+=$BLDR_LOCAL_ENV_PATH/$pkg_ctry/$pkg_name/$pkg_vers/lib/pkgconfig/check "
+     # pkg_opts+="-EPKG_CONFIG_PATH+=$BLDR_LOCAL_ENV_PATH/$pkg_ctry/$pkg_name/$pkg_vers/lib/pkgconfig/glib-1.2.10 "
      
      bldr_register_pkg                \
          --category    "$pkg_ctry"    \

@@ -26,7 +26,7 @@ pkg_opts+="enable-static "
 pkg_opts+="enable-shared "
 pkg_opts+="skip-auto-compile-flags "
 
-pkg_uses="pkg-config "
+pkg_uses="libtool "
 pkg_uses+="coreutils "
 pkg_reqs=""
 
