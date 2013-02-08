@@ -157,6 +157,51 @@ The flags for the *bldr_register_pkg* are explained below:
     * % List of values specified as a space delimited string
     * $ List of values specified as a semi-colon delimited list
 
+Versions
+------------------
+
+Packages can be deployed with multiple versions all in their own ./local trees and module files.
+
+A default version of a package can be used to lock a system-wide deployment to a specific version.  This can be specified via the --default flag:
+
+    * --default "2.7.3"
+
+This defines a default symlink for specified version to point to the appropriate ./local tree and ./module file.
+
+A 'current' symlink is also maintained, which points to the most up-to-date (though perhaps unstable) version for the ./local trees and ./module files.
+
+Requirements
+------------------
+
+Packages can depend on other packages, and these dependencies will get resolved during the build process.  Module files will also get generated with appropriate dependencies to load any necessary packages.
+
+Dependencies that must be available to build or compile a package, can be specfied via the --uses flag when calling *bldr_register_pkg*.
+
+    * --uses "automake autoconf"
+
+In this case, the default versions of automake and autoconf are now registered as dependencies.  These will be built during the build process, if they don't already exist in the ./local tree.
+
+Similarly, for any package that must be available in the runtime environment in order for a package to work, the --requires flag can be used:
+
+    * --requires "python"
+
+This will use the default version of python in the BLDR deployment.  This is simply an alias for:
+
+    * --requires "python/default"
+
+Specific versions of packages can be specified, by qualifying the name with the version:
+
+    * --requires "python/2.7.3"
+
+In this case, Python version 2.7.3 is now registered as a dependency.
+
+To link the most up to date (and perhaps experimental version) of a requirement as a dependency, you can use the version qualifier 'current':
+
+    * --requires "python/current"
+
+Note that this may break things if radical changes happen on the dependent package.
+
+
 Options
 ------------------
 
@@ -242,10 +287,8 @@ A number of BLDR options are available to define the specific build behaviour fo
     * use-prefix-path=STR       - use a custom install prefix path 
     * use-local-path=STR        - use a custom local install path
     * use-module-path=STR       - use a custom module install path
-
-
-
     
+
 
 Commands
 ------------------
